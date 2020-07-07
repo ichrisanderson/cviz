@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">COVID-19 DATA</string>
+
+    <string name="home_search_hint">Search for locations</string>
+    <string name="empty_locations_title">You have no saved locations</string>
+    <string name="empty_locations_body">Search for locations to see latest Covid-19 data</string>
+
+    <string name="total_lab_confirmed_cases">Number of lab-confirmed UK cases</string>
+
+    <string name="latest_cases_chart_label">Latest cases</string>
+    <string name="all_cases_chart_label">All cases</string>
+</resources>

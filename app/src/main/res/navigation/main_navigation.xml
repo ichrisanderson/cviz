@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/startup">
+
+    <fragment
+        android:id="@+id/startup"
+        android:name="com.chrisa.covid19.features.startup.presentation.StartupFragment"
+        tools:layout="@layout/fragment_startup">
+        <action
+            android:id="@+id/startup_to_home"
+            app:destination="@id/home" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/home"
+        android:name="com.chrisa.covid19.features.home.presentation.HomeFragment"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/home_to_search"
+            app:destination="@id/search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/search"
+        android:name="com.chrisa.covid19.features.search.presentation.SearchFragment"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/search_to_area"
+            app:destination="@id/area" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/area"
+        android:name="com.chrisa.covid19.features.area.presentation.AreaFragment"
+        tools:layout="@layout/fragment_area">
+        <argument
+            android:name="areaCode"
+            app:argType="string" />
+        <argument
+            android:name="areaName"
+            app:argType="string" />
+    </fragment>
+
+</navigation>
