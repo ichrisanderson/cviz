@@ -4,7 +4,7 @@ import com.chrisa.covid19.core.data.db.CaseEntity
 import com.chrisa.covid19.core.data.network.CaseModel
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
-import java.util.*
+import java.util.Date
 
 class CaseModelMapperTest {
 
@@ -71,7 +71,6 @@ class CaseModelMapperTest {
         )
     }
 
-
     @Test
     fun `GIVEN dailyTotalLabConfirmedCasesRate is null WHEN mapToCasesEntity called THEN casesEntity is returned with 0 dailyTotalLabConfirmedCasesRate`() {
 
@@ -98,6 +97,36 @@ class CaseModelMapperTest {
                 dailyLabConfirmedCases = 0,
                 dailyTotalLabConfirmedCasesRate = 0.0,
                 totalLabConfirmedCases = caseModel.totalLabConfirmedCases!!
+            )
+        )
+    }
+
+    @Test
+    fun `GIVEN totalLabConfirmedCases is null WHEN mapToCasesEntity called THEN casesEntity is returned with 0 totalLabConfirmedCases`() {
+
+        val caseModel = CaseModel(
+            areaCode = "001",
+            areaName = "UK",
+            specimenDate = Date(0),
+            dailyLabConfirmedCases = null,
+            totalLabConfirmedCases = null,
+            dailyTotalLabConfirmedCasesRate = null,
+            changeInDailyCases = 11,
+            changeInTotalCases = 22,
+            previouslyReportedTotalCases = 33,
+            previouslyReportedDailyCases = 44
+        )
+
+        val entity = sut.mapToCasesEntity(caseModel)
+
+        assertThat(entity).isEqualTo(
+            CaseEntity(
+                areaCode = caseModel.areaCode,
+                areaName = caseModel.areaName,
+                date = caseModel.specimenDate,
+                dailyLabConfirmedCases = 0,
+                dailyTotalLabConfirmedCasesRate = 0.0,
+                totalLabConfirmedCases = 0
             )
         )
     }
