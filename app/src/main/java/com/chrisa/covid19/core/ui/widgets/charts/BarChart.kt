@@ -49,6 +49,7 @@ class BarChart(
         leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART)
         leftAxis.spaceTop = 16f
         leftAxis.axisMinimum = 0f // this replaces setStartAtZero(true)
+        leftAxis.granularity = 1f
     }
 
     fun setData(
