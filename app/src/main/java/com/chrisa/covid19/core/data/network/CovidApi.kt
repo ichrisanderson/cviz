@@ -60,7 +60,7 @@ data class CaseModel(
     val previouslyReportedDailyCases: Int?,
     val previouslyReportedTotalCases: Int?,
     val specimenDate: Date,
-    val totalLabConfirmedCases: Int
+    val totalLabConfirmedCases: Int?
 )
 
 @JsonClass(generateAdapter = true)

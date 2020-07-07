@@ -13,7 +13,7 @@ class CaseModelMapper @Inject constructor() {
             date = caseModel.specimenDate,
             dailyLabConfirmedCases = caseModel.dailyLabConfirmedCases ?: 0,
             dailyTotalLabConfirmedCasesRate = caseModel.dailyTotalLabConfirmedCasesRate ?: 0.0,
-            totalLabConfirmedCases = caseModel.totalLabConfirmedCases
+            totalLabConfirmedCases = caseModel.totalLabConfirmedCases ?: 0
         )
     }
 }
