@@ -258,6 +258,40 @@ class OfflineDataSourceTest {
     }
 
     @Test
+    fun `GIVEN totalLabConfirmedCases is null WHEN insertCases called THEN casesEntity is inserted with 0 totalLabConfirmedCases`() {
+
+        val caseModel = CaseModel(
+            areaCode = "001",
+            areaName = "UK",
+            specimenDate = Date(0),
+            dailyLabConfirmedCases = null,
+            totalLabConfirmedCases = null,
+            dailyTotalLabConfirmedCasesRate = null,
+            changeInDailyCases = 0,
+            changeInTotalCases = 0,
+            previouslyReportedTotalCases = 0,
+            previouslyReportedDailyCases = 0
+        )
+
+        offlineDataSource.insertCases(listOf(caseModel))
+
+        verify(exactly = 1) {
+            casesDao.insertAll(
+                listOf(
+                    CaseEntity(
+                        areaCode = caseModel.areaCode,
+                        areaName = caseModel.areaName,
+                        date = caseModel.specimenDate,
+                        dailyLabConfirmedCases = 0,
+                        dailyTotalLabConfirmedCasesRate = 0.0,
+                        totalLabConfirmedCases = 0
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
     fun `WHEN insertDeathMetadata called THEN metadataEntity is inserted`() {
 
         val metadataModel = MetadataModel(
