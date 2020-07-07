@@ -17,8 +17,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-black"
             android:includeFontPadding="true"
             android:text="@string/app_name"
+            android:textColor="@color/colorOnPrimary"
             app:layout_scrollFlags="scroll" />
 
         <com.chrisa.covid19.core.ui.widgets.search.FakeSearchBar

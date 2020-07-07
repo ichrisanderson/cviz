@@ -8,4 +8,6 @@
     <color name="secondaryLightColor">#ffeb50</color>
     <color name="secondaryDarkColor">#c78900</color>
     <color name="secondaryTextColor">#000000</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnPrimaryOpaque">#EEFFFFFF</color>
 </resources>

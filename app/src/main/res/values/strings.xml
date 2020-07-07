@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">COVID-19 DATA</string>
+    <string name="app_name">COVID-19 UK</string>
 
     <string name="home_search_hint">Search for locations</string>
     <string name="empty_locations_title">You have no saved locations</string>

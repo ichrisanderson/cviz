@@ -10,20 +10,22 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/searchToolbar"
             android:layout_width="match_parent"
+            app:navigationIcon="@drawable/ic_arrow_back"
             android:layout_height="?attr/actionBarSize">
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/searchView"
+                android:theme="@style/Widget.Covid19.ToolbarSearchView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:queryHint="@string/home_search_hint"
                 app:searchHintIcon="@null"
                 app:searchIcon="@null" />
 
-        </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

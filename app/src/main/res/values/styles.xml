@@ -1,11 +1,26 @@
 <resources>
-    <!-- Base application theme. -->
+
     <style name="Theme.App" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryDark">@color/primaryDarkColor</item>
         <item name="colorAccent">@color/secondaryColor</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="android:textColorPrimary">@color/primaryTextColor</item>
         <item name="android:textColorSecondary">@color/secondaryTextColor</item>
+        <item name="toolbarStyle">@style/Widget.Covid19.Toolbar</item>
+        <item name="colorOnPrimaryOpaque">@color/colorOnPrimaryOpaque</item>
     </style>
+
+    <style name="Widget.Covid19.ToolbarSearchView" parent="Widget.AppCompat.SearchView">
+        <item name="android:textColorHint">?attr/colorOnPrimaryOpaque</item>
+        <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
+        <item name="android:textColorSecondary">?attr/colorOnPrimary</item>
+        <item name="colorAccent">?attr/colorOnPrimary</item>
+    </style>
+
+    <style name="Widget.Covid19.Toolbar" parent="Widget.MaterialComponents.Toolbar.Primary">
+        <item name="android:textColorPrimary">?attr/colorOnPrimary</item>
+        <item name="android:textColorSecondary">?attr/colorOnPrimary</item>
+    </style>
+
 </resources>

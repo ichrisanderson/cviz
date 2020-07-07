@@ -10,9 +10,10 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/areaToolbar"
             android:layout_width="match_parent"
+            app:navigationIcon="@drawable/ic_arrow_back"
             android:layout_height="?attr/actionBarSize" />
 
     </com.google.android.material.appbar.AppBarLayout>
