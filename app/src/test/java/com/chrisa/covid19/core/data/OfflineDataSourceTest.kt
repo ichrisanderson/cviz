@@ -182,7 +182,7 @@ class OfflineDataSourceTest {
                         date = caseModel.specimenDate,
                         dailyLabConfirmedCases = caseModel.dailyLabConfirmedCases!!,
                         dailyTotalLabConfirmedCasesRate = caseModel.dailyTotalLabConfirmedCasesRate!!,
-                        totalLabConfirmedCases = caseModel.totalLabConfirmedCases
+                        totalLabConfirmedCases = caseModel.totalLabConfirmedCases!!
                     )
                 )
             )
@@ -216,7 +216,7 @@ class OfflineDataSourceTest {
                         date = caseModel.specimenDate,
                         dailyLabConfirmedCases = 0,
                         dailyTotalLabConfirmedCasesRate = caseModel.dailyTotalLabConfirmedCasesRate!!,
-                        totalLabConfirmedCases = caseModel.totalLabConfirmedCases
+                        totalLabConfirmedCases = caseModel.totalLabConfirmedCases!!
                     )
                 )
             )
@@ -250,7 +250,7 @@ class OfflineDataSourceTest {
                         date = caseModel.specimenDate,
                         dailyLabConfirmedCases = 0,
                         dailyTotalLabConfirmedCasesRate = 0.0,
-                        totalLabConfirmedCases = caseModel.totalLabConfirmedCases
+                        totalLabConfirmedCases = caseModel.totalLabConfirmedCases!!
                     )
                 )
             )
