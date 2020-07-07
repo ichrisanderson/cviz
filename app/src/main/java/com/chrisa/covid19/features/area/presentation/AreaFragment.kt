@@ -1,6 +1,7 @@
 package com.chrisa.covid19.features.area.presentation
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -39,8 +40,12 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
                     // TODO: Loading State
                 }
                 is AreaState.Success -> {
-                    latestCasesChart.setData(state.areaUiModel.latestCasesChartData)
-                    allCasesChart.setData(state.areaUiModel.allCasesChartData)
+
+                    val areaUiModel = state.areaUiModel
+
+                    totalCasesSubtitle.text = getString(R.string.last_updated_date, DateUtils.getRelativeTimeSpanString(areaUiModel.lastUpdatedAt.time))
+                    latestCasesChart.setData(areaUiModel.latestCasesChartData)
+                    allCasesChart.setData(areaUiModel.allCasesChartData)
                 }
             }
         })

@@ -9,4 +9,5 @@
 
     <string name="latest_cases_chart_label">Latest cases</string>
     <string name="all_cases_chart_label">All cases</string>
+    <string name="last_updated_date">Last updated: %s</string>
 </resources>
