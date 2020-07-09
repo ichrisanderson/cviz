@@ -37,7 +37,6 @@ import org.robolectric.annotation.Config
 class SavedAreaDaoTest {
 
     private lateinit var db: AppDatabase
-    private val testDispatcher = TestCoroutineDispatcher()
 
     @Before
     fun createDb() {
@@ -55,9 +54,9 @@ class SavedAreaDaoTest {
                 areaCode = "1234"
             )
 
-            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+            db.savedAreaDao().isSaved(areaEntity.areaCode).test {
                 expectNoEvents()
-                assertThat(expectItem()).isNull()
+                assertThat(expectItem()).isEqualTo(false)
                 cancel()
             }
         }
@@ -70,13 +69,13 @@ class SavedAreaDaoTest {
                 areaCode = "1234"
             )
 
-            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+            db.savedAreaDao().isSaved(areaEntity.areaCode).test {
                 expectNoEvents()
 
-                assertThat(expectItem()).isNull()
+                assertThat(expectItem()).isEqualTo(false)
 
                 db.savedAreaDao().insert(areaEntity)
-                assertThat(expectItem()).isEqualTo(areaEntity)
+                assertThat(expectItem()).isEqualTo(true)
 
                 cancel()
             }
@@ -88,14 +87,14 @@ class SavedAreaDaoTest {
 
             val areaEntity = SavedAreaEntity(areaCode = "1234")
 
-            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+            db.savedAreaDao().isSaved(areaEntity.areaCode).test {
                 expectNoEvents()
 
-                assertThat(expectItem()).isNull()
+                assertThat(expectItem()).isEqualTo(false)
 
                 db.savedAreaDao().insert(areaEntity)
 
-                assertThat(expectItem()).isEqualTo(areaEntity)
+                assertThat(expectItem()).isEqualTo(true)
 
                 db.savedAreaDao().insert(areaEntity)
 
@@ -111,18 +110,18 @@ class SavedAreaDaoTest {
 
             val areaEntity = SavedAreaEntity(areaCode = "1234")
 
-            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+            db.savedAreaDao().isSaved(areaEntity.areaCode).test {
                 expectNoEvents()
 
-                assertThat(expectItem()).isNull()
+                assertThat(expectItem()).isEqualTo(false)
 
                 db.savedAreaDao().insert(areaEntity)
 
-                assertThat(expectItem()).isEqualTo(areaEntity)
+                assertThat(expectItem()).isEqualTo(true)
 
                 db.savedAreaDao().delete(areaEntity)
 
-                assertThat(expectItem()).isNull()
+                assertThat(expectItem()).isEqualTo(false)
 
                 cancel()
             }

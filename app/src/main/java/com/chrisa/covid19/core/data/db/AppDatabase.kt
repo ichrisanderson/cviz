@@ -210,8 +210,8 @@ interface SavedAreaDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(savedAreaEntity: SavedAreaEntity)
 
-    @Query("SELECT * FROM savedArea WHERE areaCode = :areaCode LIMIT 1")
-    fun searchSavedAreas(areaCode: String): Flow<SavedAreaEntity?>
+    @Query("SELECT COUNT(areaCode) > 0 FROM savedArea WHERE areaCode = :areaCode")
+    fun isSaved(areaCode: String): Flow<Boolean>
 
     @Delete
     fun delete(savedAreaEntity: SavedAreaEntity): Int
