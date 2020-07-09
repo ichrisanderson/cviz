@@ -16,7 +16,7 @@ class SearchDataSourceTest {
     private val sut = SearchDataSource(appDatabase, queryTransformer)
 
     @Test
-    fun `WHEN execute called THEN casesDao searchs for area`() {
+    fun `WHEN execute called THEN casesDao searches for area`() {
 
         val area = AreaTupleEntity(
             areaCode = "1234",
