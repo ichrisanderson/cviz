@@ -10,11 +10,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
+        android:drawableStart="@drawable/ic_covid_19"
+        android:drawablePadding="8dp"
+        android:gravity="center"
         app:layout_constraintBottom_toTopOf="@id/startupProgress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />s
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <ProgressBar
         android:id="@+id/startupProgress"
