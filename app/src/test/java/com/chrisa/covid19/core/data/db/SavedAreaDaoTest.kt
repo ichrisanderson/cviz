@@ -19,18 +19,13 @@ package com.chrisa.covid19.core.data.db
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.chrisa.covid19.core.util.test
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
-import java.util.concurrent.CountDownLatch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectIndexed
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.After
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,20 +55,11 @@ class SavedAreaDaoTest {
                 areaCode = "1234"
             )
 
-            val values = mutableListOf<SavedAreaEntity?>()
-            val latch = CountDownLatch(1)
-
-            val searchJob = async(Dispatchers.IO) {
-                db.savedAreaDao().searchSavedAreas(areaEntity.areaCode)
-                    .collect {
-                        values.add(it)
-                        latch.countDown()
-                    }
+            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+                expectNoEvents()
+                assertThat(expectItem()).isNull()
+                cancel()
             }
-
-            latch.await()
-            searchJob.cancelAndJoin()
-            assertThat(values.first()).isNull()
         }
 
     @Test
@@ -84,60 +70,39 @@ class SavedAreaDaoTest {
                 areaCode = "1234"
             )
 
-            db.savedAreaDao().insert(areaEntity)
+            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+                expectNoEvents()
 
-            val values = mutableListOf<SavedAreaEntity?>()
-            val latch = CountDownLatch(1)
+                assertThat(expectItem()).isNull()
 
-            val searchJob = async(Dispatchers.IO) {
-                db.savedAreaDao().searchSavedAreas(areaEntity.areaCode)
-                    .collect {
-                        values.add(it)
-                        latch.countDown()
-                    }
+                db.savedAreaDao().insert(areaEntity)
+                assertThat(expectItem()).isEqualTo(areaEntity)
+
+                cancel()
             }
-
-            latch.await()
-            searchJob.cancelAndJoin()
-
-            assertThat(values.first()).isEqualTo(areaEntity)
         }
 
-    @Test
+    @Test(expected = TimeoutCancellationException::class)
     fun `GIVEN saved area does exist WHEN insert called THEN last insert is ignored`() =
         runBlocking {
 
-            val areaEntity = SavedAreaEntity(
-                areaCode = "1234"
-            )
+            val areaEntity = SavedAreaEntity(areaCode = "1234")
 
-            val expectedEmissions = 2
-            val values = mutableListOf<SavedAreaEntity?>()
-            val latches = (1..expectedEmissions).map { CountDownLatch(1) }
+            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+                expectNoEvents()
 
-            val searchJob = async(Dispatchers.IO) {
-                db.savedAreaDao().searchSavedAreas(areaEntity.areaCode)
-                    .collectIndexed { index, value ->
-                        if (index < latches.size) {
-                            values.add(value)
-                            latches[index].countDown()
-                        } else {
-                            fail("Unexpected result.")
-                        }
-                    }
+                assertThat(expectItem()).isNull()
+
+                db.savedAreaDao().insert(areaEntity)
+
+                assertThat(expectItem()).isEqualTo(areaEntity)
+
+                db.savedAreaDao().insert(areaEntity)
+
+                expectItem() // item should timeout as 2nd insert is ignored
+
+                cancel()
             }
-
-            latches[0].await()
-            assertThat(values[0]).isEqualTo(null)
-
-            db.savedAreaDao().insert(areaEntity)
-
-            latches[1].await()
-            assertThat(values[1]).isEqualTo(areaEntity)
-
-            db.savedAreaDao().insert(areaEntity)
-
-            searchJob.cancelAndJoin()
         }
 
     @Test
@@ -146,36 +111,21 @@ class SavedAreaDaoTest {
 
             val areaEntity = SavedAreaEntity(areaCode = "1234")
 
-            val expectedEmissions = 3
-            val values = mutableListOf<SavedAreaEntity?>()
-            val latches = (1..expectedEmissions).map { CountDownLatch(1) }
+            db.savedAreaDao().searchSavedAreas(areaEntity.areaCode).test {
+                expectNoEvents()
 
-            val searchJob = async(Dispatchers.IO) {
-                db.savedAreaDao().searchSavedAreas(areaEntity.areaCode)
-                    .collectIndexed { index, value ->
-                        if (index < latches.size) {
-                            values.add(value)
-                            latches[index].countDown()
-                        } else {
-                            fail("Unexpected result.")
-                        }
-                    }
+                assertThat(expectItem()).isNull()
+
+                db.savedAreaDao().insert(areaEntity)
+
+                assertThat(expectItem()).isEqualTo(areaEntity)
+
+                db.savedAreaDao().delete(areaEntity)
+
+                assertThat(expectItem()).isNull()
+
+                cancel()
             }
-
-            latches[0].await()
-            assertThat(values[0]).isEqualTo(null)
-
-            db.savedAreaDao().insert(areaEntity)
-
-            latches[1].await()
-            assertThat(values[1]).isEqualTo(areaEntity)
-
-            db.savedAreaDao().delete(areaEntity)
-
-            latches[2].await()
-            assertThat(values[2]).isEqualTo(null)
-
-            searchJob.cancelAndJoin()
         }
 
     @Test
