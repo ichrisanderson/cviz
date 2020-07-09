@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright $YEAR Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,3 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.dtos
-
-import java.util.Date
-
-data class MetadataDTO(val lastUpdatedAt: Date)
