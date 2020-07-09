@@ -27,11 +27,10 @@ import io.mockk.mockk
 import java.util.Date
 import org.junit.Test
 
-class AreaUseCaseTest {
+class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
-
-    private val sut = AreaUseCase(areaDataSource)
+    private val sut = AreaDetailUseCase(areaDataSource)
 
     @Test
     fun `WHEN execute called THEN area detail contains the latest cases for the area`() {

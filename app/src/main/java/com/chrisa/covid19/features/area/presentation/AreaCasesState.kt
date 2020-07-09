@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.models
+package com.chrisa.covid19.features.area.presentation
 
-import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
-import java.util.Date
+import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 
-data class AreaUiModel(
-    val lastUpdatedAt: Date,
-    val latestCasesChartData: BarChartData,
-    val allCasesChartData: BarChartData
-)
+sealed class AreaCasesState {
+    object Loading : AreaCasesState()
+    data class Success(val areaCasesModel: AreaCasesModel) : AreaCasesState()
+}

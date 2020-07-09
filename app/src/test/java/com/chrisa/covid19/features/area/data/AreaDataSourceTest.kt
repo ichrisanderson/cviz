@@ -25,13 +25,44 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import java.util.Date
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class AreaDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
-
     private val sut = AreaDataSource(appDatabase)
+
+    @Test
+    fun `GIVEN area is not saved WHEN savedState called THEN savedState is false`() = runBlockingTest {
+
+        val areaCode = "A01"
+        val publisher = ConflatedBroadcastChannel(false)
+
+        every { appDatabase.savedAreaDao().isSaved(areaCode) } returns publisher.asFlow()
+
+        val savedState = sut.isSaved(areaCode).first()
+
+        assertThat(savedState).isEqualTo(false)
+    }
+
+    @Test
+    fun `GIVEN area is saved WHEN savedState called THEN savedState is true`() = runBlockingTest {
+
+        val areaCode = "A01"
+        val publisher = ConflatedBroadcastChannel(false)
+
+        every { appDatabase.savedAreaDao().isSaved(areaCode) } returns publisher.asFlow()
+
+        val savedState = sut.isSaved(areaCode).first()
+
+        assertThat(savedState).isEqualTo(false)
+    }
 
     @Test
     fun `WHEN loadCaseMetadata called THEN case metadata is returned`() {

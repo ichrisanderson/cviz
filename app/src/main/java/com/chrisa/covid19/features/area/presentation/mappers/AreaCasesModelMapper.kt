@@ -22,30 +22,30 @@ import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
-import com.chrisa.covid19.features.area.presentation.models.AreaUiModel
+import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
-class AreaUiModelMapper @Inject constructor(
+class AreaCasesModelMapper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaUiModel {
-        return AreaUiModel(
+    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
+        return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
             latestCasesChartData = BarChartData(
                 label = context.getString(R.string.latest_cases_chart_label),
-                values = areaDetailModel.latestCases.map(this::mapCaseModel)
+                values = areaDetailModel.latestCases.map(this::mapCaseModelToBarChartItem)
             ),
             allCasesChartData = BarChartData(
                 label = context.getString(R.string.all_cases_chart_label),
-                values = areaDetailModel.allCases.map(this::mapCaseModel)
+                values = areaDetailModel.allCases.map(this::mapCaseModelToBarChartItem)
             )
         )
     }
 
-    private fun mapCaseModel(caseModel: CaseModel): BarChartItem {
+    private fun mapCaseModelToBarChartItem(caseModel: CaseModel): BarChartItem {
         return BarChartItem(
             caseModel.dailyLabConfirmedCases.toFloat(),
             labelFormatter.format(caseModel.date)

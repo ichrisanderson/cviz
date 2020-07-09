@@ -49,21 +49,28 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     }
 
     private fun observeViewModel() {
-        viewModel.state.observe(viewLifecycleOwner, Observer {
+        viewModel.areaCasesState.observe(viewLifecycleOwner, Observer {
             val state = it ?: return@Observer
             when (state) {
-                AreaState.Loading -> {
+                AreaCasesState.Loading -> {
                     // TODO: Loading State
                 }
-                is AreaState.Success -> {
+                is AreaCasesState.Success -> {
 
-                    val areaUiModel = state.areaUiModel
+                    val areaCasesModel = state.areaCasesModel
 
-                    totalCasesSubtitle.text = getString(R.string.last_updated_date, DateUtils.getRelativeTimeSpanString(areaUiModel.lastUpdatedAt.time))
-                    latestCasesChart.setData(areaUiModel.latestCasesChartData)
-                    allCasesChart.setData(areaUiModel.allCasesChartData)
+                    totalCasesSubtitle.text = getString(
+                        R.string.last_updated_date,
+                        DateUtils.getRelativeTimeSpanString(areaCasesModel.lastUpdatedAt.time)
+                    )
+                    latestCasesChart.setData(areaCasesModel.latestCasesChartData)
+                    allCasesChart.setData(areaCasesModel.allCasesChartData)
                 }
             }
+        })
+
+        viewModel.isSaved.observe(viewLifecycleOwner, Observer {
+            val state = it ?: return@Observer
         })
     }
 

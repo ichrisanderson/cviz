@@ -30,10 +30,10 @@ import java.util.Date
 import java.util.Locale
 import org.junit.Test
 
-class AreaUiModelMapperTest {
+class AreaCasesModelMapperTest {
 
     private val context = mockk<Context>()
-    private val sut = AreaUiModelMapper(context)
+    private val sut = AreaCasesModelMapper(context)
     private val labelFormatter = SimpleDateFormat("dd-MM", Locale.UK)
 
     @Test

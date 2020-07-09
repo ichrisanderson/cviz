@@ -24,31 +24,53 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
-import com.chrisa.covid19.features.area.domain.AreaUseCase
-import com.chrisa.covid19.features.area.presentation.mappers.AreaUiModelMapper
+import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
+import com.chrisa.covid19.features.area.domain.IsSavedUseCase
+import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class AreaViewModel @ViewModelInject constructor(
-    private val areaUseCase: AreaUseCase,
+    private val areaDetailUseCase: AreaDetailUseCase,
+    private val isIsSavedUseCase: IsSavedUseCase,
     private val dispatchers: CoroutineDispatchers,
-    private val areaUiModelMapper: AreaUiModelMapper,
+    private val areaCasesModelMapper: AreaCasesModelMapper,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _state = MutableLiveData<AreaState>()
-    val state: LiveData<AreaState>
-        get() = _state
+    private val _isSavedState = MutableLiveData<Boolean>()
+    val isSaved: LiveData<Boolean>
+        get() = _isSavedState
+
+    private val _areaCasesState = MutableLiveData<AreaCasesState>()
+    val areaCasesState: LiveData<AreaCasesState>
+        get() = _areaCasesState
 
     init {
         val code = savedStateHandle.get<String>("areaCode")!!
+        loadAreaSavedState(code)
         loadAreaDetail(code)
     }
 
-    private fun loadAreaDetail(areCode: String) {
-        _state.postValue(AreaState.Loading)
+    private fun loadAreaSavedState(areCode: String) {
         viewModelScope.launch(dispatchers.io) {
-            val areaDetail = areaUseCase.execute(areCode)
-            _state.postValue(AreaState.Success(areaUiModelMapper.mapAreaDetailModel(areaDetail)))
+            isIsSavedUseCase.execute(areCode).collect {
+                _isSavedState.postValue(it)
+            }
+        }
+    }
+
+    private fun loadAreaDetail(areCode: String) {
+        _areaCasesState.postValue(AreaCasesState.Loading)
+        viewModelScope.launch(dispatchers.io) {
+            val areaDetail = areaDetailUseCase.execute(areCode)
+            _areaCasesState.postValue(
+                AreaCasesState.Success(
+                    areaCasesModelMapper.mapAreaDetailModel(
+                        areaDetail
+                    )
+                )
+            )
         }
     }
 }

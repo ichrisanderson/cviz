@@ -21,32 +21,39 @@ import androidx.lifecycle.SavedStateHandle
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
-import com.chrisa.covid19.features.area.domain.AreaUseCase
+import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
+import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaUiModelMapper
-import com.chrisa.covid19.features.area.presentation.models.AreaUiModel
+import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
+import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import java.util.Date
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class AreaViewModelTest {
 
     @Rule
     @JvmField
     val liveDataJunitRule = InstantTaskExecutorRule()
 
-    private val areaUseCase = mockk<AreaUseCase>()
-    private val areaUiModelMapper = mockk<AreaUiModelMapper>()
+    private val areaDetailUseCase = mockk<AreaDetailUseCase>()
+    private val isSavedUseCase = mockk<IsSavedUseCase>()
+    private val areaUiModelMapper = mockk<AreaCasesModelMapper>()
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Test
-    fun `GIVEN bootstap succeeds WHEN viewmodel initialized THEN success state emitted`() =
+    fun `GIVEN area detail usecase succeeds WHEN viewmodel initialized THEN success state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
 
@@ -66,7 +73,7 @@ class AreaViewModelTest {
                     latestCases = caseModels.takeLast(7)
                 )
 
-                val areaUiModel = AreaUiModel(
+                val areaUiModel = AreaCasesModel(
                     lastUpdatedAt = Date(0),
                     allCasesChartData = BarChartData(
                         label = "All cases",
@@ -78,22 +85,63 @@ class AreaViewModelTest {
                     )
                 )
 
-                every { areaUseCase.execute(areaCode) } returns areaDetailModel
+                every { areaDetailUseCase.execute(areaCode) } returns areaDetailModel
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaUiModel
 
                 val sut = AreaViewModel(
-                    areaUseCase,
+                    areaDetailUseCase,
+                    isSavedUseCase,
                     TestCoroutineDispatchersImpl(testDispatcher),
                     areaUiModelMapper,
                     savedStateHandle
                 )
 
-                val statesObserver = sut.state.test()
+                val statesObserver = sut.areaCasesState.test()
 
                 runCurrent()
 
-                assertThat(statesObserver.values[0]).isEqualTo(AreaState.Loading)
-                assertThat(statesObserver.values[1]).isEqualTo(AreaState.Success(areaUiModel))
+                assertThat(statesObserver.values[0]).isEqualTo(AreaCasesState.Loading)
+                assertThat(statesObserver.values[1]).isEqualTo(AreaCasesState.Success(areaUiModel))
+            }
+        }
+    @Test
+    fun `GIVEN isSaved usecase succeeds WHEN viewmodel initialized THEN saved state is emitted`() =
+        testDispatcher.runBlockingTest {
+            pauseDispatcher {
+
+                val areaCode = "AC-001"
+                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
+
+                val publisher = ConflatedBroadcastChannel(false)
+
+                every { isSavedUseCase.execute(areaCode) } returns publisher.asFlow()
+
+                val sut = AreaViewModel(
+                    areaDetailUseCase,
+                    isSavedUseCase,
+                    TestCoroutineDispatchersImpl(testDispatcher),
+                    areaUiModelMapper,
+                    savedStateHandle
+                )
+
+                val observer = sut.isSaved.test()
+
+                runCurrent()
+                publisher.sendBlocking(true)
+                runCurrent()
+                publisher.sendBlocking(false)
+                runCurrent()
+                publisher.sendBlocking(true)
+                runCurrent()
+                publisher.sendBlocking(false)
+                runCurrent()
+
+                assertThat(observer.values.size).isEqualTo(5)
+                assertThat(observer.values[0]).isEqualTo(false)
+                assertThat(observer.values[1]).isEqualTo(true)
+                assertThat(observer.values[2]).isEqualTo(false)
+                assertThat(observer.values[3]).isEqualTo(true)
+                assertThat(observer.values[4]).isEqualTo(false)
             }
         }
 }

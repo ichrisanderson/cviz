@@ -21,10 +21,17 @@ import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.area.data.dtos.CaseDTO
 import com.chrisa.covid19.features.area.data.dtos.MetadataDTO
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class AreaDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
+
+    fun isSaved(areaCode: String): Flow<Boolean> {
+        return appDatabase.savedAreaDao().isSaved(areaCode)
+    }
+
     fun loadCases(areaCode: String): List<CaseDTO> {
         return appDatabase.casesDao()
             .searchAllCases(areaCode).map {
