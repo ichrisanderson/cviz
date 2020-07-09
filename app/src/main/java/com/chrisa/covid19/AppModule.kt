@@ -14,7 +14,6 @@ import javax.inject.Singleton
 @InstallIn(ApplicationComponent::class)
 @Module
 class AppModule {
-
     @Singleton
     @Provides
     fun provideCoroutineDispatchers(): CoroutineDispatchers {
