@@ -73,7 +73,7 @@ class AreaViewModelTest {
                     latestCases = caseModels.takeLast(7)
                 )
 
-                val areaUiModel = AreaCasesModel(
+                val areaCasesModel = AreaCasesModel(
                     lastUpdatedAt = Date(0),
                     allCasesChartData = BarChartData(
                         label = "All cases",
@@ -86,7 +86,7 @@ class AreaViewModelTest {
                 )
 
                 every { areaDetailUseCase.execute(areaCode) } returns areaDetailModel
-                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaUiModel
+                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
                 val sut = AreaViewModel(
                     areaDetailUseCase,
@@ -96,12 +96,11 @@ class AreaViewModelTest {
                     savedStateHandle
                 )
 
-                val statesObserver = sut.areaCasesState.test()
+                val statesObserver = sut.areaCases.test()
 
                 runCurrent()
 
-                assertThat(statesObserver.values[0]).isEqualTo(AreaCasesState.Loading)
-                assertThat(statesObserver.values[1]).isEqualTo(AreaCasesState.Success(areaUiModel))
+                assertThat(statesObserver.values[0]).isEqualTo(areaCasesModel)
             }
         }
     @Test

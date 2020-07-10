@@ -27,24 +27,25 @@ import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
+import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class AreaViewModel @ViewModelInject constructor(
     private val areaDetailUseCase: AreaDetailUseCase,
-    private val isIsSavedUseCase: IsSavedUseCase,
+    private val isSavedUseCase: IsSavedUseCase,
     private val dispatchers: CoroutineDispatchers,
     private val areaCasesModelMapper: AreaCasesModelMapper,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _isSavedState = MutableLiveData<Boolean>()
+    private val _isSaved = MutableLiveData<Boolean>()
     val isSaved: LiveData<Boolean>
-        get() = _isSavedState
+        get() = _isSaved
 
-    private val _areaCasesState = MutableLiveData<AreaCasesState>()
-    val areaCasesState: LiveData<AreaCasesState>
-        get() = _areaCasesState
+    private val _areaCases = MutableLiveData<AreaCasesModel>()
+    val areaCases: LiveData<AreaCasesModel>
+        get() = _areaCases
 
     init {
         val code = savedStateHandle.get<String>("areaCode")!!
@@ -54,23 +55,15 @@ class AreaViewModel @ViewModelInject constructor(
 
     private fun loadAreaSavedState(areCode: String) {
         viewModelScope.launch(dispatchers.io) {
-            isIsSavedUseCase.execute(areCode).collect {
-                _isSavedState.postValue(it)
-            }
+            val isSavedFlow = isSavedUseCase.execute(areCode)
+            isSavedFlow.collect { _isSaved.postValue(it) }
         }
     }
 
     private fun loadAreaDetail(areCode: String) {
-        _areaCasesState.postValue(AreaCasesState.Loading)
         viewModelScope.launch(dispatchers.io) {
             val areaDetail = areaDetailUseCase.execute(areCode)
-            _areaCasesState.postValue(
-                AreaCasesState.Success(
-                    areaCasesModelMapper.mapAreaDetailModel(
-                        areaDetail
-                    )
-                )
-            )
+            _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetail))
         }
     }
 }

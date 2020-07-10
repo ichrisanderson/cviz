@@ -10,4 +10,7 @@
     <string name="latest_cases_chart_label">Latest cases</string>
     <string name="all_cases_chart_label">All cases</string>
     <string name="last_updated_date">Last updated: %s</string>
+
+    <string name="area_menu_delete_item_prompt">Tap to delete location</string>
+    <string name="area_menu_save_item_prompt">Tap to save location</string>
 </resources>

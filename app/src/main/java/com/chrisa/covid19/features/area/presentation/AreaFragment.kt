@@ -38,7 +38,8 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initToolbar()
-        observeViewModel()
+        observeCases()
+        observeIsSaved()
     }
 
     private fun initToolbar() {
@@ -48,29 +49,25 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
         areaToolbar.setNavigationOnClickListener { navigateUp() }
     }
 
-    private fun observeViewModel() {
-        viewModel.areaCasesState.observe(viewLifecycleOwner, Observer {
-            val state = it ?: return@Observer
-            when (state) {
-                AreaCasesState.Loading -> {
-                    // TODO: Loading State
-                }
-                is AreaCasesState.Success -> {
-
-                    val areaCasesModel = state.areaCasesModel
-
-                    totalCasesSubtitle.text = getString(
-                        R.string.last_updated_date,
-                        DateUtils.getRelativeTimeSpanString(areaCasesModel.lastUpdatedAt.time)
-                    )
-                    latestCasesChart.setData(areaCasesModel.latestCasesChartData)
-                    allCasesChart.setData(areaCasesModel.allCasesChartData)
-                }
-            }
+    private fun observeCases() {
+        viewModel.areaCases.observe(viewLifecycleOwner, Observer {
+            val areaCasesModel = it ?: return@Observer
+            totalCasesSubtitle.text = getString(
+                R.string.last_updated_date,
+                DateUtils.getRelativeTimeSpanString(areaCasesModel.lastUpdatedAt.time)
+            )
+            latestCasesChart.setData(areaCasesModel.latestCasesChartData)
+            allCasesChart.setData(areaCasesModel.allCasesChartData)
         })
+    }
 
-        viewModel.isSaved.observe(viewLifecycleOwner, Observer {
-            val state = it ?: return@Observer
+    private fun observeIsSaved() {
+        viewModel.isSaved.observe(viewLifecycleOwner, Observer { isSaved ->
+            val menu = areaToolbar.menu
+            isSaved?.let { saved ->
+                menu.findItem(R.id.saveArea).isVisible = !saved
+                menu.findItem(R.id.deleteArea).isVisible = saved
+            }
         })
     }
 
