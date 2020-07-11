@@ -65,7 +65,10 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
         return areaToolbar.itemClicks().subscribe {
             when (it.itemId) {
                 R.id.saveArea -> {
-                    viewModel.saveArea()
+                    viewModel.insertSavedArea()
+                }
+                R.id.deleteArea -> {
+                    viewModel.deleteSavedArea()
                 }
                 else -> {
                     // Ignore unknown menu options

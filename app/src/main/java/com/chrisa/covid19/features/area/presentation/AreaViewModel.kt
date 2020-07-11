@@ -25,8 +25,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
+import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
-import com.chrisa.covid19.features.area.domain.SaveAreaUseCase
+import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import kotlinx.coroutines.flow.collect
@@ -35,7 +36,8 @@ import kotlinx.coroutines.launch
 class AreaViewModel @ViewModelInject constructor(
     private val areaDetailUseCase: AreaDetailUseCase,
     private val isSavedUseCase: IsSavedUseCase,
-    private val saveAreaUseCase: SaveAreaUseCase,
+    private val insertSavedAreaUseCase: InsertSavedAreaUseCase,
+    private val deleteSavedAreaUseCase: DeleteSavedAreaUseCase,
     private val dispatchers: CoroutineDispatchers,
     private val areaCasesModelMapper: AreaCasesModelMapper,
     @Assisted private val savedStateHandle: SavedStateHandle
@@ -57,9 +59,15 @@ class AreaViewModel @ViewModelInject constructor(
         loadAreaDetail(areaCode)
     }
 
-    fun saveArea() {
+    fun insertSavedArea() {
         viewModelScope.launch(dispatchers.io) {
-            saveAreaUseCase.execute(areaCode)
+            insertSavedAreaUseCase.execute(areaCode)
+        }
+    }
+
+    fun deleteSavedArea() {
+        viewModelScope.launch(dispatchers.io) {
+            deleteSavedAreaUseCase.execute(areaCode)
         }
     }
 

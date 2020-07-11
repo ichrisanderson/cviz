@@ -17,15 +17,30 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.domain.mappers.SavedAreaDtoMapper
-import javax.inject.Inject
+import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Test
 
-class SaveAreaUseCase @Inject constructor(
-    private val areaDataSource: AreaDataSource
-) {
-    fun execute(areaCode: String) {
-        return areaDataSource.saveArea(
-            SavedAreaDtoMapper.mapToSavedAreaDto(areaCode)
-        )
+class InsertSavedAreaUseCaseTest {
+
+    private val areaDataSource = mockk<AreaDataSource>()
+
+    @Test
+    fun `WHEN execute called THEN saved area is inserted`() {
+
+        val areCode = "1234"
+        val sut = InsertSavedAreaUseCase(areaDataSource)
+
+        val dto = SavedAreaDto(areCode)
+
+        every { areaDataSource.insertSavedArea(any()) } just Runs
+
+        sut.execute(areCode)
+
+        verify(exactly = 1) { areaDataSource.insertSavedArea(dto) }
     }
 }

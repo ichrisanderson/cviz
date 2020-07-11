@@ -22,8 +22,9 @@ import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
+import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
-import com.chrisa.covid19.features.area.domain.SaveAreaUseCase
+import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
@@ -53,7 +54,8 @@ class AreaViewModelTest {
 
     private val areaDetailUseCase = mockk<AreaDetailUseCase>()
     private val isSavedUseCase = mockk<IsSavedUseCase>()
-    private val saveAreaUseCase = mockk<SaveAreaUseCase>()
+    private val insertSavedAreaUseCase = mockk<InsertSavedAreaUseCase>()
+    private val deleteSavedAreaUseCase = mockk<DeleteSavedAreaUseCase>()
     private val areaUiModelMapper = mockk<AreaCasesModelMapper>()
     private val testDispatcher = TestCoroutineDispatcher()
 
@@ -96,7 +98,8 @@ class AreaViewModelTest {
                 val sut = AreaViewModel(
                     areaDetailUseCase,
                     isSavedUseCase,
-                    saveAreaUseCase,
+                    insertSavedAreaUseCase,
+                    deleteSavedAreaUseCase,
                     TestCoroutineDispatchersImpl(testDispatcher),
                     areaUiModelMapper,
                     savedStateHandle
@@ -125,7 +128,8 @@ class AreaViewModelTest {
                 val sut = AreaViewModel(
                     areaDetailUseCase,
                     isSavedUseCase,
-                    saveAreaUseCase,
+                    insertSavedAreaUseCase,
+                    deleteSavedAreaUseCase,
                     TestCoroutineDispatchersImpl(testDispatcher),
                     areaUiModelMapper,
                     savedStateHandle
@@ -153,25 +157,51 @@ class AreaViewModelTest {
         }
 
     @Test
-    fun `WHEN saveArea called THEN saveAreaUseCase is executed`() =
+    fun `WHEN insertSavedArea called THEN saveAreaUseCase is executed`() =
         testDispatcher.runBlockingTest {
 
             val areaCode = "AC-001"
             val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
 
-            every { saveAreaUseCase.execute(areaCode) } just Runs
+            every { insertSavedAreaUseCase.execute(areaCode) } just Runs
 
             val sut = AreaViewModel(
                 areaDetailUseCase,
                 isSavedUseCase,
-                saveAreaUseCase,
+                insertSavedAreaUseCase,
+                deleteSavedAreaUseCase,
                 TestCoroutineDispatchersImpl(testDispatcher),
                 areaUiModelMapper,
                 savedStateHandle
             )
 
-            sut.saveArea()
+            sut.insertSavedArea()
 
-            verify(exactly = 1) { saveAreaUseCase.execute(areaCode) }
+            verify(exactly = 1) { insertSavedAreaUseCase.execute(areaCode) }
+        }
+
+
+    @Test
+    fun `WHEN deleteSavedArea called THEN deleteSavedAreaUseCase is executed`() =
+        testDispatcher.runBlockingTest {
+
+            val areaCode = "AC-001"
+            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
+
+            every { deleteSavedAreaUseCase.execute(areaCode) } returns 1
+
+            val sut = AreaViewModel(
+                areaDetailUseCase,
+                isSavedUseCase,
+                insertSavedAreaUseCase,
+                deleteSavedAreaUseCase,
+                TestCoroutineDispatchersImpl(testDispatcher),
+                areaUiModelMapper,
+                savedStateHandle
+            )
+
+            sut.deleteSavedArea()
+
+            verify(exactly = 1) { deleteSavedAreaUseCase.execute(areaCode) }
         }
 }

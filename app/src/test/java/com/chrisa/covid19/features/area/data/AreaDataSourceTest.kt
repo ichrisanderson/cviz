@@ -29,13 +29,13 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import java.util.Date
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
+import java.util.Date
 
 @ExperimentalCoroutinesApi
 class AreaDataSourceTest {
@@ -70,16 +70,29 @@ class AreaDataSourceTest {
     }
 
     @Test
-    fun `WHEN saveArea called THEN entity is inserted`() {
+    fun `WHEN insertSavedArea called THEN entity is inserted into the database`() {
 
         val dto = SavedAreaDto("A01")
         val entity = dto.toSavedAreaEntity()
 
         every { appDatabase.savedAreaDao().insert(entity) } just Runs
 
-        val savedState = sut.saveArea(dto)
+        sut.insertSavedArea(dto)
 
         verify(exactly = 1) { appDatabase.savedAreaDao().insert(entity) }
+    }
+
+    @Test
+    fun `WHEN deleteSavedArea called THEN entity is deleted from the database`() {
+
+        val dto = SavedAreaDto("A01")
+        val entity = dto.toSavedAreaEntity()
+
+        every { appDatabase.savedAreaDao().delete(entity) } returns 1
+
+        val deletedRows = sut.deleteSavedArea(dto)
+
+        assertThat(deletedRows).isEqualTo(1)
     }
 
     @Test
