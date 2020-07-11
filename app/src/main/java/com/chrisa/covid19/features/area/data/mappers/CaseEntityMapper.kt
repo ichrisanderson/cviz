@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.dtos
+package com.chrisa.covid19.features.area.data.mappers
 
-import java.util.Date
+import com.chrisa.covid19.core.data.db.CaseEntity
+import com.chrisa.covid19.features.area.data.dtos.CaseDto
 
-data class CaseDTO(
-    val dailyLabConfirmedCases: Int,
-    val date: Date
-)
+object CaseEntityMapper {
+    fun CaseEntity.toCaseDto(): CaseDto {
+        return CaseDto(
+            dailyLabConfirmedCases = dailyLabConfirmedCases,
+            date = date
+        )
+    }
+}

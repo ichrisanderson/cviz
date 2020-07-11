@@ -17,8 +17,8 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.data.dtos.CaseDTO
-import com.chrisa.covid19.features.area.data.dtos.MetadataDTO
+import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
@@ -37,12 +37,12 @@ class AreaDetailUseCaseTest {
 
         val areaCode = "1234"
 
-        val metadataDTO = MetadataDTO(
+        val metadataDTO = MetadataDto(
             lastUpdatedAt = Date(0)
         )
 
         val caseDTOs = (1 until 100).map {
-            CaseDTO(
+            CaseDto(
                 date = Date(it.toLong()),
                 dailyLabConfirmedCases = it
             )

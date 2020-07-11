@@ -26,6 +26,7 @@ import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
+import com.chrisa.covid19.features.area.domain.SaveAreaUseCase
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import kotlinx.coroutines.flow.collect
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 class AreaViewModel @ViewModelInject constructor(
     private val areaDetailUseCase: AreaDetailUseCase,
     private val isSavedUseCase: IsSavedUseCase,
+    private val saveAreaUseCase: SaveAreaUseCase,
     private val dispatchers: CoroutineDispatchers,
     private val areaCasesModelMapper: AreaCasesModelMapper,
     @Assisted private val savedStateHandle: SavedStateHandle
@@ -47,10 +49,18 @@ class AreaViewModel @ViewModelInject constructor(
     val areaCases: LiveData<AreaCasesModel>
         get() = _areaCases
 
+    private val areaCode: String
+        get() = savedStateHandle.get<String>("areaCode")!!
+
     init {
-        val code = savedStateHandle.get<String>("areaCode")!!
-        loadAreaSavedState(code)
-        loadAreaDetail(code)
+        loadAreaSavedState(areaCode)
+        loadAreaDetail(areaCode)
+    }
+
+    fun saveArea() {
+        viewModelScope.launch(dispatchers.io) {
+            saveAreaUseCase.execute(areaCode)
+        }
     }
 
     private fun loadAreaSavedState(areCode: String) {

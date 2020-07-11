@@ -18,11 +18,14 @@ package com.chrisa.covid19.features.area.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.MetadataEntity
-import com.chrisa.covid19.features.area.data.dtos.CaseDTO
-import com.chrisa.covid19.features.area.data.dtos.MetadataDTO
+import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.area.data.dtos.MetadataDto
+import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
+import com.chrisa.covid19.features.area.data.mappers.CaseEntityMapper.toCaseDto
+import com.chrisa.covid19.features.area.data.mappers.MetadataEntityMapper.toMetadataDto
+import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class AreaDataSource @Inject constructor(
     private val appDatabase: AppDatabase
@@ -32,17 +35,18 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().isSaved(areaCode)
     }
 
-    fun loadCases(areaCode: String): List<CaseDTO> {
-        return appDatabase.casesDao()
-            .searchAllCases(areaCode).map {
-                CaseDTO(dailyLabConfirmedCases = it.dailyLabConfirmedCases, date = it.date)
-            }
+    fun saveArea(savedAreaDto: SavedAreaDto) {
+        return appDatabase.savedAreaDao().insert(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadCaseMetadata(): MetadataDTO {
+    fun loadCases(areaCode: String): List<CaseDto> {
+        return appDatabase.casesDao()
+            .searchAllCases(areaCode).map { it.toCaseDto() }
+    }
+
+    fun loadCaseMetadata(): MetadataDto {
         return appDatabase.metadataDao()
-            .searchMetadata(MetadataEntity.CASE_METADATA_ID).map {
-                MetadataDTO(lastUpdatedAt = it.lastUpdatedAt)
-            }.first()
+            .searchMetadata(MetadataEntity.CASE_METADATA_ID).map { it.toMetadataDto() }
+            .first()
     }
 }

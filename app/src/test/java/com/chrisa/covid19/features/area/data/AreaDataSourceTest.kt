@@ -19,11 +19,16 @@ package com.chrisa.covid19.features.area.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.CaseEntity
 import com.chrisa.covid19.core.data.db.MetadataEntity
-import com.chrisa.covid19.features.area.data.dtos.CaseDTO
-import com.chrisa.covid19.features.area.data.dtos.MetadataDTO
+import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.area.data.dtos.MetadataDto
+import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
+import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
 import com.google.common.truth.Truth.assertThat
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import java.util.Date
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -39,7 +44,7 @@ class AreaDataSourceTest {
     private val sut = AreaDataSource(appDatabase)
 
     @Test
-    fun `GIVEN area is not saved WHEN savedState called THEN savedState is false`() = runBlockingTest {
+    fun `GIVEN area is not saved WHEN isSaved called THEN savedState is false`() = runBlockingTest {
 
         val areaCode = "A01"
         val publisher = ConflatedBroadcastChannel(false)
@@ -52,7 +57,7 @@ class AreaDataSourceTest {
     }
 
     @Test
-    fun `GIVEN area is saved WHEN savedState called THEN savedState is true`() = runBlockingTest {
+    fun `GIVEN area is saved WHEN isSaved called THEN savedState is true`() = runBlockingTest {
 
         val areaCode = "A01"
         val publisher = ConflatedBroadcastChannel(false)
@@ -62,6 +67,19 @@ class AreaDataSourceTest {
         val savedState = sut.isSaved(areaCode).first()
 
         assertThat(savedState).isEqualTo(false)
+    }
+
+    @Test
+    fun `WHEN saveArea called THEN entity is inserted`() {
+
+        val dto = SavedAreaDto("A01")
+        val entity = dto.toSavedAreaEntity()
+
+        every { appDatabase.savedAreaDao().insert(entity) } just Runs
+
+        val savedState = sut.saveArea(dto)
+
+        verify(exactly = 1) { appDatabase.savedAreaDao().insert(entity) }
     }
 
     @Test
@@ -80,7 +98,7 @@ class AreaDataSourceTest {
         val metadata = sut.loadCaseMetadata()
 
         assertThat(metadata).isEqualTo(
-            MetadataDTO(
+            MetadataDto(
                 lastUpdatedAt = metadataDTO.lastUpdatedAt
             )
         )
@@ -106,7 +124,7 @@ class AreaDataSourceTest {
 
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases.first()).isEqualTo(
-            CaseDTO(
+            CaseDto(
                 date = casesEntity.date,
                 dailyLabConfirmedCases = casesEntity.dailyLabConfirmedCases
             )

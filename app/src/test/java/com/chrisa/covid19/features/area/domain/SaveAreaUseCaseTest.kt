@@ -17,23 +17,30 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.domain.mappers.CaseDtoMapper.toCaseModel
-import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import javax.inject.Inject
+import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Test
 
-class AreaDetailUseCase @Inject constructor(
-    private val areaDataSource: AreaDataSource
-) {
-    fun execute(areaCode: String): AreaDetailModel {
+class SaveAreaUseCaseTest {
 
-        val metadata = areaDataSource.loadCaseMetadata()
-        val allCases = areaDataSource.loadCases(areaCode)
-            .map { it.toCaseModel() }
+    private val areaDataSource = mockk<AreaDataSource>()
 
-        return AreaDetailModel(
-            lastUpdatedAt = metadata.lastUpdatedAt,
-            allCases = allCases,
-            latestCases = allCases.takeLast(7)
-        )
+    @Test
+    fun `WHEN execute called THEN data source is updated with the area code`() {
+
+        val areCode = "1234"
+        val sut = SaveAreaUseCase(areaDataSource)
+
+        val dto = SavedAreaDto(areCode)
+
+        every { areaDataSource.saveArea(any()) } just Runs
+
+        sut.execute(areCode)
+
+        verify(exactly = 1) { areaDataSource.saveArea(dto) }
     }
 }

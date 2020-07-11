@@ -17,23 +17,15 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.domain.mappers.CaseDtoMapper.toCaseModel
-import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
+import com.chrisa.covid19.features.area.domain.mappers.SavedAreaDtoMapper
 import javax.inject.Inject
 
-class AreaDetailUseCase @Inject constructor(
+class SaveAreaUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource
 ) {
-    fun execute(areaCode: String): AreaDetailModel {
-
-        val metadata = areaDataSource.loadCaseMetadata()
-        val allCases = areaDataSource.loadCases(areaCode)
-            .map { it.toCaseModel() }
-
-        return AreaDetailModel(
-            lastUpdatedAt = metadata.lastUpdatedAt,
-            allCases = allCases,
-            latestCases = allCases.takeLast(7)
+    fun execute(areaCode: String) {
+        return areaDataSource.saveArea(
+            SavedAreaDtoMapper.mapToSavedAreaDto(areaCode)
         )
     }
 }

@@ -26,7 +26,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
+import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.annotations.NonNull
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_area.*
 
 @AndroidEntryPoint
@@ -34,6 +38,7 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
 
     private val viewModel: AreaViewModel by viewModels()
     private val args by navArgs<AreaFragmentArgs>()
+    private val disposables = CompositeDisposable()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -42,11 +47,31 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
         observeIsSaved()
     }
 
+    override fun onDestroyView() {
+        disposables.clear()
+        super.onDestroyView()
+    }
+
     private fun initToolbar() {
         areaToolbar.navigationIcon =
             ContextCompat.getDrawable(areaToolbar.context, R.drawable.ic_arrow_back)
         areaToolbar.title = args.areaName
         areaToolbar.setNavigationOnClickListener { navigateUp() }
+
+        disposables.addAll(subscribeMenuClicks())
+    }
+
+    private fun subscribeMenuClicks(): @NonNull Disposable {
+        return areaToolbar.itemClicks().subscribe {
+            when (it.itemId) {
+                R.id.saveArea -> {
+                    viewModel.saveArea()
+                }
+                else -> {
+                    // Ignore unknown menu options
+                }
+            }
+        }
     }
 
     private fun observeCases() {

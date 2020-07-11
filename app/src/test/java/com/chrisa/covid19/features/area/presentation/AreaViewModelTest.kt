@@ -23,13 +23,17 @@ import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
+import com.chrisa.covid19.features.area.domain.SaveAreaUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import com.google.common.truth.Truth.assertThat
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.verify
 import java.util.Date
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -49,6 +53,7 @@ class AreaViewModelTest {
 
     private val areaDetailUseCase = mockk<AreaDetailUseCase>()
     private val isSavedUseCase = mockk<IsSavedUseCase>()
+    private val saveAreaUseCase = mockk<SaveAreaUseCase>()
     private val areaUiModelMapper = mockk<AreaCasesModelMapper>()
     private val testDispatcher = TestCoroutineDispatcher()
 
@@ -91,6 +96,7 @@ class AreaViewModelTest {
                 val sut = AreaViewModel(
                     areaDetailUseCase,
                     isSavedUseCase,
+                    saveAreaUseCase,
                     TestCoroutineDispatchersImpl(testDispatcher),
                     areaUiModelMapper,
                     savedStateHandle
@@ -103,6 +109,7 @@ class AreaViewModelTest {
                 assertThat(statesObserver.values[0]).isEqualTo(areaCasesModel)
             }
         }
+
     @Test
     fun `GIVEN isSaved usecase succeeds WHEN viewmodel initialized THEN saved state is emitted`() =
         testDispatcher.runBlockingTest {
@@ -118,6 +125,7 @@ class AreaViewModelTest {
                 val sut = AreaViewModel(
                     areaDetailUseCase,
                     isSavedUseCase,
+                    saveAreaUseCase,
                     TestCoroutineDispatchersImpl(testDispatcher),
                     areaUiModelMapper,
                     savedStateHandle
@@ -142,5 +150,28 @@ class AreaViewModelTest {
                 assertThat(observer.values[3]).isEqualTo(true)
                 assertThat(observer.values[4]).isEqualTo(false)
             }
+        }
+
+    @Test
+    fun `WHEN saveArea called THEN saveAreaUseCase is executed`() =
+        testDispatcher.runBlockingTest {
+
+            val areaCode = "AC-001"
+            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
+
+            every { saveAreaUseCase.execute(areaCode) } just Runs
+
+            val sut = AreaViewModel(
+                areaDetailUseCase,
+                isSavedUseCase,
+                saveAreaUseCase,
+                TestCoroutineDispatchersImpl(testDispatcher),
+                areaUiModelMapper,
+                savedStateHandle
+            )
+
+            sut.saveArea()
+
+            verify(exactly = 1) { saveAreaUseCase.execute(areaCode) }
         }
 }
