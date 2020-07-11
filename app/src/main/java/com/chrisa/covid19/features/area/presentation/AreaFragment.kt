@@ -64,10 +64,10 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     private fun subscribeMenuClicks(): @NonNull Disposable {
         return areaToolbar.itemClicks().subscribe {
             when (it.itemId) {
-                R.id.saveArea -> {
+                R.id.insertSavedArea -> {
                     viewModel.insertSavedArea()
                 }
-                R.id.deleteArea -> {
+                R.id.deleteSavedArea -> {
                     viewModel.deleteSavedArea()
                 }
                 else -> {
@@ -93,8 +93,8 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
         viewModel.isSaved.observe(viewLifecycleOwner, Observer { isSaved ->
             val menu = areaToolbar.menu
             isSaved?.let { saved ->
-                menu.findItem(R.id.saveArea).isVisible = !saved
-                menu.findItem(R.id.deleteArea).isVisible = saved
+                menu.findItem(R.id.insertSavedArea).isVisible = !saved
+                menu.findItem(R.id.deleteSavedArea).isVisible = saved
             }
         })
     }

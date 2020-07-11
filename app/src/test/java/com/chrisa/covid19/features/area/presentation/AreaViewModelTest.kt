@@ -23,8 +23,8 @@ import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
-import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
+import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
@@ -179,7 +179,6 @@ class AreaViewModelTest {
 
             verify(exactly = 1) { insertSavedAreaUseCase.execute(areaCode) }
         }
-
 
     @Test
     fun `WHEN deleteSavedArea called THEN deleteSavedAreaUseCase is executed`() =

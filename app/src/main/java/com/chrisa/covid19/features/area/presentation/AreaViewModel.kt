@@ -26,8 +26,8 @@ import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
-import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
+import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import kotlinx.coroutines.flow.collect
