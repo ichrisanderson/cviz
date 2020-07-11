@@ -35,6 +35,13 @@ android {
         unitTests.includeAndroidResources = true
     }
 
+    lintOptions {
+        warningsAsErrors true
+        checkDependencies true
+        ignoreTestSources true
+        lintConfig file("lint.xml")
+    }
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
     }

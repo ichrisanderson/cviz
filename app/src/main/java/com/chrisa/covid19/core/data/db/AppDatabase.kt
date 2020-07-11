@@ -1,9 +1,26 @@
+/*
+ * Copyright 2020 Chris Anderson.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.chrisa.covid19.core.data.db
 
 import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -13,13 +30,15 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [
         CaseEntity::class,
         DeathEntity::class,
         MetadataEntity::class,
-        DailyRecordEntity::class
+        DailyRecordEntity::class,
+        SavedAreaEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -31,6 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun deathsDao(): DeathDao
     abstract fun dailyRecordsDao(): DailyRecordDao
     abstract fun metadataDao(): MetadataDao
+    abstract fun savedAreaDao(): SavedAreaDao
 
     companion object {
         private const val databaseName = "covid19-uk-db"
@@ -92,6 +112,7 @@ interface CaseDao {
     @Query("SELECT * FROM cases WHERE areaCode = :areaCode ORDER BY date ASC")
     fun searchAllCases(areaCode: String): List<CaseEntity>
 }
+
 @Entity(
     tableName = "deaths",
     primaryKeys = ["areaCode", "date"]
@@ -173,4 +194,25 @@ interface MetadataDao {
 
     @Query("SELECT * FROM metadata WHERE id = :id")
     fun searchMetadata(id: String): List<MetadataEntity>
+}
+
+@Entity(
+    tableName = "savedArea",
+    primaryKeys = ["areaCode"]
+)
+data class SavedAreaEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String
+)
+
+@Dao
+interface SavedAreaDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(savedAreaEntity: SavedAreaEntity)
+
+    @Query("SELECT COUNT(areaCode) > 0 FROM savedArea WHERE areaCode = :areaCode")
+    fun isSaved(areaCode: String): Flow<Boolean>
+
+    @Delete
+    fun delete(savedAreaEntity: SavedAreaEntity): Int
 }
