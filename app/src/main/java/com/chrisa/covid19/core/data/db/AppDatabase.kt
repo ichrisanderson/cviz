@@ -111,6 +111,9 @@ interface CaseDao {
 
     @Query("SELECT * FROM cases WHERE areaCode = :areaCode ORDER BY date ASC")
     fun searchAllCases(areaCode: String): List<CaseEntity>
+
+    @Query("SELECT * FROM cases INNER JOIN savedArea ON cases.areaCode = savedArea.areaCode ORDER BY date ASC")
+    fun searchAllSavedAreaCases(): List<CaseEntity>
 }
 
 @Entity(

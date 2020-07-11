@@ -20,14 +20,14 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.io.IOException
-import java.util.Date
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.IOException
+import java.util.Date
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [27])
@@ -204,7 +204,12 @@ class CaseDaoTest {
         val cases = db.casesDao().searchAllAreas(oldCaseEntity.areaName)
 
         assertThat(cases.size).isEqualTo(1)
-        assertThat(cases[0]).isEqualTo(AreaTupleEntity(newCaseEntity.areaCode, newCaseEntity.areaName))
+        assertThat(cases[0]).isEqualTo(
+            AreaTupleEntity(
+                newCaseEntity.areaCode,
+                newCaseEntity.areaName
+            )
+        )
     }
 
     @Test
@@ -235,8 +240,97 @@ class CaseDaoTest {
         val cases = db.casesDao().searchAllAreas(oldCaseEntity.areaName)
 
         assertThat(cases.size).isEqualTo(2)
-        assertThat(cases[0]).isEqualTo(AreaTupleEntity(oldCaseEntity.areaCode, oldCaseEntity.areaName))
-        assertThat(cases[1]).isEqualTo(AreaTupleEntity(newCaseEntity.areaCode, newCaseEntity.areaName))
+        assertThat(cases[0]).isEqualTo(
+            AreaTupleEntity(
+                oldCaseEntity.areaCode,
+                oldCaseEntity.areaName
+            )
+        )
+        assertThat(cases[1]).isEqualTo(
+            AreaTupleEntity(
+                newCaseEntity.areaCode,
+                newCaseEntity.areaName
+            )
+        )
+    }
+
+    @Test
+    fun `GIVEN no saved areas WHEN searchAllSavedAreaCases called THEN no cases are returned`() {
+
+        val caseEntity = CaseEntity(
+            areaCode = "001",
+            areaName = "UK",
+            date = Date(0),
+            dailyLabConfirmedCases = 9,
+            totalLabConfirmedCases = 9,
+            dailyTotalLabConfirmedCasesRate = 9.0
+        )
+
+        db.casesDao().insertAll(listOf(caseEntity))
+
+        val allSavedAreaCases = db.casesDao().searchAllSavedAreaCases()
+
+        assertThat(allSavedAreaCases.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `GIVEN saved area exist WHEN searchAllSavedAreaCases called THEN area cases are returned`() {
+
+        val caseEntity = CaseEntity(
+            areaCode = "001",
+            areaName = "UK",
+            date = Date(0),
+            dailyLabConfirmedCases = 9,
+            totalLabConfirmedCases = 9,
+            dailyTotalLabConfirmedCasesRate = 9.0
+        )
+
+        val insertedCases = listOf(
+            caseEntity,
+            caseEntity.copy(areaCode = "002", areaName = "England")
+        )
+
+        db.casesDao().insertAll(insertedCases)
+
+        db.savedAreaDao().insert(SavedAreaEntity(areaCode = caseEntity.areaCode))
+
+        val cases = db.casesDao().searchAllSavedAreaCases()
+
+        assertThat(cases.size).isEqualTo(1)
+        assertThat(cases[0]).isEqualTo(insertedCases[0])
+    }
+
+    @Test
+    fun `GIVEN all case areas are saved WHEN searchAllSavedAreaCases called THEN all cases are returned`() {
+
+        val caseEntity = CaseEntity(
+            areaCode = "001",
+            areaName = "UK",
+            date = Date(0),
+            dailyLabConfirmedCases = 9,
+            totalLabConfirmedCases = 9,
+            dailyTotalLabConfirmedCasesRate = 9.0
+        )
+
+        val insertedCases = listOf(
+            caseEntity,
+            caseEntity.copy(areaCode = "002", areaName = "England")
+        )
+
+        db.casesDao().insertAll(insertedCases)
+
+        val insertedCasesAsSavedAreaEntities =
+            insertedCases.map { SavedAreaEntity(areaCode = it.areaCode) }
+
+        insertedCasesAsSavedAreaEntities.forEach { savedAreaEntity ->
+            db.savedAreaDao().insert(savedAreaEntity)
+        }
+
+        val cases = db.casesDao().searchAllSavedAreaCases()
+
+        assertThat(cases.size).isEqualTo(2)
+        assertThat(cases[0]).isEqualTo(insertedCases[0])
+        assertThat(cases[1]).isEqualTo(insertedCases[1])
     }
 
     @After
