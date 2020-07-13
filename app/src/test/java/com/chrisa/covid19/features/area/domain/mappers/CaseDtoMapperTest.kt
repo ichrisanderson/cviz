@@ -20,7 +20,7 @@ import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.domain.mappers.CaseDtoMapper.toCaseModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
-import java.util.Date
+import java.time.LocalDate
 import org.junit.Test
 
 class CaseDtoMapperTest {
@@ -29,7 +29,7 @@ class CaseDtoMapperTest {
 
         val caseDto = CaseDto(
             dailyLabConfirmedCases = 1,
-            date = Date(0)
+            date = LocalDate.ofEpochDay(0)
         )
 
         val model = caseDto.toCaseModel()

@@ -24,7 +24,10 @@ import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import org.junit.Test
 
 class AreaDetailUseCaseTest {
@@ -38,12 +41,12 @@ class AreaDetailUseCaseTest {
         val areaCode = "1234"
 
         val metadataDTO = MetadataDto(
-            lastUpdatedAt = Date(0)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         val caseDTOs = (1 until 100).map {
             CaseDto(
-                date = Date(it.toLong()),
+                date = LocalDate.ofEpochDay(it.toLong()),
                 dailyLabConfirmedCases = it
             )
         }

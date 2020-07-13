@@ -42,7 +42,7 @@ class SearchDataSourceTest {
         val areaNameAsQuery = queryTransformer.transformQuery(area.areaName)
         val expectedResults = listOf(area)
 
-        every { appDatabase.casesDao().searchAllAreas(areaNameAsQuery) } returns expectedResults
+        every { appDatabase.casesDao().allAreas(areaNameAsQuery) } returns expectedResults
 
         val results = sut.searchAreas(area.areaName)
 

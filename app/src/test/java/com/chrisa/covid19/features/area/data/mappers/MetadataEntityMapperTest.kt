@@ -20,7 +20,9 @@ import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.mappers.MetadataEntityMapper.toMetadataDto
 import com.google.common.truth.Truth
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import org.junit.Test
 
 class MetadataEntityMapperTest {
@@ -30,7 +32,7 @@ class MetadataEntityMapperTest {
         val entity = MetadataEntity(
             id = "12234",
             disclaimer = "disclaimer...",
-            lastUpdatedAt = Date(0)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         Truth.assertThat(entity.toMetadataDto()).isEqualTo(

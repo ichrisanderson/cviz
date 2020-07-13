@@ -31,6 +31,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import java.time.ZoneId
 import kotlinx.android.synthetic.main.fragment_area.*
 
 @AndroidEntryPoint
@@ -80,9 +81,13 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     private fun observeCases() {
         viewModel.areaCases.observe(viewLifecycleOwner, Observer {
             val areaCasesModel = it ?: return@Observer
+
+            val zoneId = ZoneId.of("GMT")
             totalCasesSubtitle.text = getString(
                 R.string.last_updated_date,
-                DateUtils.getRelativeTimeSpanString(areaCasesModel.lastUpdatedAt.time)
+                DateUtils.getRelativeTimeSpanString(
+                    areaCasesModel.lastUpdatedAt.atZone(zoneId).toInstant().epochSecond
+                )
             )
             latestCasesChart.setData(areaCasesModel.latestCasesChartData)
             allCasesChart.setData(areaCasesModel.allCasesChartData)

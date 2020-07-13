@@ -19,7 +19,7 @@ package com.chrisa.covid19.core.data.mappers
 import com.chrisa.covid19.core.data.db.DeathEntity
 import com.chrisa.covid19.core.data.network.DeathModel
 import com.google.common.truth.Truth.assertThat
-import java.util.Date
+import java.time.LocalDate
 import org.junit.Test
 
 class DeathModelMapperTest {
@@ -32,7 +32,7 @@ class DeathModelMapperTest {
         val deathModel = DeathModel(
             areaCode = "001",
             areaName = "UK",
-            reportingDate = Date(0),
+            reportingDate = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 110,
             dailyChangeInDeaths = 222
         )
@@ -56,7 +56,7 @@ class DeathModelMapperTest {
         val deathModel = DeathModel(
             areaCode = "001",
             areaName = "UK",
-            reportingDate = Date(0),
+            reportingDate = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 110,
             dailyChangeInDeaths = null
         )

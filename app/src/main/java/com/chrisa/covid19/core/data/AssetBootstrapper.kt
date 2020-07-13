@@ -44,7 +44,7 @@ class AssetBootstrapper @Inject constructor(
         val allCases = cases.countries.union(cases.ltlas).union(cases.utlas).union(cases.regions)
 
         offlineDataSource.insertCaseMetadata(cases.metadata)
-        offlineDataSource.insertDailyRecord(cases.dailyRecords, cases.metadata.lastUpdatedAt)
+        offlineDataSource.insertDailyRecord(cases.dailyRecords, cases.metadata.lastUpdatedAt.toLocalDate())
         offlineDataSource.insertCases(allCases)
     }
 

@@ -38,7 +38,10 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import org.junit.Before
 import org.junit.Test
 
@@ -58,8 +61,8 @@ class OfflineDataSourceTest {
     @Before
     fun setup() {
 
-        every { metadataDao.searchMetadata(CASE_METADATA_ID) } returns emptyList()
-        every { metadataDao.searchMetadata(DEATH_METADATA_ID) } returns emptyList()
+        every { metadataDao.metadata(CASE_METADATA_ID) } returns emptyList()
+        every { metadataDao.metadata(DEATH_METADATA_ID) } returns emptyList()
 
         offlineDataSource = OfflineDataSource(
             casesDao,
@@ -78,7 +81,7 @@ class OfflineDataSourceTest {
 
         val metadataModel = MetadataModel(
             disclaimer = "New metadata",
-            lastUpdatedAt = Date(1)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         offlineDataSource.insertCaseMetadata(metadataModel)
@@ -99,7 +102,7 @@ class OfflineDataSourceTest {
     @Test
     fun `WHEN insertDailyRecord called THEN dailyRecordsEntity is inserted`() {
 
-        val lastUpdatedAt = Date(1)
+        val lastUpdatedAt = LocalDate.ofEpochDay(0)
         val dailyRecordModel = DailyRecordModel(
             areaName = "UK",
             dailyLabConfirmedCases = 12,
@@ -125,7 +128,7 @@ class OfflineDataSourceTest {
     @Test
     fun `GIVEN totalLabConfirmedCases is null WHEN insertDailyRecord called THEN dailyRecordsEntity is inserted with 0 totalLabConfirmedCases`() {
 
-        val lastUpdatedAt = Date(1)
+        val lastUpdatedAt = LocalDate.ofEpochDay(0)
         val dailyRecordModel = DailyRecordModel(
             areaName = "UK",
             dailyLabConfirmedCases = 12,
@@ -154,10 +157,10 @@ class OfflineDataSourceTest {
         val testMetadataEntity = MetadataEntity(
             id = CASE_METADATA_ID,
             disclaimer = "Test case metadata disclaimer",
-            lastUpdatedAt = Date(1)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
-        every { metadataDao.searchMetadata(CASE_METADATA_ID) } returns listOf(testMetadataEntity)
+        every { metadataDao.metadata(CASE_METADATA_ID) } returns listOf(testMetadataEntity)
 
         val metadata = offlineDataSource.casesMetadata()
 
@@ -184,7 +187,7 @@ class OfflineDataSourceTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0,
@@ -218,7 +221,7 @@ class OfflineDataSourceTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = null,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0,
@@ -252,7 +255,7 @@ class OfflineDataSourceTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = null,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = null,
@@ -286,7 +289,7 @@ class OfflineDataSourceTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = null,
             totalLabConfirmedCases = null,
             dailyTotalLabConfirmedCasesRate = null,
@@ -319,7 +322,7 @@ class OfflineDataSourceTest {
 
         val metadataModel = MetadataModel(
             disclaimer = "New metadata",
-            lastUpdatedAt = Date(1)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         offlineDataSource.insertDeathMetadata(metadataModel)
@@ -343,10 +346,10 @@ class OfflineDataSourceTest {
         val testMetadataEntity = MetadataEntity(
             id = DEATH_METADATA_ID,
             disclaimer = "Test case metadata disclaimer",
-            lastUpdatedAt = Date(1)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
-        every { metadataDao.searchMetadata(DEATH_METADATA_ID) } returns listOf(testMetadataEntity)
+        every { metadataDao.metadata(DEATH_METADATA_ID) } returns listOf(testMetadataEntity)
 
         val metadata = offlineDataSource.deathsMetadata()
 
@@ -373,7 +376,7 @@ class OfflineDataSourceTest {
         val deathModel = DeathModel(
             areaCode = "001",
             areaName = "UK",
-            reportingDate = Date(0),
+            reportingDate = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 110,
             dailyChangeInDeaths = 222
         )
@@ -401,7 +404,7 @@ class OfflineDataSourceTest {
         val deathModel = DeathModel(
             areaCode = "001",
             areaName = "UK",
-            reportingDate = Date(0),
+            reportingDate = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 110,
             dailyChangeInDeaths = null
         )

@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.search.data
+package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
-import com.chrisa.covid19.features.search.data.dtos.AreaDTO
+import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
-class SearchDataSource @Inject constructor(
-    private val appDatabase: AppDatabase,
-    private val searchQueryTransformer: SearchQueryTransformer
+class HomeDataSource @Inject constructor(
+    private val appDatabase: AppDatabase
 ) {
-    fun searchAreas(query: String): List<AreaDTO> {
+    fun savedAreaCases(): Flow<List<SavedAreaCaseDto>> {
         return appDatabase.casesDao()
-            .allAreas(searchQueryTransformer.transformQuery(query))
-            .map { AreaDTO(it.areaCode, it.areaName) }
+            .savedAreaCases()
+            .map { casesList ->
+                casesList.map {
+                    SavedAreaCaseDto(
+                        areaCode = it.areaCode,
+                        areaName = it.areaName,
+                        date = it.date,
+                        dailyLabConfirmedCases = it.dailyLabConfirmedCases
+                    )
+                }
+            }
     }
 }

@@ -23,15 +23,18 @@ import com.chrisa.covid19.core.data.db.DailyRecordDao
 import com.chrisa.covid19.core.data.db.DeathDao
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.network.CovidApi
+import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
+import com.squareup.moshi.ToJson
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.util.Date
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -45,7 +48,8 @@ internal object DataModule {
     @Provides
     fun moshi(): Moshi {
         return Moshi.Builder()
-            .add(Date::class.java, Rfc3339DateJsonAdapter())
+            .add(LocalDateJsonAdapter())
+            .add(LocalDateTimeJsonAdapter())
             .build()
     }
 
@@ -117,4 +121,36 @@ internal object DatabaseModule {
 abstract class BootstrapperModule {
     @Binds
     internal abstract fun bindAssetBootstrapper(assetBootstrapper: AssetBootstrapper): Bootstrapper
+}
+
+class LocalDateJsonAdapter {
+    @ToJson
+    fun toJson(localDate: LocalDate): String {
+        return localDate.format(FORMATTER)
+    }
+
+    @FromJson
+    fun fromJson(json: String): LocalDate {
+        return FORMATTER.parse(json, LocalDate::from)
+    }
+
+    companion object {
+        private val FORMATTER = DateTimeFormatter.ISO_DATE
+    }
+}
+
+class LocalDateTimeJsonAdapter {
+    @ToJson
+    fun toJson(localDateTime: LocalDateTime): String {
+        return localDateTime.format(FORMATTER)
+    }
+
+    @FromJson
+    fun fromJson(json: String): LocalDateTime {
+        return FORMATTER.parse(json, LocalDateTime::from)
+    }
+
+    companion object {
+        private val FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+    }
 }

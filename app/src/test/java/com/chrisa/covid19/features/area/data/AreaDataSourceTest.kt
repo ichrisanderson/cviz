@@ -29,7 +29,10 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.asFlow
@@ -101,11 +104,11 @@ class AreaDataSourceTest {
         val metadataDTO = MetadataEntity(
             id = MetadataEntity.CASE_METADATA_ID,
             disclaimer = "disclaimer",
-            lastUpdatedAt = Date(2)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         every {
-            appDatabase.metadataDao().searchMetadata(MetadataEntity.CASE_METADATA_ID)
+            appDatabase.metadataDao().metadata(MetadataEntity.CASE_METADATA_ID)
         } returns listOf(metadataDTO)
 
         val metadata = sut.loadCaseMetadata()
@@ -123,14 +126,14 @@ class AreaDataSourceTest {
         val casesEntity = CaseEntity(
             areaCode = "1234",
             areaName = "London",
-            date = Date(1),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 222,
             dailyTotalLabConfirmedCasesRate = 122.0,
             totalLabConfirmedCases = 122
         )
 
         every {
-            appDatabase.casesDao().searchAllCases(casesEntity.areaCode)
+            appDatabase.casesDao().areaCases(casesEntity.areaCode)
         } returns listOf(casesEntity)
 
         val cases = sut.loadCases(casesEntity.areaCode)

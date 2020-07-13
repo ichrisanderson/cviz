@@ -19,7 +19,7 @@ package com.chrisa.covid19.core.data.mappers
 import com.chrisa.covid19.core.data.db.DailyRecordEntity
 import com.chrisa.covid19.core.data.network.DailyRecordModel
 import com.google.common.truth.Truth.assertThat
-import java.util.Date
+import java.time.LocalDate
 import org.junit.Test
 
 class DailyRecordModelMapperTest {
@@ -29,7 +29,7 @@ class DailyRecordModelMapperTest {
     @Test
     fun `WHEN mapToDailyRecordsEntity called THEN dailyRecordsEntity is returned`() {
 
-        val lastUpdatedAt = Date(1)
+        val lastUpdatedAt = LocalDate.ofEpochDay(0)
         val dailyRecordModel = DailyRecordModel(
             areaName = "UK",
             dailyLabConfirmedCases = 12,

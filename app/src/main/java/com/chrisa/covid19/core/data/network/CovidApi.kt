@@ -17,7 +17,8 @@
 package com.chrisa.covid19.core.data.network
 
 import com.squareup.moshi.JsonClass
-import java.util.Date
+import java.time.LocalDate
+import java.time.LocalDateTime
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -62,7 +63,7 @@ data class DailyRecordModel(
 @JsonClass(generateAdapter = true)
 data class MetadataModel(
     val disclaimer: String,
-    val lastUpdatedAt: Date
+    val lastUpdatedAt: LocalDateTime
 )
 
 @JsonClass(generateAdapter = true)
@@ -75,7 +76,7 @@ data class CaseModel(
     val dailyTotalLabConfirmedCasesRate: Double?,
     val previouslyReportedDailyCases: Int?,
     val previouslyReportedTotalCases: Int?,
-    val specimenDate: Date,
+    val specimenDate: LocalDate,
     val totalLabConfirmedCases: Int?
 )
 
@@ -92,5 +93,5 @@ data class DeathModel(
     val areaName: String,
     val cumulativeDeaths: Int,
     val dailyChangeInDeaths: Int?,
-    val reportingDate: Date
+    val reportingDate: LocalDate
 )

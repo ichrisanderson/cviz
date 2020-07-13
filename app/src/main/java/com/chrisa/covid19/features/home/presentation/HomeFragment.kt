@@ -19,6 +19,8 @@ package com.chrisa.covid19.features.home.presentation
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.chrisa.covid19.R
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,9 +29,15 @@ import kotlinx.android.synthetic.main.fragment_home.*
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
+    private val viewModel: HomeViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fakeSearchBar.setOnClickListener { navigateToHome() }
+
+        viewModel.areaCases.observe(viewLifecycleOwner, Observer {
+            val cases = it ?: return@Observer
+        })
     }
 
     private fun navigateToHome() {

@@ -35,7 +35,10 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.sendBlocking
@@ -69,19 +72,19 @@ class AreaViewModelTest {
 
                 val caseModels = listOf(
                     CaseModel(
-                        date = Date(0),
+                        date = LocalDate.ofEpochDay(0),
                         dailyLabConfirmedCases = 123
                     )
                 )
 
                 val areaDetailModel = AreaDetailModel(
-                    lastUpdatedAt = Date(0),
+                    lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
                     allCases = caseModels,
                     latestCases = caseModels.takeLast(7)
                 )
 
                 val areaCasesModel = AreaCasesModel(
-                    lastUpdatedAt = Date(0),
+                    lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
                     allCasesChartData = BarChartData(
                         label = "All cases",
                         values = emptyList()

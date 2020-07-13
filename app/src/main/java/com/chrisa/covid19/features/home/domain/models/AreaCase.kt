@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.dtos
+package com.chrisa.covid19.features.home.domain.models
 
-import java.time.LocalDateTime
+import java.time.LocalDate
 
-data class MetadataDto(val lastUpdatedAt: LocalDateTime)
+data class AreaCase(val dailyLabConfirmedCases: Int, val date: LocalDate)

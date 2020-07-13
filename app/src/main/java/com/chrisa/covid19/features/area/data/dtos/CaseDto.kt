@@ -16,9 +16,9 @@
 
 package com.chrisa.covid19.features.area.data.dtos
 
-import java.util.Date
+import java.time.LocalDate
 
 data class CaseDto(
     val dailyLabConfirmedCases: Int,
-    val date: Date
+    val date: LocalDate
 )

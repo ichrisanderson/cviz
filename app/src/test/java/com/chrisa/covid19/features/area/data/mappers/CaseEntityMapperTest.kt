@@ -20,7 +20,7 @@ import com.chrisa.covid19.core.data.db.CaseEntity
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.mappers.CaseEntityMapper.toCaseDto
 import com.google.common.truth.Truth.assertThat
-import java.util.Date
+import java.time.LocalDate
 import org.junit.Test
 
 class CaseEntityMapperTest {
@@ -32,7 +32,7 @@ class CaseEntityMapperTest {
             areaName = "London",
             dailyLabConfirmedCases = 1,
             dailyTotalLabConfirmedCasesRate = 11.0,
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             totalLabConfirmedCases = 111
         )
 

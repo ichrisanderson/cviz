@@ -45,12 +45,12 @@ class AreaDataSource @Inject constructor(
 
     fun loadCases(areaCode: String): List<CaseDto> {
         return appDatabase.casesDao()
-            .searchAllCases(areaCode).map { it.toCaseDto() }
+            .areaCases(areaCode).map { it.toCaseDto() }
     }
 
     fun loadCaseMetadata(): MetadataDto {
         return appDatabase.metadataDao()
-            .searchMetadata(MetadataEntity.CASE_METADATA_ID).map { it.toMetadataDto() }
+            .metadata(MetadataEntity.CASE_METADATA_ID).map { it.toMetadataDto() }
             .first()
     }
 }

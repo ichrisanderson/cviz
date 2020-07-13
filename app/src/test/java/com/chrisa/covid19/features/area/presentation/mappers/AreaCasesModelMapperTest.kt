@@ -26,7 +26,10 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.Locale
 import org.junit.Test
 
@@ -41,13 +44,13 @@ class AreaCasesModelMapperTest {
 
         val caseModels = listOf(
             CaseModel(
-                date = Date(0),
+                date = LocalDate.ofEpochDay(0),
                 dailyLabConfirmedCases = 123
             )
         )
 
         val areaDetailModel = AreaDetailModel(
-            lastUpdatedAt = Date(0),
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
             allCases = caseModels,
             latestCases = caseModels.takeLast(7)
         )

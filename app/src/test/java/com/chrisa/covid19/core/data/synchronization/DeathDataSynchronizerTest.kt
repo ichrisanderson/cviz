@@ -20,15 +20,16 @@ import com.chrisa.covid19.core.data.OfflineDataSource
 import com.chrisa.covid19.core.data.TestData
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.MetadataModel
-import com.chrisa.covid19.core.util.DateUtils.addHours
-import com.chrisa.covid19.core.util.DateUtils.toGmtDate
+import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.MediaType
@@ -61,12 +62,12 @@ class DeathDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
             )
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getDeaths(date) } returns Response.success(null)
             every { offlineDataSource.deathsMetadata() } returns metadata
@@ -82,12 +83,12 @@ class DeathDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
             )
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getDeaths(date) } returns Response.error(
                 404,
@@ -108,12 +109,12 @@ class DeathDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
             )
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getDeaths(date) } returns Response.success(null)
             every { offlineDataSource.deathsMetadata() } returns metadata
@@ -130,14 +131,14 @@ class DeathDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
             )
 
             val deathsModel = TestData.TEST_DEATH_MODEL
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getDeaths(date) } returns Response.success(deathsModel)
 
