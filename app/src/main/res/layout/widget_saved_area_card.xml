@@ -79,7 +79,7 @@
             android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintStart_toEndOf="@id/totalCasesCaption"
             app:layout_constraintTop_toBottomOf="@id/areaName"
-            tools:text="12,345" />
+            tools:text="125" />
 
         <TextView
             android:id="@+id/casesThisWeekCaption"
@@ -89,6 +89,27 @@
             android:text="@string/cases_this_week"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintStart_toStartOf="@id/casesThisWeek"
+            app:layout_constraintTop_toBottomOf="@id/totalCases" />
+
+        <TextView
+            android:id="@+id/changeInCasesThisWeek"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintStart_toEndOf="@id/casesThisWeekCaption"
+            app:layout_constraintTop_toBottomOf="@id/areaName"
+            tools:text="-5" />
+
+        <TextView
+            android:id="@+id/changeInCasesThisWeekCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="@string/change_cases_this_week"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toStartOf="@id/changeInCasesThisWeek"
             app:layout_constraintTop_toBottomOf="@id/totalCases" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

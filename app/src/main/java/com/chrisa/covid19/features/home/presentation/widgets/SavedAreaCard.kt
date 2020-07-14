@@ -28,11 +28,11 @@ import kotlinx.android.synthetic.main.widget_saved_area_card.view.*
 
 @ModelView(defaultLayout = R.layout.widget_saved_area_card)
 class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
-
     @ModelProp
     fun areCase(areCase: AreaCaseListModel) {
         areaName.text = areCase.areaName
         totalCases.text = "${NumberFormat.getInstance().format(areCase.totalLabConfirmedCases)}"
         casesThisWeek.text = "${areCase.totalLabConfirmedCasesLastWeek}"
+        changeInCasesThisWeek.text = "${areCase.changeInTotalLabConfirmedCases}"
     }
 }
