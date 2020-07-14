@@ -22,10 +22,9 @@ import com.chrisa.covid19.core.data.network.DailyRecordModel
 import com.chrisa.covid19.core.data.network.DeathModel
 import com.chrisa.covid19.core.data.network.DeathsModel
 import com.chrisa.covid19.core.data.network.MetadataModel
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 object TestData {
 
@@ -89,7 +88,7 @@ object TestData {
 
     val TEST_CASE_METADATA = MetadataModel(
         disclaimer = "Test disclaimer",
-        lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        lastUpdatedAt = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2020-06-28T15:03:07.739123Z", LocalDateTime::from)
     )
 
     val TEST_CASE_MODEL = CasesModel(
@@ -119,7 +118,7 @@ object TestData {
 
     val TEST_DEATH_METADATA = MetadataModel(
         disclaimer = "Test death disclaimer",
-        lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        lastUpdatedAt = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2020-06-28T15:03:07.739123Z", LocalDateTime::from)
     )
 
     val TEST_DEATH_MODEL = DeathsModel(

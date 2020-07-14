@@ -34,7 +34,9 @@ class HomeDataSource @Inject constructor(
                         areaCode = it.areaCode,
                         areaName = it.areaName,
                         date = it.date,
-                        dailyLabConfirmedCases = it.dailyLabConfirmedCases
+                        dailyLabConfirmedCases = it.dailyLabConfirmedCases,
+                        totalLabConfirmedCases = it.totalLabConfirmedCases,
+                        dailyTotalLabConfirmedCasesRate = it.dailyTotalLabConfirmedCasesRate
                     )
                 }
             }

@@ -56,6 +56,8 @@ class HomeDataSourceTest {
                 areaCode = it.areaCode,
                 areaName = it.areaName,
                 dailyLabConfirmedCases = it.dailyLabConfirmedCases,
+                totalLabConfirmedCases = it.totalLabConfirmedCases,
+                dailyTotalLabConfirmedCasesRate = it.dailyTotalLabConfirmedCasesRate,
                 date = it.date
             )
         }

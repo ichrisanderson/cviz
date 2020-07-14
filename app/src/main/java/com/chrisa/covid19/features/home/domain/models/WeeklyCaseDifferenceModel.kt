@@ -16,4 +16,7 @@
 
 package com.chrisa.covid19.features.home.domain.models
 
-data class AreaCaseList(val areaCode: String, val areaName: String, val cases: List<AreaCase>)
+data class WeeklyCaseDifferenceModel(
+    val changeInWeeklyLabConfirmedCases: Int,
+    val changeInTotalLabConfirmedCasesRate: Double
+)

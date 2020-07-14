@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.features.home.domain.models
 
-import java.time.LocalDate
-
-data class AreaCase(val dailyLabConfirmedCases: Int, val date: LocalDate)
+data class PastTwoWeekCaseBreakdownModel(
+    val weekOneData: WeeklyCaseBreakdownModel,
+    val weekTwoData: WeeklyCaseBreakdownModel
+)

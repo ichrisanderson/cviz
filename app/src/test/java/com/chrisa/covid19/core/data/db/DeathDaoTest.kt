@@ -131,7 +131,7 @@ class DeathDaoTest {
         val newDeathsEntity = DeathEntity(
             areaCode = "001",
             areaName = "UK",
-            date = LocalDate.ofEpochDay(0),
+            date = LocalDate.ofEpochDay(1),
             cumulativeDeaths = 11,
             dailyChangeInDeaths = 22
         )

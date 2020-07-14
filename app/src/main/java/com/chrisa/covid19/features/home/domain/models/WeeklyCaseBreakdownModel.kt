@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.data.dtos
+package com.chrisa.covid19.features.home.domain.models
 
-import java.time.LocalDate
-
-data class SavedAreaCaseDto(
-    val areaCode: String,
-    val areaName: String,
-    val dailyLabConfirmedCases: Int,
+data class WeeklyCaseBreakdownModel(
+    val casesInWeek: Int,
     val totalLabConfirmedCases: Int,
-    val dailyTotalLabConfirmedCasesRate: Double,
-    val date: LocalDate
+    val totalLabConfirmedCasesRate: Double
 )

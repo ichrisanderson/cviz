@@ -17,8 +17,10 @@
 package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
-import com.chrisa.covid19.features.home.domain.models.AreaCase
-import com.chrisa.covid19.features.home.domain.models.AreaCaseList
+import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import javax.inject.Inject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -26,32 +28,40 @@ import kotlinx.coroutines.flow.map
 
 @FlowPreview
 class LoadSavedAreaCasesUseCase @Inject constructor(
-    private val homeDataSource: HomeDataSource
+    private val homeDataSource: HomeDataSource,
+    private val pastTwoWeekCaseBreakdownHelper: PastTwoWeekCaseBreakdownHelper,
+    private val weeklyCaseDifferenceHelper: WeeklyCaseDifferenceHelper
 ) {
-    fun execute(): Flow<List<AreaCaseList>> {
+    fun execute(): Flow<List<AreaCaseListModel>> {
         return homeDataSource.savedAreaCases()
             .map { cases ->
                 cases.groupBy { Pair(it.areaCode, it.areaName) }
                     .map { group ->
 
+                        val dateNow = LocalDate.from(OffsetDateTime.now(ZoneOffset.UTC))
                         val allCases = group.value
 
-                        AreaCaseList(
+                        val pastTwoWeekCaseBreakdown =
+                            pastTwoWeekCaseBreakdownHelper.pastTwoWeekCaseBreakdown(
+                                dateNow,
+                                allCases
+                            )
+
+                        val weeklyCaseDifference = weeklyCaseDifferenceHelper.weeklyCaseDifference(
+                            pastTwoWeekCaseBreakdown.weekOneData,
+                            pastTwoWeekCaseBreakdown.weekTwoData
+                        )
+
+                        AreaCaseListModel(
                             areaCode = group.key.first,
                             areaName = group.key.second,
-                            cases = allCases.map { case ->
-                                AreaCase(
-                                    dailyLabConfirmedCases = case.dailyLabConfirmedCases,
-                                    date = case.date
-                                )
-                            })
+                            changeInTotalLabConfirmedCases = weeklyCaseDifference.changeInWeeklyLabConfirmedCases,
+                            changeInDailyTotalLabConfirmedCasesRate = weeklyCaseDifference.changeInTotalLabConfirmedCasesRate,
+                            dailyTotalLabConfirmedCasesRate = pastTwoWeekCaseBreakdown.weekTwoData.totalLabConfirmedCasesRate,
+                            totalLabConfirmedCases = pastTwoWeekCaseBreakdown.weekTwoData.totalLabConfirmedCases,
+                            totalLabConfirmedCasesLastWeek = pastTwoWeekCaseBreakdown.weekTwoData.casesInWeek
+                        )
                     }.sortedBy { it.areaName }
             }
     }
-
-//    casesInTheLatestWeek
-//    increaseSinceWeekBefore
-//    totalCases
-//    rate
-//    rateDifference
 }

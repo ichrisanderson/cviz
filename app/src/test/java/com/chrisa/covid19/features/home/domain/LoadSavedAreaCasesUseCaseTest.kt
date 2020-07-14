@@ -18,79 +18,176 @@ package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.covid19.features.home.domain.models.AreaCase
-import com.chrisa.covid19.features.home.domain.models.AreaCaseList
+import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 class LoadSavedAreaCasesUseCaseTest {
 
+    private val pastTwoWeekCaseBreakdownHelper = PastTwoWeekCaseBreakdownHelper()
+    private val weeklyCaseDifferenceHelper = WeeklyCaseDifferenceHelper()
     private val homeDataSource = mockk<HomeDataSource>()
-    private val sut = LoadSavedAreaCasesUseCase(homeDataSource)
+
+    private val sut = LoadSavedAreaCasesUseCase(
+        homeDataSource,
+        pastTwoWeekCaseBreakdownHelper,
+        weeklyCaseDifferenceHelper
+    )
 
     @Test
-    fun `WHEN execute called THEN area case list is created and emitted`() =
+    fun `GIVEN less than a weeks worth of cases WHEN execute called THEN area case list is created with figures from past week`() =
         runBlockingTest {
 
-            val ukFirstCase = SavedAreaCaseDto(
-                areaCode = "001",
-                areaName = "UK",
-                date = LocalDate.ofEpochDay(0),
-                dailyLabConfirmedCases = 12
+            val now = LocalDate
+                .from(OffsetDateTime.now(ZoneOffset.UTC))
+
+            val random = Random(0)
+            val areaCode = "001"
+            val areaName = "UK"
+
+            val latestWeekData = buildWeeklyData(
+                now.minusDays(7),
+                0,
+                random,
+                areaCode,
+                areaName
             )
 
-            val ukSecondCase = ukFirstCase.copy(date = LocalDate.ofEpochDay(1))
-            val englandFirstCase = ukFirstCase.copy(areaCode = "002", areaName = "England")
+            val allCasesFlow = flow {
+                emit(latestWeekData.cases)
+            }
 
-            val allCases = listOf(ukFirstCase, englandFirstCase, ukSecondCase)
+            every { homeDataSource.savedAreaCases() } returns allCasesFlow
+
+            val emittedItems = mutableListOf<List<AreaCaseListModel>>()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            assertThat(emittedItems.size).isEqualTo(1)
+
+            val emittedAreaCaseList = emittedItems.first()
+            val lastCaseInLatestWeek = latestWeekData.cases.last()
+
+            assertThat(emittedAreaCaseList.first()).isEqualTo(
+                AreaCaseListModel(
+                    areaCode = lastCaseInLatestWeek.areaCode,
+                    areaName = lastCaseInLatestWeek.areaName,
+                    totalLabConfirmedCases = lastCaseInLatestWeek.totalLabConfirmedCases,
+                    dailyTotalLabConfirmedCasesRate = lastCaseInLatestWeek.dailyTotalLabConfirmedCasesRate,
+                    changeInDailyTotalLabConfirmedCasesRate = lastCaseInLatestWeek.dailyTotalLabConfirmedCasesRate,
+                    changeInTotalLabConfirmedCases = lastCaseInLatestWeek.totalLabConfirmedCases,
+                    totalLabConfirmedCasesLastWeek = lastCaseInLatestWeek.totalLabConfirmedCases
+                )
+            )
+        }
+
+    @Test
+    fun `GIVEN more than a weeks worth of cases WHEN execute called THEN area case list is created with figures from combined weeks`() =
+        runBlockingTest {
+
+            val now = LocalDate
+                .from(OffsetDateTime.now(ZoneOffset.UTC))
+
+            val random = Random(0)
+            val areaCode = "001"
+            val areaName = "UK"
+
+            val previousWeekData = buildWeeklyData(
+                now.minusDays(14),
+                0,
+                random,
+                areaCode,
+                areaName
+            )
+
+            val latestWeekData = buildWeeklyData(
+                now.minusDays(7),
+                previousWeekData.cumulativeTotalCases,
+                random,
+                areaCode,
+                areaName
+            )
+
+            val allCases = previousWeekData.cases + latestWeekData.cases
+
             val allCasesFlow = flow {
                 emit(allCases)
             }
 
             every { homeDataSource.savedAreaCases() } returns allCasesFlow
 
-            val emittedItems = mutableListOf<List<AreaCaseList>>()
+            val emittedItems = mutableListOf<List<AreaCaseListModel>>()
 
             sut.execute().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
 
-            val enittedAreaCaseList = emittedItems.first()
+            val emittedAreaCaseList = emittedItems.first()
+            val lastCaseThisWeek = latestWeekData.cases.last()
+            val lastCasePreviousWeek = previousWeekData.cases.last()
 
-            assertThat(enittedAreaCaseList[0]).isEqualTo(
-                AreaCaseList(
-                    areaName = englandFirstCase.areaName,
-                    areaCode = englandFirstCase.areaCode,
-                    cases = listOf(
-                        AreaCase(
-                            date = englandFirstCase.date,
-                            dailyLabConfirmedCases = englandFirstCase.dailyLabConfirmedCases
-                        )
-                    )
-                )
-            )
-            assertThat(enittedAreaCaseList[1]).isEqualTo(
-                AreaCaseList(
-                    areaName = ukFirstCase.areaName,
-                    areaCode = ukFirstCase.areaCode,
-                    cases = listOf(
-                        AreaCase(
-                            date = ukFirstCase.date,
-                            dailyLabConfirmedCases = ukFirstCase.dailyLabConfirmedCases
-                        ), AreaCase(
-                            date = ukSecondCase.date,
-                            dailyLabConfirmedCases = ukSecondCase.dailyLabConfirmedCases
-                        )
-                    )
+            assertThat(emittedAreaCaseList.first()).isEqualTo(
+                AreaCaseListModel(
+                    areaCode = lastCaseThisWeek.areaCode,
+                    areaName = lastCaseThisWeek.areaName,
+                    totalLabConfirmedCases = lastCaseThisWeek.totalLabConfirmedCases,
+                    dailyTotalLabConfirmedCasesRate = lastCaseThisWeek.dailyTotalLabConfirmedCasesRate,
+                    changeInDailyTotalLabConfirmedCasesRate = lastCaseThisWeek.dailyTotalLabConfirmedCasesRate - lastCasePreviousWeek.dailyTotalLabConfirmedCasesRate,
+                    changeInTotalLabConfirmedCases = latestWeekData.totalCasesInWeek - previousWeekData.totalCasesInWeek,
+                    totalLabConfirmedCasesLastWeek = latestWeekData.totalCasesInWeek
                 )
             )
         }
+
+    private fun buildWeeklyData(
+        startDate: LocalDate,
+        startTotalCases: Int,
+        random: Random,
+        areaCode: String,
+        areaName: String
+    ): SavedAreaCaseDtoWrapper {
+
+        var cumulativeTotal = startTotalCases
+        var caseNumber = startTotalCases + 1
+
+        val cases = (0 until 7).map {
+
+            val dailyLabConfirmedCases = random.nextInt(15)
+            cumulativeTotal += dailyLabConfirmedCases
+
+            SavedAreaCaseDto(
+                areaCode = areaCode,
+                areaName = areaName,
+                date = startDate.plusDays(it.toLong()),
+                dailyLabConfirmedCases = dailyLabConfirmedCases,
+                totalLabConfirmedCases = cumulativeTotal,
+                dailyTotalLabConfirmedCasesRate = cumulativeTotal.toDouble() / caseNumber++
+            )
+        }
+
+        return SavedAreaCaseDtoWrapper(
+            cumulativeTotalCases = cumulativeTotal,
+            totalCasesInWeek = cumulativeTotal - startTotalCases,
+            cases = cases
+        )
+    }
+
+    data class SavedAreaCaseDtoWrapper(
+        val cumulativeTotalCases: Int,
+        val totalCasesInWeek: Int,
+        val cases: List<SavedAreaCaseDto>
+    )
 }

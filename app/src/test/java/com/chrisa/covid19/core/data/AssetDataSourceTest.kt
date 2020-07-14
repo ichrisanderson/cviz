@@ -23,10 +23,8 @@ import com.chrisa.covid19.core.data.network.CasesModel
 import com.chrisa.covid19.core.data.network.DeathsModel
 import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import io.mockk.every
 import io.mockk.mockk
-import java.util.Date
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -38,7 +36,8 @@ class AssetDataSourceTest {
     private val testDispatcher = TestCoroutineDispatcher()
     private val testCoroutineScope = TestCoroutineScope(testDispatcher)
     private val moshi = Moshi.Builder()
-        .add(Date::class.java, Rfc3339DateJsonAdapter())
+        .add(LocalDateJsonAdapter())
+        .add(LocalDateTimeJsonAdapter())
         .build()
 
     private val assetManager = mockk<AssetManager>(relaxed = true)

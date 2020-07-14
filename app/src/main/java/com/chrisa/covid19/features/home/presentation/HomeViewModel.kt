@@ -23,7 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.home.domain.LoadSavedAreaCasesUseCase
-import com.chrisa.covid19.features.home.domain.models.AreaCaseList
+import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -34,8 +34,8 @@ class HomeViewModel @ViewModelInject constructor(
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _areaCases = MutableLiveData<List<AreaCaseList>>()
-    val areaCases: LiveData<List<AreaCaseList>>
+    private val _areaCases = MutableLiveData<List<AreaCaseListModel>>()
+    val areaCases: LiveData<List<AreaCaseListModel>>
         get() = _areaCases
 
     init {

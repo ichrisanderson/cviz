@@ -34,6 +34,7 @@ import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
@@ -142,7 +143,8 @@ class LocalDateJsonAdapter {
 class LocalDateTimeJsonAdapter {
     @ToJson
     fun toJson(localDateTime: LocalDateTime): String {
-        return localDateTime.format(FORMATTER)
+        return localDateTime.atZone(ZoneId.of("UTC"))
+            .format(FORMATTER)
     }
 
     @FromJson
