@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.domain
+package com.chrisa.covid19.features.home.domain.helpers
 
 import com.chrisa.covid19.features.home.domain.models.WeeklyCaseBreakdownModel
 import com.chrisa.covid19.features.home.domain.models.WeeklyCaseDifferenceModel

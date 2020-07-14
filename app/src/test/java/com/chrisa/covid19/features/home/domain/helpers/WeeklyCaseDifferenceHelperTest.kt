@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.domain
+package com.chrisa.covid19.features.home.domain.helpers
 
 import com.chrisa.covid19.features.home.domain.models.WeeklyCaseBreakdownModel
 import com.google.common.truth.Truth.assertThat
@@ -22,7 +22,8 @@ import org.junit.Test
 
 class WeeklyCaseDifferenceHelperTest {
 
-    private val sut = WeeklyCaseDifferenceHelper()
+    private val sut =
+        WeeklyCaseDifferenceHelper()
 
     @Test
     fun `WHEN weeklyCaseDifference THEN rate and weekly lab case differences are calculated`() {

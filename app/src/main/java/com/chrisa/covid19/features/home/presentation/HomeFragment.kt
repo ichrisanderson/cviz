@@ -34,7 +34,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fakeSearchBar.setOnClickListener { navigateToHome() }
-
         viewModel.areaCases.observe(viewLifecycleOwner, Observer {
             val cases = it ?: return@Observer
         })

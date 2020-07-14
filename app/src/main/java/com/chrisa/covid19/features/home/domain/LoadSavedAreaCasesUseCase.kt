@@ -17,6 +17,8 @@
 package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
+import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
+import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
 import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -41,6 +43,10 @@ class LoadSavedAreaCasesUseCase @Inject constructor(
                         val dateNow = LocalDate.from(OffsetDateTime.now(ZoneOffset.UTC))
                         val allCases = group.value
 
+                        // TODO: Reported data needs cleaning up on import, will be better
+                        // to calculate averages when inputting into DB - the totalLabConfirmedCases
+                        // are undereported - we need to calcualte the difference in total figures to get the
+                        // real reported numbers.
                         val pastTwoWeekCaseBreakdown =
                             pastTwoWeekCaseBreakdownHelper.pastTwoWeekCaseBreakdown(
                                 dateNow,

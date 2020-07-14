@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.domain
+package com.chrisa.covid19.features.home.domain.helpers
 
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.models.WeeklyCaseBreakdownModel
@@ -25,7 +25,8 @@ import org.junit.Test
 
 class PastTwoWeekCaseBreakdownHelperTest {
 
-    private val sut = PastTwoWeekCaseBreakdownHelper()
+    private val sut =
+        PastTwoWeekCaseBreakdownHelper()
 
     @Test
     fun `GIVEN no data set WHEN pastTwoWeekCaseBreakdown called THEN past 2 weeks of data is empty`() {
