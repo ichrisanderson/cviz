@@ -60,6 +60,8 @@ kapt {
 }
 
 dependencies {
+    /* desugaring */
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
     /* kotlin */
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"
@@ -83,7 +85,7 @@ dependencies {
     implementation 'com.jakewharton.rxbinding4:rxbinding-appcompat:4.0.0'
     implementation 'com.jakewharton.rxbinding4:rxbinding-core:4.0.0'
 
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.9'
+    /* flow */
     implementation "com.github.akarnokd:kotlin-flow-extensions:0.0.5"
 
     /* room */

@@ -16,11 +16,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:gravity="center"
             android:layout_marginTop="16dp"
             android:drawableStart="@drawable/ic_covid_19"
             android:drawablePadding="8dp"
             android:fontFamily="sans-serif-black"
+            android:gravity="center"
             android:includeFontPadding="true"
             android:text="@string/app_name"
             android:textColor="@color/colorOnPrimary"
@@ -39,14 +39,16 @@
         android:background="#666"
         app:layout_constraintTop_toBottomOf="@+id/appBarContainer" />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.airbnb.epoxy.EpoxyRecyclerView
         android:id="@+id/homeRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/appBarContainer"
+        android:background="#EEE"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
     <LinearLayout
+        android:id="@+id/homeEmptyView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
