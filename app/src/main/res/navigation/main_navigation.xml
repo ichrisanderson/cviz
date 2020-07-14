@@ -21,6 +21,9 @@
         <action
             android:id="@+id/home_to_search"
             app:destination="@id/search" />
+        <action
+            android:id="@+id/home_to_area"
+            app:destination="@id/area" />
     </fragment>
 
     <fragment

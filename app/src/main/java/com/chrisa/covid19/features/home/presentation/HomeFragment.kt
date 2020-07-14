@@ -24,6 +24,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.chrisa.covid19.R
+import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
 import com.chrisa.covid19.features.home.presentation.widgets.savedAreaCard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -48,6 +49,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     savedAreaCard {
                         id(areCase.areaCode)
                         areCase(areCase)
+                        clickListener { _ ->
+                            navigateToArea(areCase)
+                        }
                     }
                 }
             }
@@ -56,5 +60,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun navigateToHome() {
         findNavController().navigate(HomeFragmentDirections.homeToSearch())
+    }
+
+    private fun navigateToArea(area: AreaCaseListModel) {
+        val action =
+            HomeFragmentDirections.homeToArea(
+                areaCode = area.areaCode,
+                areaName = area.areaName
+            )
+        findNavController().navigate(action)
     }
 }

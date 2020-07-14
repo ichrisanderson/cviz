@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.home.presentation.widgets
 import android.content.Context
 import android.util.AttributeSet
 import androidx.cardview.widget.CardView
+import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
@@ -28,6 +29,15 @@ import kotlinx.android.synthetic.main.widget_saved_area_card.view.*
 
 @ModelView(defaultLayout = R.layout.widget_saved_area_card)
 class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
+
+    var clickListener: OnClickListener? = null
+        @CallbackProp set
+
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        setOnClickListener { clickListener?.onClick(this) }
+    }
+
     @ModelProp
     fun areCase(areCase: AreaCaseListModel) {
         areaName.text = areCase.areaName
