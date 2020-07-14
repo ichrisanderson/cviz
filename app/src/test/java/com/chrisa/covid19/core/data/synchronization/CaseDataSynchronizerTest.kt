@@ -20,15 +20,15 @@ import com.chrisa.covid19.core.data.OfflineDataSource
 import com.chrisa.covid19.core.data.TestData
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.MetadataModel
-import com.chrisa.covid19.core.util.DateUtils.addHours
-import com.chrisa.covid19.core.util.DateUtils.toGmtDate
+import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import java.util.Date
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.MediaType
@@ -61,12 +61,12 @@ class CaseDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofEpochSecond(1, 1, ZoneOffset.ofHours(0))
             )
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getCases(date) } returns Response.success(null)
             every { offlineDataSource.casesMetadata() } returns metadata
@@ -82,12 +82,12 @@ class CaseDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofEpochSecond(1, 1, ZoneOffset.ofHours(0))
             )
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getCases(date) } returns Response.error(
                 404,
@@ -109,12 +109,12 @@ class CaseDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofEpochSecond(1, 1, ZoneOffset.ofHours(0))
             )
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getCases(date) } returns Response.success(null)
             every { offlineDataSource.casesMetadata() } returns metadata
@@ -132,14 +132,14 @@ class CaseDataSynchronizerTest {
 
             val metadata = MetadataModel(
                 disclaimer = "Test disclaimer",
-                lastUpdatedAt = Date(1)
+                lastUpdatedAt = LocalDateTime.ofEpochSecond(1, 1, ZoneOffset.ofHours(0))
             )
 
             val caseModel = TestData.TEST_CASE_MODEL
 
             val date = metadata.lastUpdatedAt
-                .addHours(1)
-                .toGmtDate()
+                .plusHours(1)
+                .formatAsGmt()
 
             coEvery { covidApi.getCases(date) } returns Response.success(caseModel)
 
@@ -154,7 +154,7 @@ class CaseDataSynchronizerTest {
             coVerify(exactly = 1) {
                 offlineDataSource.insertDailyRecord(
                     caseModel.dailyRecords,
-                    caseModel.metadata.lastUpdatedAt
+                    caseModel.metadata.lastUpdatedAt.toLocalDate()
                 )
             }
 

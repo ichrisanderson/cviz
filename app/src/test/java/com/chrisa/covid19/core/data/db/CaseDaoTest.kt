@@ -21,7 +21,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
-import java.util.Date
+import java.time.LocalDate
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -58,7 +58,7 @@ class CaseDaoTest {
                     areaName = "UK",
                     dailyTotalLabConfirmedCasesRate = 11.0,
                     dailyLabConfirmedCases = 1,
-                    date = Date(0),
+                    date = LocalDate.ofEpochDay(0),
                     totalLabConfirmedCases = 1
                 )
             )
@@ -74,7 +74,7 @@ class CaseDaoTest {
         val newCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0
@@ -82,7 +82,7 @@ class CaseDaoTest {
 
         db.casesDao().insertAll(listOf(newCaseEntity))
 
-        val cases = db.casesDao().searchAllCases(newCaseEntity.areaCode)
+        val cases = db.casesDao().areaCases(newCaseEntity.areaCode)
 
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases.first()).isEqualTo(newCaseEntity)
@@ -94,7 +94,7 @@ class CaseDaoTest {
         val oldCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 9,
             totalLabConfirmedCases = 9,
             dailyTotalLabConfirmedCasesRate = 9.0
@@ -105,7 +105,7 @@ class CaseDaoTest {
         val newCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0
@@ -113,7 +113,7 @@ class CaseDaoTest {
 
         db.casesDao().insertAll(listOf(newCaseEntity))
 
-        val cases = db.casesDao().searchAllCases(oldCaseEntity.areaCode)
+        val cases = db.casesDao().areaCases(oldCaseEntity.areaCode)
 
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases[0]).isEqualTo(newCaseEntity)
@@ -125,7 +125,7 @@ class CaseDaoTest {
         val oldCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 9,
             totalLabConfirmedCases = 9,
             dailyTotalLabConfirmedCasesRate = 9.0
@@ -136,7 +136,7 @@ class CaseDaoTest {
         val newCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(1),
+            date = LocalDate.ofEpochDay(1),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0
@@ -144,7 +144,7 @@ class CaseDaoTest {
 
         db.casesDao().insertAll(listOf(newCaseEntity))
 
-        val cases = db.casesDao().searchAllCases(oldCaseEntity.areaCode)
+        val cases = db.casesDao().areaCases(oldCaseEntity.areaCode)
 
         assertThat(cases.size).isEqualTo(2)
         assertThat(cases[0]).isEqualTo(oldCaseEntity)
@@ -157,7 +157,7 @@ class CaseDaoTest {
         val newCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0
@@ -165,7 +165,7 @@ class CaseDaoTest {
 
         db.casesDao().insertAll(listOf(newCaseEntity))
 
-        val cases = db.casesDao().searchAllAreas(newCaseEntity.areaName)
+        val cases = db.casesDao().allAreas(newCaseEntity.areaName)
 
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases.first()).isEqualTo(
@@ -182,7 +182,7 @@ class CaseDaoTest {
         val oldCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 9,
             totalLabConfirmedCases = 9,
             dailyTotalLabConfirmedCasesRate = 9.0
@@ -193,7 +193,7 @@ class CaseDaoTest {
         val newCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(1),
+            date = LocalDate.ofEpochDay(1),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0
@@ -201,10 +201,15 @@ class CaseDaoTest {
 
         db.casesDao().insertAll(listOf(newCaseEntity))
 
-        val cases = db.casesDao().searchAllAreas(oldCaseEntity.areaName)
+        val cases = db.casesDao().allAreas(oldCaseEntity.areaName)
 
         assertThat(cases.size).isEqualTo(1)
-        assertThat(cases[0]).isEqualTo(AreaTupleEntity(newCaseEntity.areaCode, newCaseEntity.areaName))
+        assertThat(cases[0]).isEqualTo(
+            AreaTupleEntity(
+                newCaseEntity.areaCode,
+                newCaseEntity.areaName
+            )
+        )
     }
 
     @Test
@@ -213,7 +218,7 @@ class CaseDaoTest {
         val oldCaseEntity = CaseEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 9,
             totalLabConfirmedCases = 9,
             dailyTotalLabConfirmedCasesRate = 9.0
@@ -224,7 +229,7 @@ class CaseDaoTest {
         val newCaseEntity = CaseEntity(
             areaCode = "002",
             areaName = "UK",
-            date = Date(1),
+            date = LocalDate.ofEpochDay(1),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0
@@ -232,11 +237,100 @@ class CaseDaoTest {
 
         db.casesDao().insertAll(listOf(newCaseEntity))
 
-        val cases = db.casesDao().searchAllAreas(oldCaseEntity.areaName)
+        val cases = db.casesDao().allAreas(oldCaseEntity.areaName)
 
         assertThat(cases.size).isEqualTo(2)
-        assertThat(cases[0]).isEqualTo(AreaTupleEntity(oldCaseEntity.areaCode, oldCaseEntity.areaName))
-        assertThat(cases[1]).isEqualTo(AreaTupleEntity(newCaseEntity.areaCode, newCaseEntity.areaName))
+        assertThat(cases[0]).isEqualTo(
+            AreaTupleEntity(
+                oldCaseEntity.areaCode,
+                oldCaseEntity.areaName
+            )
+        )
+        assertThat(cases[1]).isEqualTo(
+            AreaTupleEntity(
+                newCaseEntity.areaCode,
+                newCaseEntity.areaName
+            )
+        )
+    }
+
+    @Test
+    fun `GIVEN no saved areas WHEN searchAllSavedAreaCases called THEN no cases are returned`() {
+
+        val caseEntity = CaseEntity(
+            areaCode = "001",
+            areaName = "UK",
+            date = LocalDate.ofEpochDay(0),
+            dailyLabConfirmedCases = 9,
+            totalLabConfirmedCases = 9,
+            dailyTotalLabConfirmedCasesRate = 9.0
+        )
+
+        db.casesDao().insertAll(listOf(caseEntity))
+
+        val allSavedAreaCases = db.casesDao().savedAreaCases()
+
+//        assertThat(allSavedAreaCases.size).isEqualTo(0)
+    }
+
+    @Test
+    fun `GIVEN saved area exist WHEN searchAllSavedAreaCases called THEN area cases are returned`() {
+
+        val caseEntity = CaseEntity(
+            areaCode = "001",
+            areaName = "UK",
+            date = LocalDate.ofEpochDay(0),
+            dailyLabConfirmedCases = 9,
+            totalLabConfirmedCases = 9,
+            dailyTotalLabConfirmedCasesRate = 9.0
+        )
+
+        val insertedCases = listOf(
+            caseEntity,
+            caseEntity.copy(areaCode = "002", areaName = "England")
+        )
+
+        db.casesDao().insertAll(insertedCases)
+
+        db.savedAreaDao().insert(SavedAreaEntity(areaCode = caseEntity.areaCode))
+
+        val cases = db.casesDao().savedAreaCases()
+
+//        assertThat(cases.size).isEqualTo(1)
+//        assertThat(cases[0]).isEqualTo(insertedCases[0])
+    }
+
+    @Test
+    fun `GIVEN all case areas are saved WHEN searchAllSavedAreaCases called THEN all cases are returned`() {
+
+        val caseEntity = CaseEntity(
+            areaCode = "001",
+            areaName = "UK",
+            date = LocalDate.ofEpochDay(0),
+            dailyLabConfirmedCases = 9,
+            totalLabConfirmedCases = 9,
+            dailyTotalLabConfirmedCasesRate = 9.0
+        )
+
+        val insertedCases = listOf(
+            caseEntity,
+            caseEntity.copy(areaCode = "002", areaName = "England")
+        )
+
+        db.casesDao().insertAll(insertedCases)
+
+        val insertedCasesAsSavedAreaEntities =
+            insertedCases.map { SavedAreaEntity(areaCode = it.areaCode) }
+
+        insertedCasesAsSavedAreaEntities.forEach { savedAreaEntity ->
+            db.savedAreaDao().insert(savedAreaEntity)
+        }
+
+        val cases = db.casesDao().savedAreaCases()
+
+//        assertThat(cases.size).isEqualTo(2)
+//        assertThat(cases[0]).isEqualTo(insertedCases[0])
+//        assertThat(cases[1]).isEqualTo(insertedCases[1])
     }
 
     @After

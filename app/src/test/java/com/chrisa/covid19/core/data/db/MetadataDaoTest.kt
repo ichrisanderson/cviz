@@ -23,7 +23,9 @@ import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.CASE_METADATA_ID
 import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.DEATH_METADATA_ID
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -51,12 +53,12 @@ class MetadataDaoTest {
         val newMetadata = MetadataEntity(
             id = CASE_METADATA_ID,
             disclaimer = "New metadata",
-            lastUpdatedAt = Date(1)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         db.metadataDao().insertAll(listOf(newMetadata))
 
-        val metadata = db.metadataDao().searchMetadata(CASE_METADATA_ID)
+        val metadata = db.metadataDao().metadata(CASE_METADATA_ID)
 
         assertThat(metadata.size).isEqualTo(1)
         assertThat(metadata.first()).isEqualTo(newMetadata)
@@ -68,19 +70,19 @@ class MetadataDaoTest {
         val oldMetadata = MetadataEntity(
             id = CASE_METADATA_ID,
             disclaimer = "Old Metadata",
-            lastUpdatedAt = Date(0)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
         db.metadataDao().insertAll(listOf(oldMetadata))
 
         val newMetadata = MetadataEntity(
             id = CASE_METADATA_ID,
             disclaimer = "New metadata",
-            lastUpdatedAt = Date(1)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         db.metadataDao().insertAll(listOf(newMetadata))
 
-        val metadata = db.metadataDao().searchMetadata(CASE_METADATA_ID)
+        val metadata = db.metadataDao().metadata(CASE_METADATA_ID)
 
         assertThat(metadata.size).isEqualTo(1)
         assertThat(metadata.first()).isEqualTo(newMetadata)
@@ -88,7 +90,7 @@ class MetadataDaoTest {
 
     @Test
     fun `GIVEN no case metadata WHEN casesMetadata called THEN metadata is null`() {
-        val casesMetadata = db.metadataDao().searchMetadata(CASE_METADATA_ID)
+        val casesMetadata = db.metadataDao().metadata(CASE_METADATA_ID)
         assertThat(casesMetadata).isEmpty()
     }
 
@@ -97,17 +99,17 @@ class MetadataDaoTest {
         val metadata = MetadataEntity(
             id = CASE_METADATA_ID,
             disclaimer = "test Metadata",
-            lastUpdatedAt = Date(0)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
         db.metadataDao().insertAll(listOf(metadata))
 
-        val casesMetadata = db.metadataDao().searchMetadata(CASE_METADATA_ID)
+        val casesMetadata = db.metadataDao().metadata(CASE_METADATA_ID)
         assertThat(casesMetadata).isEqualTo(listOf(metadata))
     }
 
     @Test
     fun `GIVEN no death metadata WHEN deathsMetadata called THEN death metadata is null`() {
-        val deathsMetadata = db.metadataDao().searchMetadata(DEATH_METADATA_ID)
+        val deathsMetadata = db.metadataDao().metadata(DEATH_METADATA_ID)
         assertThat(deathsMetadata).isEmpty()
     }
 
@@ -116,11 +118,11 @@ class MetadataDaoTest {
         val metadata = MetadataEntity(
             id = DEATH_METADATA_ID,
             disclaimer = "Test Metadata",
-            lastUpdatedAt = Date(0)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
         db.metadataDao().insertAll(listOf(metadata))
 
-        val deathsMetadata = db.metadataDao().searchMetadata(DEATH_METADATA_ID)
+        val deathsMetadata = db.metadataDao().metadata(DEATH_METADATA_ID)
         assertThat(deathsMetadata).isEqualTo(listOf(metadata))
     }
 

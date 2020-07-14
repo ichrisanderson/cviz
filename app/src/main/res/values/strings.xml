@@ -6,6 +6,9 @@
     <string name="empty_locations_body">Search for locations to see latest Covid-19 data</string>
 
     <string name="total_lab_confirmed_cases">Number of lab-confirmed UK cases</string>
+    <string name="total_cases">Total cases</string>
+    <string name="cases_this_week">Cases this week</string>
+    <string name="change_cases_this_week">Change in cases this week</string>
 
     <string name="latest_cases_chart_label">Latest cases</string>
     <string name="all_cases_chart_label">All cases</string>

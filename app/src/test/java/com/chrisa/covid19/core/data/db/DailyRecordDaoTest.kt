@@ -21,7 +21,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
-import java.util.Date
+import java.time.LocalDate
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -48,7 +48,7 @@ class DailyRecordDaoTest {
 
         val newDailyRecordsEntity = DailyRecordEntity(
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33
         )
@@ -66,7 +66,7 @@ class DailyRecordDaoTest {
 
         val oldDailyRecordsEntity = DailyRecordEntity(
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 0,
             totalLabConfirmedCases = 0
         )
@@ -75,7 +75,7 @@ class DailyRecordDaoTest {
 
         val newDailyRecordsEntity = DailyRecordEntity(
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33
         )
@@ -93,7 +93,7 @@ class DailyRecordDaoTest {
 
         val oldDailyRecordsEntity = DailyRecordEntity(
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 0,
             totalLabConfirmedCases = 0
         )
@@ -102,14 +102,15 @@ class DailyRecordDaoTest {
 
         val newDailyRecordsEntity = DailyRecordEntity(
             areaName = "UK",
-            date = Date(1),
+            date = LocalDate.ofEpochDay(1),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33
         )
 
         db.dailyRecordsDao().insertAll(listOf(newDailyRecordsEntity))
 
-        val dailyRecords = db.dailyRecordsDao().searchDailyRecords(newDailyRecordsEntity.areaName)
+        val dailyRecords = db.dailyRecordsDao()
+            .searchDailyRecords(newDailyRecordsEntity.areaName)
 
         assertThat(dailyRecords.size).isEqualTo(2)
         assertThat(dailyRecords[0]).isEqualTo(oldDailyRecordsEntity)

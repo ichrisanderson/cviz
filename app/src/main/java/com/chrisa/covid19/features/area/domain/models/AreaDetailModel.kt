@@ -16,10 +16,10 @@
 
 package com.chrisa.covid19.features.area.domain.models
 
-import java.util.Date
+import java.time.LocalDateTime
 
 data class AreaDetailModel(
-    val lastUpdatedAt: Date,
+    val lastUpdatedAt: LocalDateTime,
     val allCases: List<CaseModel>,
     val latestCases: List<CaseModel>
 )

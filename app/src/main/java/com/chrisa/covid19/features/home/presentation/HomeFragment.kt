@@ -18,21 +18,56 @@ package com.chrisa.covid19.features.home.presentation
 
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.chrisa.covid19.R
+import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
+import com.chrisa.covid19.features.home.presentation.widgets.savedAreaCard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.*
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
+    private val viewModel: HomeViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         fakeSearchBar.setOnClickListener { navigateToHome() }
+        bindAreaCases()
+    }
+
+    private fun bindAreaCases() {
+        viewModel.areaCases.observe(viewLifecycleOwner, Observer {
+            val cases = it ?: return@Observer
+            homeEmptyView.isVisible = cases.isEmpty()
+            homeRecyclerView.withModels {
+                cases.forEach { areCase ->
+                    savedAreaCard {
+                        id(areCase.areaCode)
+                        areCase(areCase)
+                        clickListener { _ ->
+                            navigateToArea(areCase)
+                        }
+                    }
+                }
+            }
+        })
     }
 
     private fun navigateToHome() {
         findNavController().navigate(HomeFragmentDirections.homeToSearch())
+    }
+
+    private fun navigateToArea(area: AreaCaseListModel) {
+        val action =
+            HomeFragmentDirections.homeToArea(
+                areaCode = area.areaCode,
+                areaName = area.areaName
+            )
+        findNavController().navigate(action)
     }
 }

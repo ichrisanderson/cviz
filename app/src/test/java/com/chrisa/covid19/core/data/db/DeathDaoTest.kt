@@ -21,7 +21,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
-import java.util.Date
+import java.time.LocalDate
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -56,7 +56,7 @@ class DeathDaoTest {
                 DeathEntity(
                     areaCode = "1234",
                     areaName = "UK",
-                    date = Date(0),
+                    date = LocalDate.ofEpochDay(0),
                     dailyChangeInDeaths = 1,
                     cumulativeDeaths = 2
                 )
@@ -72,14 +72,14 @@ class DeathDaoTest {
         val newDeathsEntity = DeathEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 0,
             dailyChangeInDeaths = 2
         )
 
         db.deathsDao().insertAll(listOf(newDeathsEntity))
 
-        val deaths = db.deathsDao().searchAllDeathsOrderedByDateDesc(newDeathsEntity.areaCode)
+        val deaths = db.deathsDao().areaDeaths(newDeathsEntity.areaCode)
 
         assertThat(deaths.size).isEqualTo(1)
 
@@ -92,7 +92,7 @@ class DeathDaoTest {
         val oldDeathsEntity = DeathEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 0,
             dailyChangeInDeaths = 2
         )
@@ -102,14 +102,14 @@ class DeathDaoTest {
         val newDeathsEntity = DeathEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 11,
             dailyChangeInDeaths = 22
         )
 
         db.deathsDao().insertAll(listOf(newDeathsEntity))
 
-        val deaths = db.deathsDao().searchAllDeathsOrderedByDateDesc(oldDeathsEntity.areaCode)
+        val deaths = db.deathsDao().areaDeaths(oldDeathsEntity.areaCode)
 
         assertThat(deaths.size).isEqualTo(1)
         assertThat(deaths[0]).isEqualTo(newDeathsEntity)
@@ -121,7 +121,7 @@ class DeathDaoTest {
         val oldDeathsEntity = DeathEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(0),
+            date = LocalDate.ofEpochDay(0),
             cumulativeDeaths = 0,
             dailyChangeInDeaths = 2
         )
@@ -131,13 +131,13 @@ class DeathDaoTest {
         val newDeathsEntity = DeathEntity(
             areaCode = "001",
             areaName = "UK",
-            date = Date(1),
+            date = LocalDate.ofEpochDay(1),
             cumulativeDeaths = 11,
             dailyChangeInDeaths = 22
         )
         db.deathsDao().insertAll(listOf(newDeathsEntity))
 
-        val deaths = db.deathsDao().searchAllDeathsOrderedByDateDesc(oldDeathsEntity.areaCode)
+        val deaths = db.deathsDao().areaDeaths(oldDeathsEntity.areaCode)
 
         assertThat(deaths.size).isEqualTo(2)
         assertThat(deaths[0]).isEqualTo(newDeathsEntity)

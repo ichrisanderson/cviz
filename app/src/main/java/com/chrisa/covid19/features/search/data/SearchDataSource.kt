@@ -26,7 +26,7 @@ class SearchDataSource @Inject constructor(
 ) {
     fun searchAreas(query: String): List<AreaDTO> {
         return appDatabase.casesDao()
-            .searchAllAreas(searchQueryTransformer.transformQuery(query))
+            .allAreas(searchQueryTransformer.transformQuery(query))
             .map { AreaDTO(it.areaCode, it.areaName) }
     }
 }

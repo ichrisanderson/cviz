@@ -68,7 +68,7 @@ class AssetBootstrapperTest {
             verify {
                 offlineDataSource.insertDailyRecord(
                     casesModel.dailyRecords,
-                    casesModel.metadata.lastUpdatedAt
+                    casesModel.metadata.lastUpdatedAt.toLocalDate()
                 )
             }
             verify { offlineDataSource.insertCases(allCases) }

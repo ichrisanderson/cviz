@@ -16,9 +16,9 @@
 
 package com.chrisa.covid19.features.area.domain.models
 
-import java.util.Date
+import java.time.LocalDate
 
 data class CaseModel(
     val dailyLabConfirmedCases: Int,
-    val date: Date
+    val date: LocalDate
 )

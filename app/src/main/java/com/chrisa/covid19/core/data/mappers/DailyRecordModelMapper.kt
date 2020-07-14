@@ -18,14 +18,14 @@ package com.chrisa.covid19.core.data.mappers
 
 import com.chrisa.covid19.core.data.db.DailyRecordEntity
 import com.chrisa.covid19.core.data.network.DailyRecordModel
-import java.util.Date
+import java.time.LocalDate
 import javax.inject.Inject
 
 class DailyRecordModelMapper @Inject constructor() {
 
     fun mapToDailyRecordsEntity(
         dailyRecord: DailyRecordModel,
-        date: Date
+        date: LocalDate
     ): DailyRecordEntity {
         return DailyRecordEntity(
             areaName = dailyRecord.areaName,

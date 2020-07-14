@@ -19,7 +19,9 @@ package com.chrisa.covid19.core.data.mappers
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.MetadataModel
 import com.google.common.truth.Truth.assertThat
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import org.junit.Test
 
 class MetadataModelMapperTest {
@@ -32,7 +34,7 @@ class MetadataModelMapperTest {
         val id = "Foo"
         val metadataModel = MetadataModel(
             disclaimer = "New metadata",
-            lastUpdatedAt = Date(1)
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         val entity = sut.mapToMetadataEntity(id, metadataModel)

@@ -24,13 +24,19 @@ import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.text.SimpleDateFormat
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
 
 class AreaCasesModelMapper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    private val formatter = DateTimeFormatter
+        .ofPattern("dd-MMM")
+        .withLocale(Locale.UK)
+        .withZone(ZoneId.of("GMT"))
+
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
@@ -48,11 +54,7 @@ class AreaCasesModelMapper @Inject constructor(
     private fun mapCaseModelToBarChartItem(caseModel: CaseModel): BarChartItem {
         return BarChartItem(
             caseModel.dailyLabConfirmedCases.toFloat(),
-            labelFormatter.format(caseModel.date)
+            caseModel.date.format(formatter)
         )
-    }
-
-    companion object {
-        private val labelFormatter = SimpleDateFormat("dd-MM", Locale.UK)
     }
 }

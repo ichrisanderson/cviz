@@ -25,8 +25,12 @@ import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import org.junit.Test
 
@@ -34,20 +38,23 @@ class AreaCasesModelMapperTest {
 
     private val context = mockk<Context>()
     private val sut = AreaCasesModelMapper(context)
-    private val labelFormatter = SimpleDateFormat("dd-MM", Locale.UK)
+    private val formatter = DateTimeFormatter
+        .ofPattern("dd-MMM")
+        .withLocale(Locale.UK)
+        .withZone(ZoneId.of("GMT"))
 
     @Test
     fun `WHEN mapAreaDetailModel called THEN ui model is mapped correctly`() {
 
         val caseModels = listOf(
             CaseModel(
-                date = Date(0),
+                date = LocalDate.ofEpochDay(0),
                 dailyLabConfirmedCases = 123
             )
         )
 
         val areaDetailModel = AreaDetailModel(
-            lastUpdatedAt = Date(0),
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
             allCases = caseModels,
             latestCases = caseModels.takeLast(7)
         )
@@ -55,7 +62,7 @@ class AreaCasesModelMapperTest {
         val allBarChartData = caseModels.map {
             BarChartItem(
                 value = it.dailyLabConfirmedCases.toFloat(),
-                label = labelFormatter.format(it.date)
+                label = it.date.format(formatter)
             )
         }
 

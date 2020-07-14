@@ -30,7 +30,7 @@ import com.chrisa.covid19.core.data.network.CaseModel
 import com.chrisa.covid19.core.data.network.DailyRecordModel
 import com.chrisa.covid19.core.data.network.DeathModel
 import com.chrisa.covid19.core.data.network.MetadataModel
-import java.util.Date
+import java.time.LocalDate
 import javax.inject.Inject
 
 class OfflineDataSource @Inject constructor(
@@ -49,7 +49,7 @@ class OfflineDataSource @Inject constructor(
     }
 
     fun casesMetadata(): MetadataModel? {
-        return metadataDao.searchMetadata(CASE_METADATA_ID).map {
+        return metadataDao.metadata(CASE_METADATA_ID).map {
             MetadataModel(
                 disclaimer = it.disclaimer,
                 lastUpdatedAt = it.lastUpdatedAt
@@ -62,7 +62,7 @@ class OfflineDataSource @Inject constructor(
         metadataDao.insertAll(listOf(metadataEntity))
     }
 
-    fun insertDailyRecord(dailyRecord: DailyRecordModel, date: Date) {
+    fun insertDailyRecord(dailyRecord: DailyRecordModel, date: LocalDate) {
         val dailyRecordsEntity = dailyRecordModelMapper.mapToDailyRecordsEntity(dailyRecord, date)
         dailyRecordDao.insertAll(listOf(dailyRecordsEntity))
     }
@@ -82,7 +82,7 @@ class OfflineDataSource @Inject constructor(
     }
 
     fun deathsMetadata(): MetadataModel? {
-        return metadataDao.searchMetadata(DEATH_METADATA_ID).map {
+        return metadataDao.metadata(DEATH_METADATA_ID).map {
             MetadataModel(
                 disclaimer = it.disclaimer,
                 lastUpdatedAt = it.lastUpdatedAt

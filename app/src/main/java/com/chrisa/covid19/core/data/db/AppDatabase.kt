@@ -29,7 +29,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import java.util.Date
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.flow.Flow
 
 @Database(
@@ -43,7 +46,10 @@ import kotlinx.coroutines.flow.Flow
     version = 1,
     exportSchema = false
 )
-@TypeConverters(DateConverter::class)
+@TypeConverters(
+    LocalDateConverter::class,
+    LocalDateTimeConverter::class
+)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun casesDao(): CaseDao
@@ -62,15 +68,27 @@ abstract class AppDatabase : RoomDatabase() {
     }
 }
 
-class DateConverter {
+class LocalDateConverter {
     @TypeConverter
-    fun fromTimestamp(value: Long?): Date? {
-        return value?.let { Date(it) }
+    fun fromTimestamp(value: Long?): LocalDate? {
+        return value?.let { LocalDate.ofEpochDay(it) }
     }
 
     @TypeConverter
-    fun dateToTimestamp(date: Date?): Long? {
-        return date?.time?.toLong()
+    fun dateToTimestamp(date: LocalDate?): Long? {
+        return date?.toEpochDay()
+    }
+}
+
+class LocalDateTimeConverter {
+    @TypeConverter
+    fun fromTimestamp(value: Long?): LocalDateTime? {
+        return value?.let { LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneOffset.UTC) }
+    }
+
+    @TypeConverter
+    fun dateToTimestamp(date: LocalDateTime?): Long? {
+        return date?.atZone(ZoneOffset.UTC)?.toInstant()?.toEpochMilli()
     }
 }
 
@@ -90,7 +108,7 @@ data class CaseEntity(
     @ColumnInfo(name = "totalLabConfirmedCases")
     val totalLabConfirmedCases: Int,
     @ColumnInfo(name = "date")
-    val date: Date
+    val date: LocalDate
 )
 
 data class AreaTupleEntity(
@@ -107,10 +125,13 @@ interface CaseDao {
     fun casesCount(): Int
 
     @Query("SELECT DISTINCT areaCode, areaName FROM cases WHERE areaName LIKE :areaName ORDER BY areaName ASC")
-    fun searchAllAreas(areaName: String): List<AreaTupleEntity>
+    fun allAreas(areaName: String): List<AreaTupleEntity>
 
     @Query("SELECT * FROM cases WHERE areaCode = :areaCode ORDER BY date ASC")
-    fun searchAllCases(areaCode: String): List<CaseEntity>
+    fun areaCases(areaCode: String): List<CaseEntity>
+
+    @Query("SELECT * FROM cases INNER JOIN savedArea ON cases.areaCode = savedArea.areaCode ORDER BY date ASC")
+    fun savedAreaCases(): Flow<List<CaseEntity>>
 }
 
 @Entity(
@@ -123,7 +144,7 @@ data class DeathEntity(
     @ColumnInfo(name = "areaName")
     val areaName: String,
     @ColumnInfo(name = "date")
-    val date: Date,
+    val date: LocalDate,
     @ColumnInfo(name = "cumulativeDeaths")
     val cumulativeDeaths: Int,
     @ColumnInfo(name = "dailyChangeInDeaths")
@@ -139,7 +160,7 @@ interface DeathDao {
     fun deathsCount(): Int
 
     @Query("SELECT * FROM deaths WHERE areaCode = :areaCode ORDER BY date DESC")
-    fun searchAllDeathsOrderedByDateDesc(areaCode: String): List<DeathEntity>
+    fun areaDeaths(areaCode: String): List<DeathEntity>
 }
 
 @Entity(
@@ -154,7 +175,7 @@ data class DailyRecordEntity(
     @ColumnInfo(name = "totalLabConfirmedCases")
     val totalLabConfirmedCases: Int,
     @ColumnInfo(name = "date")
-    val date: Date
+    val date: LocalDate
 )
 
 @Dao
@@ -179,7 +200,7 @@ data class MetadataEntity(
     @ColumnInfo(name = "disclaimer")
     val disclaimer: String,
     @ColumnInfo(name = "lastUpdatedAt")
-    val lastUpdatedAt: Date
+    val lastUpdatedAt: LocalDateTime
 ) {
     companion object {
         const val CASE_METADATA_ID = "UK-CASE-METADATA"
@@ -193,7 +214,7 @@ interface MetadataDao {
     fun insertAll(metadata: List<MetadataEntity>)
 
     @Query("SELECT * FROM metadata WHERE id = :id")
-    fun searchMetadata(id: String): List<MetadataEntity>
+    fun metadata(id: String): List<MetadataEntity>
 }
 
 @Entity(

@@ -17,13 +17,16 @@
 package com.chrisa.covid19.core.util
 
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
 object DateUtils {
-    private const val RFC_1123_DATE_TIME = "EEE, dd MMM yyyy HH:mm:ss z"
+    const val RFC_1123_DATE_TIME = "EEE, dd MMM yyyy HH:mm:ss z"
 
     fun Date.addHours(hours: Int): Date {
         val calendar = Calendar.getInstance()
@@ -41,5 +44,15 @@ object DateUtils {
         formatter.timeZone = TimeZone.getTimeZone("GMT")
 
         return formatter.format(this)
+    }
+
+    fun LocalDateTime.formatAsGmt(): String {
+
+        val formatter = DateTimeFormatter
+            .ofPattern(DateUtils.RFC_1123_DATE_TIME)
+            .withLocale(Locale.UK)
+            .withZone(ZoneId.of("GMT"))
+
+        return this.format(formatter)
     }
 }

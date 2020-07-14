@@ -22,7 +22,9 @@ import com.chrisa.covid19.core.data.network.DailyRecordModel
 import com.chrisa.covid19.core.data.network.DeathModel
 import com.chrisa.covid19.core.data.network.DeathsModel
 import com.chrisa.covid19.core.data.network.MetadataModel
-import java.util.Date
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object TestData {
 
@@ -33,7 +35,7 @@ object TestData {
         changeInTotalCases = 2,
         dailyLabConfirmedCases = 3,
         dailyTotalLabConfirmedCasesRate = 40.0,
-        specimenDate = Date(0),
+        specimenDate = LocalDate.ofEpochDay(0),
         totalLabConfirmedCases = 3,
         previouslyReportedDailyCases = 3,
         previouslyReportedTotalCases = 5
@@ -46,7 +48,7 @@ object TestData {
         changeInTotalCases = 2,
         dailyLabConfirmedCases = 3,
         dailyTotalLabConfirmedCasesRate = 40.0,
-        specimenDate = Date(0),
+        specimenDate = LocalDate.ofEpochDay(0),
         totalLabConfirmedCases = 3,
         previouslyReportedDailyCases = 3,
         previouslyReportedTotalCases = 5
@@ -59,7 +61,7 @@ object TestData {
         changeInTotalCases = 2,
         dailyLabConfirmedCases = 3,
         dailyTotalLabConfirmedCasesRate = 40.0,
-        specimenDate = Date(0),
+        specimenDate = LocalDate.ofEpochDay(0),
         totalLabConfirmedCases = 3,
         previouslyReportedDailyCases = 3,
         previouslyReportedTotalCases = 5
@@ -72,7 +74,7 @@ object TestData {
         changeInTotalCases = 2,
         dailyLabConfirmedCases = 3,
         dailyTotalLabConfirmedCasesRate = 40.0,
-        specimenDate = Date(0),
+        specimenDate = LocalDate.ofEpochDay(0),
         totalLabConfirmedCases = 3,
         previouslyReportedDailyCases = 3,
         previouslyReportedTotalCases = 5
@@ -86,7 +88,7 @@ object TestData {
 
     val TEST_CASE_METADATA = MetadataModel(
         disclaimer = "Test disclaimer",
-        lastUpdatedAt = Date(0)
+        lastUpdatedAt = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2020-06-28T15:03:07.739123Z", LocalDateTime::from)
     )
 
     val TEST_CASE_MODEL = CasesModel(
@@ -103,7 +105,7 @@ object TestData {
         areaName = "Test Country",
         cumulativeDeaths = 0,
         dailyChangeInDeaths = 0,
-        reportingDate = Date(0)
+        reportingDate = LocalDate.ofEpochDay(0)
     )
 
     val TEST_OVERVIEW_DEATH_MODEL = DeathModel(
@@ -111,12 +113,12 @@ object TestData {
         areaName = "Test Overviews",
         cumulativeDeaths = 0,
         dailyChangeInDeaths = 0,
-        reportingDate = Date(0)
+        reportingDate = LocalDate.ofEpochDay(0)
     )
 
     val TEST_DEATH_METADATA = MetadataModel(
         disclaimer = "Test death disclaimer",
-        lastUpdatedAt = Date(0)
+        lastUpdatedAt = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2020-06-28T15:03:07.739123Z", LocalDateTime::from)
     )
 
     val TEST_DEATH_MODEL = DeathsModel(

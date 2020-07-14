@@ -19,7 +19,7 @@ package com.chrisa.covid19.core.data.mappers
 import com.chrisa.covid19.core.data.db.CaseEntity
 import com.chrisa.covid19.core.data.network.CaseModel
 import com.google.common.truth.Truth.assertThat
-import java.util.Date
+import java.time.LocalDate
 import org.junit.Test
 
 class CaseModelMapperTest {
@@ -32,7 +32,7 @@ class CaseModelMapperTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = 12,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 100.0,
@@ -62,7 +62,7 @@ class CaseModelMapperTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = null,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = 222.0,
@@ -92,7 +92,7 @@ class CaseModelMapperTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = null,
             totalLabConfirmedCases = 33,
             dailyTotalLabConfirmedCasesRate = null,
@@ -122,7 +122,7 @@ class CaseModelMapperTest {
         val caseModel = CaseModel(
             areaCode = "001",
             areaName = "UK",
-            specimenDate = Date(0),
+            specimenDate = LocalDate.ofEpochDay(0),
             dailyLabConfirmedCases = null,
             totalLabConfirmedCases = null,
             dailyTotalLabConfirmedCasesRate = null,
