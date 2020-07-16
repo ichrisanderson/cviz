@@ -48,7 +48,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun initRecyclerView() {
         homeRecyclerView.addItemDecoration(
             AreaItemDecoration(
-                view.context.resources.getDimensionPixelSize(
+                homeRecyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin
                 )
             )
