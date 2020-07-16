@@ -18,7 +18,9 @@ package com.chrisa.covid19.features.home.presentation.widgets
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.annotation.ColorRes
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
@@ -41,8 +43,33 @@ class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, a
     @ModelProp
     fun areCase(areCase: AreaCaseListModel) {
         areaName.text = areCase.areaName
-        totalCases.text = "${NumberFormat.getInstance().format(areCase.totalLabConfirmedCases)}"
-        casesThisWeek.text = "${areCase.totalLabConfirmedCasesLastWeek}"
-        changeInCasesThisWeek.text = "${areCase.changeInTotalLabConfirmedCases}"
+        totalCases.text = formatNumber(areCase.totalLabConfirmedCases)
+        casesThisWeek.text = formatNumber(areCase.totalLabConfirmedCasesLastWeek)
+        changeInCasesThisWeek.setTextColor(
+            ContextCompat.getColor(
+                changeInCasesThisWeek.context,
+                getChangeColour(areCase.changeInTotalLabConfirmedCases)
+            )
+        )
+        changeInCasesThisWeek.text = getChangeText(areCase.changeInTotalLabConfirmedCases)
+    }
+
+    private fun formatNumber(toFormat: Int): String {
+        return NumberFormat.getInstance().format(toFormat)
+    }
+
+    @ColorRes
+    private fun getChangeColour(change: Int): Int {
+        return when {
+            change > 0 -> R.color.negativeChange
+            else -> R.color.positiveChange
+        }
+    }
+
+    private fun getChangeText(change: Int): String {
+        return when {
+            change > 0 -> "+$change"
+            else -> "$change"
+        }
     }
 }

@@ -36,8 +36,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fakeSearchBar.setOnClickListener { navigateToHome() }
+        initSearchBar()
+        initRecyclerView()
         bindAreaCases()
+    }
+
+    private fun initSearchBar() {
+        fakeSearchBar.setOnClickListener { navigateToHome() }
+    }
+
+    private fun initRecyclerView() {
+        homeRecyclerView.addItemDecoration(
+            AreaItemDecoration(
+                homeRecyclerView.context.resources.getDimensionPixelSize(
+                    R.dimen.card_margin
+                )
+            )
+        )
     }
 
     private fun bindAreaCases() {
