@@ -86,7 +86,7 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
             totalCasesSubtitle.text = getString(
                 R.string.last_updated_date,
                 DateUtils.getRelativeTimeSpanString(
-                    areaCasesModel.lastUpdatedAt.atZone(zoneId).toInstant().epochSecond
+                    areaCasesModel.lastUpdatedAt.atZone(zoneId).toInstant().toEpochMilli()
                 )
             )
             latestCasesChart.setData(areaCasesModel.latestCasesChartData)
