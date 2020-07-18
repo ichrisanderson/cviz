@@ -38,14 +38,27 @@ class HomeViewModel @ViewModelInject constructor(
     val areaCases: LiveData<List<AreaCaseListModel>>
         get() = _areaCases
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+
+    private val _isEmpty = MutableLiveData<Boolean>()
+    val isEmpty: LiveData<Boolean>
+        get() = _isEmpty
+
     init {
         loadSavedAreaCases()
     }
 
     private fun loadSavedAreaCases() {
         viewModelScope.launch(dispatchers.io) {
+            _isLoading.postValue(true)
             val savedAreaCases = loadSavedAreaCasesUseCase.execute()
-            savedAreaCases.collect { _areaCases.postValue(it) }
+            savedAreaCases.collect {
+                _areaCases.postValue(it)
+                _isEmpty.postValue(it.isEmpty())
+                _isLoading.postValue(false)
+            }
         }
     }
 }

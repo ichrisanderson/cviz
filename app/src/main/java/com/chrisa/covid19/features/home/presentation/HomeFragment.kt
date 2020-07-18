@@ -38,6 +38,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         initSearchBar()
         initRecyclerView()
+        bindIsLoading()
+        bindIsEmpty()
         bindAreaCases()
     }
 
@@ -55,10 +57,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         )
     }
 
+    private fun bindIsEmpty() {
+        viewModel.isEmpty.observe(viewLifecycleOwner, Observer {
+            val isEmpty = it ?: return@Observer
+            homeEmptyView.isVisible = isEmpty
+        })
+    }
+
+    private fun bindIsLoading() {
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
+            val isLoading = it ?: return@Observer
+            homeProgress.isVisible = isLoading
+        })
+    }
+
     private fun bindAreaCases() {
         viewModel.areaCases.observe(viewLifecycleOwner, Observer {
             val cases = it ?: return@Observer
-            homeEmptyView.isVisible = cases.isEmpty()
+            homeRecyclerView.isVisible = true
             homeRecyclerView.withModels {
                 cases.forEach { areCase ->
                     savedAreaCard {
