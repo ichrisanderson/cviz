@@ -11,7 +11,11 @@
         tools:layout="@layout/fragment_startup">
         <action
             android:id="@+id/startup_to_home"
-            app:destination="@id/home" />
+            app:destination="@id/home"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popUpTo="@id/startup"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -20,9 +24,17 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/home_to_search"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_left"
             app:destination="@id/search" />
         <action
             android:id="@+id/home_to_area"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_left"
             app:destination="@id/area" />
     </fragment>
 
@@ -32,6 +44,8 @@
         tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/search_to_area"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
             app:destination="@id/area" />
     </fragment>
 
