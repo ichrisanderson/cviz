@@ -81,7 +81,6 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     private fun observeCases() {
         viewModel.areaCases.observe(viewLifecycleOwner, Observer {
             val areaCasesModel = it ?: return@Observer
-
             val zoneId = ZoneId.of("GMT")
             totalCasesSubtitle.text = getString(
                 R.string.last_updated_date,

@@ -44,7 +44,7 @@ class HomeViewModelTest {
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Test
-    fun `GIVEN load saved area cases succeeds WHEN viewmodel initialized THEN list of areas are emitted`() =
+    fun `GIVEN load saved area cases succeeds with non empty state WHEN viewmodel initialized THEN list of areas are emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
 
@@ -71,11 +71,47 @@ class HomeViewModelTest {
                     TestCoroutineDispatchersImpl(testDispatcher)
                 )
 
-                val statesObserver = sut.areaCases.test()
+                val areCasesObserver = sut.areaCases.test()
+                val isLoadingObserver = sut.isLoading.test()
+                val isEmptyObserver = sut.isEmpty.test()
 
                 runCurrent()
 
-                assertThat(statesObserver.values[0]).isEqualTo(listOf(areaCaseListModel))
+                assertThat(areCasesObserver.values[0]).isEqualTo(listOf(areaCaseListModel))
+                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
+                assertThat(isLoadingObserver.values[1]).isEqualTo(false)
+                assertThat(isEmptyObserver.values[0]).isEqualTo(false)
+            }
+        }
+
+    @Test
+    fun `GIVEN load saved area cases succeeds with empty state WHEN viewmodel initialized THEN empty list is emitted`() =
+        testDispatcher.runBlockingTest {
+            pauseDispatcher {
+
+                val allCases = emptyList<AreaCaseListModel>()
+
+                val allCasesFlow = flow {
+                    emit(allCases)
+                }
+
+                every { loadSavedAreaCasesUseCase.execute() } returns allCasesFlow
+
+                val sut = HomeViewModel(
+                    loadSavedAreaCasesUseCase,
+                    TestCoroutineDispatchersImpl(testDispatcher)
+                )
+
+                val areCasesObserver = sut.areaCases.test()
+                val isLoadingObserver = sut.isLoading.test()
+                val isEmptyObserver = sut.isEmpty.test()
+
+                runCurrent()
+
+                assertThat(areCasesObserver.values[0]).isEqualTo(listOf<AreaCaseListModel>())
+                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
+                assertThat(isLoadingObserver.values[1]).isEqualTo(false)
+                assertThat(isEmptyObserver.values[0]).isEqualTo(true)
             }
         }
 }
