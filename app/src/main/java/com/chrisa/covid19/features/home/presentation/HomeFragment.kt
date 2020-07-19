@@ -24,6 +24,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
 import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
 import com.chrisa.covid19.features.home.presentation.widgets.savedAreaCard
 import dagger.hilt.android.AndroidEntryPoint
@@ -76,6 +77,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             val cases = it ?: return@Observer
             homeRecyclerView.isVisible = true
             homeRecyclerView.withModels {
+                sectionHeader {
+                    id("savedAreaHeader")
+                    title(getString(R.string.saved_locations_title))
+                }
                 cases.forEach { areCase ->
                     savedAreaCard {
                         id(areCase.areaCode)
