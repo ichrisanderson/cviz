@@ -27,7 +27,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
-import kotlinx.android.synthetic.main.view_total_cases_chart.view.*
+import kotlinx.android.synthetic.main.widget_bar_chart.view.*
 
 class BarChart(
     context: Context,
@@ -35,7 +35,7 @@ class BarChart(
 ) : ConstraintLayout(context, attrs) {
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.view_total_cases_chart, this, true)
+        LayoutInflater.from(context).inflate(R.layout.widget_bar_chart, this, true)
         initChart()
         initXAxis()
         initYAxis()
