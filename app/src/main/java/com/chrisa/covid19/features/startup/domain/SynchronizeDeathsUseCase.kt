@@ -20,13 +20,15 @@ import com.chrisa.covid19.core.data.synchronization.DeathDataSynchronizer
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class SynchronizeDeathsUseCase @Inject constructor(
     private val deathDataSynchronizer: DeathDataSynchronizer
 ) {
     suspend fun execute(syncScope: CoroutineScope) {
         syncScope.launch {
-            deathDataSynchronizer.performSync()
+            val result = runCatching { deathDataSynchronizer.performSync() }
+            result.onFailure { Timber.e(it, "Error synchronizing deaths") }
         }
     }
 }
