@@ -21,7 +21,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import com.chrisa.covid19.R
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.view_fake_search_bar.view.*
+import kotlinx.android.synthetic.main.widget_fake_search_bar.view.*
 
 class FakeSearchBar(
     context: Context,
@@ -29,7 +29,7 @@ class FakeSearchBar(
 ) : TextInputLayout(context, attrs) {
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.view_fake_search_bar, this, true)
+        LayoutInflater.from(context).inflate(R.layout.widget_fake_search_bar, this, true)
 
         this.isFocusable = false
         this.isFocusableInTouchMode = false
