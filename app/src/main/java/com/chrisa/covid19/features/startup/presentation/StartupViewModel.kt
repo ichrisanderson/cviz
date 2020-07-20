@@ -57,7 +57,6 @@ class StartupViewModel @ViewModelInject constructor(
     }
 
     private suspend fun triggerDataRefresh() {
-        // TODO: Error handling
         synchronizeCasesUseCase.execute(syncScope)
         synchronizeDeathsUseCase.execute(syncScope)
     }

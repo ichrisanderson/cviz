@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19
+package com.chrisa.covid19.core.util
 
-import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
-import timber.log.Timber
+import android.content.Context
+import android.net.ConnectivityManager
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-@HiltAndroidApp
-class App : Application() {
-
-    override fun onCreate() {
-        super.onCreate()
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
+class NetworkUtils @Inject constructor(@ApplicationContext val context: Context) {
+    fun hasNetworkConnection(): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting
     }
 }
