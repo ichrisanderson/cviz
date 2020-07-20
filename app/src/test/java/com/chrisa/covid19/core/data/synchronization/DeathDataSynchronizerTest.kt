@@ -27,16 +27,21 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.MediaType
 import okhttp3.ResponseBody
+import okio.IOException
 import org.junit.Test
 import retrofit2.Response
+import timber.log.Timber
 
+@ExperimentalCoroutinesApi
 class DeathDataSynchronizerTest {
 
     private val offlineDataSource = mockk<OfflineDataSource>()
@@ -75,6 +80,34 @@ class DeathDataSynchronizerTest {
             sut.performSync()
 
             coVerify(exactly = 1) { covidApi.getDeaths(date) }
+        }
+
+    @Test
+    fun `GIVEN api call throws WHEN performSync called THEN database is not updated`() =
+        testDispatcher.runBlockingTest {
+
+            mockkStatic(Timber::class)
+
+            val metadata = MetadataModel(
+                disclaimer = "Test disclaimer",
+                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            )
+
+            val date = metadata.lastUpdatedAt
+                .plusHours(1)
+                .formatAsGmt()
+
+            val error = IOException()
+
+            coEvery { covidApi.getDeaths(date) } throws error
+
+            every { offlineDataSource.deathsMetadata() } returns metadata
+
+            sut.performSync()
+
+            coVerify(exactly = 0) { offlineDataSource.insertDeathMetadata(any()) }
+            coVerify(exactly = 0) { offlineDataSource.insertDeaths(any()) }
+            coVerify(exactly = 1) { Timber.e(error, "Error synchronizing deaths") }
         }
 
     @Test

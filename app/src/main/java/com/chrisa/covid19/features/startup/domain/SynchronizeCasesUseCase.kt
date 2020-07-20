@@ -20,15 +20,13 @@ import com.chrisa.covid19.core.data.synchronization.CaseDataSynchronizer
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class SynchronizeCasesUseCase @Inject constructor(
     private val caseDataSynchronizer: CaseDataSynchronizer
 ) {
     suspend fun execute(syncScope: CoroutineScope) {
         syncScope.launch {
-            val result = runCatching { caseDataSynchronizer.performSync() }
-            result.onFailure { Timber.e(it, "Error synchronizing cases") }
+            caseDataSynchronizer.performSync()
         }
     }
 }

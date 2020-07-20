@@ -27,15 +27,20 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.MediaType
 import okhttp3.ResponseBody
+import okio.IOException
 import org.junit.Test
 import retrofit2.Response
+import timber.log.Timber
 
+@ExperimentalCoroutinesApi
 class CaseDataSynchronizerTest {
 
     private val offlineDataSource = mockk<OfflineDataSource>()
@@ -74,6 +79,35 @@ class CaseDataSynchronizerTest {
             sut.performSync()
 
             coVerify(exactly = 1) { covidApi.getCases(date) }
+        }
+
+    @Test
+    fun `GIVEN api call throws WHEN performSync called THEN error is logged`() =
+        testDispatcher.runBlockingTest {
+
+            mockkStatic(Timber::class)
+
+            val metadata = MetadataModel(
+                disclaimer = "Test disclaimer",
+                lastUpdatedAt = LocalDateTime.ofEpochSecond(1, 1, ZoneOffset.ofHours(0))
+            )
+
+            val date = metadata.lastUpdatedAt
+                .plusHours(1)
+                .formatAsGmt()
+
+            val error = IOException()
+
+            coEvery { covidApi.getCases(date) } throws error
+
+            every { offlineDataSource.casesMetadata() } returns metadata
+
+            sut.performSync()
+
+            coVerify(exactly = 0) { offlineDataSource.insertCaseMetadata(any()) }
+            coVerify(exactly = 0) { offlineDataSource.insertDailyRecord(any(), any()) }
+            coVerify(exactly = 0) { offlineDataSource.insertCases(any()) }
+            coVerify(exactly = 1) { Timber.e(error, "Error synchronizing cases") }
         }
 
     @Test

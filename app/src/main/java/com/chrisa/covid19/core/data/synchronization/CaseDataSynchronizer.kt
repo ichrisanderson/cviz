@@ -20,6 +20,7 @@ import com.chrisa.covid19.core.data.OfflineDataSource
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import javax.inject.Inject
+import timber.log.Timber
 
 class CaseDataSynchronizer @Inject constructor(
     private val offlineDataSource: OfflineDataSource,
@@ -27,30 +28,35 @@ class CaseDataSynchronizer @Inject constructor(
 ) {
 
     suspend fun performSync() {
-
         // TODO: Add logic to check if we have internet connection and if data was synced less than 24 hours ago
         //  If last sync was less than 24 hours we shouldn't need to bother as they're only published once a day?
         val caseMetadata = offlineDataSource.casesMetadata() ?: return
-        val casesResponse = api.getCases(caseMetadata.lastUpdatedAt
-            .plusHours(1)
-            .formatAsGmt()
-        )
 
-        if (casesResponse.isSuccessful) {
+        runCatching {
+            api.getCases(
+                caseMetadata.lastUpdatedAt
+                    .plusHours(1)
+                    .formatAsGmt()
+            )
+        }.onSuccess { casesResponse ->
+            if (casesResponse.isSuccessful) {
+                val cases = casesResponse.body()
+                cases?.let {
 
-            val cases = casesResponse.body()
-            cases?.let {
+                    val allCases =
+                        cases.countries.union(cases.ltlas).union(cases.utlas)
+                            .union(cases.regions)
 
-                val allCases =
-                    cases.countries.union(cases.ltlas).union(cases.utlas).union(cases.regions)
-
-                offlineDataSource.insertCaseMetadata(cases.metadata)
-                offlineDataSource.insertDailyRecord(
-                    cases.dailyRecords,
-                    cases.metadata.lastUpdatedAt.toLocalDate()
-                )
-                offlineDataSource.insertCases(allCases)
+                    offlineDataSource.insertCaseMetadata(cases.metadata)
+                    offlineDataSource.insertDailyRecord(
+                        cases.dailyRecords,
+                        cases.metadata.lastUpdatedAt.toLocalDate()
+                    )
+                    offlineDataSource.insertCases(allCases)
+                }
             }
+        }.onFailure { error ->
+            Timber.e(error, "Error synchronizing cases")
         }
     }
 }

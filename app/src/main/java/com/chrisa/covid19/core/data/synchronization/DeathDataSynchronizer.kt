@@ -20,6 +20,7 @@ import com.chrisa.covid19.core.data.OfflineDataSource
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import javax.inject.Inject
+import timber.log.Timber
 
 class DeathDataSynchronizer @Inject constructor(
     private val offlineDataSource: OfflineDataSource,
@@ -31,20 +32,26 @@ class DeathDataSynchronizer @Inject constructor(
     }
 
     private suspend fun syncDeaths() {
-
+        // TODO: Add logic to check if we have internet connection and if data was synced less than 24 hours ago
+        //  If last sync was less than 24 hours we shouldn't need to bother as they're only published once a day?
         val deathMetadata = offlineDataSource.deathsMetadata() ?: return
-        val deathsResponse = api.getDeaths(
-            deathMetadata.lastUpdatedAt.plusHours(1)
-                .formatAsGmt()
-        )
 
-        if (deathsResponse.isSuccessful) {
-            val deaths = deathsResponse.body()
-            deaths?.let {
-                val allDeaths = deaths.countries.union(deaths.overview)
-                offlineDataSource.insertDeathMetadata(deaths.metadata)
-                offlineDataSource.insertDeaths(allDeaths)
+        runCatching {
+            api.getDeaths(
+                deathMetadata.lastUpdatedAt.plusHours(1)
+                    .formatAsGmt()
+            )
+        }.onSuccess { deathsResponse ->
+            if (deathsResponse.isSuccessful) {
+                val deaths = deathsResponse.body()
+                deaths?.let {
+                    val allDeaths = deaths.countries.union(deaths.overview)
+                    offlineDataSource.insertDeathMetadata(deaths.metadata)
+                    offlineDataSource.insertDeaths(allDeaths)
+                }
             }
+        }.onFailure { error ->
+            Timber.e(error, "Error synchronizing deaths")
         }
     }
 }
