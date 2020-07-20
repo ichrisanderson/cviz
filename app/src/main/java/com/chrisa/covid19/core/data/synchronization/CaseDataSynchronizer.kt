@@ -28,6 +28,8 @@ class CaseDataSynchronizer @Inject constructor(
 
     suspend fun performSync() {
 
+        // TODO: Add logic to check if we have internet connection and if data was synced less than 24 hours ago
+        //  If last sync was less than 24 hours we shouldn't need to bother as they're only published once a day?
         val caseMetadata = offlineDataSource.casesMetadata() ?: return
         val casesResponse = api.getCases(caseMetadata.lastUpdatedAt
             .plusHours(1)
