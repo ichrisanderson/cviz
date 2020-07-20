@@ -57,7 +57,6 @@ class StartupViewModel @ViewModelInject constructor(
     }
 
     private suspend fun triggerDataRefresh() {
-        // TODO: Error handling - add in a new snackbar/event post? Fail silently?
         synchronizeCasesUseCase.execute(syncScope)
         synchronizeDeathsUseCase.execute(syncScope)
     }

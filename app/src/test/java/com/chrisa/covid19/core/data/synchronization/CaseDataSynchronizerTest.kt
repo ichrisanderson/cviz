@@ -21,6 +21,7 @@ import com.chrisa.covid19.core.data.TestData
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.MetadataModel
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
+import com.chrisa.covid19.core.util.NetworkUtils
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -28,6 +29,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.verify
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,15 +47,17 @@ class CaseDataSynchronizerTest {
 
     private val offlineDataSource = mockk<OfflineDataSource>()
     private val covidApi = mockk<CovidApi>()
+    private val networkUtils = mockk<NetworkUtils>()
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private val sut = CaseDataSynchronizer(offlineDataSource, covidApi)
+    private val sut = CaseDataSynchronizer(networkUtils, offlineDataSource, covidApi)
 
     @Test
     fun `GIVEN no metadata WHEN performSync called THEN api is not hit`() =
         testDispatcher.runBlockingTest {
 
             every { offlineDataSource.casesMetadata() } returns null
+            every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
@@ -61,7 +65,32 @@ class CaseDataSynchronizerTest {
         }
 
     @Test
-    fun `GIVEN metadata WHEN performSync called THEN api is hit`() =
+    fun `GIVEN metadata last updated less than an hour ago WHEN performSync called THEN api is not hit`() =
+        testDispatcher.runBlockingTest {
+
+            val now = LocalDateTime.now()
+
+            val metadata = MetadataModel(
+                disclaimer = "Test disclaimer",
+                lastUpdatedAt = now.minusMinutes(1)
+            )
+
+            val date = metadata.lastUpdatedAt
+                .plusHours(1)
+                .formatAsGmt()
+
+            coEvery { covidApi.getCases(date) } returns Response.success(null)
+
+            every { offlineDataSource.casesMetadata() } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns true
+
+            sut.performSync()
+
+            coVerify(exactly = 0) { covidApi.getCases(date) }
+        }
+
+    @Test
+    fun `GIVEN metadata last updated more than an hour ago WHEN performSync called THEN api is hit`() =
         testDispatcher.runBlockingTest {
 
             val metadata = MetadataModel(
@@ -74,11 +103,36 @@ class CaseDataSynchronizerTest {
                 .formatAsGmt()
 
             coEvery { covidApi.getCases(date) } returns Response.success(null)
+
             every { offlineDataSource.casesMetadata() } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
             coVerify(exactly = 1) { covidApi.getCases(date) }
+        }
+
+    @Test
+    fun `GIVEN no internet connection and metadata last updated more than an hour ago WHEN performSync called THEN api is not hit`() =
+        testDispatcher.runBlockingTest {
+
+            val metadata = MetadataModel(
+                disclaimer = "Test disclaimer",
+                lastUpdatedAt = LocalDateTime.ofEpochSecond(1, 1, ZoneOffset.ofHours(0))
+            )
+
+            val date = metadata.lastUpdatedAt
+                .plusHours(1)
+                .formatAsGmt()
+
+            coEvery { covidApi.getCases(date) } returns Response.success(null)
+
+            every { offlineDataSource.casesMetadata() } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns false
+
+            sut.performSync()
+
+            coVerify(exactly = 0) { covidApi.getCases(date) }
         }
 
     @Test
@@ -101,13 +155,14 @@ class CaseDataSynchronizerTest {
             coEvery { covidApi.getCases(date) } throws error
 
             every { offlineDataSource.casesMetadata() } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { offlineDataSource.insertCaseMetadata(any()) }
-            coVerify(exactly = 0) { offlineDataSource.insertDailyRecord(any(), any()) }
-            coVerify(exactly = 0) { offlineDataSource.insertCases(any()) }
-            coVerify(exactly = 1) { Timber.e(error, "Error synchronizing cases") }
+            verify(exactly = 0) { offlineDataSource.insertCaseMetadata(any()) }
+            verify(exactly = 0) { offlineDataSource.insertDailyRecord(any(), any()) }
+            verify(exactly = 0) { offlineDataSource.insertCases(any()) }
+            verify(exactly = 1) { Timber.e(error, "Error synchronizing cases") }
         }
 
     @Test
@@ -129,12 +184,13 @@ class CaseDataSynchronizerTest {
             )
 
             every { offlineDataSource.casesMetadata() } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { offlineDataSource.insertCaseMetadata(any()) }
-            coVerify(exactly = 0) { offlineDataSource.insertDailyRecord(any(), any()) }
-            coVerify(exactly = 0) { offlineDataSource.insertCases(any()) }
+            verify(exactly = 0) { offlineDataSource.insertCaseMetadata(any()) }
+            verify(exactly = 0) { offlineDataSource.insertDailyRecord(any(), any()) }
+            verify(exactly = 0) { offlineDataSource.insertCases(any()) }
         }
 
     @Test
@@ -151,13 +207,15 @@ class CaseDataSynchronizerTest {
                 .formatAsGmt()
 
             coEvery { covidApi.getCases(date) } returns Response.success(null)
+
             every { offlineDataSource.casesMetadata() } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { offlineDataSource.insertCaseMetadata(any()) }
-            coVerify(exactly = 0) { offlineDataSource.insertDailyRecord(any(), any()) }
-            coVerify(exactly = 0) { offlineDataSource.insertCases(any()) }
+            verify(exactly = 0) { offlineDataSource.insertCaseMetadata(any()) }
+            verify(exactly = 0) { offlineDataSource.insertDailyRecord(any(), any()) }
+            verify(exactly = 0) { offlineDataSource.insertCases(any()) }
         }
 
     @Test
@@ -176,6 +234,7 @@ class CaseDataSynchronizerTest {
                 .formatAsGmt()
 
             coEvery { covidApi.getCases(date) } returns Response.success(caseModel)
+            every { networkUtils.hasNetworkConnection() } returns true
 
             every { offlineDataSource.casesMetadata() } returns metadata
             every { offlineDataSource.insertCaseMetadata(any()) } just Runs
@@ -184,8 +243,8 @@ class CaseDataSynchronizerTest {
 
             sut.performSync()
 
-            coVerify(exactly = 1) { offlineDataSource.insertCaseMetadata(caseModel.metadata) }
-            coVerify(exactly = 1) {
+            verify(exactly = 1) { offlineDataSource.insertCaseMetadata(caseModel.metadata) }
+            verify(exactly = 1) {
                 offlineDataSource.insertDailyRecord(
                     caseModel.dailyRecords,
                     caseModel.metadata.lastUpdatedAt.toLocalDate()
@@ -196,6 +255,6 @@ class CaseDataSynchronizerTest {
                 caseModel.countries.union(caseModel.ltlas).union(caseModel.utlas)
                     .union(caseModel.regions)
 
-            coVerify(exactly = 1) { offlineDataSource.insertCases(allCases) }
+            verify(exactly = 1) { offlineDataSource.insertCases(allCases) }
         }
 }

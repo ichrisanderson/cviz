@@ -19,18 +19,25 @@ package com.chrisa.covid19.core.data.synchronization
 import com.chrisa.covid19.core.data.OfflineDataSource
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
+import com.chrisa.covid19.core.util.NetworkUtils
+import java.time.LocalDateTime
 import javax.inject.Inject
 import timber.log.Timber
 
 class CaseDataSynchronizer @Inject constructor(
+    private val networkUtils: NetworkUtils,
     private val offlineDataSource: OfflineDataSource,
     private val api: CovidApi
 ) {
 
     suspend fun performSync() {
-        // TODO: Add logic to check if we have internet connection and if data was synced less than 24 hours ago
-        //  If last sync was less than 24 hours we shouldn't need to bother as they're only published once a day?
+        if (!networkUtils.hasNetworkConnection()) return
         val caseMetadata = offlineDataSource.casesMetadata() ?: return
+
+        val now = LocalDateTime.now()
+        if (caseMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
+            return
+        }
 
         runCatching {
             api.getCases(
