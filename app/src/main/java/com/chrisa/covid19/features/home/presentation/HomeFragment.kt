@@ -26,6 +26,7 @@ import androidx.navigation.fragment.findNavController
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.features.home.presentation.widgets.emptySavedAreasCard
 import com.chrisa.covid19.features.home.presentation.widgets.latestUkDataCard
 import com.chrisa.covid19.features.home.presentation.widgets.savedAreaCard
 import dagger.hilt.android.AndroidEntryPoint
@@ -86,12 +87,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     id("savedAreaHeader")
                     title(getString(R.string.saved_locations_title))
                 }
-                homeScreenData.savedAreas.forEach { savedAreaModel ->
-                    savedAreaCard {
-                        id(savedAreaModel.areaCode)
-                        savedAreaModel(savedAreaModel)
-                        clickListener { _ ->
-                            navigateToArea(savedAreaModel)
+                if (homeScreenData.savedAreas.isEmpty()) {
+                    emptySavedAreasCard {
+                        id("emptySavedAreas")
+                    }
+                } else {
+                    homeScreenData.savedAreas.forEach { savedAreaModel ->
+                        savedAreaCard {
+                            id(savedAreaModel.areaCode)
+                            savedAreaModel(savedAreaModel)
+                            clickListener { _ ->
+                                navigateToArea(savedAreaModel)
+                            }
                         }
                     }
                 }

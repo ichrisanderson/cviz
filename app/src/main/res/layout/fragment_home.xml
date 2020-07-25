@@ -48,44 +48,6 @@
         android:visibility="gone"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 
-    <LinearLayout
-        android:id="@+id/homeEmptyView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone">
-
-        <ImageView
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="16dp"
-            android:importantForAccessibility="no"
-            android:src="@drawable/ic_location_on"
-            android:tint="#CCC" />
-
-        <TextView
-            android:id="@+id/homeEmptyLocationsTitle"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/empty_locations_title"
-            android:textColor="#666" />
-
-        <TextView
-            android:id="@+id/homeEmptyLocationsSubtitle"
-            style="@style/TextAppearance.MaterialComponents.Body2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="@string/empty_locations_body"
-            android:textColor="#666" />
-
-    </LinearLayout>
-
     <ProgressBar
         android:id="@+id/homeProgress"
         android:layout_width="wrap_content"
