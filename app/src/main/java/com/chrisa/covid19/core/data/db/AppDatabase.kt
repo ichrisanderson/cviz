@@ -188,6 +188,9 @@ interface DailyRecordDao {
 
     @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName")
     fun searchDailyRecords(areaName: String): List<DailyRecordEntity>
+
+    @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName ORDER BY date DESC")
+    fun dailyRecords(areaName: String): Flow<List<DailyRecordEntity>>
 }
 
 @Entity(
@@ -215,6 +218,9 @@ interface MetadataDao {
 
     @Query("SELECT * FROM metadata WHERE id = :id")
     fun metadata(id: String): List<MetadataEntity>
+
+    @Query("SELECT * FROM metadata WHERE id = :id LIMIT 1")
+    fun metadataAsFlow(id: String): Flow<MetadataEntity>
 }
 
 @Entity(

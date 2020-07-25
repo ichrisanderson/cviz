@@ -16,12 +16,11 @@
 
 package com.chrisa.covid19.features.home.domain.models
 
-data class SavedAreaModel(
-    val areaCode: String,
+import java.time.LocalDateTime
+
+data class LatestUkData(
     val areaName: String,
-    val totalLabConfirmedCasesLastWeek: Int,
-    val changeInTotalLabConfirmedCases: Int,
+    val dailyLabConfirmedCases: Int,
     val totalLabConfirmedCases: Int,
-    val dailyTotalLabConfirmedCasesRate: Double,
-    val changeInDailyTotalLabConfirmedCasesRate: Double
+    val lastUpdated: LocalDateTime
 )

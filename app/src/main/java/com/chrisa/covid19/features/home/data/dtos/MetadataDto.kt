@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.domain.models
+package com.chrisa.covid19.features.home.data.dtos
 
-data class SavedAreaModel(
-    val areaCode: String,
-    val areaName: String,
-    val totalLabConfirmedCasesLastWeek: Int,
-    val changeInTotalLabConfirmedCases: Int,
-    val totalLabConfirmedCases: Int,
-    val dailyTotalLabConfirmedCasesRate: Double,
-    val changeInDailyTotalLabConfirmedCasesRate: Double
+import java.time.LocalDateTime
+
+data class MetadataDto(
+    val lastUpdatedAt: LocalDateTime
 )

@@ -25,11 +25,14 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
-import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
+import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.features.home.presentation.widgets.latestUkDataCard
 import com.chrisa.covid19.features.home.presentation.widgets.savedAreaCard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -40,7 +43,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         initSearchBar()
         initRecyclerView()
         bindIsLoading()
-        bindIsEmpty()
         bindAreaCases()
     }
 
@@ -58,13 +60,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         )
     }
 
-    private fun bindIsEmpty() {
-        viewModel.isEmpty.observe(viewLifecycleOwner, Observer {
-            val isEmpty = it ?: return@Observer
-            homeEmptyView.isVisible = isEmpty
-        })
-    }
-
     private fun bindIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer {
             val isLoading = it ?: return@Observer
@@ -73,20 +68,30 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun bindAreaCases() {
-        viewModel.areaCases.observe(viewLifecycleOwner, Observer {
-            val cases = it ?: return@Observer
+        viewModel.homeScreenData.observe(viewLifecycleOwner, Observer {
+            val homeScreenData = it ?: return@Observer
             homeRecyclerView.isVisible = true
             homeRecyclerView.withModels {
+                sectionHeader {
+                    id("dailyRecordHeader")
+                    title(getString(R.string.daily_records_title))
+                }
+
+                latestUkDataCard {
+                    id("dailyRecordCard")
+                    latestUkData(homeScreenData.latestUkData)
+                }
+
                 sectionHeader {
                     id("savedAreaHeader")
                     title(getString(R.string.saved_locations_title))
                 }
-                cases.forEach { areCase ->
+                homeScreenData.savedAreas.forEach { savedAreaModel ->
                     savedAreaCard {
-                        id(areCase.areaCode)
-                        areCase(areCase)
+                        id(savedAreaModel.areaCode)
+                        savedAreaModel(savedAreaModel)
                         clickListener { _ ->
-                            navigateToArea(areCase)
+                            navigateToArea(savedAreaModel)
                         }
                     }
                 }
@@ -98,11 +103,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         findNavController().navigate(HomeFragmentDirections.homeToSearch())
     }
 
-    private fun navigateToArea(area: AreaCaseListModel) {
+    private fun navigateToArea(savedAreaModel: SavedAreaModel) {
         val action =
             HomeFragmentDirections.homeToArea(
-                areaCode = area.areaCode,
-                areaName = area.areaName
+                areaCode = savedAreaModel.areaCode,
+                areaName = savedAreaModel.areaName
             )
         findNavController().navigate(action)
     }

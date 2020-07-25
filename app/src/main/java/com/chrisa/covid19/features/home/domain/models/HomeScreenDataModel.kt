@@ -16,12 +16,7 @@
 
 package com.chrisa.covid19.features.home.domain.models
 
-data class SavedAreaModel(
-    val areaCode: String,
-    val areaName: String,
-    val totalLabConfirmedCasesLastWeek: Int,
-    val changeInTotalLabConfirmedCases: Int,
-    val totalLabConfirmedCases: Int,
-    val dailyTotalLabConfirmedCasesRate: Double,
-    val changeInDailyTotalLabConfirmedCasesRate: Double
+data class HomeScreenDataModel(
+    val savedAreas: List<SavedAreaModel>,
+    val latestUkData: LatestUkData
 )
