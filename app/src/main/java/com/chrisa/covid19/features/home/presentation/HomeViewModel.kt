@@ -22,29 +22,27 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
-import com.chrisa.covid19.features.home.domain.LoadSavedAreaCasesUseCase
-import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
+import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
+import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@InternalCoroutinesApi
 @FlowPreview
 class HomeViewModel @ViewModelInject constructor(
-    private val loadSavedAreaCasesUseCase: LoadSavedAreaCasesUseCase,
+    private val loadHomeDataUseCase: LoadHomeDataUseCase,
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _areaCases = MutableLiveData<List<AreaCaseListModel>>()
-    val areaCases: LiveData<List<AreaCaseListModel>>
-        get() = _areaCases
+    private val _homeScreenData = MutableLiveData<HomeScreenDataModel>()
+    val homeScreenData: LiveData<HomeScreenDataModel>
+        get() = _homeScreenData
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
         get() = _isLoading
-
-    private val _isEmpty = MutableLiveData<Boolean>()
-    val isEmpty: LiveData<Boolean>
-        get() = _isEmpty
 
     init {
         loadSavedAreaCases()
@@ -53,10 +51,11 @@ class HomeViewModel @ViewModelInject constructor(
     private fun loadSavedAreaCases() {
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
-            val savedAreaCases = loadSavedAreaCasesUseCase.execute()
-            savedAreaCases.collect {
-                _areaCases.postValue(it)
-                _isEmpty.postValue(it.isEmpty())
+
+            val homeScreenData = loadHomeDataUseCase.execute()
+
+            homeScreenData.collect {
+                _homeScreenData.postValue(it)
                 _isLoading.postValue(false)
             }
         }

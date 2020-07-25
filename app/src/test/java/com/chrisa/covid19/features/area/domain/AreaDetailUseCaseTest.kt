@@ -67,7 +67,7 @@ class AreaDetailUseCaseTest {
             AreaDetailModel(
                 lastUpdatedAt = metadataDTO.lastUpdatedAt,
                 allCases = caseModels,
-                latestCases = caseModels.takeLast(7)
+                latestCases = caseModels.takeLast(14)
             )
         )
     }

@@ -17,6 +17,9 @@
 package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
+import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +28,32 @@ import kotlinx.coroutines.flow.map
 class HomeDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
+
+    fun metadata(): Flow<MetadataDto> {
+        return appDatabase.metadataDao()
+            .metadataAsFlow(MetadataEntity.CASE_METADATA_ID)
+            .map {
+                MetadataDto(
+                    lastUpdatedAt = it.lastUpdatedAt
+                )
+            }
+    }
+
+    fun dailyRecords(areaName: String): Flow<List<DailyRecordDto>> {
+        return appDatabase.dailyRecordsDao()
+            .dailyRecords(areaName)
+            .map { dailyRecordList ->
+                dailyRecordList.map { dailyRecord ->
+                    DailyRecordDto(
+                        areaName = dailyRecord.areaName,
+                        dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,
+                        totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
+                        date = dailyRecord.date
+                    )
+                }
+            }
+    }
+
     fun savedAreaCases(): Flow<List<SavedAreaCaseDto>> {
         return appDatabase.casesDao()
             .savedAreaCases()

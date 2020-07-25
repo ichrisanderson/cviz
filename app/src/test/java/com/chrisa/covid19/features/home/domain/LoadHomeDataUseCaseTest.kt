@@ -17,39 +17,87 @@
 package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
+import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
+import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
 import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
-import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
+import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
+import com.chrisa.covid19.features.home.domain.models.LatestUkData
+import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
-@FlowPreview
 @ExperimentalCoroutinesApi
-class LoadSavedAreaCasesUseCaseTest {
+@FlowPreview
+class LoadHomeDataUseCaseTest {
 
+    private val homeDataSource = mockk<HomeDataSource>()
     private val pastTwoWeekCaseBreakdownHelper =
         PastTwoWeekCaseBreakdownHelper()
     private val weeklyCaseDifferenceHelper =
         WeeklyCaseDifferenceHelper()
-    private val homeDataSource = mockk<HomeDataSource>()
 
-    private val sut = LoadSavedAreaCasesUseCase(
+    private val sut = LoadHomeDataUseCase(
         homeDataSource,
         pastTwoWeekCaseBreakdownHelper,
         weeklyCaseDifferenceHelper
     )
+
+    @Test
+    fun `WHEN execute called THEN daily record list is emitted`() =
+        runBlockingTest {
+
+            val areaName = "United Kingdom"
+
+            val metadataDto = MetadataDto(
+                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
+            )
+
+            val dailyRecordDto = DailyRecordDto(
+                areaName = areaName,
+                totalLabConfirmedCases = 122,
+                dailyLabConfirmedCases = 22,
+                date = LocalDate.of(2020, 5, 6)
+            )
+
+            val dailyRecords = listOf(dailyRecordDto)
+
+            every { homeDataSource.metadata() } returns listOf(metadataDto).asFlow()
+            every { homeDataSource.dailyRecords(any()) } returns listOf(dailyRecords).asFlow()
+            every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
+
+            val emittedItems = mutableListOf<HomeScreenDataModel>()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val homeScreenDataModel = emittedItems.first()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val expectedItems = dailyRecords.map {
+                LatestUkData(
+                    areaName = it.areaName,
+                    dailyLabConfirmedCases = it.dailyLabConfirmedCases,
+                    totalLabConfirmedCases = it.totalLabConfirmedCases,
+                    lastUpdated = metadataDto.lastUpdatedAt
+                )
+            }
+
+            assertThat(homeScreenDataModel.latestUkData).isEqualTo(expectedItems.takeLast(1).first())
+        }
 
     @Test
     fun `GIVEN less than a weeks worth of cases WHEN execute called THEN area case list is created with figures from past week`() =
@@ -70,23 +118,33 @@ class LoadSavedAreaCasesUseCaseTest {
                 areaName
             )
 
-            val allCasesFlow = flow {
-                emit(latestWeekData.cases)
-            }
+            val metadataDto = MetadataDto(
+                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
+            )
 
-            every { homeDataSource.savedAreaCases() } returns allCasesFlow
+            val dailyRecordDto = DailyRecordDto(
+                areaName = "United Kingdom",
+                dailyLabConfirmedCases = 111,
+                totalLabConfirmedCases = 111,
+                date = LocalDate.of(2020, 1, 1)
+            )
 
-            val emittedItems = mutableListOf<List<AreaCaseListModel>>()
+            every { homeDataSource.dailyRecords(any()) } returns listOf(listOf(dailyRecordDto)).asFlow()
+            every { homeDataSource.metadata() } returns listOf(metadataDto).asFlow()
+            every { homeDataSource.savedAreaCases() } returns listOf(latestWeekData.cases).asFlow()
+
+            val emittedItems = mutableListOf<HomeScreenDataModel>()
 
             sut.execute().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
 
-            val emittedAreaCaseList = emittedItems.first()
+            val homeScreenDataModel = emittedItems.first()
+            val emittedAreaCaseList = homeScreenDataModel.savedAreas
             val lastCaseInLatestWeek = latestWeekData.cases.last()
 
             assertThat(emittedAreaCaseList.first()).isEqualTo(
-                AreaCaseListModel(
+                SavedAreaModel(
                     areaCode = lastCaseInLatestWeek.areaCode,
                     areaName = lastCaseInLatestWeek.areaName,
                     totalLabConfirmedCases = lastCaseInLatestWeek.totalLabConfirmedCases,
@@ -127,24 +185,34 @@ class LoadSavedAreaCasesUseCaseTest {
 
             val allCases = previousWeekData.cases + latestWeekData.cases
 
-            val allCasesFlow = flow {
-                emit(allCases)
-            }
+            val metadataDto = MetadataDto(
+                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
+            )
 
-            every { homeDataSource.savedAreaCases() } returns allCasesFlow
+            val dailyRecordDto = DailyRecordDto(
+                areaName = "United Kingdom",
+                dailyLabConfirmedCases = 111,
+                totalLabConfirmedCases = 111,
+                date = LocalDate.of(2020, 1, 1)
+            )
 
-            val emittedItems = mutableListOf<List<AreaCaseListModel>>()
+            every { homeDataSource.dailyRecords(any()) } returns listOf(listOf(dailyRecordDto)).asFlow()
+            every { homeDataSource.metadata() } returns listOf(metadataDto).asFlow()
+            every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
+
+            val emittedItems = mutableListOf<HomeScreenDataModel>()
 
             sut.execute().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
 
-            val emittedAreaCaseList = emittedItems.first()
+            val homeScreenDataModel = emittedItems.first()
+            val emittedAreaCaseList = homeScreenDataModel.savedAreas
             val lastCaseThisWeek = latestWeekData.cases.last()
             val lastCasePreviousWeek = previousWeekData.cases.last()
 
             assertThat(emittedAreaCaseList.first()).isEqualTo(
-                AreaCaseListModel(
+                SavedAreaModel(
                     areaCode = lastCaseThisWeek.areaCode,
                     areaName = lastCaseThisWeek.areaName,
                     totalLabConfirmedCases = lastCaseThisWeek.totalLabConfirmedCases,
@@ -182,19 +250,29 @@ class LoadSavedAreaCasesUseCaseTest {
             val allCases =
                 wokingCases.weekOne.cases + wokingCases.weekTwo.cases + aldershotCases.weekOne.cases + aldershotCases.weekTwo.cases
 
-            val allCasesFlow = flow {
-                emit(allCases)
-            }
+            val metadataDto = MetadataDto(
+                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
+            )
 
-            every { homeDataSource.savedAreaCases() } returns allCasesFlow
+            val dailyRecordDto = DailyRecordDto(
+                areaName = "United Kingdom",
+                dailyLabConfirmedCases = 111,
+                totalLabConfirmedCases = 111,
+                date = LocalDate.of(2020, 1, 1)
+            )
 
-            val emittedItems = mutableListOf<List<AreaCaseListModel>>()
+            every { homeDataSource.dailyRecords(any()) } returns listOf(listOf(dailyRecordDto)).asFlow()
+            every { homeDataSource.metadata() } returns listOf(metadataDto).asFlow()
+            every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
+
+            val emittedItems = mutableListOf<HomeScreenDataModel>()
 
             sut.execute().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
 
-            val emittedAreaCaseList = emittedItems.first()
+            val homeScreenDataModel = emittedItems.first()
+            val emittedAreaCaseList = homeScreenDataModel.savedAreas
 
             val lastWokingCaseThisWeek = wokingCases.weekTwo.cases.last()
             val lastWokingCasePreviousWeek = wokingCases.weekOne.cases.last()
@@ -203,7 +281,7 @@ class LoadSavedAreaCasesUseCaseTest {
             val lastAldershotCasePreviousWeek = aldershotCases.weekOne.cases.last()
 
             assertThat(emittedAreaCaseList[0]).isEqualTo(
-                AreaCaseListModel(
+                SavedAreaModel(
                     areaCode = lastAldershotCaseThisWeek.areaCode,
                     areaName = lastAldershotCaseThisWeek.areaName,
                     totalLabConfirmedCases = lastAldershotCaseThisWeek.totalLabConfirmedCases,
@@ -214,7 +292,7 @@ class LoadSavedAreaCasesUseCaseTest {
                 )
             )
             assertThat(emittedAreaCaseList[1]).isEqualTo(
-                AreaCaseListModel(
+                SavedAreaModel(
                     areaCode = lastWokingCaseThisWeek.areaCode,
                     areaName = lastWokingCaseThisWeek.areaName,
                     totalLabConfirmedCases = lastWokingCaseThisWeek.totalLabConfirmedCases,

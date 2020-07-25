@@ -19,19 +19,24 @@ package com.chrisa.covid19.features.home.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
-import com.chrisa.covid19.features.home.domain.LoadSavedAreaCasesUseCase
-import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
+import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
+import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
+import com.chrisa.covid19.features.home.domain.models.LatestUkData
+import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 
+@InternalCoroutinesApi
 @FlowPreview
 @ExperimentalCoroutinesApi
 class HomeViewModelTest {
@@ -40,15 +45,15 @@ class HomeViewModelTest {
     @JvmField
     val liveDataJunitRule = InstantTaskExecutorRule()
 
-    private val loadSavedAreaCasesUseCase = mockk<LoadSavedAreaCasesUseCase>()
+    private val loadHomeDataUseCase = mockk<LoadHomeDataUseCase>()
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Test
-    fun `GIVEN load saved area cases succeeds with non empty state WHEN viewmodel initialized THEN list of areas are emitted`() =
+    fun `GIVEN load home data cases succeeds WHEN viewmodel initialized THEN home screen data is emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
 
-                val areaCaseListModel = AreaCaseListModel(
+                val savedArea = SavedAreaModel(
                     areaCode = "UK001",
                     areaName = "England",
                     dailyTotalLabConfirmedCasesRate = 111.0,
@@ -58,60 +63,33 @@ class HomeViewModelTest {
                     totalLabConfirmedCasesLastWeek = 11
                 )
 
-                val allCases = listOf(areaCaseListModel)
+                val latestUkData = LatestUkData(
+                    areaName = "England",
+                    totalLabConfirmedCases = 22,
+                    dailyLabConfirmedCases = 33,
+                    lastUpdated = LocalDateTime.of(2020, 1, 1, 1, 1)
+                )
 
-                val allCasesFlow = flow {
-                    emit(allCases)
-                }
+                val homeScreenDataModel = HomeScreenDataModel(
+                    savedAreas = listOf(savedArea),
+                    latestUkData = latestUkData
+                )
 
-                every { loadSavedAreaCasesUseCase.execute() } returns allCasesFlow
+                every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()
 
                 val sut = HomeViewModel(
-                    loadSavedAreaCasesUseCase,
+                    loadHomeDataUseCase,
                     TestCoroutineDispatchersImpl(testDispatcher)
                 )
 
-                val areCasesObserver = sut.areaCases.test()
+                val homeScreenDataObserver = sut.homeScreenData.test()
                 val isLoadingObserver = sut.isLoading.test()
-                val isEmptyObserver = sut.isEmpty.test()
 
                 runCurrent()
 
-                assertThat(areCasesObserver.values[0]).isEqualTo(listOf(areaCaseListModel))
+                assertThat(homeScreenDataObserver.values[0]).isEqualTo(homeScreenDataModel)
                 assertThat(isLoadingObserver.values[0]).isEqualTo(true)
                 assertThat(isLoadingObserver.values[1]).isEqualTo(false)
-                assertThat(isEmptyObserver.values[0]).isEqualTo(false)
-            }
-        }
-
-    @Test
-    fun `GIVEN load saved area cases succeeds with empty state WHEN viewmodel initialized THEN empty list is emitted`() =
-        testDispatcher.runBlockingTest {
-            pauseDispatcher {
-
-                val allCases = emptyList<AreaCaseListModel>()
-
-                val allCasesFlow = flow {
-                    emit(allCases)
-                }
-
-                every { loadSavedAreaCasesUseCase.execute() } returns allCasesFlow
-
-                val sut = HomeViewModel(
-                    loadSavedAreaCasesUseCase,
-                    TestCoroutineDispatchersImpl(testDispatcher)
-                )
-
-                val areCasesObserver = sut.areaCases.test()
-                val isLoadingObserver = sut.isLoading.test()
-                val isEmptyObserver = sut.isEmpty.test()
-
-                runCurrent()
-
-                assertThat(areCasesObserver.values[0]).isEqualTo(listOf<AreaCaseListModel>())
-                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
-                assertThat(isLoadingObserver.values[1]).isEqualTo(false)
-                assertThat(isEmptyObserver.values[0]).isEqualTo(true)
             }
         }
 }

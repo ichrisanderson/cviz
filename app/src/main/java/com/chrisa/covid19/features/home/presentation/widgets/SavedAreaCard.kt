@@ -25,7 +25,7 @@ import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
-import com.chrisa.covid19.features.home.domain.models.AreaCaseListModel
+import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import java.text.NumberFormat
 import kotlinx.android.synthetic.main.widget_saved_area_card.view.*
 
@@ -41,17 +41,17 @@ class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, a
     }
 
     @ModelProp
-    fun areCase(areCase: AreaCaseListModel) {
-        areaName.text = areCase.areaName
-        totalCases.text = formatNumber(areCase.totalLabConfirmedCases)
-        casesThisWeek.text = formatNumber(areCase.totalLabConfirmedCasesLastWeek)
+    fun savedAreaModel(savedAreaModel: SavedAreaModel) {
+        areaName.text = savedAreaModel.areaName
+        totalCases.text = formatNumber(savedAreaModel.totalLabConfirmedCases)
+        casesThisWeek.text = formatNumber(savedAreaModel.totalLabConfirmedCasesLastWeek)
         changeInCasesThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeInCasesThisWeek.context,
-                getChangeColour(areCase.changeInTotalLabConfirmedCases)
+                getChangeColour(savedAreaModel.changeInTotalLabConfirmedCases)
             )
         )
-        changeInCasesThisWeek.text = getChangeText(areCase.changeInTotalLabConfirmedCases)
+        changeInCasesThisWeek.text = getChangeText(savedAreaModel.changeInTotalLabConfirmedCases)
     }
 
     private fun formatNumber(toFormat: Int): String {

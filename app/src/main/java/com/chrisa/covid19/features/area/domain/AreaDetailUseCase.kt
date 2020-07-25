@@ -33,7 +33,7 @@ class AreaDetailUseCase @Inject constructor(
         return AreaDetailModel(
             lastUpdatedAt = metadata.lastUpdatedAt,
             allCases = allCases,
-            latestCases = allCases.takeLast(7)
+            latestCases = allCases.takeLast(14)
         )
     }
 }
