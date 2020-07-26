@@ -20,7 +20,7 @@ import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class AreaItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
+class HomeItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
         outRect: Rect,
