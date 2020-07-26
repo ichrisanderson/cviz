@@ -189,7 +189,7 @@ interface DailyRecordDao {
     @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName")
     fun searchDailyRecords(areaName: String): List<DailyRecordEntity>
 
-    @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName ORDER BY date DESC")
+    @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName ORDER BY date ASC")
     fun dailyRecords(areaName: String): Flow<List<DailyRecordEntity>>
 }
 

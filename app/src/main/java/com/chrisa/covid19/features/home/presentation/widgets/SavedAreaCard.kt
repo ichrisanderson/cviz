@@ -69,6 +69,7 @@ class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, a
     private fun getChangeText(change: Int): String {
         return when {
             change > 0 -> "+$change"
+            change == 0 -> "-$change"
             else -> "$change"
         }
     }
