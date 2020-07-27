@@ -26,6 +26,7 @@ import com.chrisa.covid19.features.area.data.mappers.MetadataEntityMapper.toMeta
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class AreaDataSource @Inject constructor(
     private val appDatabase: AppDatabase
@@ -43,14 +44,13 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadCases(areaCode: String): List<CaseDto> {
+    fun loadCases(areaCode: String): Flow<List<CaseDto>> {
         return appDatabase.casesDao()
-            .areaCases(areaCode).map { it.toCaseDto() }
+            .areaCases(areaCode).map { cases -> cases.map { it.toCaseDto() } }
     }
 
-    fun loadCaseMetadata(): MetadataDto {
+    fun loadCaseMetadata(): Flow<MetadataDto> {
         return appDatabase.metadataDao()
-            .metadata(MetadataEntity.CASE_METADATA_ID).map { it.toMetadataDto() }
-            .first()
+            .metadataAsFlow(MetadataEntity.CASE_METADATA_ID).map { it.toMetadataDto() }
     }
 }

@@ -21,11 +21,13 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.CASE_METADATA_ID
 import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.DEATH_METADATA_ID
+import com.chrisa.covid19.core.util.test
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -124,6 +126,25 @@ class MetadataDaoTest {
 
         val deathsMetadata = db.metadataDao().metadata(DEATH_METADATA_ID)
         assertThat(deathsMetadata).isEqualTo(listOf(metadata))
+    }
+
+    @Test
+    fun `GIVEN metadata exists WHEN metadataAsFlow called THEN entity is emitted`() = runBlocking {
+        val metadata = MetadataEntity(
+            id = CASE_METADATA_ID,
+            disclaimer = "test Metadata",
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        )
+
+        db.metadataDao().metadataAsFlow(CASE_METADATA_ID).test {
+            expectNoEvents()
+            db.metadataDao().insertAll(listOf(metadata))
+
+            val casesMetadata = expectItem()
+            assertThat(casesMetadata).isEqualTo(metadata)
+
+            cancel()
+        }
     }
 
     @After

@@ -20,20 +20,24 @@ import com.chrisa.covid19.features.area.data.AreaDataSource
 import com.chrisa.covid19.features.area.domain.mappers.CaseDtoMapper.toCaseModel
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource
 ) {
-    fun execute(areaCode: String): AreaDetailModel {
+    fun execute(areaCode: String): Flow<AreaDetailModel> {
 
         val metadata = areaDataSource.loadCaseMetadata()
         val allCases = areaDataSource.loadCases(areaCode)
-            .map { it.toCaseModel() }
 
-        return AreaDetailModel(
-            lastUpdatedAt = metadata.lastUpdatedAt,
-            allCases = allCases,
-            latestCases = allCases.takeLast(14)
-        )
+        return combine(metadata, allCases) { metadata, cases ->
+            val allCases = cases.map { it.toCaseModel() }
+            AreaDetailModel(
+                lastUpdatedAt = metadata.lastUpdatedAt,
+                allCases = allCases,
+                latestCases = allCases.takeLast(14)
+            )
+        }
     }
 }
