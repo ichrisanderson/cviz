@@ -22,20 +22,26 @@ import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
+import io.mockk.every
 import io.mockk.mockk
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
+@InternalCoroutinesApi
 class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
     private val sut = AreaDetailUseCase(areaDataSource)
 
     @Test
-    fun `WHEN execute called THEN area detail contains the latest cases for the area`() {
+    fun `WHEN execute called THEN area detail contains the latest cases for the area`() = runBlocking {
 
         val areaCode = "1234"
 
@@ -50,10 +56,8 @@ class AreaDetailUseCaseTest {
             )
         }
 
-//        every { areaDataSource.loadCaseMetadata() } returns metadataDTO
-//        every { areaDataSource.loadCases(areaCode) } returns caseDTOs
-
-        val areaDetailModel = sut.execute(areaCode)
+        every { areaDataSource.loadCaseMetadata() } returns listOf(metadataDTO).asFlow()
+        every { areaDataSource.loadCases(areaCode) } returns listOf(caseDTOs).asFlow()
 
         val caseModels = caseDTOs.map {
             CaseModel(
@@ -62,12 +66,16 @@ class AreaDetailUseCaseTest {
             )
         }
 
-        assertThat(areaDetailModel).isEqualTo(
-            AreaDetailModel(
-                lastUpdatedAt = metadataDTO.lastUpdatedAt,
-                allCases = caseModels,
-                latestCases = caseModels.takeLast(14)
+        val areaDetailModelFlow = sut.execute(areaCode)
+
+        areaDetailModelFlow.collect { areaDetailModel ->
+            assertThat(areaDetailModel).isEqualTo(
+                AreaDetailModel(
+                    lastUpdatedAt = metadataDTO.lastUpdatedAt,
+                    allCases = caseModels,
+                    latestCases = caseModels.takeLast(14)
+                )
             )
-        )
+        }
     }
 }
