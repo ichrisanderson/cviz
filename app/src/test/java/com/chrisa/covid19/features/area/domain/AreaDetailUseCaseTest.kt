@@ -22,7 +22,6 @@ import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
 import io.mockk.mockk
 import java.time.Instant
 import java.time.LocalDate
@@ -51,8 +50,8 @@ class AreaDetailUseCaseTest {
             )
         }
 
-        every { areaDataSource.loadCaseMetadata() } returns metadataDTO
-        every { areaDataSource.loadCases(areaCode) } returns caseDTOs
+//        every { areaDataSource.loadCaseMetadata() } returns metadataDTO
+//        every { areaDataSource.loadCases(areaCode) } returns caseDTOs
 
         val areaDetailModel = sut.execute(areaCode)
 

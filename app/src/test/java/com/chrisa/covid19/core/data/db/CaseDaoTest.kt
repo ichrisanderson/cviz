@@ -19,9 +19,12 @@ package com.chrisa.covid19.core.data.db
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.chrisa.covid19.core.util.test
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
 import java.time.LocalDate
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -29,6 +32,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
+@InternalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [27])
 class CaseDaoTest {
@@ -69,7 +73,7 @@ class CaseDaoTest {
     }
 
     @Test
-    fun `GIVEN case does not exist WHEN insertCases called THEN case is added`() {
+    fun `GIVEN case does not exist WHEN insertCases called THEN case is added`() = runBlocking {
 
         val newCaseEntity = CaseEntity(
             areaCode = "001",
@@ -80,16 +84,29 @@ class CaseDaoTest {
             dailyTotalLabConfirmedCasesRate = 100.0
         )
 
-        db.casesDao().insertAll(listOf(newCaseEntity))
+        val toAdd = listOf(
+            newCaseEntity, newCaseEntity.copy(
+                areaCode = "002",
+                areaName = "England"
+            )
+        )
 
-        val cases = db.casesDao().areaCases(newCaseEntity.areaCode)
+        db.casesDao().areaCases(newCaseEntity.areaCode).test {
+            expectNoEvents()
 
-        assertThat(cases.size).isEqualTo(1)
-        assertThat(cases.first()).isEqualTo(newCaseEntity)
+            db.casesDao().insertAll(toAdd)
+
+            val emittedItems = expectItem()
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems[0]).isEqualTo(newCaseEntity)
+
+            cancel()
+        }
     }
 
     @Test
-    fun `GIVEN case does exist WHEN insertCases called with same date and area code THEN case is updated`() {
+    fun `GIVEN case does exist WHEN insertCases called with same date and area code THEN case is updated`() = runBlocking {
 
         val oldCaseEntity = CaseEntity(
             areaCode = "001",
@@ -111,16 +128,22 @@ class CaseDaoTest {
             dailyTotalLabConfirmedCasesRate = 100.0
         )
 
-        db.casesDao().insertAll(listOf(newCaseEntity))
+        db.casesDao().areaCases(oldCaseEntity.areaCode).test {
+            expectNoEvents()
 
-        val cases = db.casesDao().areaCases(oldCaseEntity.areaCode)
+            db.casesDao().insertAll(listOf(newCaseEntity))
 
-        assertThat(cases.size).isEqualTo(1)
-        assertThat(cases[0]).isEqualTo(newCaseEntity)
+            val emittedItems = expectItem()
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems[0]).isEqualTo(newCaseEntity)
+
+            cancel()
+        }
     }
 
     @Test
-    fun `GIVEN case does exist WHEN insertCases called with same area code and different date THEN case is added`() {
+    fun `GIVEN case does exist WHEN insertCases called with same area code and different date THEN case is added`() = runBlocking {
 
         val oldCaseEntity = CaseEntity(
             areaCode = "001",
@@ -142,13 +165,19 @@ class CaseDaoTest {
             dailyTotalLabConfirmedCasesRate = 100.0
         )
 
-        db.casesDao().insertAll(listOf(newCaseEntity))
+        db.casesDao().areaCases(oldCaseEntity.areaCode).test {
+            expectNoEvents()
 
-        val cases = db.casesDao().areaCases(oldCaseEntity.areaCode)
+            db.casesDao().insertAll(listOf(newCaseEntity))
 
-        assertThat(cases.size).isEqualTo(2)
-        assertThat(cases[0]).isEqualTo(oldCaseEntity)
-        assertThat(cases[1]).isEqualTo(newCaseEntity)
+            val emittedItems = expectItem()
+
+            assertThat(emittedItems.size).isEqualTo(2)
+            assertThat(emittedItems[0]).isEqualTo(oldCaseEntity)
+            assertThat(emittedItems[1]).isEqualTo(newCaseEntity)
+
+            cancel()
+        }
     }
 
     @Test
@@ -255,7 +284,7 @@ class CaseDaoTest {
     }
 
     @Test
-    fun `GIVEN no saved areas WHEN searchAllSavedAreaCases called THEN no cases are returned`() {
+    fun `GIVEN no saved areas WHEN searchAllSavedAreaCases called THEN no cases are returned`() = runBlocking {
 
         val caseEntity = CaseEntity(
             areaCode = "001",
@@ -266,15 +295,21 @@ class CaseDaoTest {
             dailyTotalLabConfirmedCasesRate = 9.0
         )
 
-        db.casesDao().insertAll(listOf(caseEntity))
+        db.casesDao().savedAreaCases().test {
+            expectNoEvents()
 
-        val allSavedAreaCases = db.casesDao().savedAreaCases()
+            db.casesDao().insertAll(listOf(caseEntity))
 
-//        assertThat(allSavedAreaCases.size).isEqualTo(0)
+            val emittedItems = expectItem()
+
+            assertThat(emittedItems.size).isEqualTo(0)
+
+            cancel()
+        }
     }
 
     @Test
-    fun `GIVEN saved area exist WHEN searchAllSavedAreaCases called THEN area cases are returned`() {
+    fun `GIVEN saved area exist WHEN searchAllSavedAreaCases called THEN area cases are returned`() = runBlocking {
 
         val caseEntity = CaseEntity(
             areaCode = "001",
@@ -290,18 +325,26 @@ class CaseDaoTest {
             caseEntity.copy(areaCode = "002", areaName = "England")
         )
 
-        db.casesDao().insertAll(insertedCases)
+        db.casesDao().savedAreaCases().test {
+            expectNoEvents()
 
-        db.savedAreaDao().insert(SavedAreaEntity(areaCode = caseEntity.areaCode))
+            db.casesDao().insertAll(insertedCases)
 
-        val cases = db.casesDao().savedAreaCases()
+            assertThat(expectItem().size).isEqualTo(0)
 
-//        assertThat(cases.size).isEqualTo(1)
-//        assertThat(cases[0]).isEqualTo(insertedCases[0])
+            db.savedAreaDao().insert(SavedAreaEntity(areaCode = caseEntity.areaCode))
+
+            val emittedItems = expectItem()
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems[0]).isEqualTo(insertedCases[0])
+
+            cancel()
+        }
     }
 
     @Test
-    fun `GIVEN all case areas are saved WHEN searchAllSavedAreaCases called THEN all cases are returned`() {
+    fun `GIVEN all case areas are saved WHEN searchAllSavedAreaCases called THEN all cases are returned`() = runBlocking {
 
         val caseEntity = CaseEntity(
             areaCode = "001",
@@ -312,25 +355,31 @@ class CaseDaoTest {
             dailyTotalLabConfirmedCasesRate = 9.0
         )
 
-        val insertedCases = listOf(
+        val toInsert = listOf(
             caseEntity,
             caseEntity.copy(areaCode = "002", areaName = "England")
         )
-
-        db.casesDao().insertAll(insertedCases)
 
         val insertedCasesAsSavedAreaEntities =
-            insertedCases.map { SavedAreaEntity(areaCode = it.areaCode) }
+            toInsert.map { SavedAreaEntity(areaCode = it.areaCode) }
 
-        insertedCasesAsSavedAreaEntities.forEach { savedAreaEntity ->
-            db.savedAreaDao().insert(savedAreaEntity)
+        db.casesDao().savedAreaCases().test {
+
+            expectNoEvents()
+
+            db.casesDao().insertAll(toInsert)
+
+            assertThat(expectItem().size).isEqualTo(0)
+
+            db.savedAreaDao().insert(insertedCasesAsSavedAreaEntities.first())
+
+            val emittedItems = expectItem()
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems[0]).isEqualTo(toInsert.first())
+
+            cancel()
         }
-
-        val cases = db.casesDao().savedAreaCases()
-
-//        assertThat(cases.size).isEqualTo(2)
-//        assertThat(cases[0]).isEqualTo(insertedCases[0])
-//        assertThat(cases[1]).isEqualTo(insertedCases[1])
     }
 
     @After

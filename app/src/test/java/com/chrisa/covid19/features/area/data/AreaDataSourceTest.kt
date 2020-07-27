@@ -34,12 +34,16 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
+@InternalCoroutinesApi
 @ExperimentalCoroutinesApi
 class AreaDataSourceTest {
 
@@ -99,7 +103,7 @@ class AreaDataSourceTest {
     }
 
     @Test
-    fun `WHEN loadCaseMetadata called THEN case metadata is returned`() {
+    fun `WHEN loadCaseMetadata called THEN case metadata is returned`() = runBlocking {
 
         val metadataDTO = MetadataEntity(
             id = MetadataEntity.CASE_METADATA_ID,
@@ -107,21 +111,25 @@ class AreaDataSourceTest {
             lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
+        val allMetadata = listOf(metadataDTO)
+
         every {
-            appDatabase.metadataDao().metadata(MetadataEntity.CASE_METADATA_ID)
-        } returns listOf(metadataDTO)
+            appDatabase.metadataDao().metadataAsFlow(MetadataEntity.CASE_METADATA_ID)
+        } returns allMetadata.asFlow()
 
-        val metadata = sut.loadCaseMetadata()
+        val metadataFlow = sut.loadCaseMetadata()
 
-        assertThat(metadata).isEqualTo(
-            MetadataDto(
-                lastUpdatedAt = metadataDTO.lastUpdatedAt
+        metadataFlow.collect { metadata ->
+            assertThat(metadata).isEqualTo(
+                MetadataDto(
+                    lastUpdatedAt = metadataDTO.lastUpdatedAt
+                )
             )
-        )
+        }
     }
 
     @Test
-    fun `WHEN loadCases called THEN case data is returned`() {
+    fun `WHEN loadCases called THEN case data is returned`() = runBlocking {
 
         val casesEntity = CaseEntity(
             areaCode = "1234",
@@ -132,18 +140,20 @@ class AreaDataSourceTest {
             totalLabConfirmedCases = 122
         )
 
-        every {
-            appDatabase.casesDao().areaCases(casesEntity.areaCode)
-        } returns listOf(casesEntity)
+        val allCases = listOf(listOf(casesEntity)).asFlow()
 
-        val cases = sut.loadCases(casesEntity.areaCode)
+        every { appDatabase.casesDao().areaCases(casesEntity.areaCode) } returns allCases
 
-        assertThat(cases.size).isEqualTo(1)
-        assertThat(cases.first()).isEqualTo(
-            CaseDto(
-                date = casesEntity.date,
-                dailyLabConfirmedCases = casesEntity.dailyLabConfirmedCases
+        val casesFlow = sut.loadCases(casesEntity.areaCode)
+
+        casesFlow.collect { cases ->
+            assertThat(cases.size).isEqualTo(1)
+            assertThat(cases.first()).isEqualTo(
+                CaseDto(
+                    date = casesEntity.date,
+                    dailyLabConfirmedCases = casesEntity.dailyLabConfirmedCases
+                )
             )
-        )
+        }
     }
 }

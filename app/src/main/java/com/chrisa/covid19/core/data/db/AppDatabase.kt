@@ -128,7 +128,7 @@ interface CaseDao {
     fun allAreas(areaName: String): List<AreaTupleEntity>
 
     @Query("SELECT * FROM cases WHERE areaCode = :areaCode ORDER BY date ASC")
-    fun areaCases(areaCode: String): List<CaseEntity>
+    fun areaCases(areaCode: String): Flow<List<CaseEntity>>
 
     @Query("SELECT * FROM cases INNER JOIN savedArea ON cases.areaCode = savedArea.areaCode ORDER BY date ASC")
     fun savedAreaCases(): Flow<List<CaseEntity>>

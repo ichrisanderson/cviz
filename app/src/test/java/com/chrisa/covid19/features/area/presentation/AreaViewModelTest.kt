@@ -95,8 +95,8 @@ class AreaViewModelTest {
                     )
                 )
 
-                every { areaDetailUseCase.execute(areaCode) } returns areaDetailModel
-                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
+//                every { areaDetailUseCase.execute(areaCode) } returns areaDetailModel
+//                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
                 val sut = AreaViewModel(
                     areaDetailUseCase,

@@ -81,7 +81,9 @@ class AreaViewModel @ViewModelInject constructor(
     private fun loadAreaDetail(areCode: String) {
         viewModelScope.launch(dispatchers.io) {
             val areaDetail = areaDetailUseCase.execute(areCode)
-            _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetail))
+            areaDetail.collect {
+                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(it))
+            }
         }
     }
 }
