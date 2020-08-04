@@ -25,3 +25,13 @@ data class BarChartItem(
     val value: Float,
     val label: String
 )
+
+data class LineChartData(
+    val label: String,
+    val values: List<LineChartItem>
+)
+
+data class LineChartItem(
+    val value: Float,
+    val label: String
+)

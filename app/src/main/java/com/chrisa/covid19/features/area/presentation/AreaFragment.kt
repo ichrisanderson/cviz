@@ -31,8 +31,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import java.time.ZoneId
 import kotlinx.android.synthetic.main.fragment_area.*
+import java.time.ZoneId
 
 @AndroidEntryPoint
 class AreaFragment : Fragment(R.layout.fragment_area) {
@@ -88,8 +88,14 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
                     areaCasesModel.lastUpdatedAt.atZone(zoneId).toInstant().toEpochMilli()
                 )
             )
-            latestCasesChart.setData(areaCasesModel.latestCasesChartData)
-            allCasesChart.setData(areaCasesModel.allCasesChartData)
+            latestCasesChart.setData(
+                areaCasesModel.latestCasesBarChartData,
+                areaCasesModel.latestCasesRollingAverageLineChartData
+            )
+            allCasesChart.setData(
+                areaCasesModel.allCasesChartData,
+                areaCasesModel.allCasesRollingAverageLineChartData
+            )
         })
     }
 

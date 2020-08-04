@@ -20,5 +20,6 @@ import java.time.LocalDate
 
 data class CaseDto(
     val dailyLabConfirmedCases: Int,
+    val totalLabConfirmedCases: Int,
     val date: LocalDate
 )

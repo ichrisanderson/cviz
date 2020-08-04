@@ -16,6 +16,8 @@
 
 package com.chrisa.covid19.core.data
 
+import androidx.room.withTransaction
+import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.CaseDao
 import com.chrisa.covid19.core.data.db.DailyRecordDao
 import com.chrisa.covid19.core.data.db.DeathDao
@@ -34,6 +36,7 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class OfflineDataSource @Inject constructor(
+    private val appDatabase: AppDatabase,
     private val caseDao: CaseDao,
     private val deathDao: DeathDao,
     private val dailyRecordDao: DailyRecordDao,
@@ -43,6 +46,13 @@ class OfflineDataSource @Inject constructor(
     private val deathModelMapper: DeathModelMapper,
     private val metadataModelMapper: MetadataModelMapper
 ) {
+    suspend fun withTransaction(block: suspend () -> Unit) {
+        return appDatabase.withTransaction(block)
+    }
+
+    fun deleteAllCases() {
+        caseDao.deleteAll()
+    }
 
     fun casesCount(): Int {
         return caseDao.casesCount()

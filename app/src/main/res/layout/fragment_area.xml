@@ -82,7 +82,7 @@
                 app:layout_constraintStart_toEndOf="@id/guideline_start"
                 app:layout_constraintTop_toBottomOf="@id/totalCasesTitle" />
 
-            <com.chrisa.covid19.core.ui.widgets.charts.BarChart
+            <com.chrisa.covid19.core.ui.widgets.charts.CombinedChart
                 android:id="@+id/latestCasesChart"
                 android:layout_width="0dp"
                 android:layout_height="300dp"
@@ -91,7 +91,7 @@
                 app:layout_constraintStart_toEndOf="@id/guideline_start"
                 app:layout_constraintTop_toBottomOf="@id/totalCasesSubtitle" />
 
-            <com.chrisa.covid19.core.ui.widgets.charts.BarChart
+            <com.chrisa.covid19.core.ui.widgets.charts.CombinedChart
                 android:id="@+id/allCasesChart"
                 android:layout_width="0dp"
                 android:layout_height="300dp"

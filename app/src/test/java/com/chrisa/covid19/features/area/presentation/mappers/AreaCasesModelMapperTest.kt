@@ -48,8 +48,9 @@ class AreaCasesModelMapperTest {
 
         val caseModels = listOf(
             CaseModel(
+                dailyLabConfirmedCases = 123,
                 date = LocalDate.ofEpochDay(0),
-                dailyLabConfirmedCases = 123
+                rollingAverage = 1.1
             )
         )
 
@@ -75,7 +76,7 @@ class AreaCasesModelMapperTest {
         val mappedModel = sut.mapAreaDetailModel(areaDetailModel)
 
         assertThat(mappedModel.lastUpdatedAt).isEqualTo(areaDetailModel.lastUpdatedAt)
-        assertThat(mappedModel.latestCasesChartData).isEqualTo(
+        assertThat(mappedModel.latestCasesBarChartData).isEqualTo(
             BarChartData(
                 label = latestCasesLabel,
                 values = allBarChartData

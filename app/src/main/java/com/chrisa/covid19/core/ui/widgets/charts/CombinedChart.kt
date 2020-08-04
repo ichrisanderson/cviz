@@ -20,21 +20,26 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import com.chrisa.covid19.R
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import kotlinx.android.synthetic.main.widget_bar_chart.view.*
+import com.github.mikephil.charting.data.CombinedData
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import kotlinx.android.synthetic.main.widget_combined_chart.view.*
 
-class BarChart(
+class CombinedChart(
     context: Context,
     attrs: AttributeSet
 ) : ConstraintLayout(context, attrs) {
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.widget_bar_chart, this, true)
+        LayoutInflater.from(context).inflate(R.layout.widget_combined_chart, this, true)
         initChart()
         initXAxis()
         initYAxis()
@@ -68,8 +73,20 @@ class BarChart(
     }
 
     fun setData(
-        data: BarChartData
+        barChartData: BarChartData,
+        lineChartData: LineChartData
     ) {
+        val combinedData = CombinedData()
+
+        combinedData.setData(barDataSet(barChartData))
+        combinedData.setData(lineDataSet(lineChartData))
+
+        chart.data = combinedData
+
+        chart.invalidate()
+    }
+
+    private fun barDataSet(data: BarChartData): BarData {
         val barDataSet = BarDataSet(
             data.values.mapIndexed { i, v -> BarEntry(i.toFloat(), v.value) },
             data.label
@@ -78,8 +95,23 @@ class BarChart(
         barDataSet.isHighlightEnabled = false
 
         chart.xAxis.valueFormatter = StringValueAxisFormatter(data.values.map { it.label })
-        chart.data = BarData(barDataSet)
-        chart.invalidate()
+
+        return BarData(barDataSet)
+    }
+
+    private fun lineDataSet(data: LineChartData): LineData {
+        val dataSet = LineDataSet(
+            data.values.mapIndexed { i, v -> Entry(i.toFloat(), v.value) },
+            data.label
+        )
+        dataSet.setDrawValues(false)
+        dataSet.isHighlightEnabled = false
+
+        dataSet.color = ContextCompat.getColor(context, android.R.color.black)
+        dataSet.setDrawCircleHole(false)
+        dataSet.setDrawCircles(false)
+
+        return LineData(dataSet)
     }
 }
 

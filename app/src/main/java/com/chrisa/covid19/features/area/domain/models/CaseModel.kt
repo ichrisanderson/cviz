@@ -20,5 +20,6 @@ import java.time.LocalDate
 
 data class CaseModel(
     val dailyLabConfirmedCases: Int,
-    val date: LocalDate
+    val date: LocalDate,
+    val rollingAverage: Double
 )

@@ -72,8 +72,9 @@ class AreaViewModelTest {
 
                 val caseModels = listOf(
                     CaseModel(
+                        dailyLabConfirmedCases = 123,
                         date = LocalDate.ofEpochDay(0),
-                        dailyLabConfirmedCases = 123
+                        rollingAverage = 1.0
                     )
                 )
 
@@ -89,7 +90,7 @@ class AreaViewModelTest {
                         label = "All cases",
                         values = emptyList()
                     ),
-                    latestCasesChartData = BarChartData(
+                    latestCasesBarChartData = BarChartData(
                         label = "Latest cases",
                         values = emptyList()
                     )

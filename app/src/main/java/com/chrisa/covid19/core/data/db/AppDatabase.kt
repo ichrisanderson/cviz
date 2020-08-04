@@ -29,11 +29,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [
@@ -118,6 +118,10 @@ data class AreaTupleEntity(
 
 @Dao
 interface CaseDao {
+
+    @Query("DELETE FROM cases")
+    fun deleteAll()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(cases: List<CaseEntity>)
 
@@ -153,6 +157,10 @@ data class DeathEntity(
 
 @Dao
 interface DeathDao {
+
+    @Query("DELETE FROM deaths")
+    fun deleteAll()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(deaths: List<DeathEntity>)
 
@@ -180,6 +188,10 @@ data class DailyRecordEntity(
 
 @Dao
 interface DailyRecordDao {
+
+    @Query("DELETE FROM dailyRecords")
+    fun deleteAll()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(dailyRecordEntities: List<DailyRecordEntity>)
 
@@ -213,6 +225,10 @@ data class MetadataEntity(
 
 @Dao
 interface MetadataDao {
+
+    @Query("DELETE FROM metadata")
+    fun deleteAll()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(metadata: List<MetadataEntity>)
 
@@ -234,6 +250,10 @@ data class SavedAreaEntity(
 
 @Dao
 interface SavedAreaDao {
+
+    @Query("DELETE FROM savedArea")
+    fun deleteAll()
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(savedAreaEntity: SavedAreaEntity)
 
