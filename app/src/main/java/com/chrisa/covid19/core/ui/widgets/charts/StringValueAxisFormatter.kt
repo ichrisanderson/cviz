@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.models
+package com.chrisa.covid19.core.ui.widgets.charts
 
-import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
-import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
-import java.time.LocalDateTime
+import com.github.mikephil.charting.formatter.ValueFormatter
 
-data class AreaCasesModel(
-    val lastUpdatedAt: LocalDateTime,
-    val latestCasesBarChartData: BarChartData,
-    val latestCasesRollingAverageLineChartData: LineChartData,
-    val allCasesChartData: BarChartData,
-    val allCasesRollingAverageLineChartData: LineChartData
-)
+class StringValueAxisFormatter(private val labels: List<String>) : ValueFormatter() {
+    override fun getFormattedValue(value: Float): String {
+        return labels[value.toInt()]
+    }
+}

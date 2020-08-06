@@ -23,6 +23,7 @@ object CaseEntityMapper {
     fun CaseEntity.toCaseDto(): CaseDto {
         return CaseDto(
             dailyLabConfirmedCases = dailyLabConfirmedCases,
+            totalLabConfirmedCases = totalLabConfirmedCases,
             date = date
         )
     }

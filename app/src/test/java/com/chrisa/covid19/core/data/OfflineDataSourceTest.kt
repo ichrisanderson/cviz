@@ -16,6 +16,8 @@
 
 package com.chrisa.covid19.core.data
 
+import androidx.room.withTransaction
+import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.CaseDao
 import com.chrisa.covid19.core.data.db.CaseEntity
 import com.chrisa.covid19.core.data.db.DailyRecordDao
@@ -35,20 +37,30 @@ import com.chrisa.covid19.core.data.network.DailyRecordModel
 import com.chrisa.covid19.core.data.network.DeathModel
 import com.chrisa.covid19.core.data.network.MetadataModel
 import com.google.common.truth.Truth.assertThat
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class OfflineDataSourceTest {
 
     private lateinit var offlineDataSource: OfflineDataSource
 
+    private val appDatabase = mockk<AppDatabase>(relaxed = true)
     private val casesDao = mockk<CaseDao>(relaxed = true)
     private val deathsDao = mockk<DeathDao>(relaxed = true)
     private val dailyRecordsDao = mockk<DailyRecordDao>(relaxed = true)
@@ -57,6 +69,7 @@ class OfflineDataSourceTest {
     private val deathsModelMapper = DeathModelMapper()
     private val dailyRecordModelMapper = DailyRecordModelMapper()
     private val metadataModelMapper = MetadataModelMapper()
+    private val testDispatcher = TestCoroutineDispatcher()
 
     @Before
     fun setup() {
@@ -65,6 +78,7 @@ class OfflineDataSourceTest {
         every { metadataDao.metadata(DEATH_METADATA_ID) } returns emptyList()
 
         offlineDataSource = OfflineDataSource(
+            appDatabase,
             casesDao,
             deathsDao,
             dailyRecordsDao,
@@ -74,6 +88,22 @@ class OfflineDataSourceTest {
             deathsModelMapper,
             metadataModelMapper
         )
+    }
+
+    @Test
+    fun `WHEN withTransaction called THEN function runs in transaction`() =
+        testDispatcher.runBlockingTest {
+            mockkStatic("androidx.room.RoomDatabaseKt")
+            val block: suspend () -> Unit = { }
+            coEvery { appDatabase.withTransaction(block) } just Runs
+            offlineDataSource.withTransaction(block)
+            coVerify { appDatabase.withTransaction(block) }
+        }
+
+    @Test
+    fun `WHEN deleteAllCases called THEN casesDao deletes all records`() {
+        offlineDataSource.deleteAllCases()
+        verify { casesDao.deleteAll() }
     }
 
     @Test

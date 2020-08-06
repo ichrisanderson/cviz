@@ -39,6 +39,7 @@ class CaseEntityMapperTest {
         assertThat(entity.toCaseDto()).isEqualTo(
             CaseDto(
                 dailyLabConfirmedCases = entity.dailyLabConfirmedCases,
+                totalLabConfirmedCases = entity.totalLabConfirmedCases,
                 date = entity.date
             )
         )

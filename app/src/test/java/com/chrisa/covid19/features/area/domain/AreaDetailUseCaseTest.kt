@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.area.domain
 import com.chrisa.covid19.features.area.data.AreaDataSource
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
+import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
@@ -38,44 +39,51 @@ import org.junit.Test
 class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
-    private val sut = AreaDetailUseCase(areaDataSource)
+    private val rollingAverageHelper = mockk<RollingAverageHelper>()
+    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper)
 
     @Test
-    fun `WHEN execute called THEN area detail contains the latest cases for the area`() = runBlocking {
+    fun `WHEN execute called THEN area detail contains the latest cases for the area`() =
+        runBlocking {
 
-        val areaCode = "1234"
+            val areaCode = "1234"
 
-        val metadataDTO = MetadataDto(
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
-        )
-
-        val caseDTOs = (1 until 100).map {
-            CaseDto(
-                date = LocalDate.ofEpochDay(it.toLong()),
-                dailyLabConfirmedCases = it
+            val metadataDTO = MetadataDto(
+                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
             )
-        }
 
-        every { areaDataSource.loadCaseMetadata() } returns listOf(metadataDTO).asFlow()
-        every { areaDataSource.loadCases(areaCode) } returns listOf(caseDTOs).asFlow()
-
-        val caseModels = caseDTOs.map {
-            CaseModel(
-                date = it.date,
-                dailyLabConfirmedCases = it.dailyLabConfirmedCases
-            )
-        }
-
-        val areaDetailModelFlow = sut.execute(areaCode)
-
-        areaDetailModelFlow.collect { areaDetailModel ->
-            assertThat(areaDetailModel).isEqualTo(
-                AreaDetailModel(
-                    lastUpdatedAt = metadataDTO.lastUpdatedAt,
-                    allCases = caseModels,
-                    latestCases = caseModels.takeLast(14)
+            var totalLabConfirmedCases = 0
+            val caseDTOs = (1 until 100).map {
+                totalLabConfirmedCases += it
+                CaseDto(
+                    date = LocalDate.ofEpochDay(it.toLong()),
+                    dailyLabConfirmedCases = it,
+                    totalLabConfirmedCases = totalLabConfirmedCases
                 )
-            )
+            }
+
+            every { rollingAverageHelper.average(any(), any()) } returns 1.0
+            every { areaDataSource.loadCaseMetadata() } returns listOf(metadataDTO).asFlow()
+            every { areaDataSource.loadCases(areaCode) } returns listOf(caseDTOs).asFlow()
+
+            val caseModels = caseDTOs.map {
+                CaseModel(
+                    dailyLabConfirmedCases = it.dailyLabConfirmedCases,
+                    date = it.date,
+                    rollingAverage = 1.0
+                )
+            }
+
+            val areaDetailModelFlow = sut.execute(areaCode)
+
+            areaDetailModelFlow.collect { areaDetailModel ->
+                assertThat(areaDetailModel).isEqualTo(
+                    AreaDetailModel(
+                        lastUpdatedAt = metadataDTO.lastUpdatedAt,
+                        allCases = caseModels,
+                        latestCases = caseModels.takeLast(14)
+                    )
+                )
+            }
         }
-    }
 }

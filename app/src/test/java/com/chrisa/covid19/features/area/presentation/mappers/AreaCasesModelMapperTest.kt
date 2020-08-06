@@ -20,6 +20,8 @@ import android.content.Context
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
@@ -48,8 +50,9 @@ class AreaCasesModelMapperTest {
 
         val caseModels = listOf(
             CaseModel(
+                dailyLabConfirmedCases = 123,
                 date = LocalDate.ofEpochDay(0),
-                dailyLabConfirmedCases = 123
+                rollingAverage = 1.1
             )
         )
 
@@ -59,32 +62,53 @@ class AreaCasesModelMapperTest {
             latestCases = caseModels.takeLast(7)
         )
 
-        val allBarChartData = caseModels.map {
+        val dailyLabConfirmedCasesChartData = caseModels.map {
             BarChartItem(
                 value = it.dailyLabConfirmedCases.toFloat(),
                 label = it.date.format(formatter)
             )
         }
 
+        val rollingAverageChartData = caseModels.map {
+            LineChartItem(
+                value = it.rollingAverage.toFloat(),
+                label = it.date.format(formatter)
+            )
+        }
+
         val allCasesLabel = "All cases"
         val latestCasesLabel = "Latest cases"
+        val rollingAverageLabel = "Rolling average"
 
         every { context.getString(R.string.latest_cases_chart_label) } returns latestCasesLabel
         every { context.getString(R.string.all_cases_chart_label) } returns allCasesLabel
+        every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
 
         val mappedModel = sut.mapAreaDetailModel(areaDetailModel)
 
         assertThat(mappedModel.lastUpdatedAt).isEqualTo(areaDetailModel.lastUpdatedAt)
-        assertThat(mappedModel.latestCasesChartData).isEqualTo(
+        assertThat(mappedModel.latestCasesBarChartData).isEqualTo(
             BarChartData(
                 label = latestCasesLabel,
-                values = allBarChartData
+                values = dailyLabConfirmedCasesChartData
+            )
+        )
+        assertThat(mappedModel.latestCasesRollingAverageLineChartData).isEqualTo(
+            LineChartData(
+                label = rollingAverageLabel,
+                values = rollingAverageChartData
             )
         )
         assertThat(mappedModel.allCasesChartData).isEqualTo(
             BarChartData(
                 label = allCasesLabel,
-                values = allBarChartData
+                values = dailyLabConfirmedCasesChartData
+            )
+        )
+        assertThat(mappedModel.allCasesRollingAverageLineChartData).isEqualTo(
+            LineChartData(
+                label = rollingAverageLabel,
+                values = rollingAverageChartData
             )
         )
     }

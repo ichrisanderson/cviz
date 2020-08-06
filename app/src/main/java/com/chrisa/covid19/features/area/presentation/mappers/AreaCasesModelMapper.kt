@@ -20,6 +20,8 @@ import android.content.Context
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
@@ -40,13 +42,21 @@ class AreaCasesModelMapper @Inject constructor(
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
-            latestCasesChartData = BarChartData(
+            latestCasesBarChartData = BarChartData(
                 label = context.getString(R.string.latest_cases_chart_label),
                 values = areaDetailModel.latestCases.map(this::mapCaseModelToBarChartItem)
+            ),
+            latestCasesRollingAverageLineChartData = LineChartData(
+                label = context.getString(R.string.rolling_average_chart_label),
+                values = areaDetailModel.latestCases.map(this::mapCaseModelToLineChartItem)
             ),
             allCasesChartData = BarChartData(
                 label = context.getString(R.string.all_cases_chart_label),
                 values = areaDetailModel.allCases.map(this::mapCaseModelToBarChartItem)
+            ),
+            allCasesRollingAverageLineChartData = LineChartData(
+                label = context.getString(R.string.rolling_average_chart_label),
+                values = areaDetailModel.allCases.map(this::mapCaseModelToLineChartItem)
             )
         )
     }
@@ -54,6 +64,13 @@ class AreaCasesModelMapper @Inject constructor(
     private fun mapCaseModelToBarChartItem(caseModel: CaseModel): BarChartItem {
         return BarChartItem(
             caseModel.dailyLabConfirmedCases.toFloat(),
+            caseModel.date.format(formatter)
+        )
+    }
+
+    private fun mapCaseModelToLineChartItem(caseModel: CaseModel): LineChartItem {
+        return LineChartItem(
+            caseModel.rollingAverage.toFloat(),
             caseModel.date.format(formatter)
         )
     }

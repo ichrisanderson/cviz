@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.area.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
@@ -72,25 +73,40 @@ class AreaViewModelTest {
 
                 val caseModels = listOf(
                     CaseModel(
+                        dailyLabConfirmedCases = 123,
                         date = LocalDate.ofEpochDay(0),
-                        dailyLabConfirmedCases = 123
+                        rollingAverage = 1.0
                     )
                 )
 
                 val areaDetailModel = AreaDetailModel(
-                    lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
+                    lastUpdatedAt = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(0),
+                        ZoneOffset.UTC
+                    ),
                     allCases = caseModels,
                     latestCases = caseModels.takeLast(7)
                 )
 
                 val areaCasesModel = AreaCasesModel(
-                    lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
+                    lastUpdatedAt = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(0),
+                        ZoneOffset.UTC
+                    ),
                     allCasesChartData = BarChartData(
                         label = "All cases",
                         values = emptyList()
                     ),
-                    latestCasesChartData = BarChartData(
+                    allCasesRollingAverageLineChartData = LineChartData(
+                        label = "Rolling average",
+                        values = emptyList()
+                    ),
+                    latestCasesBarChartData = BarChartData(
                         label = "Latest cases",
+                        values = emptyList()
+                    ),
+                    latestCasesRollingAverageLineChartData = LineChartData(
+                        label = "Rolling average",
                         values = emptyList()
                     )
                 )

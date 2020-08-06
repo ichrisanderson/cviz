@@ -50,16 +50,23 @@ class CaseDataSynchronizer @Inject constructor(
                 val cases = casesResponse.body()
                 cases?.let {
 
-                    val allCases =
-                        cases.countries.union(cases.ltlas).union(cases.utlas)
-                            .union(cases.regions)
+                    offlineDataSource.withTransaction {
 
-                    offlineDataSource.insertCaseMetadata(cases.metadata)
-                    offlineDataSource.insertDailyRecord(
-                        cases.dailyRecords,
-                        cases.metadata.lastUpdatedAt.toLocalDate()
-                    )
-                    offlineDataSource.insertCases(allCases)
+                        offlineDataSource.deleteAllCases()
+
+                        val allCases =
+                            cases.countries
+                                .union(cases.ltlas)
+                                .union(cases.utlas)
+                                .union(cases.regions)
+
+                        offlineDataSource.insertCaseMetadata(cases.metadata)
+                        offlineDataSource.insertDailyRecord(
+                            cases.dailyRecords,
+                            cases.metadata.lastUpdatedAt.toLocalDate()
+                        )
+                        offlineDataSource.insertCases(allCases)
+                    }
                 }
             }
         }.onFailure { error ->

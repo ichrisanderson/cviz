@@ -151,7 +151,8 @@ class AreaDataSourceTest {
             assertThat(cases.first()).isEqualTo(
                 CaseDto(
                     date = casesEntity.date,
-                    dailyLabConfirmedCases = casesEntity.dailyLabConfirmedCases
+                    dailyLabConfirmedCases = casesEntity.dailyLabConfirmedCases,
+                    totalLabConfirmedCases = casesEntity.totalLabConfirmedCases
                 )
             )
         }

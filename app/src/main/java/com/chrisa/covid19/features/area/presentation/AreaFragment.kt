@@ -88,8 +88,14 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
                     areaCasesModel.lastUpdatedAt.atZone(zoneId).toInstant().toEpochMilli()
                 )
             )
-            latestCasesChart.setData(areaCasesModel.latestCasesChartData)
-            allCasesChart.setData(areaCasesModel.allCasesChartData)
+            latestCasesChart.setData(
+                areaCasesModel.latestCasesBarChartData,
+                areaCasesModel.latestCasesRollingAverageLineChartData
+            )
+            allCasesChart.setData(
+                areaCasesModel.allCasesChartData,
+                areaCasesModel.allCasesRollingAverageLineChartData
+            )
         })
     }
 

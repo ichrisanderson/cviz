@@ -17,14 +17,19 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.domain.mappers.CaseDtoMapper.toCaseModel
+import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
+import com.chrisa.covid19.features.area.domain.models.CaseModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 
+@ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
-    private val areaDataSource: AreaDataSource
+    private val areaDataSource: AreaDataSource,
+    private val rollingAverageHelper: RollingAverageHelper
 ) {
     fun execute(areaCode: String): Flow<AreaDetailModel> {
 
@@ -32,11 +37,23 @@ class AreaDetailUseCase @Inject constructor(
         val allCases = areaDataSource.loadCases(areaCode)
 
         return combine(metadata, allCases) { metadata, cases ->
-            val allCases = cases.map { it.toCaseModel() }
+            val allCases = mapAllCases(cases)
             AreaDetailModel(
                 lastUpdatedAt = metadata.lastUpdatedAt,
                 allCases = allCases,
                 latestCases = allCases.takeLast(14)
+            )
+        }
+    }
+
+    private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
+        return cases.mapIndexed { index, case ->
+            val previousCase = cases.getOrNull(index - 7)
+            val rollingAverage = rollingAverageHelper.average(case, previousCase)
+            CaseModel(
+                dailyLabConfirmedCases = case.dailyLabConfirmedCases,
+                rollingAverage = rollingAverage,
+                date = case.date
             )
         }
     }
