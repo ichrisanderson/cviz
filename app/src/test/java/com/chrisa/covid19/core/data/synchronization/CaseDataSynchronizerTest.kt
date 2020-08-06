@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.core.data.synchronization
 
+import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.OfflineDataSource
 import com.chrisa.covid19.core.data.TestData
 import com.chrisa.covid19.core.data.network.CovidApi
@@ -29,6 +30,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.slot
 import io.mockk.verify
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -236,10 +238,15 @@ class CaseDataSynchronizerTest {
             coEvery { covidApi.getCases(date) } returns Response.success(caseModel)
             every { networkUtils.hasNetworkConnection() } returns true
 
+            val transactionLambda = slot<suspend () -> Unit>()
+            coEvery { offlineDataSource.withTransaction(capture(transactionLambda)) } coAnswers {
+                transactionLambda.captured.invoke()
+            }
             every { offlineDataSource.casesMetadata() } returns metadata
             every { offlineDataSource.insertCaseMetadata(any()) } just Runs
             every { offlineDataSource.insertDailyRecord(any(), any()) } just Runs
             every { offlineDataSource.insertCases(any()) } just Runs
+            every { offlineDataSource.deleteAllCases() } just Runs
 
             sut.performSync()
 

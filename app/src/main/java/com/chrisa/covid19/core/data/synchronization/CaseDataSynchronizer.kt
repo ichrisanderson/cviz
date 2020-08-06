@@ -41,8 +41,8 @@ class CaseDataSynchronizer @Inject constructor(
 
         runCatching {
             api.getCases(
-                now
-                    .minusDays(1)
+                caseMetadata.lastUpdatedAt
+                    .plusHours(1)
                     .formatAsGmt()
             )
         }.onSuccess { casesResponse ->

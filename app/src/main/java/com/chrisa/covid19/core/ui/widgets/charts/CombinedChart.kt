@@ -114,4 +114,3 @@ class CombinedChart(
         return LineData(dataSet)
     }
 }
-

@@ -82,4 +82,3 @@ class BarChart(
         chart.invalidate()
     }
 }
-

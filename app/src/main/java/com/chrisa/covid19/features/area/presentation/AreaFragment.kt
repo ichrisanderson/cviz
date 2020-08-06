@@ -31,8 +31,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import kotlinx.android.synthetic.main.fragment_area.*
 import java.time.ZoneId
+import kotlinx.android.synthetic.main.fragment_area.*
 
 @AndroidEntryPoint
 class AreaFragment : Fragment(R.layout.fragment_area) {
