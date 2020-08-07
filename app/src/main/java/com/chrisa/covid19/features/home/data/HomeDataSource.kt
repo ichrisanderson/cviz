@@ -21,6 +21,7 @@ import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -33,9 +34,15 @@ class HomeDataSource @Inject constructor(
         return appDatabase.metadataDao()
             .metadataAsFlow(MetadataEntity.CASE_METADATA_ID)
             .map {
-                MetadataDto(
-                    lastUpdatedAt = it.lastUpdatedAt
-                )
+                if (it == null) {
+                    MetadataDto(
+                        lastUpdatedAt = LocalDateTime.now()
+                    )
+                } else {
+                    MetadataDto(
+                        lastUpdatedAt = it.lastUpdatedAt
+                    )
+                }
             }
     }
 

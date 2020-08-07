@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.core.data.db
+package com.chrisa.covid19.core.data.db.v2
 
 import android.content.Context
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
-import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -37,11 +36,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [
-        AreaEntity::class,
-        CaseEntity::class,
-        MetadataEntity::class,
-        DailyRecordEntity::class,
-        SavedAreaEntity::class
+        AreaEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -52,11 +47,7 @@ import kotlinx.coroutines.flow.Flow
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun casesDao(): CaseDao
     abstract fun areaDao(): AreaDao
-    abstract fun dailyRecordsDao(): DailyRecordDao
-    abstract fun metadataDao(): MetadataDao
-    abstract fun savedAreaDao(): SavedAreaDao
 
     companion object {
         private const val databaseName = "covid19-uk-db"
@@ -110,89 +101,11 @@ interface AreaDao {
     @Query("DELETE FROM areas")
     fun deleteAll()
 
-    @Query("SELECT COUNT(areaCode) FROM areas")
-    fun count(): Int
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areas: List<AreaEntity>)
 
     @Query("SELECT * FROM areas ORDER BY areaName ASC")
-    fun all(): List<AreaEntity>
-
-    @Query("SELECT * FROM areas WHERE areaName LIKE :areaName ORDER BY areaName ASC")
-    fun search(areaName: String): List<AreaEntity>
-}
-
-@Entity(
-    tableName = "cases",
-    primaryKeys = ["areaCode", "date"]
-)
-data class CaseEntity(
-    @ColumnInfo(name = "areaCode")
-    val areaCode: String,
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "dailyLabConfirmedCases")
-    val dailyLabConfirmedCases: Int,
-    @ColumnInfo(name = "dailyTotalLabConfirmedCasesRate")
-    val dailyTotalLabConfirmedCasesRate: Double,
-    @ColumnInfo(name = "totalLabConfirmedCases")
-    val totalLabConfirmedCases: Int,
-    @ColumnInfo(name = "date")
-    val date: LocalDate
-)
-
-@Dao
-interface CaseDao {
-
-    @Query("DELETE FROM cases")
-    fun deleteAll()
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(cases: List<CaseEntity>)
-
-    @Query("SELECT COUNT(areaCode) FROM cases")
-    fun count(): Int
-
-    @Query("SELECT * FROM cases WHERE areaCode = :areaCode ORDER BY date ASC")
-    fun areaCases(areaCode: String): Flow<List<CaseEntity>>
-
-    @Query("SELECT * FROM cases INNER JOIN savedArea ON cases.areaCode = savedArea.areaCode ORDER BY date ASC")
-    fun savedAreaCases(): Flow<List<CaseEntity>>
-}
-
-@Entity(
-    tableName = "dailyRecords",
-    primaryKeys = ["areaName", "date"]
-)
-data class DailyRecordEntity(
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "dailyLabConfirmedCases")
-    val dailyLabConfirmedCases: Int,
-    @ColumnInfo(name = "totalLabConfirmedCases")
-    val totalLabConfirmedCases: Int,
-    @ColumnInfo(name = "date")
-    val date: LocalDate
-)
-
-@Dao
-interface DailyRecordDao {
-
-    @Query("DELETE FROM dailyRecords")
-    fun deleteAll()
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(dailyRecordEntities: List<DailyRecordEntity>)
-
-    @Query("SELECT COUNT(areaName) FROM dailyRecords")
-    fun count(): Int
-
-    @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName")
-    fun searchDailyRecords(areaName: String): List<DailyRecordEntity>
-
-    @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName ORDER BY date ASC")
-    fun dailyRecords(areaName: String): Flow<List<DailyRecordEntity>>
+    fun allAreas(): List<AreaEntity>
 }
 
 @Entity(
@@ -202,14 +115,12 @@ interface DailyRecordDao {
 data class MetadataEntity(
     @ColumnInfo(name = "id")
     val id: String,
-    @ColumnInfo(name = "disclaimer")
-    val disclaimer: String,
     @ColumnInfo(name = "lastUpdatedAt")
     val lastUpdatedAt: LocalDateTime
 ) {
     companion object {
-        const val CASE_METADATA_ID = "UK-CASE-METADATA"
-        const val DEATH_METADATA_ID = "UK-DEATH-METADATA"
+        const val AREA_METADATA_ID = "AREA_METADATA"
+        const val OVERVIEW_METADATA_ID = "OVERVIEW_METADATA"
     }
 }
 
@@ -227,29 +138,4 @@ interface MetadataDao {
 
     @Query("SELECT * FROM metadata WHERE id = :id LIMIT 1")
     fun metadataAsFlow(id: String): Flow<MetadataEntity>
-}
-
-@Entity(
-    tableName = "savedArea",
-    primaryKeys = ["areaCode"]
-)
-data class SavedAreaEntity(
-    @ColumnInfo(name = "areaCode")
-    val areaCode: String
-)
-
-@Dao
-interface SavedAreaDao {
-
-    @Query("DELETE FROM savedArea")
-    fun deleteAll()
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(savedAreaEntity: SavedAreaEntity)
-
-    @Query("SELECT COUNT(areaCode) > 0 FROM savedArea WHERE areaCode = :areaCode")
-    fun isSaved(areaCode: String): Flow<Boolean>
-
-    @Delete
-    fun delete(savedAreaEntity: SavedAreaEntity): Int
 }

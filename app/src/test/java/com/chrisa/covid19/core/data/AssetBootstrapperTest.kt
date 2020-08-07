@@ -16,8 +16,8 @@
 
 package com.chrisa.covid19.core.data
 
+import com.chrisa.covid19.core.data.network.AreaModel
 import com.chrisa.covid19.core.data.network.CasesModel
-import com.chrisa.covid19.core.data.network.DeathsModel
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import io.mockk.coEvery
 import io.mockk.every
@@ -36,7 +36,6 @@ class AssetBootstrapperTest {
     private val testDispatcher = TestCoroutineDispatcher()
     private val testCoroutineScope = TestCoroutineScope(testDispatcher)
     private val casesModel = mockk<CasesModel>(relaxed = true)
-    private val deathsModel = mockk<DeathsModel>(relaxed = true)
 
     private lateinit var sut: AssetBootstrapper
 
@@ -44,7 +43,6 @@ class AssetBootstrapperTest {
     fun setup() {
 
         coEvery { assetDataSource.getCases() } returns casesModel
-        coEvery { assetDataSource.getDeaths() } returns deathsModel
 
         sut = AssetBootstrapper(
             assetDataSource,
@@ -54,73 +52,76 @@ class AssetBootstrapperTest {
     }
 
     @Test
-    fun `GIVEN no offline cases WHEN bootstrap data THEN case data is updated`() =
-        testCoroutineScope.runBlockingTest {
-
-            every { offlineDataSource.casesCount() } returns 0
-
-            sut.bootstrapData()
-
-            val allCases = casesModel.countries.union(casesModel.ltlas).union(casesModel.utlas)
-                .union(casesModel.regions)
-
-            verify { offlineDataSource.insertCaseMetadata(casesModel.metadata) }
-            verify {
-                offlineDataSource.insertDailyRecord(
-                    casesModel.dailyRecords,
-                    casesModel.metadata.lastUpdatedAt.toLocalDate()
-                )
-            }
-            verify { offlineDataSource.insertCases(allCases) }
-        }
-
-    @Test
     fun `GIVEN offline cases WHEN bootstrap data THEN case data is not updated`() =
         testCoroutineScope.runBlockingTest {
 
-            every { offlineDataSource.casesCount() } returns 1
+            every { offlineDataSource.areaCount() } returns 1
 
             sut.bootstrapData()
 
             verify(exactly = 0) {
-                offlineDataSource.insertCaseMetadata(any())
-            }
-
-            verify(exactly = 0) {
-                offlineDataSource.insertDailyRecord(any(), any())
-            }
-            verify(exactly = 0) {
-                offlineDataSource.insertCases(any())
+                offlineDataSource.insertAreas(any())
             }
         }
 
     @Test
-    fun `GIVEN no offline deaths WHEN bootstrap data THEN offline deaths are updated`() =
+    fun `GIVEN no offline areas WHEN bootstrap data THEN area data is updated`() =
         testCoroutineScope.runBlockingTest {
 
-            every { offlineDataSource.deathsCount() } returns 0
+            val area = AreaModel(
+                areaCode = "1234",
+                areaName = "UK",
+                areaType = "overview"
+            )
+
+            val areas = listOf(area)
+
+            coEvery { assetDataSource.getAreas() } returns areas
+            every { offlineDataSource.areaCount() } returns 0
 
             sut.bootstrapData()
 
-            val allDeaths = deathsModel.countries.union(deathsModel.overview)
-
-            verify(exactly = 1) {
-                offlineDataSource.insertDeathMetadata(deathsModel.metadata)
-            }
-            verify(exactly = 1) {
-                offlineDataSource.insertDeaths(allDeaths)
-            }
+            verify { offlineDataSource.insertAreas(areas) }
         }
 
-    @Test
-    fun `GIVEN offline deaths WHEN bootstrap data THEN offline deaths not are updated`() =
-        testCoroutineScope.runBlockingTest {
-
-            every { offlineDataSource.deathsCount() } returns 1
-
-            sut.bootstrapData()
-
-            verify(exactly = 0) { offlineDataSource.insertDeathMetadata(any()) }
-            verify(exactly = 0) { offlineDataSource.insertDeaths(any()) }
-        }
+//    @Test
+//    fun `GIVEN no offline cases WHEN bootstrap data THEN case data is updated`() =
+//        testCoroutineScope.runBlockingTest {
+//
+//            every { offlineDataSource.casesCount() } returns 0
+//
+//            sut.bootstrapData()
+//
+//            val allCases = casesModel.countries.union(casesModel.ltlas).union(casesModel.utlas)
+//                .union(casesModel.regions)
+//
+//            verify { offlineDataSource.insertCaseMetadata(casesModel.metadata) }
+//            verify {
+//                offlineDataSource.insertDailyRecord(
+//                    casesModel.dailyRecords,
+//                    casesModel.metadata.lastUpdatedAt.toLocalDate()
+//                )
+//            }
+//            verify { offlineDataSource.insertCases(allCases) }
+//        }
+//
+//    @Test
+//    fun `GIVEN offline cases WHEN bootstrap data THEN case data is not updated`() =
+//        testCoroutineScope.runBlockingTest {
+//
+//            every { offlineDataSource.casesCount() } returns 1
+//
+//            sut.bootstrapData()
+//
+//            verify(exactly = 0) {
+//                offlineDataSource.insertCaseMetadata(any())
+//            }
+//
+//            verify(exactly = 0) {
+//                offlineDataSource.insertDailyRecord(any(), any())
+//            }
+//            verify(exactly = 0) {
+//                offlineDataSource.insertCases(any())
+//            }
+//        }
 }

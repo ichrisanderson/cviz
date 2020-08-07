@@ -21,7 +21,6 @@ import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.startup.domain.BootstrapDataUseCase
 import com.chrisa.covid19.features.startup.domain.SynchronizeCasesUseCase
-import com.chrisa.covid19.features.startup.domain.SynchronizeDeathsUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -40,7 +39,6 @@ class StartupViewModelTest {
 
     private val bootstrapDataUseCase = mockk<BootstrapDataUseCase>()
     private val synchronizeCasesUseCase = mockk<SynchronizeCasesUseCase>()
-    private val synchronizeDeathsUseCase = mockk<SynchronizeDeathsUseCase>()
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Test
@@ -50,12 +48,10 @@ class StartupViewModelTest {
 
                 coEvery { bootstrapDataUseCase.execute() } just Runs
                 coEvery { synchronizeCasesUseCase.execute(any()) } just Runs
-                coEvery { synchronizeDeathsUseCase.execute(any()) } just Runs
 
                 val sut = StartupViewModel(
                     bootstrapDataUseCase,
                     synchronizeCasesUseCase,
-                    synchronizeDeathsUseCase,
                     TestCoroutineDispatchersImpl(testDispatcher)
                 )
 

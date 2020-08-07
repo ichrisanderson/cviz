@@ -25,6 +25,13 @@ import retrofit2.http.Header
 import retrofit2.http.Headers
 
 interface CovidApi {
+    @Headers(
+        "Accept-Encoding: gzip, deflate",
+        "Content-Type: application/json;charset=utf-8",
+        "Accept: application/json"
+    )
+    @GET("v1/lookup?filters=areaType=overview%257CareaType=nation%257CareaType=region%257CareaType=utla%257CareaType=ltla&structure=%7B%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22areaType%22:%22areaType%22%7D&format=json")
+    suspend fun areas(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
 
     @Headers(
         "Accept-Encoding: gzip, deflate",
@@ -42,6 +49,20 @@ interface CovidApi {
     @GET("downloads/json/coronavirus-deaths_latest.json")
     suspend fun getDeaths(@Header("If-Modified-Since") modifiedDate: String): Response<DeathsModel>
 }
+
+@JsonClass(generateAdapter = true)
+data class Page<T>(
+    val length: Int?,
+    val maxPageLimit: Int?,
+    val data: List<T>
+)
+
+@JsonClass(generateAdapter = true)
+data class AreaModel(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String
+)
 
 @JsonClass(generateAdapter = true)
 data class CasesModel(

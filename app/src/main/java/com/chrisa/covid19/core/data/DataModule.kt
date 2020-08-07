@@ -20,7 +20,6 @@ import android.content.Context
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.CaseDao
 import com.chrisa.covid19.core.data.db.DailyRecordDao
-import com.chrisa.covid19.core.data.db.DeathDao
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.squareup.moshi.FromJson
@@ -104,11 +103,6 @@ internal object DatabaseModule {
     @Provides
     fun provideDailyRecordsDao(appDatabase: AppDatabase): DailyRecordDao {
         return appDatabase.dailyRecordsDao()
-    }
-
-    @Provides
-    fun provideDeathsDao(appDatabase: AppDatabase): DeathDao {
-        return appDatabase.deathsDao()
     }
 
     @Provides

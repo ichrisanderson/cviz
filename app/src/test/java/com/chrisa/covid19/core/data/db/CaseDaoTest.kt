@@ -48,13 +48,13 @@ class CaseDaoTest {
     }
 
     @Test
-    fun `GIVEN no cases WHEN casesCount called THEN count is zero`() {
-        val count = db.casesDao().casesCount()
+    fun `GIVEN no cases WHEN count called THEN count is zero`() {
+        val count = db.casesDao().count()
         assertThat(count).isEqualTo(0)
     }
 
     @Test
-    fun `GIVEN cases exist WHEN casesCount called THEN count is not zero`() {
+    fun `GIVEN cases exist WHEN count called THEN count is not zero`() {
         db.casesDao().insertAll(
             listOf(
                 CaseEntity(
@@ -68,7 +68,7 @@ class CaseDaoTest {
             )
         )
 
-        val count = db.casesDao().casesCount()
+        val count = db.casesDao().count()
         assertThat(count).isEqualTo(1)
     }
 
@@ -178,109 +178,6 @@ class CaseDaoTest {
 
             cancel()
         }
-    }
-
-    @Test
-    fun `GIVEN case does not exist WHEN insertCases called THEN case area created`() {
-
-        val newCaseEntity = CaseEntity(
-            areaCode = "001",
-            areaName = "UK",
-            date = LocalDate.ofEpochDay(0),
-            dailyLabConfirmedCases = 12,
-            totalLabConfirmedCases = 33,
-            dailyTotalLabConfirmedCasesRate = 100.0
-        )
-
-        db.casesDao().insertAll(listOf(newCaseEntity))
-
-        val cases = db.casesDao().allAreas(newCaseEntity.areaName)
-
-        assertThat(cases.size).isEqualTo(1)
-        assertThat(cases.first()).isEqualTo(
-            AreaTupleEntity(
-                newCaseEntity.areaCode,
-                newCaseEntity.areaName
-            )
-        )
-    }
-
-    @Test
-    fun `GIVEN case does exist WHEN insertCases called with same area code and area name THEN single area case is created`() {
-
-        val oldCaseEntity = CaseEntity(
-            areaCode = "001",
-            areaName = "UK",
-            date = LocalDate.ofEpochDay(0),
-            dailyLabConfirmedCases = 9,
-            totalLabConfirmedCases = 9,
-            dailyTotalLabConfirmedCasesRate = 9.0
-        )
-
-        db.casesDao().insertAll(listOf(oldCaseEntity))
-
-        val newCaseEntity = CaseEntity(
-            areaCode = "001",
-            areaName = "UK",
-            date = LocalDate.ofEpochDay(1),
-            dailyLabConfirmedCases = 12,
-            totalLabConfirmedCases = 33,
-            dailyTotalLabConfirmedCasesRate = 100.0
-        )
-
-        db.casesDao().insertAll(listOf(newCaseEntity))
-
-        val cases = db.casesDao().allAreas(oldCaseEntity.areaName)
-
-        assertThat(cases.size).isEqualTo(1)
-        assertThat(cases[0]).isEqualTo(
-            AreaTupleEntity(
-                newCaseEntity.areaCode,
-                newCaseEntity.areaName
-            )
-        )
-    }
-
-    @Test
-    fun `GIVEN case does exist WHEN insertCases called with different area code and area name THEN new area case is created`() {
-
-        val oldCaseEntity = CaseEntity(
-            areaCode = "001",
-            areaName = "UK",
-            date = LocalDate.ofEpochDay(0),
-            dailyLabConfirmedCases = 9,
-            totalLabConfirmedCases = 9,
-            dailyTotalLabConfirmedCasesRate = 9.0
-        )
-
-        db.casesDao().insertAll(listOf(oldCaseEntity))
-
-        val newCaseEntity = CaseEntity(
-            areaCode = "002",
-            areaName = "UK",
-            date = LocalDate.ofEpochDay(1),
-            dailyLabConfirmedCases = 12,
-            totalLabConfirmedCases = 33,
-            dailyTotalLabConfirmedCasesRate = 100.0
-        )
-
-        db.casesDao().insertAll(listOf(newCaseEntity))
-
-        val cases = db.casesDao().allAreas(oldCaseEntity.areaName)
-
-        assertThat(cases.size).isEqualTo(2)
-        assertThat(cases[0]).isEqualTo(
-            AreaTupleEntity(
-                oldCaseEntity.areaCode,
-                oldCaseEntity.areaName
-            )
-        )
-        assertThat(cases[1]).isEqualTo(
-            AreaTupleEntity(
-                newCaseEntity.areaCode,
-                newCaseEntity.areaName
-            )
-        )
     }
 
     @Test
