@@ -19,8 +19,6 @@ package com.chrisa.covid19.core.data
 import com.chrisa.covid19.core.data.network.CaseModel
 import com.chrisa.covid19.core.data.network.CasesModel
 import com.chrisa.covid19.core.data.network.DailyRecordModel
-import com.chrisa.covid19.core.data.network.DeathModel
-import com.chrisa.covid19.core.data.network.DeathsModel
 import com.chrisa.covid19.core.data.network.MetadataModel
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -87,7 +85,6 @@ object TestData {
     )
 
     val TEST_CASE_METADATA = MetadataModel(
-        disclaimer = "Test disclaimer",
         lastUpdatedAt = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2020-06-28T15:03:07.739123Z", LocalDateTime::from)
     )
 
@@ -98,32 +95,5 @@ object TestData {
         regions = listOf(TEST_REGION_MODEL),
         dailyRecords = TEST_DAILY_RECORD_MODEL,
         metadata = TEST_CASE_METADATA
-    )
-
-    val TEST_COUNTRY_DEATH_MODEL = DeathModel(
-        areaCode = "TC001",
-        areaName = "Test Country",
-        cumulativeDeaths = 0,
-        dailyChangeInDeaths = 0,
-        reportingDate = LocalDate.ofEpochDay(0)
-    )
-
-    val TEST_OVERVIEW_DEATH_MODEL = DeathModel(
-        areaCode = "TC001",
-        areaName = "Test Overviews",
-        cumulativeDeaths = 0,
-        dailyChangeInDeaths = 0,
-        reportingDate = LocalDate.ofEpochDay(0)
-    )
-
-    val TEST_DEATH_METADATA = MetadataModel(
-        disclaimer = "Test death disclaimer",
-        lastUpdatedAt = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2020-06-28T15:03:07.739123Z", LocalDateTime::from)
-    )
-
-    val TEST_DEATH_MODEL = DeathsModel(
-        countries = listOf(TEST_COUNTRY_DEATH_MODEL),
-        metadata = TEST_DEATH_METADATA,
-        overview = listOf(TEST_OVERVIEW_DEATH_MODEL)
     )
 }

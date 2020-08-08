@@ -202,14 +202,12 @@ interface DailyRecordDao {
 data class MetadataEntity(
     @ColumnInfo(name = "id")
     val id: String,
-    @ColumnInfo(name = "disclaimer")
-    val disclaimer: String,
     @ColumnInfo(name = "lastUpdatedAt")
     val lastUpdatedAt: LocalDateTime
 ) {
     companion object {
+        const val AREA_METADATA_ID = "AREA_METADATA"
         const val CASE_METADATA_ID = "UK-CASE-METADATA"
-        const val DEATH_METADATA_ID = "UK-DEATH-METADATA"
     }
 }
 
@@ -222,8 +220,8 @@ interface MetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(metadata: List<MetadataEntity>)
 
-    @Query("SELECT * FROM metadata WHERE id = :id")
-    fun metadata(id: String): List<MetadataEntity>
+    @Query("SELECT * FROM metadata WHERE id = :id  LIMIT 1")
+    fun metadata(id: String): MetadataEntity?
 
     @Query("SELECT * FROM metadata WHERE id = :id LIMIT 1")
     fun metadataAsFlow(id: String): Flow<MetadataEntity>

@@ -26,28 +26,24 @@ import retrofit2.http.Headers
 
 interface CovidApi {
     @Headers(
-        "Accept-Encoding: gzip, deflate",
         "Content-Type: application/json;charset=utf-8",
         "Accept: application/json"
     )
-    @GET("v1/lookup?filters=areaType=overview%257CareaType=nation%257CareaType=region%257CareaType=utla%257CareaType=ltla&structure=%7B%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22areaType%22:%22areaType%22%7D&format=json")
+    @GET("v1/lookup?filters=areaType=overview%257CareaType=nation%257CareaType=region%257CareaType=utla%257CareaType=ltla&structure=%7B%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22areaType%22:%22areaType%22%7D")
     suspend fun areas(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
+    @Headers(
+        "Content-Type: application/json;charset=utf-8",
+        "Accept: application/json"
+    )
+    @GET("v1/data?filters=areaName=United%2520Kingdom;areaType=overview&structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cumulativeCases%22:%22cumCasesByPublishDate%22%7D&format=json")
+    suspend fun ukOverview(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
 
     @Headers(
-        "Accept-Encoding: gzip, deflate",
         "Content-Type: application/json;charset=utf-8",
         "Accept: application/json"
     )
     @GET("downloads/json/coronavirus-cases_latest.json")
     suspend fun getCases(@Header("If-Modified-Since") modifiedDate: String): Response<CasesModel>
-
-    @Headers(
-        "Accept-Encoding: gzip, deflate",
-        "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
-    )
-    @GET("downloads/json/coronavirus-deaths_latest.json")
-    suspend fun getDeaths(@Header("If-Modified-Since") modifiedDate: String): Response<DeathsModel>
 }
 
 @JsonClass(generateAdapter = true)
@@ -62,6 +58,15 @@ data class AreaModel(
     val areaCode: String,
     val areaName: String,
     val areaType: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AreaData(
+    val areaCode: String,
+    val areaName: String,
+    val date: LocalDate,
+    val newCases: Int?,
+    val cumulativeCases: Int?
 )
 
 @JsonClass(generateAdapter = true)
@@ -83,7 +88,6 @@ data class DailyRecordModel(
 
 @JsonClass(generateAdapter = true)
 data class MetadataModel(
-    val disclaimer: String,
     val lastUpdatedAt: LocalDateTime
 )
 
@@ -99,20 +103,4 @@ data class CaseModel(
     val previouslyReportedTotalCases: Int?,
     val specimenDate: LocalDate,
     val totalLabConfirmedCases: Int?
-)
-
-@JsonClass(generateAdapter = true)
-data class DeathsModel(
-    val countries: List<DeathModel>,
-    val metadata: MetadataModel,
-    val overview: List<DeathModel>
-)
-
-@JsonClass(generateAdapter = true)
-data class DeathModel(
-    val areaCode: String,
-    val areaName: String,
-    val cumulativeDeaths: Int,
-    val dailyChangeInDeaths: Int?,
-    val reportingDate: LocalDate
 )

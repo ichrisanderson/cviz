@@ -16,17 +16,43 @@
 
 package com.chrisa.covid19.core.data
 
+import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AreaModel
+import com.chrisa.covid19.core.data.network.MetadataModel
 import javax.inject.Inject
 
 class OfflineDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
+    suspend fun withTransaction(block: suspend () -> Unit) {
+        return appDatabase.withTransaction(block)
+    }
+
     fun areaCount(): Int {
         return appDatabase.areaDao().count()
+    }
+
+    fun areaMetadata(): MetadataModel? {
+        val metadata =
+            appDatabase.metadataDao().metadata(MetadataEntity.AREA_METADATA_ID) ?: return null
+        return MetadataModel(
+            lastUpdatedAt = metadata.lastUpdatedAt
+        )
+    }
+
+    fun insertAreaMetadata(metadata: MetadataModel) {
+        appDatabase.metadataDao().insertAll(
+            listOf(
+                MetadataEntity(
+                    id = MetadataEntity.AREA_METADATA_ID,
+                    lastUpdatedAt = metadata.lastUpdatedAt
+                )
+            )
+        )
     }
 
     fun insertAreas(areas: Collection<AreaModel>) {
@@ -38,9 +64,6 @@ class OfflineDataSource @Inject constructor(
             )
         })
     }
-//    suspend fun withTransaction(block: suspend () -> Unit) {
-//        return appDatabase.withTransaction(block)
-//    }
 //
 //    fun deleteAllCases() {
 //        caseDao.deleteAll()

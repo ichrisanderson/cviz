@@ -107,7 +107,6 @@ class AreaDataSourceTest {
 
         val metadataDTO = MetadataEntity(
             id = MetadataEntity.CASE_METADATA_ID,
-            disclaimer = "disclaimer",
             lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 

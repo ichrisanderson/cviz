@@ -19,7 +19,7 @@ package com.chrisa.covid19.features.area.data.mappers
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.mappers.MetadataEntityMapper.toMetadataDto
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -31,11 +31,10 @@ class MetadataEntityMapperTest {
     fun `WHEN toMetadataDto called THEN dto is created with correct details`() {
         val entity = MetadataEntity(
             id = "12234",
-            disclaimer = "disclaimer...",
             lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
-        Truth.assertThat(entity.toMetadataDto()).isEqualTo(
+        assertThat(entity.toMetadataDto()).isEqualTo(
             MetadataDto(
                 lastUpdatedAt = entity.lastUpdatedAt
             )

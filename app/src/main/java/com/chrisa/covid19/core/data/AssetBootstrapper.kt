@@ -16,7 +16,9 @@
 
 package com.chrisa.covid19.core.data
 
+import com.chrisa.covid19.core.data.network.MetadataModel
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
@@ -38,9 +40,9 @@ class AssetBootstrapper @Inject constructor(
     private fun bootstrapAreas() {
         val areaCount = offlineDataSource.areaCount()
         if (areaCount > 0) return
-
         val areas = assetDataSource.getAreas()
         offlineDataSource.insertAreas(areas)
+        offlineDataSource.insertAreaMetadata(MetadataModel(lastUpdatedAt = LocalDateTime.now().minusDays(1)))
     }
 
     private fun bootstrapCases() {

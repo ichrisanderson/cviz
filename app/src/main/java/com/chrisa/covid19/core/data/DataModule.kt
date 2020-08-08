@@ -58,7 +58,7 @@ internal object DataModule {
     fun okHttpClient(): OkHttpClient {
 
         val httpLoggingInterceptor = HttpLoggingInterceptor()
-            .setLevel(HttpLoggingInterceptor.Level.HEADERS)
+            .setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val builder = OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)
@@ -72,9 +72,9 @@ internal object DataModule {
         moshi: Moshi
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://coronavirus.data.gov.uk/")
+            .baseUrl("https://api.coronavirus.data.gov.uk/")
             .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
             .build()
     }
 

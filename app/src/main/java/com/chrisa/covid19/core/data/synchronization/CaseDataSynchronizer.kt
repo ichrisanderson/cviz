@@ -18,8 +18,12 @@ package com.chrisa.covid19.core.data.synchronization
 
 import com.chrisa.covid19.core.data.OfflineDataSource
 import com.chrisa.covid19.core.data.network.CovidApi
+import com.chrisa.covid19.core.data.network.MetadataModel
+import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.NetworkUtils
+import java.time.LocalDateTime
 import javax.inject.Inject
+import timber.log.Timber
 
 class CaseDataSynchronizer @Inject constructor(
     private val networkUtils: NetworkUtils,
@@ -28,10 +32,12 @@ class CaseDataSynchronizer @Inject constructor(
 ) {
 
     suspend fun performSync() {
-//        if (!networkUtils.hasNetworkConnection()) return
+        if (!networkUtils.hasNetworkConnection()) return
+
+        syncAreas()
+
 //        val caseMetadata = offlineDataSource.casesMetadata() ?: return
 //
-//        val now = LocalDateTime.now()
 //        if (caseMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
 //            return
 //        }
@@ -69,5 +75,27 @@ class CaseDataSynchronizer @Inject constructor(
 //        }.onFailure { error ->
 //            Timber.e(error, "Error synchronizing cases")
 //        }
+    }
+
+    private suspend fun syncAreas() {
+        val now = LocalDateTime.now()
+        val areaMetdata = offlineDataSource.areaMetadata() ?: return
+
+        if (areaMetdata.lastUpdatedAt.plusHours(1).isAfter(now)) {
+            return
+        }
+        runCatching {
+            api.areas(areaMetdata.lastUpdatedAt.formatAsGmt())
+        }.onSuccess { areasResponse ->
+            if (areasResponse.isSuccessful) {
+                val areas = areasResponse.body() ?: return@onSuccess
+                offlineDataSource.withTransaction {
+                    offlineDataSource.insertAreas(areas.data)
+                    offlineDataSource.insertAreaMetadata(MetadataModel(lastUpdatedAt = now))
+                }
+            }
+        }.onFailure { error ->
+            Timber.e(error, "Error synchronizing areas")
+        }
     }
 }

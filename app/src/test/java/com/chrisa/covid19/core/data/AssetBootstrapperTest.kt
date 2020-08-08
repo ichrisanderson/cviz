@@ -18,11 +18,14 @@ package com.chrisa.covid19.core.data
 
 import com.chrisa.covid19.core.data.network.AreaModel
 import com.chrisa.covid19.core.data.network.CasesModel
+import com.chrisa.covid19.core.data.network.MetadataModel
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
+import java.time.LocalDateTime
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -67,6 +70,7 @@ class AssetBootstrapperTest {
     @Test
     fun `GIVEN no offline areas WHEN bootstrap data THEN area data is updated`() =
         testCoroutineScope.runBlockingTest {
+            mockkStatic(LocalDateTime::class)
 
             val area = AreaModel(
                 areaCode = "1234",
@@ -74,13 +78,16 @@ class AssetBootstrapperTest {
                 areaType = "overview"
             )
 
+            val date = LocalDateTime.of(2020, 1, 1, 0, 0)
             val areas = listOf(area)
 
             coEvery { assetDataSource.getAreas() } returns areas
             every { offlineDataSource.areaCount() } returns 0
+            every { LocalDateTime.now() } returns date
 
             sut.bootstrapData()
 
+            verify { offlineDataSource.insertAreaMetadata(MetadataModel(lastUpdatedAt = date.minusDays(1))) }
             verify { offlineDataSource.insertAreas(areas) }
         }
 

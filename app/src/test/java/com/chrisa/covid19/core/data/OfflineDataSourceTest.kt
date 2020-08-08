@@ -16,21 +16,31 @@
 
 package com.chrisa.covid19.core.data
 
+import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDao
 import com.chrisa.covid19.core.data.db.AreaEntity
 import com.chrisa.covid19.core.data.db.CaseDao
 import com.chrisa.covid19.core.data.db.DailyRecordDao
 import com.chrisa.covid19.core.data.db.MetadataDao
-import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.CASE_METADATA_ID
-import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.DEATH_METADATA_ID
+import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AreaModel
+import com.chrisa.covid19.core.data.network.MetadataModel
 import com.google.common.truth.Truth.assertThat
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 
@@ -50,8 +60,7 @@ class OfflineDataSourceTest {
     fun setup() {
 
         every { appDatabase.areaDao() } returns areaDao
-        every { metadataDao.metadata(CASE_METADATA_ID) } returns emptyList()
-        every { metadataDao.metadata(DEATH_METADATA_ID) } returns emptyList()
+        every { appDatabase.metadataDao() } returns metadataDao
 
         offlineDataSource = OfflineDataSource(
             appDatabase
@@ -67,6 +76,43 @@ class OfflineDataSourceTest {
         assertThat(cases).isEqualTo(100)
     }
 
+    @Test
+    fun `GIVEN no area metadata exists WHEN areaMetadata called THEN area metadata is null`() {
+        every { metadataDao.metadata(MetadataEntity.AREA_METADATA_ID) } returns null
+
+        val metadata = offlineDataSource.areaMetadata()
+        assertThat(metadata).isNull()
+    }
+
+    @Test
+    fun `GIVEN area metadata exists WHEN areaMetadata called THEN area metadata is returned`() {
+        val areaMetadataEntity = MetadataEntity(id = MetadataEntity.AREA_METADATA_ID, lastUpdatedAt = LocalDateTime.now())
+        every { metadataDao.metadata(MetadataEntity.AREA_METADATA_ID) } returns areaMetadataEntity
+
+        val metadata = offlineDataSource.areaMetadata()
+        assertThat(metadata).isEqualTo(MetadataModel(lastUpdatedAt = areaMetadataEntity.lastUpdatedAt))
+    }
+
+    @Test
+    fun `WHEN insertAreaMetadata called THEN metadataEntity is inserted`() {
+
+        val metadataModel = MetadataModel(
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        )
+
+        offlineDataSource.insertAreaMetadata(metadataModel)
+
+        verify(exactly = 1) {
+            metadataDao.insertAll(
+                listOf(
+                    MetadataEntity(
+                        id = MetadataEntity.AREA_METADATA_ID,
+                        lastUpdatedAt = metadataModel.lastUpdatedAt
+                    )
+                )
+            )
+        }
+    }
     @Test
     fun `WHEN insertAreas called THEN areaEntity is inserted`() {
 
@@ -91,15 +137,15 @@ class OfflineDataSourceTest {
         }
     }
 
-//    @Test
-//    fun `WHEN withTransaction called THEN function runs in transaction`() =
-//        testDispatcher.runBlockingTest {
-//            mockkStatic("androidx.room.RoomDatabaseKt")
-//            val block: suspend () -> Unit = { }
-//            coEvery { appDatabase.withTransaction(block) } just Runs
-//            offlineDataSource.withTransaction(block)
-//            coVerify { appDatabase.withTransaction(block) }
-//        }
+    @Test
+    fun `WHEN withTransaction called THEN function runs in transaction`() =
+        testDispatcher.runBlockingTest {
+            mockkStatic("androidx.room.RoomDatabaseKt")
+            val block: suspend () -> Unit = { }
+            coEvery { appDatabase.withTransaction(block) } just Runs
+            offlineDataSource.withTransaction(block)
+            coVerify { appDatabase.withTransaction(block) }
+        }
 //
 //    @Test
 //    fun `WHEN deleteAllCases called THEN casesDao deletes all records`() {
