@@ -23,6 +23,7 @@ import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import java.time.Instant
@@ -47,6 +48,7 @@ class AreaDetailUseCaseTest {
         runBlocking {
 
             val areaCode = "1234"
+            val areaType = "utla"
 
             val metadataDTO = MetadataDto(
                 lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
@@ -64,7 +66,7 @@ class AreaDetailUseCaseTest {
 
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
             every { areaDataSource.loadCaseMetadata() } returns listOf(metadataDTO).asFlow()
-            every { areaDataSource.loadCases(areaCode) } returns listOf(caseDTOs).asFlow()
+            coEvery { areaDataSource.loadCases(areaCode, areaType) } returns caseDTOs
 
             val caseModels = caseDTOs.map {
                 CaseModel(
@@ -74,7 +76,7 @@ class AreaDetailUseCaseTest {
                 )
             }
 
-            val areaDetailModelFlow = sut.execute(areaCode)
+            val areaDetailModelFlow = sut.execute(areaCode, areaType)
 
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(

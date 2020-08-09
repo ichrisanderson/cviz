@@ -16,12 +16,14 @@
 
 package com.chrisa.covid19.features.area.data
 
+import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
-import com.chrisa.covid19.features.area.data.mappers.CaseEntityMapper.toCaseDto
 import com.chrisa.covid19.features.area.data.mappers.MetadataEntityMapper.toMetadataDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
 import javax.inject.Inject
@@ -29,7 +31,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class AreaDataSource @Inject constructor(
-    private val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val covidApi: CovidApi
 ) {
 
     fun isSaved(areaCode: String): Flow<Boolean> {
@@ -44,13 +47,43 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadCases(areaCode: String): Flow<List<CaseDto>> {
-        return appDatabase.casesDao()
-            .areaCases(areaCode).map { cases -> cases.map { it.toCaseDto() } }
+    suspend fun loadCases(areaCode: String, areaType: String): List<CaseDto> {
+
+        val filter = "areaCode=$areaCode;areaType=$areaType"
+        val pagedAreaCodeData = when (areaType) {
+            "overview" -> covidApi.pagedAreaCodeDataByPublishDate(filter)
+            else -> covidApi.pagedAreaCodeDataBySpeciminDate(filter)
+        }
+
+        // TODO: Extract this into a cache layer?
+        appDatabase.withTransaction {
+            appDatabase.areaDataDao().deleteAllByCode(areaCode)
+            appDatabase.areaDataDao().insertAll(pagedAreaCodeData.data.map {
+                AreaDataEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = it.areaType,
+                    cumulativeCases = it.cumulativeCases ?: 0,
+                    date = it.date,
+                    infectionRate = it.infectionRate ?: 0.0,
+                    newCases = it.newCases ?: 0
+                )
+            })
+        }
+
+        return pagedAreaCodeData.data
+            .map {
+                CaseDto(
+                    dailyLabConfirmedCases = it.newCases ?: 0,
+                    totalLabConfirmedCases = it.cumulativeCases ?: 0,
+                    date = it.date
+                )
+            }
     }
 
     fun loadCaseMetadata(): Flow<MetadataDto> {
         return appDatabase.metadataDao()
-            .metadataAsFlow(MetadataEntity.CASE_METADATA_ID).map { it.toMetadataDto() }
+            .metadataAsFlow(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID)
+            .map { it.toMetadataDto() }
     }
 }

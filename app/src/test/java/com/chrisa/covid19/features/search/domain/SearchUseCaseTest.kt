@@ -35,7 +35,8 @@ class SearchUseCaseTest {
 
         val area = AreaDTO(
             code = "1234",
-            name = "London"
+            name = "London",
+            type = "utla"
         )
 
         val expectedResults = listOf(area)
@@ -47,7 +48,8 @@ class SearchUseCaseTest {
         assertThat(results).isEqualTo(expectedResults.map {
             AreaModel(
                 it.code,
-                it.name
+                it.name,
+                it.type
             )
         })
     }

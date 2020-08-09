@@ -19,7 +19,6 @@ package com.chrisa.covid19.core.data.db
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.CASE_METADATA_ID
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
 import java.time.Instant
@@ -50,13 +49,13 @@ class MetadataDaoTest {
     fun `GIVEN no metadata exists WHEN insertMetadata called THEN metadata is inserted`() {
 
         val newMetadata = MetadataEntity(
-            id = CASE_METADATA_ID,
+            id = Companion.METADATA_ID,
             lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         db.metadataDao().insertAll(listOf(newMetadata))
 
-        val metadata = db.metadataDao().metadata(CASE_METADATA_ID)
+        val metadata = db.metadataDao().metadata(METADATA_ID)
 
         assertThat(metadata).isEqualTo(newMetadata)
     }
@@ -65,32 +64,36 @@ class MetadataDaoTest {
     fun `GIVEN metadata exists WHEN insertMetadata called with same metadata is THEN metadata is updated`() {
 
         val oldMetadata = MetadataEntity(
-            id = CASE_METADATA_ID,
+            id = Companion.METADATA_ID,
             lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
         db.metadataDao().insertAll(listOf(oldMetadata))
 
         val newMetadata = MetadataEntity(
-            id = CASE_METADATA_ID,
+            id = Companion.METADATA_ID,
             lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         )
 
         db.metadataDao().insertAll(listOf(newMetadata))
 
-        val metadata = db.metadataDao().metadata(CASE_METADATA_ID)
+        val metadata = db.metadataDao().metadata(METADATA_ID)
 
         assertThat(metadata).isEqualTo(newMetadata)
     }
 
     @Test
-    fun `GIVEN no case metadata WHEN casesMetadata called THEN metadata is null`() {
-        val casesMetadata = db.metadataDao().metadata(CASE_METADATA_ID)
-        assertThat(casesMetadata).isNull()
+    fun `GIVEN no metadata WHEN metadata called THEN metadata is null`() {
+        val metadata = db.metadataDao().metadata(METADATA_ID)
+        assertThat(metadata).isNull()
     }
 
     @After
     @Throws(IOException::class)
     fun closeDb() {
         db.close()
+    }
+
+    companion object {
+        private const val METADATA_ID = "1234"
     }
 }

@@ -19,11 +19,12 @@ package com.chrisa.covid19.core.data
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDao
+import com.chrisa.covid19.core.data.db.AreaDataDao
+import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
-import com.chrisa.covid19.core.data.db.CaseDao
-import com.chrisa.covid19.core.data.db.DailyRecordDao
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.AreaModel
 import com.chrisa.covid19.core.data.network.MetadataModel
 import com.google.common.truth.Truth.assertThat
@@ -36,6 +37,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -50,9 +52,8 @@ class OfflineDataSourceTest {
     private lateinit var offlineDataSource: OfflineDataSource
 
     private val appDatabase = mockk<AppDatabase>(relaxed = true)
-    private val casesDao = mockk<CaseDao>(relaxed = true)
     private val areaDao = mockk<AreaDao>(relaxed = true)
-    private val dailyRecordsDao = mockk<DailyRecordDao>(relaxed = true)
+    private val areaDataDao = mockk<AreaDataDao>(relaxed = true)
     private val metadataDao = mockk<MetadataDao>(relaxed = true)
     private val testDispatcher = TestCoroutineDispatcher()
 
@@ -60,6 +61,7 @@ class OfflineDataSourceTest {
     fun setup() {
 
         every { appDatabase.areaDao() } returns areaDao
+        every { appDatabase.areaDataDao() } returns areaDataDao
         every { appDatabase.metadataDao() } returns metadataDao
 
         offlineDataSource = OfflineDataSource(
@@ -86,7 +88,10 @@ class OfflineDataSourceTest {
 
     @Test
     fun `GIVEN area metadata exists WHEN areaMetadata called THEN area metadata is returned`() {
-        val areaMetadataEntity = MetadataEntity(id = MetadataEntity.AREA_METADATA_ID, lastUpdatedAt = LocalDateTime.now())
+        val areaMetadataEntity = MetadataEntity(
+            id = MetadataEntity.AREA_METADATA_ID,
+            lastUpdatedAt = LocalDateTime.now()
+        )
         every { metadataDao.metadata(MetadataEntity.AREA_METADATA_ID) } returns areaMetadataEntity
 
         val metadata = offlineDataSource.areaMetadata()
@@ -113,6 +118,7 @@ class OfflineDataSourceTest {
             )
         }
     }
+
     @Test
     fun `WHEN insertAreas called THEN areaEntity is inserted`() {
 
@@ -146,7 +152,88 @@ class OfflineDataSourceTest {
             offlineDataSource.withTransaction(block)
             coVerify { appDatabase.withTransaction(block) }
         }
-//
+
+    @Test
+    fun `WHEN areaDataOverviewCount called THEN areaDataDao is queried for count by overview type`() {
+        every { areaDataDao.countAllByType("overview") } returns 100
+
+        val cases = offlineDataSource.areaDataOverviewCount()
+
+        assertThat(cases).isEqualTo(100)
+    }
+
+    @Test
+    fun `GIVEN no area data overview metadata exists WHEN areaDataOverviewMetadata called THEN area data overview metadata is null`() {
+        every { metadataDao.metadata(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID) } returns null
+
+        val metadata = offlineDataSource.areaDataOverviewMetadata()
+        assertThat(metadata).isNull()
+    }
+
+    @Test
+    fun `GIVEN area data overview metadata exists WHEN areaDataOverviewMetadata called THEN area data overview metadata is returned`() {
+        val areaMetadataEntity = MetadataEntity(
+            id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
+            lastUpdatedAt = LocalDateTime.now()
+        )
+        every { metadataDao.metadata(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID) } returns areaMetadataEntity
+
+        val metadata = offlineDataSource.areaDataOverviewMetadata()
+        assertThat(metadata).isEqualTo(MetadataModel(lastUpdatedAt = areaMetadataEntity.lastUpdatedAt))
+    }
+
+    @Test
+    fun `WHEN insertAreaDataOverviewMetadata called THEN metadataEntity is inserted`() {
+
+        val metadataModel = MetadataModel(
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        )
+
+        offlineDataSource.insertAreaDataOverviewMetadata(metadataModel)
+
+        verify(exactly = 1) {
+            metadataDao.insertAll(
+                listOf(
+                    MetadataEntity(
+                        id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
+                        lastUpdatedAt = metadataModel.lastUpdatedAt
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `WHEN insertAreaData called THEN areaDataEntity is inserted`() {
+
+        val areaModel = AreaDataModel(
+            areaCode = "001",
+            areaName = "UK",
+            areaType = "overview",
+            cumulativeCases = 100,
+            date = LocalDate.now(),
+            newCases = 10,
+            infectionRate = 100.0
+        )
+
+        offlineDataSource.insertAreaData(listOf(areaModel))
+
+        verify(exactly = 1) {
+            areaDataDao.insertAll(
+                listOf(
+                    AreaDataEntity(
+                        areaCode = areaModel.areaCode,
+                        areaName = areaModel.areaName,
+                        areaType = areaModel.areaType,
+                        cumulativeCases = areaModel.cumulativeCases!!,
+                        date = areaModel.date,
+                        newCases = areaModel.newCases!!,
+                        infectionRate = areaModel.infectionRate!!
+                    )
+                )
+            )
+        }
+    }
 //    @Test
 //    fun `WHEN deleteAllCases called THEN casesDao deletes all records`() {
 //        offlineDataSource.deleteAllCases()

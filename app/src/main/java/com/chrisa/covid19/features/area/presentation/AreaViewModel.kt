@@ -54,9 +54,12 @@ class AreaViewModel @ViewModelInject constructor(
     private val areaCode: String
         get() = savedStateHandle.get<String>("areaCode")!!
 
+    private val areaType: String
+        get() = savedStateHandle.get<String>("areaType")!!
+
     init {
         loadAreaSavedState(areaCode)
-        loadAreaDetail(areaCode)
+        loadAreaDetail(areaCode, areaType)
     }
 
     fun insertSavedArea() {
@@ -78,9 +81,9 @@ class AreaViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun loadAreaDetail(areCode: String) {
+    private fun loadAreaDetail(areCode: String, areaType: String) {
         viewModelScope.launch(dispatchers.io) {
-            val areaDetail = areaDetailUseCase.execute(areCode)
+            val areaDetail = areaDetailUseCase.execute(areCode, areaType)
             areaDetail.collect {
                 _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(it))
             }

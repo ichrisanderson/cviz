@@ -24,20 +24,22 @@ import com.chrisa.covid19.features.area.domain.models.CaseModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
     private val rollingAverageHelper: RollingAverageHelper
 ) {
-    fun execute(areaCode: String): Flow<AreaDetailModel> {
 
-        val metadata = areaDataSource.loadCaseMetadata()
-        val allCases = areaDataSource.loadCases(areaCode)
+    suspend fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
 
-        return combine(metadata, allCases) { metadata, cases ->
-            val allCases = mapAllCases(cases)
+        val metadataFlow = areaDataSource.loadCaseMetadata()
+        val cases = areaDataSource.loadCases(areaCode, areaType)
+
+        return metadataFlow.map { metadata ->
+            val allCases = mapAllCases(cases.distinct().sortedBy { it.date })
             AreaDetailModel(
                 lastUpdatedAt = metadata.lastUpdatedAt,
                 allCases = allCases,
@@ -50,6 +52,9 @@ class AreaDetailUseCase @Inject constructor(
         return cases.mapIndexed { index, case ->
             val previousCase = cases.getOrNull(index - 7)
             val rollingAverage = rollingAverageHelper.average(case, previousCase)
+            if (rollingAverage < 0) {
+                Timber.d("oops")
+            }
             CaseModel(
                 dailyLabConfirmedCases = case.dailyLabConfirmedCases,
                 rollingAverage = rollingAverage,

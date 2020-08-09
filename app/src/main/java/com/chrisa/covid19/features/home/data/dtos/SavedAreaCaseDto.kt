@@ -21,6 +21,7 @@ import java.time.LocalDate
 data class SavedAreaCaseDto(
     val areaCode: String,
     val areaName: String,
+    val areaType: String,
     val dailyLabConfirmedCases: Int,
     val totalLabConfirmedCases: Int,
     val dailyTotalLabConfirmedCasesRate: Double,

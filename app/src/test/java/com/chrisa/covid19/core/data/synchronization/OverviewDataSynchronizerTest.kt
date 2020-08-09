@@ -17,7 +17,7 @@
 package com.chrisa.covid19.core.data.synchronization
 
 import com.chrisa.covid19.core.data.OfflineDataSource
-import com.chrisa.covid19.core.data.network.AreaModel
+import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.MetadataModel
 import com.chrisa.covid19.core.data.network.Page
@@ -33,6 +33,7 @@ import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
 import java.io.IOException
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -45,25 +46,25 @@ import retrofit2.Response
 import timber.log.Timber
 
 @ExperimentalCoroutinesApi
-class AreaDataSynchronizerTest {
+class OverviewDataSynchronizerTest {
 
     private val offlineDataSource = mockk<OfflineDataSource>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private val sut = CaseDataSynchronizer(networkUtils, offlineDataSource, covidApi)
+    private val sut = OverviewDataSynchronizer(networkUtils, offlineDataSource, covidApi)
 
     @Test
     fun `GIVEN no metadata WHEN performSync called THEN api is not hit`() =
         testDispatcher.runBlockingTest {
 
-            every { offlineDataSource.areaMetadata() } returns null
+            every { offlineDataSource.areaDataOverviewMetadata() } returns null
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(any()) }
+            coVerify(exactly = 0) { covidApi.pagedOverviewAreaDataResponse(any()) }
         }
 
     @Test
@@ -80,14 +81,14 @@ class AreaDataSynchronizerTest {
                 .plusHours(1)
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery { covidApi.pagedOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { offlineDataSource.areaMetadata() } returns metadata
+            every { offlineDataSource.areaDataOverviewMetadata() } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 0) { covidApi.pagedOverviewAreaDataResponse(date) }
         }
 
     @Test
@@ -100,14 +101,14 @@ class AreaDataSynchronizerTest {
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery { covidApi.pagedOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { offlineDataSource.areaMetadata() } returns metadata
+            every { offlineDataSource.areaDataOverviewMetadata() } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 1) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 1) { covidApi.pagedOverviewAreaDataResponse(date) }
         }
 
     @Test
@@ -120,14 +121,14 @@ class AreaDataSynchronizerTest {
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery { covidApi.pagedOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { offlineDataSource.areaMetadata() } returns metadata
+            every { offlineDataSource.areaDataOverviewMetadata() } returns metadata
             every { networkUtils.hasNetworkConnection() } returns false
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 0) { covidApi.pagedOverviewAreaDataResponse(date) }
         }
 
     @Test
@@ -144,15 +145,15 @@ class AreaDataSynchronizerTest {
 
             val error = IOException()
 
-            coEvery { covidApi.pagedAreaResponse(date) } throws error
+            coEvery { covidApi.pagedOverviewAreaDataResponse(date) } throws error
 
-            every { offlineDataSource.areaMetadata() } returns metadata
+            every { offlineDataSource.areaDataOverviewMetadata() } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            verify(exactly = 0) { offlineDataSource.insertAreaMetadata(any()) }
-            verify(exactly = 0) { offlineDataSource.insertAreas(any()) }
+            verify(exactly = 0) { offlineDataSource.insertAreaDataOverviewMetadata(any()) }
+            verify(exactly = 0) { offlineDataSource.insertAreaData(any()) }
             verify(exactly = 1) { Timber.e(error, "Error synchronizing areas") }
         }
 
@@ -167,18 +168,18 @@ class AreaDataSynchronizerTest {
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.error(
+            coEvery { covidApi.pagedOverviewAreaDataResponse(date) } returns Response.error(
                 404,
                 ResponseBody.create(MediaType.get("application/json"), "")
             )
 
-            every { offlineDataSource.areaMetadata() } returns metadata
+            every { offlineDataSource.areaDataOverviewMetadata() } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            verify(exactly = 0) { offlineDataSource.insertAreaMetadata(any()) }
-            verify(exactly = 0) { offlineDataSource.insertAreas(any()) }
+            verify(exactly = 0) { offlineDataSource.insertAreaDataOverviewMetadata(any()) }
+            verify(exactly = 0) { offlineDataSource.insertAreaData(any()) }
         }
 
     @Test
@@ -192,15 +193,15 @@ class AreaDataSynchronizerTest {
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery { covidApi.pagedOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { offlineDataSource.areaMetadata() } returns metadata
+            every { offlineDataSource.areaDataOverviewMetadata() } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            verify(exactly = 0) { offlineDataSource.insertAreaMetadata(any()) }
-            verify(exactly = 0) { offlineDataSource.insertAreas(any()) }
+            verify(exactly = 0) { offlineDataSource.insertAreaDataOverviewMetadata(any()) }
+            verify(exactly = 0) { offlineDataSource.insertAreaData(any()) }
         }
 
     @Test
@@ -215,10 +216,14 @@ class AreaDataSynchronizerTest {
 
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
 
-            val areaModel = AreaModel(
-                areaCode = "1234",
-                areaName = "United Kingdom",
-                areaType = "overview"
+            val areaModel = AreaDataModel(
+                areaCode = "001",
+                areaName = "UK",
+                areaType = "overview",
+                cumulativeCases = 100,
+                date = LocalDate.now(),
+                newCases = 10,
+                infectionRate = 100.0
             )
 
             val pageModel = Page(
@@ -231,7 +236,7 @@ class AreaDataSynchronizerTest {
                 .formatAsGmt()
 
             every { LocalDateTime.now() } returns syncTime
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(pageModel)
+            coEvery { covidApi.pagedOverviewAreaDataResponse(date) } returns Response.success(pageModel)
             every { networkUtils.hasNetworkConnection() } returns true
 
             val transactionLambda = slot<suspend () -> Unit>()
@@ -239,13 +244,13 @@ class AreaDataSynchronizerTest {
                 transactionLambda.captured.invoke()
             }
 
-            every { offlineDataSource.areaMetadata() } returns metadata
-            every { offlineDataSource.insertAreaMetadata(any()) } just Runs
-            every { offlineDataSource.insertAreas(any()) } just Runs
+            every { offlineDataSource.areaDataOverviewMetadata() } returns metadata
+            every { offlineDataSource.insertAreaDataOverviewMetadata(any()) } just Runs
+            every { offlineDataSource.insertAreaData(any()) } just Runs
 
             sut.performSync()
 
-            verify(exactly = 1) { offlineDataSource.insertAreaMetadata(MetadataModel(lastUpdatedAt = syncTime)) }
-            verify(exactly = 1) { offlineDataSource.insertAreas(pageModel.data) }
+            verify(exactly = 1) { offlineDataSource.insertAreaDataOverviewMetadata(MetadataModel(lastUpdatedAt = syncTime)) }
+            verify(exactly = 1) { offlineDataSource.insertAreaData(pageModel.data) }
         }
 }

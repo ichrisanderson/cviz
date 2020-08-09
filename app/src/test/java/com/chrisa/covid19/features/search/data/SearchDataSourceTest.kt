@@ -50,7 +50,8 @@ class SearchDataSourceTest {
         assertThat(results).isEqualTo(expectedResults.map {
             AreaDTO(
                 it.areaCode,
-                it.areaName
+                it.areaName,
+                it.areaType
             )
         })
     }

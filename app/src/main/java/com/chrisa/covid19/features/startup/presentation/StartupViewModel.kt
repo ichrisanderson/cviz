@@ -24,6 +24,7 @@ import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.startup.domain.BootstrapDataUseCase
 import com.chrisa.covid19.features.startup.domain.SynchronizeCasesUseCase
+import com.chrisa.covid19.features.startup.domain.SynchronizeOverviewDataUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 class StartupViewModel @ViewModelInject constructor(
     private val bootstrapDataUseCase: BootstrapDataUseCase,
     private val synchronizeCasesUseCase: SynchronizeCasesUseCase,
+    private val synchronizeOverviewDataUseCase: SynchronizeOverviewDataUseCase,
     dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
@@ -56,6 +58,7 @@ class StartupViewModel @ViewModelInject constructor(
 
     private suspend fun triggerDataRefresh() {
         synchronizeCasesUseCase.execute(syncScope)
+        synchronizeOverviewDataUseCase.execute(syncScope)
     }
 }
 

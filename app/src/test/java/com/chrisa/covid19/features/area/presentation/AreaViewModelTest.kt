@@ -32,6 +32,7 @@ import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMappe
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -69,7 +70,8 @@ class AreaViewModelTest {
             pauseDispatcher {
 
                 val areaCode = "AC-001"
-                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
+                val areaType = "utla"
+                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val caseModels = listOf(
                     CaseModel(
@@ -111,7 +113,7 @@ class AreaViewModelTest {
                     )
                 )
 
-                every { areaDetailUseCase.execute(areaCode) } returns listOf(areaDetailModel).asFlow()
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(areaDetailModel).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
                 val sut = AreaViewModel(
@@ -138,7 +140,8 @@ class AreaViewModelTest {
             pauseDispatcher {
 
                 val areaCode = "AC-001"
-                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
+                val areaType = "utla"
+                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val publisher = ConflatedBroadcastChannel(false)
 
@@ -180,7 +183,8 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
 
             val areaCode = "AC-001"
-            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
+            val areaType = "utla"
+            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
             every { insertSavedAreaUseCase.execute(areaCode) } just Runs
 
@@ -204,7 +208,8 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
 
             val areaCode = "AC-001"
-            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode))
+            val areaType = "utla"
+            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
             every { deleteSavedAreaUseCase.execute(areaCode) } returns 1
 

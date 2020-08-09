@@ -85,7 +85,7 @@ class CaseDataSynchronizer @Inject constructor(
             return
         }
         runCatching {
-            api.areas(areaMetdata.lastUpdatedAt.formatAsGmt())
+            api.pagedAreaResponse(areaMetdata.lastUpdatedAt.formatAsGmt())
         }.onSuccess { areasResponse ->
             if (areasResponse.isSuccessful) {
                 val areas = areasResponse.body() ?: return@onSuccess

@@ -17,8 +17,8 @@
 package com.chrisa.covid19.core.data
 
 import android.content.res.AssetManager
+import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.AreaModel
-import com.chrisa.covid19.core.data.network.CasesModel
 import com.chrisa.covid19.core.data.network.Page
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -39,17 +39,18 @@ class AssetDataSource @Inject constructor(
         return areas!!.data
     }
 
-    fun getCases(): CasesModel {
-        val adapter = moshi.adapter(CasesModel::class.java)
-        val cases = adapter.fromJson(casesFile().source().buffer())
-        return cases!!
-    }
-
-    private fun casesFile(): InputStream {
-        return assetManager.open("coronavirus-cases_latest.json")
+    fun getOverviewAreaData(): List<AreaDataModel> {
+        val type = Types.newParameterizedType(Page::class.java, AreaDataModel::class.java)
+        val adapter = moshi.adapter<Page<AreaDataModel>>(type)
+        val areas = adapter.fromJson(overviewFile().source().buffer())
+        return areas!!.data
     }
 
     private fun areasFile(): InputStream {
         return assetManager.open("areas.json")
+    }
+
+    private fun overviewFile(): InputStream {
+        return assetManager.open("overview.json")
     }
 }

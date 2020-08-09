@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.core.data.network
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,27 +24,36 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.Query
 
 interface CovidApi {
     @Headers(
         "Content-Type: application/json;charset=utf-8",
         "Accept: application/json"
     )
-    @GET("v1/lookup?filters=areaType=overview%257CareaType=nation%257CareaType=region%257CareaType=utla%257CareaType=ltla&structure=%7B%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22areaType%22:%22areaType%22%7D")
-    suspend fun areas(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
-    @Headers(
-        "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
-    )
-    @GET("v1/data?filters=areaName=United%2520Kingdom;areaType=overview&structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cumulativeCases%22:%22cumCasesByPublishDate%22%7D&format=json")
-    suspend fun ukOverview(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
+    @GET("v1/lookup?filters=areaType=nation%257CareaType=region%257CareaType=utla%257CareaType=ltla&structure=%7B%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22areaType%22:%22areaType%22%7D")
+    suspend fun pagedAreaResponse(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
 
     @Headers(
         "Content-Type: application/json;charset=utf-8",
         "Accept: application/json"
     )
-    @GET("downloads/json/coronavirus-cases_latest.json")
-    suspend fun getCases(@Header("If-Modified-Since") modifiedDate: String): Response<CasesModel>
+    @GET("v1/data?filters=areaType=overview&structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cmlCases%22:%22cumCasesByPublishDate%22,%22infectionRate%22:%22cumCasesByPublishDateRate%22%7D&format=json")
+    suspend fun pagedOverviewAreaDataResponse(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaDataModel>>
+
+    @Headers(
+        "Content-Type: application/json;charset=utf-8",
+        "Accept: application/json"
+    )
+    @GET("v1/data?structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cmlCases%22:%22cumCasesByPublishDate%22,%22infectionRate%22:%22cumCasesByPublishDateRate%22%7D&format=json")
+    suspend fun pagedAreaCodeDataByPublishDate(@Query(encoded = true, value = "filters") filters: String): Page<AreaDataModel>
+
+    @Headers(
+        "Content-Type: application/json;charset=utf-8",
+        "Accept: application/json"
+    )
+    @GET("v1/data?structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesBySpecimenDate%22,%22cmlCases%22:%22cumCasesBySpecimenDate%22,%22infectionRate%22:%22cumCasesBySpecimenDateRate%22%7D&format=json")
+    suspend fun pagedAreaCodeDataBySpeciminDate(@Query(encoded = true, value = "filters") filters: String): Page<AreaDataModel>
 }
 
 @JsonClass(generateAdapter = true)
@@ -61,46 +71,18 @@ data class AreaModel(
 )
 
 @JsonClass(generateAdapter = true)
-data class AreaData(
+data class AreaDataModel(
     val areaCode: String,
     val areaName: String,
+    val areaType: String,
     val date: LocalDate,
     val newCases: Int?,
-    val cumulativeCases: Int?
-)
-
-@JsonClass(generateAdapter = true)
-data class CasesModel(
-    val countries: List<CaseModel>,
-    val dailyRecords: DailyRecordModel,
-    val ltlas: List<CaseModel>,
-    val metadata: MetadataModel,
-    val regions: List<CaseModel>,
-    val utlas: List<CaseModel>
-)
-
-@JsonClass(generateAdapter = true)
-data class DailyRecordModel(
-    val areaName: String,
-    val dailyLabConfirmedCases: Int,
-    val totalLabConfirmedCases: Int?
+    @Json(name = "cmlCases")
+    val cumulativeCases: Int?,
+    val infectionRate: Double?
 )
 
 @JsonClass(generateAdapter = true)
 data class MetadataModel(
     val lastUpdatedAt: LocalDateTime
-)
-
-@JsonClass(generateAdapter = true)
-data class CaseModel(
-    val areaCode: String,
-    val areaName: String,
-    val changeInDailyCases: Int?,
-    val changeInTotalCases: Int?,
-    val dailyLabConfirmedCases: Int?,
-    val dailyTotalLabConfirmedCasesRate: Double?,
-    val previouslyReportedDailyCases: Int?,
-    val previouslyReportedTotalCases: Int?,
-    val specimenDate: LocalDate,
-    val totalLabConfirmedCases: Int?
 )

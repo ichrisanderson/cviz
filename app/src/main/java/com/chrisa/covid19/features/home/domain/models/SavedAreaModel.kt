@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.home.domain.models
 data class SavedAreaModel(
     val areaCode: String,
     val areaName: String,
+    val areaType: String,
     val totalLabConfirmedCasesLastWeek: Int,
     val changeInTotalLabConfirmedCases: Int,
     val totalLabConfirmedCases: Int,

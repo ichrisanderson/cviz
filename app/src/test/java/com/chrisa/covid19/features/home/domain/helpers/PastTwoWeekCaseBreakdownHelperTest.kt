@@ -64,6 +64,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
 
         val areaCode = "001"
         val areaName = "UK"
+        val areaType = "utla"
         val allCases = mutableListOf<SavedAreaCaseDto>()
 
         for (i in 0 until 30) {
@@ -75,6 +76,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
                 SavedAreaCaseDto(
                     areaCode = areaCode,
                     areaName = areaName,
+                    areaType = areaType,
                     date = startDate.plusDays(i.toLong()),
                     dailyLabConfirmedCases = dailyLabConfirmedCases,
                     totalLabConfirmedCases = cumulativeTotal,
@@ -114,6 +116,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
 
         val areaCode = "001"
         val areaName = "UK"
+        val areaType = "utla"
         val allCases = mutableListOf<SavedAreaCaseDto>()
 
         for (i in 0 until 7) {
@@ -125,6 +128,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
                 SavedAreaCaseDto(
                     areaCode = areaCode,
                     areaName = areaName,
+                    areaType = areaType,
                     date = startDate.plusDays(i.toLong()),
                     dailyLabConfirmedCases = dailyLabConfirmedCases,
                     totalLabConfirmedCases = cumulativeTotal,
@@ -169,6 +173,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
 
         val areaCode = "001"
         val areaName = "UK"
+        val areaType = "utla"
         val allCases = mutableListOf<SavedAreaCaseDto>()
 
         for (i in 0 until 25) {
@@ -180,6 +185,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
                 SavedAreaCaseDto(
                     areaCode = areaCode,
                     areaName = areaName,
+                    areaType = areaType,
                     date = startDate.plusDays(i.toLong()),
                     dailyLabConfirmedCases = dailyLabConfirmedCases,
                     totalLabConfirmedCases = cumulativeTotal,
@@ -226,6 +232,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
 
         val areaCode = "001"
         val areaName = "UK"
+        val areaType = "utla"
         val allCases = mutableListOf<SavedAreaCaseDto>()
 
         for (i in 0 until 30) {
@@ -237,6 +244,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
                 SavedAreaCaseDto(
                     areaCode = areaCode,
                     areaName = areaName,
+                    areaType = areaType,
                     date = startDate.plusDays(i.toLong()),
                     dailyLabConfirmedCases = dailyLabConfirmedCases,
                     totalLabConfirmedCases = cumulativeTotal,

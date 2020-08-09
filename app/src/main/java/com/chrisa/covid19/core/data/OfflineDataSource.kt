@@ -18,8 +18,10 @@ package com.chrisa.covid19.core.data
 
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.AreaModel
 import com.chrisa.covid19.core.data.network.MetadataModel
 import javax.inject.Inject
@@ -61,6 +63,43 @@ class OfflineDataSource @Inject constructor(
                 areaCode = it.areaCode,
                 areaName = it.areaName,
                 areaType = it.areaType
+            )
+        })
+    }
+
+    fun areaDataOverviewCount(): Int {
+        return appDatabase.areaDataDao().countAllByType("overview")
+    }
+
+    fun areaDataOverviewMetadata(): MetadataModel? {
+        val metadata =
+            appDatabase.metadataDao().metadata(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID) ?: return null
+        return MetadataModel(
+            lastUpdatedAt = metadata.lastUpdatedAt
+        )
+    }
+
+    fun insertAreaDataOverviewMetadata(metadata: MetadataModel) {
+        appDatabase.metadataDao().insertAll(
+            listOf(
+                MetadataEntity(
+                    id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
+                    lastUpdatedAt = metadata.lastUpdatedAt
+                )
+            )
+        )
+    }
+
+    fun insertAreaData(areas: Collection<AreaDataModel>) {
+        appDatabase.areaDataDao().insertAll(areas.map {
+            AreaDataEntity(
+                areaCode = it.areaCode,
+                areaName = it.areaName,
+                areaType = it.areaType,
+                newCases = it.newCases ?: 0,
+                cumulativeCases = it.cumulativeCases ?: 0,
+                date = it.date,
+                infectionRate = it.infectionRate ?: 0.0
             )
         })
     }

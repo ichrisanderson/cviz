@@ -31,18 +31,31 @@ class AssetBootstrapper @Inject constructor(
 
     override suspend fun bootstrapData() {
         return withContext(coroutineDispatchers.io) {
-            val bootstrapCases = async { bootstrapCases() }
             val bootstrapAreas = async { bootstrapAreas() }
-            bootstrapCases.await()
+            val bootstrapOverview = async { bootstrapOverview() }
             bootstrapAreas.await()
+            bootstrapOverview.await()
         }
     }
+
     private fun bootstrapAreas() {
         val areaCount = offlineDataSource.areaCount()
         if (areaCount > 0) return
         val areas = assetDataSource.getAreas()
         offlineDataSource.insertAreas(areas)
-        offlineDataSource.insertAreaMetadata(MetadataModel(lastUpdatedAt = LocalDateTime.now().minusDays(1)))
+        offlineDataSource.insertAreaMetadata(
+            MetadataModel(
+                lastUpdatedAt = LocalDateTime.now().minusDays(1)
+            )
+        )
+    }
+
+    private fun bootstrapOverview() {
+        val areaCount = offlineDataSource.areaDataOverviewCount()
+        if (areaCount > 0) return
+        val areas = assetDataSource.getOverviewAreaData()
+        offlineDataSource.insertAreaData(areas)
+        offlineDataSource.insertAreaDataOverviewMetadata(MetadataModel(lastUpdatedAt = LocalDateTime.now().minusDays(1)))
     }
 
     private fun bootstrapCases() {

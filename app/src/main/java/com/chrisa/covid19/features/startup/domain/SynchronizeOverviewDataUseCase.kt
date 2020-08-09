@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.mappers
+package com.chrisa.covid19.features.startup.domain
 
-import com.chrisa.covid19.core.data.db.CaseEntity
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.core.data.synchronization.OverviewDataSynchronizer
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-object CaseEntityMapper {
-    fun CaseEntity.toCaseDto(): CaseDto {
-        return CaseDto(
-            dailyLabConfirmedCases = dailyLabConfirmedCases,
-            totalLabConfirmedCases = totalLabConfirmedCases,
-            date = date
-        )
+class SynchronizeOverviewDataUseCase @Inject constructor(
+    private val overviewDataSynchronizer: OverviewDataSynchronizer
+) {
+    suspend fun execute(syncScope: CoroutineScope) {
+        syncScope.launch {
+            overviewDataSynchronizer.performSync()
+        }
     }
 }

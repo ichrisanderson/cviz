@@ -38,9 +38,8 @@ import kotlinx.coroutines.flow.Flow
 @Database(
     entities = [
         AreaEntity::class,
-        CaseEntity::class,
+        AreaDataEntity::class,
         MetadataEntity::class,
-        DailyRecordEntity::class,
         SavedAreaEntity::class
     ],
     version = 1,
@@ -52,9 +51,8 @@ import kotlinx.coroutines.flow.Flow
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun casesDao(): CaseDao
     abstract fun areaDao(): AreaDao
-    abstract fun dailyRecordsDao(): DailyRecordDao
+    abstract fun areaDataDao(): AreaDataDao
     abstract fun metadataDao(): MetadataDao
     abstract fun savedAreaDao(): SavedAreaDao
 
@@ -124,75 +122,51 @@ interface AreaDao {
 }
 
 @Entity(
-    tableName = "cases",
+    tableName = "areaData",
     primaryKeys = ["areaCode", "date"]
 )
-data class CaseEntity(
+data class AreaDataEntity(
     @ColumnInfo(name = "areaCode")
     val areaCode: String,
     @ColumnInfo(name = "areaName")
     val areaName: String,
-    @ColumnInfo(name = "dailyLabConfirmedCases")
-    val dailyLabConfirmedCases: Int,
-    @ColumnInfo(name = "dailyTotalLabConfirmedCasesRate")
-    val dailyTotalLabConfirmedCasesRate: Double,
-    @ColumnInfo(name = "totalLabConfirmedCases")
-    val totalLabConfirmedCases: Int,
+    @ColumnInfo(name = "areaType")
+    val areaType: String,
+    @ColumnInfo(name = "newCases")
+    val newCases: Int,
+    @ColumnInfo(name = "infectionRate")
+    val infectionRate: Double,
+    @ColumnInfo(name = "cumulativeCases")
+    val cumulativeCases: Int,
     @ColumnInfo(name = "date")
     val date: LocalDate
 )
 
 @Dao
-interface CaseDao {
-
-    @Query("DELETE FROM cases")
+interface AreaDataDao {
+    @Query("DELETE FROM areaData")
     fun deleteAll()
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(cases: List<CaseEntity>)
+    @Query("SELECT COUNT(areaCode) FROM areaData")
+    fun countAll(): Int
 
-    @Query("SELECT COUNT(areaCode) FROM cases")
-    fun count(): Int
+    @Query("DELETE FROM areaData WHERE :areaType = areaType")
+    fun deleteAllByType(areaType: String)
 
-    @Query("SELECT * FROM cases WHERE areaCode = :areaCode ORDER BY date ASC")
-    fun areaCases(areaCode: String): Flow<List<CaseEntity>>
+    @Query("DELETE FROM areaData WHERE :areaCode = areaCode")
+    fun deleteAllByCode(areaCode: String)
 
-    @Query("SELECT * FROM cases INNER JOIN savedArea ON cases.areaCode = savedArea.areaCode ORDER BY date ASC")
-    fun savedAreaCases(): Flow<List<CaseEntity>>
-}
+    @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
+    fun countAllByType(areaType: String): Int
 
-@Entity(
-    tableName = "dailyRecords",
-    primaryKeys = ["areaName", "date"]
-)
-data class DailyRecordEntity(
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "dailyLabConfirmedCases")
-    val dailyLabConfirmedCases: Int,
-    @ColumnInfo(name = "totalLabConfirmedCases")
-    val totalLabConfirmedCases: Int,
-    @ColumnInfo(name = "date")
-    val date: LocalDate
-)
+    @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
+    fun allByAreaCode(areaCode: String): Flow<List<AreaDataEntity>>
 
-@Dao
-interface DailyRecordDao {
-
-    @Query("DELETE FROM dailyRecords")
-    fun deleteAll()
+    @Query("SELECT * FROM areaData INNER JOIN savedArea ON areaData.areaCode = savedArea.areaCode ORDER BY date ASC")
+    fun allSavedAreaData(): Flow<List<AreaDataEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(dailyRecordEntities: List<DailyRecordEntity>)
-
-    @Query("SELECT COUNT(areaName) FROM dailyRecords")
-    fun count(): Int
-
-    @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName")
-    fun searchDailyRecords(areaName: String): List<DailyRecordEntity>
-
-    @Query("SELECT * FROM dailyRecords WHERE areaName = :areaName ORDER BY date ASC")
-    fun dailyRecords(areaName: String): Flow<List<DailyRecordEntity>>
+    fun insertAll(areaData: List<AreaDataEntity>)
 }
 
 @Entity(
@@ -207,7 +181,7 @@ data class MetadataEntity(
 ) {
     companion object {
         const val AREA_METADATA_ID = "AREA_METADATA"
-        const val CASE_METADATA_ID = "UK-CASE-METADATA"
+        const val AREA_DATA_OVERVIEW_METADATA_ID = "AREA_DATA_OVERVIEW_METADATA"
     }
 }
 

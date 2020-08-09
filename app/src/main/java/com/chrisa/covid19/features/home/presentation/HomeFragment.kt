@@ -114,7 +114,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val action =
             HomeFragmentDirections.homeToArea(
                 areaCode = savedAreaModel.areaCode,
-                areaName = savedAreaModel.areaName
+                areaName = savedAreaModel.areaName,
+                areaType = savedAreaModel.areaType
             )
         findNavController().navigate(action)
     }
