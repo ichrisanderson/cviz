@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.startup.domain
+package com.chrisa.covid19.core.util
 
-import com.chrisa.covid19.core.data.synchronization.CaseDataSynchronizer
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import androidx.room.withTransaction
+import com.chrisa.covid19.core.data.db.AppDatabase
+import io.mockk.coEvery
+import io.mockk.mockkStatic
+import io.mockk.slot
 
-class SynchronizeCasesUseCase @Inject constructor(
-    private val caseDataSynchronizer: CaseDataSynchronizer
-) {
-    suspend fun execute(syncScope: CoroutineScope) {
-        syncScope.launch {
-            caseDataSynchronizer.performSync()
-        }
+fun AppDatabase.mockTransaction() {
+    mockkStatic("androidx.room.RoomDatabaseKt")
+    val transactionLambda = slot<suspend () -> Unit>()
+    coEvery { withTransaction(capture(transactionLambda)) } coAnswers {
+        transactionLambda.captured.invoke()
     }
 }

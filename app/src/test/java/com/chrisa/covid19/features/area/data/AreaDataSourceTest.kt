@@ -18,10 +18,12 @@ package com.chrisa.covid19.features.area.data
 
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
 import com.google.common.truth.Truth.assertThat
@@ -33,11 +35,15 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.verify
+import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
@@ -106,26 +112,26 @@ class AreaDataSourceTest {
     @Test
     fun `WHEN loadCaseMetadata called THEN case metadata is returned`() = runBlocking {
 
-//        val metadataDTO = MetadataEntity(
-//            id = MetadataEntity.CASE_METADATA_ID,
-//            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
-//        )
-//
-//        val allMetadata = listOf(metadataDTO)
-//
-//        every {
-//            appDatabase.metadataDao().metadataAsFlow(MetadataEntity.CASE_METADATA_ID)
-//        } returns allMetadata.asFlow()
-//
-//        val metadataFlow = sut.loadCaseMetadata()
-//
-//        metadataFlow.collect { metadata ->
-//            assertThat(metadata).isEqualTo(
-//                MetadataDto(
-//                    lastUpdatedAt = metadataDTO.lastUpdatedAt
-//                )
-//            )
-//        }
+        val metadataDTO = MetadataEntity(
+            id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
+            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        )
+
+        val allMetadata = listOf(metadataDTO)
+
+        every {
+            appDatabase.metadataDao().metadataAsFlow(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID)
+        } returns allMetadata.asFlow()
+
+        val metadataFlow = sut.loadCaseMetadata()
+
+        metadataFlow.collect { metadata ->
+            assertThat(metadata).isEqualTo(
+                MetadataDto(
+                    lastUpdatedAt = metadataDTO.lastUpdatedAt
+                )
+            )
+        }
     }
 
     @Test

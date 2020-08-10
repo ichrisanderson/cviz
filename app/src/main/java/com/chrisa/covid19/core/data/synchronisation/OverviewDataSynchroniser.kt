@@ -14,27 +14,33 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.core.data.synchronization
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.core.data.OfflineDataSource
+import androidx.room.withTransaction
+import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.CovidApi
-import com.chrisa.covid19.core.data.network.MetadataModel
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.NetworkUtils
 import java.time.LocalDateTime
 import javax.inject.Inject
 import timber.log.Timber
 
-class OverviewDataSynchronizer @Inject constructor(
+class OverviewDataSynchroniser @Inject constructor(
     private val networkUtils: NetworkUtils,
-    private val offlineDataSource: OfflineDataSource,
+    private val appDatabase: AppDatabase,
     private val api: CovidApi
 ) {
+
+    private val metadataDao = appDatabase.metadataDao()
+    private val areaDataDao = appDatabase.areaDataDao()
 
     suspend fun performSync() {
         if (!networkUtils.hasNetworkConnection()) return
         val now = LocalDateTime.now()
-        val areaMetadata = offlineDataSource.areaDataOverviewMetadata() ?: return
+        val areaMetadata =
+            metadataDao.metadata(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID) ?: return
 
         if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
             return
@@ -44,9 +50,24 @@ class OverviewDataSynchronizer @Inject constructor(
         }.onSuccess { areasResponse ->
             if (areasResponse.isSuccessful) {
                 val areas = areasResponse.body() ?: return@onSuccess
-                offlineDataSource.withTransaction {
-                    offlineDataSource.insertAreaData(areas.data)
-                    offlineDataSource.insertAreaDataOverviewMetadata(MetadataModel(lastUpdatedAt = now))
+                appDatabase.withTransaction {
+                    areaDataDao.insertAll(areas.data.map {
+                        AreaDataEntity(
+                            areaCode = it.areaCode,
+                            areaName = it.areaName,
+                            areaType = it.areaType,
+                            cumulativeCases = it.cumulativeCases!!,
+                            date = it.date,
+                            newCases = it.newCases!!,
+                            infectionRate = it.infectionRate!!
+                        )
+                    })
+                    metadataDao.insert(
+                        MetadataEntity(
+                            id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
+                            lastUpdatedAt = now
+                        )
+                    )
                 }
             }
         }.onFailure { error ->

@@ -16,17 +16,17 @@
 
 package com.chrisa.covid19.features.startup.domain
 
-import com.chrisa.covid19.core.data.synchronization.OverviewDataSynchronizer
+import com.chrisa.covid19.core.data.synchronisation.AreaSynchroniser
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-class SynchronizeOverviewDataUseCase @Inject constructor(
-    private val overviewDataSynchronizer: OverviewDataSynchronizer
+class SynchroniseAreasUseCase @Inject constructor(
+    private val areaSynchroniser: AreaSynchroniser
 ) {
     suspend fun execute(syncScope: CoroutineScope) {
         syncScope.launch {
-            overviewDataSynchronizer.performSync()
+            areaSynchroniser.performSync()
         }
     }
 }

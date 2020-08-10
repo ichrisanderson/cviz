@@ -16,7 +16,7 @@
 
 package com.chrisa.covid19.features.startup.domain
 
-import com.chrisa.covid19.core.data.synchronization.CaseDataSynchronizer
+import com.chrisa.covid19.core.data.synchronisation.AreaSynchroniser
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -27,19 +27,19 @@ import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
-class SynchronizeCasesUseCaseTest {
+class SynchroniseAreasUseCaseTest {
 
-    private val caseDataSynchronizer = mockk<CaseDataSynchronizer>()
+    private val caseDataSynchroniser = mockk<AreaSynchroniser>()
     private val testDispatcher = TestCoroutineDispatcher()
     private val testCoroutineScope = TestCoroutineScope(testDispatcher)
 
-    private val sut = SynchronizeCasesUseCase(caseDataSynchronizer)
+    private val sut = SynchroniseAreasUseCase(caseDataSynchroniser)
 
     @Test
     fun `WHEN execute called THEN cased data synchronization is executed`() =
         testDispatcher.runBlockingTest {
-            coEvery { caseDataSynchronizer.performSync() } just Runs
+            coEvery { caseDataSynchroniser.performSync() } just Runs
             sut.execute(testCoroutineScope)
-            coVerify { caseDataSynchronizer.performSync() }
+            coVerify { caseDataSynchroniser.performSync() }
         }
 }

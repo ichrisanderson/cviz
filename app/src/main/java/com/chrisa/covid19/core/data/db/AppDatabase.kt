@@ -192,7 +192,7 @@ interface MetadataDao {
     fun deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(metadata: List<MetadataEntity>)
+    fun insert(metadata: MetadataEntity)
 
     @Query("SELECT * FROM metadata WHERE id = :id  LIMIT 1")
     fun metadata(id: String): MetadataEntity?

@@ -16,7 +16,11 @@
 
 package com.chrisa.covid19.core.data
 
-import com.chrisa.covid19.core.data.network.MetadataModel
+import androidx.room.withTransaction
+import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -25,7 +29,7 @@ import kotlinx.coroutines.withContext
 
 class AssetBootstrapper @Inject constructor(
     private val assetDataSource: AssetDataSource,
-    private val offlineDataSource: OfflineDataSource,
+    private val appDatabase: AppDatabase,
     private val coroutineDispatchers: CoroutineDispatchers
 ) : Bootstrapper {
 
@@ -38,35 +42,49 @@ class AssetBootstrapper @Inject constructor(
         }
     }
 
-    private fun bootstrapAreas() {
-        val areaCount = offlineDataSource.areaCount()
+    private suspend fun bootstrapAreas() {
+        val areaCount = appDatabase.areaDao().count()
         if (areaCount > 0) return
         val areas = assetDataSource.getAreas()
-        offlineDataSource.insertAreas(areas)
-        offlineDataSource.insertAreaMetadata(
-            MetadataModel(
-                lastUpdatedAt = LocalDateTime.now().minusDays(1)
+        appDatabase.withTransaction {
+            appDatabase.areaDao().insertAll(areas.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = it.areaType
+                )
+            })
+            appDatabase.metadataDao().insert(
+                MetadataEntity(
+                    id = MetadataEntity.AREA_METADATA_ID,
+                    lastUpdatedAt = LocalDateTime.now().minusDays(1)
+                )
             )
-        )
+        }
     }
 
-    private fun bootstrapOverview() {
-        val areaCount = offlineDataSource.areaDataOverviewCount()
+    private suspend fun bootstrapOverview() {
+        val areaCount = appDatabase.areaDataDao().countAllByType("overview")
         if (areaCount > 0) return
         val areas = assetDataSource.getOverviewAreaData()
-        offlineDataSource.insertAreaData(areas)
-        offlineDataSource.insertAreaDataOverviewMetadata(MetadataModel(lastUpdatedAt = LocalDateTime.now().minusDays(1)))
-    }
-
-    private fun bootstrapCases() {
-//        val casesCount = offlineDataSource.casesCount()
-//        if (casesCount > 0) return
-//
-//        val cases = assetDataSource.getCases()
-//        val allCases = cases.countries.union(cases.ltlas).union(cases.utlas).union(cases.regions)
-//
-//        offlineDataSource.insertCaseMetadata(cases.metadata)
-//        offlineDataSource.insertDailyRecord(cases.dailyRecords, cases.metadata.lastUpdatedAt.toLocalDate())
-//        offlineDataSource.insertCases(allCases)
+        appDatabase.withTransaction {
+            appDatabase.areaDataDao().insertAll(areas.map {
+                AreaDataEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = it.areaType,
+                    cumulativeCases = it.cumulativeCases!!,
+                    date = it.date,
+                    newCases = it.newCases!!,
+                    infectionRate = it.infectionRate!!
+                )
+            })
+            appDatabase.metadataDao().insert(
+                MetadataEntity(
+                    id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
+                    lastUpdatedAt = LocalDateTime.now().minusDays(1)
+                )
+            )
+        }
     }
 }

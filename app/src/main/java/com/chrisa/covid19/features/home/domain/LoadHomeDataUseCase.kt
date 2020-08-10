@@ -101,11 +101,6 @@ class LoadHomeDataUseCase @Inject constructor(
                 totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
                 lastUpdated = metadata.lastUpdatedAt
             )
-        }.firstOrNull() ?: LatestUkData(
-            areaName = "83498rjfvjkbv",
-            dailyLabConfirmedCases = 0,
-            totalLabConfirmedCases = 0,
-            lastUpdated = metadata.lastUpdatedAt
-        )
+        }.first()
     }
 }
