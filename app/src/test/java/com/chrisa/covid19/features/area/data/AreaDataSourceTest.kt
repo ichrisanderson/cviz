@@ -123,7 +123,7 @@ class AreaDataSourceTest {
             appDatabase.metadataDao().metadataAsFlow(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID)
         } returns allMetadata.asFlow()
 
-        val metadataFlow = sut.loadCaseMetadata()
+        val metadataFlow = sut.loadAreaMetadata()
 
         metadataFlow.collect { metadata ->
             assertThat(metadata).isEqualTo(

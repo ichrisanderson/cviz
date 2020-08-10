@@ -65,7 +65,7 @@ class AreaDetailUseCaseTest {
             }
 
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
-            every { areaDataSource.loadCaseMetadata() } returns listOf(metadataDTO).asFlow()
+            every { areaDataSource.loadAreaMetadata() } returns listOf(metadataDTO).asFlow()
             coEvery { areaDataSource.loadCases(areaCode, areaType) } returns caseDTOs
 
             val caseModels = caseDTOs.map {

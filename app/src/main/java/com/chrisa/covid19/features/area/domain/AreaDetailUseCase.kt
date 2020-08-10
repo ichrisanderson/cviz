@@ -35,7 +35,7 @@ class AreaDetailUseCase @Inject constructor(
 
     suspend fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
 
-        val metadataFlow = areaDataSource.loadCaseMetadata()
+        val metadataFlow = areaDataSource.loadAreaMetadata()
         val cases = areaDataSource.loadCases(areaCode, areaType)
 
         return metadataFlow.map { metadata ->

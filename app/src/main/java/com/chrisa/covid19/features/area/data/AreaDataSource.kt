@@ -56,6 +56,7 @@ class AreaDataSource @Inject constructor(
         }
 
         // TODO: Extract this into a cache layer?
+        // TODO: Clear out cached data for non saved items on start up
         appDatabase.withTransaction {
             appDatabase.areaDataDao().deleteAllByCode(areaCode)
             appDatabase.areaDataDao().insertAll(pagedAreaCodeData.data.map {
@@ -81,8 +82,9 @@ class AreaDataSource @Inject constructor(
             }
     }
 
-    fun loadCaseMetadata(): Flow<MetadataDto> {
+    fun loadAreaMetadata(): Flow<MetadataDto> {
         return appDatabase.metadataDao()
+            // TODO: Save metadat for the area and reuse - this should be seperate from overview
             .metadataAsFlow(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID)
             .map { it.toMetadataDto() }
     }

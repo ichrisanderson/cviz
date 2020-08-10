@@ -57,6 +57,7 @@ class StartupViewModel @ViewModelInject constructor(
     }
 
     private suspend fun triggerDataRefresh() {
+        // TODO: Synchronize data for saved areas
         synchroniseAreasUseCase.execute(syncScope)
         synchroniseOverviewDataUseCase.execute(syncScope)
     }
