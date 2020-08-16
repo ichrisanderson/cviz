@@ -25,9 +25,9 @@ import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.core.util.NetworkUtils
+import timber.log.Timber
 import java.time.LocalDateTime
 import javax.inject.Inject
-import timber.log.Timber
 
 class UkOverviewDataSynchroniser @Inject constructor(
     private val networkUtils: NetworkUtils,
@@ -44,7 +44,9 @@ class UkOverviewDataSynchroniser @Inject constructor(
         val areaMetadata =
             metadataDao.metadata(MetaDataHelper.ukOverviewKey()) ?: return
 
-        if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
+        if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now) ||
+            areaMetadata.lastSyncTime.plusHours(1).isAfter(now)
+        ) {
             return
         }
         runCatching {

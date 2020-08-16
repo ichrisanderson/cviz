@@ -89,7 +89,33 @@ class AreaListSynchroniserTest {
             val metadata = MetadataEntity(
                 id = MetaDataHelper.areaListKey(),
                 lastUpdatedAt = now.minusMinutes(1),
-                lastSyncTime = now
+                lastSyncTime = now.minusDays(1)
+            )
+
+            val date = metadata.lastUpdatedAt
+                .plusHours(1)
+                .formatAsGmt()
+
+            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+
+            every { metadataDao.metadata(MetaDataHelper.areaListKey()) } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns true
+
+            sut.performSync()
+
+            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+        }
+
+    @Test
+    fun `GIVEN metadata last synced less than an hour ago WHEN performSync called THEN api is not hit`() =
+        testDispatcher.runBlockingTest {
+
+            val now = LocalDateTime.now()
+
+            val metadata = MetadataEntity(
+                id = MetaDataHelper.areaListKey(),
+                lastUpdatedAt = now.minusDays(1),
+                lastSyncTime = now.minusMinutes(1)
             )
 
             val date = metadata.lastUpdatedAt
@@ -114,7 +140,7 @@ class AreaListSynchroniserTest {
             val metadata = MetadataEntity(
                 id = MetaDataHelper.areaListKey(),
                 lastUpdatedAt = now.minusMinutes(61),
-                lastSyncTime = now
+                lastSyncTime = now.minusHours(1)
             )
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
@@ -162,7 +188,7 @@ class AreaListSynchroniserTest {
             val metadata = MetadataEntity(
                 id = MetaDataHelper.areaListKey(),
                 lastUpdatedAt = now.minusDays(1),
-                lastSyncTime = now
+                lastSyncTime = now.minusHours(1)
             )
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
@@ -244,7 +270,7 @@ class AreaListSynchroniserTest {
             val metadata = MetadataEntity(
                 id = MetaDataHelper.areaListKey(),
                 lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime
+                lastSyncTime = syncTime.minusHours(1)
             )
 
             val areaModel = AreaModel(

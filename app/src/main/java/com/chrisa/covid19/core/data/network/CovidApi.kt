@@ -90,17 +90,3 @@ data class AreaDataModel(
 data class MetadataModel(
     val lastUpdatedAt: LocalDateTime
 )
-
-// curl 'https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=ltla&latestBy=cumCasesByPublishDate&structure=%7B%22areaName%22:%22areaName%22,%22cumCasesByPublishDate%22:%22cumCasesByPublishDate%22,%22cumCasesByPublishDateRate%22:%22cumCasesByPublishDateRate%22%7D' \
-// -H 'Connection: keep-alive' \
-// -H 'Pragma: no-cache' \
-// -H 'Cache-Control: no-cache' \
-// -H 'Accept: application/json, text/plain, */*' \
-// -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36' \
-// -H 'Origin: https://coronavirus.data.gov.uk' \
-// -H 'Sec-Fetch-Site: same-site' \
-// -H 'Sec-Fetch-Mode: cors' \
-// -H 'Sec-Fetch-Dest: empty' \
-// -H 'Referer: https://coronavirus.data.gov.uk/cases?areaType=nation&areaName=England' \
-// -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
-// --compressed

@@ -36,9 +36,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
-import java.io.IOException
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -48,6 +45,9 @@ import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
 import timber.log.Timber
+import java.io.IOException
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class UkOverviewDataSynchroniserTest {
@@ -90,7 +90,7 @@ class UkOverviewDataSynchroniserTest {
             val metadata = MetadataEntity(
                 id = MetaDataHelper.ukOverviewKey(),
                 lastUpdatedAt = now.minusMinutes(1),
-                lastSyncTime = now
+                lastSyncTime = now.minusDays(1)
             )
 
             val date = metadata.lastUpdatedAt
@@ -108,14 +108,40 @@ class UkOverviewDataSynchroniserTest {
         }
 
     @Test
+    fun `GIVEN metadata last synced less than an hour ago WHEN performSync called THEN api is not hit`() =
+        testDispatcher.runBlockingTest {
+
+            val now = LocalDateTime.now()
+
+            val metadata = MetadataEntity(
+                id = MetaDataHelper.areaListKey(),
+                lastUpdatedAt = now.minusDays(1),
+                lastSyncTime = now.minusMinutes(1)
+            )
+
+            val date = metadata.lastUpdatedAt
+                .plusHours(1)
+                .formatAsGmt()
+
+            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
+
+            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { networkUtils.hasNetworkConnection() } returns true
+
+            sut.performSync()
+
+            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+        }
+
+    @Test
     fun `GIVEN metadata last updated more than an hour ago WHEN performSync called THEN api is hit`() =
         testDispatcher.runBlockingTest {
 
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataHelper.ukOverviewKey(),
-                lastUpdatedAt = now.minusMinutes(61),
-                lastSyncTime = now
+                lastUpdatedAt = now.minusDays(1),
+                lastSyncTime = now.minusHours(1)
             )
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
@@ -162,8 +188,8 @@ class UkOverviewDataSynchroniserTest {
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataHelper.ukOverviewKey(),
-                lastUpdatedAt = now.minusMinutes(61),
-                lastSyncTime = now
+                lastUpdatedAt = now.minusDays(1),
+                lastSyncTime = now.minusHours(1)
             )
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
@@ -244,8 +270,8 @@ class UkOverviewDataSynchroniserTest {
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
             val metadata = MetadataEntity(
                 id = MetaDataHelper.ukOverviewKey(),
-                lastUpdatedAt = syncTime.minusMinutes(61),
-                lastSyncTime = syncTime
+                lastUpdatedAt = syncTime.minusDays(1),
+                lastSyncTime = syncTime.minusHours(1)
             )
 
             val areaModel = AreaDataModel(

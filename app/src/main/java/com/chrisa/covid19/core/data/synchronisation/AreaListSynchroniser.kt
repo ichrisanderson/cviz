@@ -44,7 +44,8 @@ class AreaListSynchroniser @Inject constructor(
         val now = LocalDateTime.now()
         val areaMetadata = metadataDao.metadata(MetaDataHelper.areaListKey()) ?: return
 
-        if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
+        if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now) ||
+            areaMetadata.lastSyncTime.plusHours(1).isAfter(now)) {
             return
         }
         runCatching {
