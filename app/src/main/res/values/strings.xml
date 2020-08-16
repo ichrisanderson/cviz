@@ -22,4 +22,8 @@
 
     <string name="area_menu_delete_item_prompt">Tap to delete location</string>
     <string name="area_menu_save_item_prompt">Tap to save location</string>
+
+    <string name="area_data_error_message">Failed to load area data</string>
+    <string name="sync_error_message">Failed to load latest data</string>
+    <string name="retry">Retry</string>
 </resources>

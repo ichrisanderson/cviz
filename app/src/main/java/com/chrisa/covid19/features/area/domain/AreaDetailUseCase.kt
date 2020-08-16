@@ -25,7 +25,6 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
@@ -36,14 +35,23 @@ class AreaDetailUseCase @Inject constructor(
     fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
         val metadataFlow = areaDataSource.loadAreaMetadata(areaCode, areaType)
         return metadataFlow.map { metadata ->
-            val areaData = areaDataSource.loadAreaData(areaCode, areaType)
-            val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
-            AreaDetailModel(
-                lastUpdatedAt = metadata?.lastUpdatedAt,
-                lastSyncedAt = metadata?.lastSyncTime,
-                allCases = allCases,
-                latestCases = allCases.takeLast(14)
-            )
+            if (metadata == null) {
+                AreaDetailModel(
+                    lastUpdatedAt = null,
+                    lastSyncedAt = null,
+                    allCases = emptyList(),
+                    latestCases = emptyList()
+                )
+            } else {
+                val areaData = areaDataSource.loadAreaData(areaCode, areaType)
+                val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
+                AreaDetailModel(
+                    lastUpdatedAt = metadata.lastUpdatedAt,
+                    lastSyncedAt = metadata.lastSyncTime,
+                    allCases = allCases,
+                    latestCases = allCases.takeLast(14)
+                )
+            }
         }
     }
 
@@ -51,9 +59,6 @@ class AreaDetailUseCase @Inject constructor(
         return cases.mapIndexed { index, case ->
             val previousCase = cases.getOrNull(index - 7)
             val rollingAverage = rollingAverageHelper.average(case, previousCase)
-            if (rollingAverage < 0) {
-                Timber.d("oops")
-            }
             CaseModel(
                 dailyLabConfirmedCases = case.dailyLabConfirmedCases,
                 rollingAverage = rollingAverage,

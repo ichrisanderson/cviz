@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain
+package com.chrisa.covid19.core.util.event
 
-import com.chrisa.covid19.features.area.data.AreaDataSource
-import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import androidx.lifecycle.Observer
 
-@ExperimentalCoroutinesApi
-class SyncAreaDetailUseCase @Inject constructor(
-    private val areaDataSource: AreaDataSource
-) {
-    suspend fun execute(areaCode: String, areaType: String) {
-        return areaDataSource.syncAreaData(areaCode, areaType)
+/**
+ * An [Observer] for [Event]s, simplifying the pattern of checking if the [Event]'s content has
+ * already been consumed.
+ *
+ * [onEventUnconsumedContent] is *only* called if the [Event]'s contents has not been consumed.
+ */
+class EventObserver<T>(private val onEventUnconsumedContent: (T) -> Unit) : Observer<Event<T>> {
+    override fun onChanged(event: Event<T>?) {
+        event?.consume()?.run(onEventUnconsumedContent)
     }
 }

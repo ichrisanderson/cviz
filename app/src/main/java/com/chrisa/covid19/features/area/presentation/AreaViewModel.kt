@@ -24,18 +24,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
+import com.chrisa.covid19.core.util.event.Event
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.domain.SyncAreaDetailUseCase
+import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import java.time.LocalDateTime
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
+@ExperimentalCoroutinesApi
 class AreaViewModel @ViewModelInject constructor(
     private val syncAreaDetailUseCase: SyncAreaDetailUseCase,
     private val areaDetailUseCase: AreaDetailUseCase,
@@ -55,6 +58,14 @@ class AreaViewModel @ViewModelInject constructor(
     val areaCases: LiveData<AreaCasesModel>
         get() = _areaCases
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+
+    private val _syncAreaError = MutableLiveData<Event<Boolean>>()
+    val syncAreaError: LiveData<Event<Boolean>>
+        get() = _syncAreaError
+
     private val areaCode: String
         get() = savedStateHandle.get<String>("areaCode")!!
 
@@ -63,6 +74,10 @@ class AreaViewModel @ViewModelInject constructor(
 
     init {
         loadAreaSavedState(areaCode)
+        loadAreaDetail(areaCode, areaType)
+    }
+
+    fun refresh() {
         loadAreaDetail(areaCode, areaType)
     }
 
@@ -87,28 +102,37 @@ class AreaViewModel @ViewModelInject constructor(
 
     private fun loadAreaDetail(areCode: String, areaType: String) {
         viewModelScope.launch(dispatchers.io) {
+            _isLoading.postValue(true)
             runCatching {
                 areaDetailUseCase.execute(areCode, areaType)
             }.onSuccess { areaDetail ->
                 areaDetail.collect {
                     val now = LocalDateTime.now()
                     if (it.lastSyncedAt == null || it.lastSyncedAt.plusHours(1).isBefore(now)) {
-                        syncAreaCases(areaType)
+                        syncAreaCases(it)
                     } else {
+                        _isLoading.postValue(false)
                         _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(it))
                     }
                 }
             }.onFailure {
-                Timber.e("Error loading area detail")
+                _isLoading.postValue(false)
             }
         }
     }
 
-    private suspend fun syncAreaCases(areaType: String) {
+    private suspend fun syncAreaCases(areaDetailModel: AreaDetailModel) {
         runCatching {
             syncAreaDetailUseCase.execute(areaCode, areaType)
         }.onFailure {
-            Timber.e("Error loading area detail")
+            if (areaDetailModel.lastSyncedAt == null) {
+                _isLoading.postValue(false)
+                _syncAreaError.postValue(Event(true))
+            } else {
+                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+                _isLoading.postValue(false)
+                _syncAreaError.postValue(Event(false))
+            }
         }
     }
 }
