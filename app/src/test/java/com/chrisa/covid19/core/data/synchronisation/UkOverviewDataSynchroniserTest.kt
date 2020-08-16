@@ -36,6 +36,9 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
+import java.io.IOException
+import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -45,9 +48,6 @@ import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
 import timber.log.Timber
-import java.io.IOException
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class UkOverviewDataSynchroniserTest {
