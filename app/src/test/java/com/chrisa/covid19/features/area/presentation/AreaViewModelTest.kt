@@ -26,6 +26,7 @@ import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
+import com.chrisa.covid19.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
@@ -58,6 +59,7 @@ class AreaViewModelTest {
     val liveDataJunitRule = InstantTaskExecutorRule()
 
     private val areaDetailUseCase = mockk<AreaDetailUseCase>()
+    private val syncAreaDetailUseCase = mockk<SyncAreaDetailUseCase>()
     private val isSavedUseCase = mockk<IsSavedUseCase>()
     private val insertSavedAreaUseCase = mockk<InsertSavedAreaUseCase>()
     private val deleteSavedAreaUseCase = mockk<DeleteSavedAreaUseCase>()
@@ -81,11 +83,10 @@ class AreaViewModelTest {
                     )
                 )
 
+                val now = LocalDateTime.now()
                 val areaDetailModel = AreaDetailModel(
-                    lastUpdatedAt = LocalDateTime.ofInstant(
-                        Instant.ofEpochMilli(0),
-                        ZoneOffset.UTC
-                    ),
+                    lastUpdatedAt = now.minusDays(1),
+                    lastSyncedAt = now,
                     allCases = caseModels,
                     latestCases = caseModels.takeLast(7)
                 )
@@ -117,6 +118,7 @@ class AreaViewModelTest {
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
                 val sut = AreaViewModel(
+                    syncAreaDetailUseCase,
                     areaDetailUseCase,
                     isSavedUseCase,
                     insertSavedAreaUseCase,
@@ -148,6 +150,7 @@ class AreaViewModelTest {
                 every { isSavedUseCase.execute(areaCode) } returns publisher.asFlow()
 
                 val sut = AreaViewModel(
+                    syncAreaDetailUseCase,
                     areaDetailUseCase,
                     isSavedUseCase,
                     insertSavedAreaUseCase,
@@ -189,6 +192,7 @@ class AreaViewModelTest {
             every { insertSavedAreaUseCase.execute(areaCode) } just Runs
 
             val sut = AreaViewModel(
+                syncAreaDetailUseCase,
                 areaDetailUseCase,
                 isSavedUseCase,
                 insertSavedAreaUseCase,
@@ -214,6 +218,7 @@ class AreaViewModelTest {
             every { deleteSavedAreaUseCase.execute(areaCode) } returns 1
 
             val sut = AreaViewModel(
+                syncAreaDetailUseCase,
                 areaDetailUseCase,
                 isSavedUseCase,
                 insertSavedAreaUseCase,

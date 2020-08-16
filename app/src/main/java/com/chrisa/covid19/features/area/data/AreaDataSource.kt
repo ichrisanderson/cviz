@@ -19,16 +19,22 @@ package com.chrisa.covid19.features.area.data
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.MetaDataHelper
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
+import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
-import com.chrisa.covid19.features.area.data.mappers.MetadataEntityMapper.toMetadataDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
+import java.io.IOException
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import retrofit2.Response
 
 class AreaDataSource @Inject constructor(
     private val appDatabase: AppDatabase,
@@ -47,18 +53,57 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    suspend fun loadCases(areaCode: String, areaType: String): List<CaseDto> {
+    fun loadAreaData(areaCode: String, areaType: String): List<CaseDto> {
+        return appDatabase.areaDataDao().allByAreaCode(areaCode)
+            .map {
+                CaseDto(
+                    dailyLabConfirmedCases = it.newCases,
+                    totalLabConfirmedCases = it.cumulativeCases,
+                    date = it.date
+                )
+            }
+    }
+
+    suspend fun syncAreaData(areaCode: String, areaType: String) {
 
         val filter = "areaCode=$areaCode;areaType=$areaType"
-        val pagedAreaCodeData = when (areaType) {
-            "overview" -> covidApi.pagedAreaCodeDataByPublishDate(filter)
-            else -> covidApi.pagedAreaCodeDataBySpeciminDate(filter)
-        }
 
-        // TODO: Extract this into a cache layer?
-        // TODO: Clear out cached data for non saved items on start up
+        val casesFromNetwork = getResponse(areaType, filter)
+
+        if (casesFromNetwork.isSuccessful) {
+            val pagedAreaCodeData = casesFromNetwork.body()!!
+            val lastModified = casesFromNetwork.headers().get("Last-Modified")
+            cacheAreaData(
+                areaCode,
+                MetaDataHelper.areaKey(areaCode, areaType),
+                pagedAreaCodeData,
+                lastModified?.toGmtDateTime() ?: LocalDateTime.now()
+            )
+        } else {
+            throw IOException()
+        }
+    }
+
+    private suspend fun getResponse(
+        areaType: String,
+        filter: String
+    ): Response<Page<AreaDataModel>> {
+        return when (areaType) {
+            "overview" -> covidApi.pagedAreaCodeDataByPublishDateResponse(filter)
+            "nation" -> covidApi.pagedAreaCodeDataByPublishDateResponse(filter)
+            else -> covidApi.pagedAreaCodeDataBySpeciminDateResponse(filter)
+        }
+    }
+
+    private suspend fun cacheAreaData(
+        areaCode: String,
+        cacheKey: String,
+        pagedAreaCodeData: Page<AreaDataModel>,
+        lastModified: LocalDateTime
+    ) {
         appDatabase.withTransaction {
-            appDatabase.areaDataDao().deleteAllByCode(areaCode)
+            appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
+
             appDatabase.areaDataDao().insertAll(pagedAreaCodeData.data.map {
                 AreaDataEntity(
                     areaCode = it.areaCode,
@@ -70,22 +115,27 @@ class AreaDataSource @Inject constructor(
                     newCases = it.newCases ?: 0
                 )
             })
-        }
 
-        return pagedAreaCodeData.data
-            .map {
-                CaseDto(
-                    dailyLabConfirmedCases = it.newCases ?: 0,
-                    totalLabConfirmedCases = it.cumulativeCases ?: 0,
-                    date = it.date
+            appDatabase.metadataDao().insert(
+                metadata = MetadataEntity(
+                    id = cacheKey,
+                    lastUpdatedAt = lastModified,
+                    lastSyncTime = LocalDateTime.now()
                 )
-            }
+            )
+        }
     }
 
-    fun loadAreaMetadata(): Flow<MetadataDto> {
+    fun loadAreaMetadata(areaCode: String, areaType: String): Flow<MetadataDto?> {
         return appDatabase.metadataDao()
-            // TODO: Save metadat for the area and reuse - this should be seperate from overview
-            .metadataAsFlow(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID)
-            .map { it.toMetadataDto() }
+            .metadataAsFlow(MetaDataHelper.areaKey(areaCode, areaType))
+            .map {
+                it?.let {
+                    MetadataDto(
+                        lastUpdatedAt = it.lastUpdatedAt,
+                        lastSyncTime = it.lastSyncTime
+                    )
+                }
+            }
     }
 }

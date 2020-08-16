@@ -49,10 +49,19 @@ object DateUtils {
     fun LocalDateTime.formatAsGmt(): String {
 
         val formatter = DateTimeFormatter
-            .ofPattern(DateUtils.RFC_1123_DATE_TIME)
+            .ofPattern(RFC_1123_DATE_TIME)
             .withLocale(Locale.UK)
             .withZone(ZoneId.of("GMT"))
 
         return this.format(formatter)
+    }
+    fun String.toGmtDateTime(): LocalDateTime {
+
+        val formatter = DateTimeFormatter
+            .ofPattern(RFC_1123_DATE_TIME)
+            .withLocale(Locale.UK)
+            .withZone(ZoneId.of("GMT"))
+
+        return LocalDateTime.parse(this, formatter)
     }
 }

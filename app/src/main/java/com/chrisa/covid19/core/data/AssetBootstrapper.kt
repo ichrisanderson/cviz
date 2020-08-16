@@ -20,6 +20,7 @@ import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.MetaDataHelper
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import java.time.LocalDateTime
@@ -56,15 +57,16 @@ class AssetBootstrapper @Inject constructor(
             })
             appDatabase.metadataDao().insert(
                 MetadataEntity(
-                    id = MetadataEntity.AREA_METADATA_ID,
-                    lastUpdatedAt = LocalDateTime.now().minusDays(1)
+                    id = MetaDataHelper.areaListKey(),
+                    lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
+                    lastSyncTime = LocalDateTime.now()
                 )
             )
         }
     }
 
     private suspend fun bootstrapOverview() {
-        val areaCount = appDatabase.areaDataDao().countAllByType("overview")
+        val areaCount = appDatabase.areaDataDao().countAllByAreaType("overview")
         if (areaCount > 0) return
         val areas = assetDataSource.getOverviewAreaData()
         appDatabase.withTransaction {
@@ -73,18 +75,23 @@ class AssetBootstrapper @Inject constructor(
                     areaCode = it.areaCode,
                     areaName = it.areaName,
                     areaType = it.areaType,
-                    cumulativeCases = it.cumulativeCases!!,
+                    cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
-                    newCases = it.newCases!!,
-                    infectionRate = it.infectionRate!!
+                    newCases = it.newCases ?: 0,
+                    infectionRate = it.infectionRate ?: 0.0
                 )
             })
             appDatabase.metadataDao().insert(
                 MetadataEntity(
-                    id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
-                    lastUpdatedAt = LocalDateTime.now().minusDays(1)
+                    id = MetaDataHelper.ukOverviewKey(),
+                    lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
+                    lastSyncTime = LocalDateTime.now()
                 )
             )
         }
+    }
+
+    companion object {
+        val BOOTSTRAP_DATA_TIMESTAMP = LocalDateTime.of(2020, 8, 7, 0, 0)
     }
 }

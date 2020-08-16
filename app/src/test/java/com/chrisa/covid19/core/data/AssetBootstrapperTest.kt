@@ -21,6 +21,7 @@ import com.chrisa.covid19.core.data.db.AreaDao
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.MetaDataHelper
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AreaDataModel
@@ -60,7 +61,7 @@ class AssetBootstrapperTest {
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.areaDataDao() } returns areaDataDao
 
-        every { areaDataDao.countAllByType(any()) } returns 1
+        every { areaDataDao.countAllByAreaType(any()) } returns 1
         every { areaDao.count() } returns 1
 
         sut = AssetBootstrapper(
@@ -108,8 +109,9 @@ class AssetBootstrapperTest {
             verify {
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetadataEntity.AREA_METADATA_ID,
-                        lastUpdatedAt = date.minusDays(1)
+                        id = MetaDataHelper.areaListKey(),
+                        lastUpdatedAt = AssetBootstrapper.BOOTSTRAP_DATA_TIMESTAMP,
+                        lastSyncTime = date
                     )
                 )
             }
@@ -128,7 +130,7 @@ class AssetBootstrapperTest {
     fun `GIVEN offline area data overview WHEN bootstrap data THEN area data overview is not updated`() =
         testCoroutineScope.runBlockingTest {
 
-            every { areaDataDao.countAllByType("overview") } returns 1
+            every { areaDataDao.countAllByAreaType("overview") } returns 1
 
             sut.bootstrapData()
 
@@ -158,7 +160,7 @@ class AssetBootstrapperTest {
             appDatabase.mockTransaction()
 
             coEvery { assetDataSource.getOverviewAreaData() } returns areas
-            every { areaDataDao.countAllByType("overview") } returns 0
+            every { areaDataDao.countAllByAreaType("overview") } returns 0
             every { LocalDateTime.now() } returns date
 
             sut.bootstrapData()
@@ -166,8 +168,9 @@ class AssetBootstrapperTest {
             verify {
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
-                        lastUpdatedAt = date.minusDays(1)
+                        id = MetaDataHelper.ukOverviewKey(),
+                        lastUpdatedAt = AssetBootstrapper.BOOTSTRAP_DATA_TIMESTAMP,
+                        lastSyncTime = date
                     )
                 )
             }

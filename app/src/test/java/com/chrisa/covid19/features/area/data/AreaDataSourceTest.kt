@@ -16,29 +16,25 @@
 
 package com.chrisa.covid19.features.area.data
 
-import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDataDao
+import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.MetaDataHelper
 import com.chrisa.covid19.core.data.db.MetadataEntity
-import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
-import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.util.mockTransaction
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.slot
 import io.mockk.verify
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -54,6 +50,7 @@ import org.junit.Test
 class AreaDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
+    private val areaDataDao = mockk<AreaDataDao>()
     private val covidApi = mockk<CovidApi>()
     private val sut = AreaDataSource(appDatabase, covidApi)
 
@@ -112,23 +109,29 @@ class AreaDataSourceTest {
     @Test
     fun `WHEN loadCaseMetadata called THEN case metadata is returned`() = runBlocking {
 
+        val areaCode = "1234"
+        val areaType = "utla"
+
+        val now = LocalDateTime.now()
         val metadataDTO = MetadataEntity(
-            id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            id = MetaDataHelper.areaKey(areaCode, areaType),
+            lastUpdatedAt = now.minusDays(1),
+            lastSyncTime = now
         )
 
         val allMetadata = listOf(metadataDTO)
 
         every {
-            appDatabase.metadataDao().metadataAsFlow(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID)
+            appDatabase.metadataDao().metadataAsFlow(MetaDataHelper.areaKey(areaCode, areaType))
         } returns allMetadata.asFlow()
 
-        val metadataFlow = sut.loadAreaMetadata()
+        val metadataFlow = sut.loadAreaMetadata(areaCode, areaType)
 
         metadataFlow.collect { metadata ->
             assertThat(metadata).isEqualTo(
                 MetadataDto(
-                    lastUpdatedAt = metadataDTO.lastUpdatedAt
+                    lastUpdatedAt = metadataDTO.lastUpdatedAt,
+                    lastSyncTime = metadataDTO.lastSyncTime
                 )
             )
         }
@@ -137,7 +140,7 @@ class AreaDataSourceTest {
     @Test
     fun `WHEN loadCases called THEN case data is returned`() = runBlocking {
 
-        val areaData = AreaDataModel(
+        val areaData = AreaDataEntity(
             areaCode = "1234",
             areaName = "London",
             areaType = "utla",
@@ -147,27 +150,19 @@ class AreaDataSourceTest {
             newCases = 122
         )
 
-        val page = Page(
-            length = null,
-            maxPageLimit = null,
-            data = listOf(areaData)
-        )
-        mockkStatic("androidx.room.RoomDatabaseKt")
-        val transactionLambda = slot<suspend () -> Unit>()
-        coEvery { appDatabase.withTransaction(capture(transactionLambda)) } coAnswers {
-            transactionLambda.captured.invoke()
-        }
-        every { appDatabase.areaDataDao() } returns mockk(relaxed = true)
-        coEvery { covidApi.pagedAreaCodeDataBySpeciminDate(any()) } returns page
+        appDatabase.mockTransaction()
 
-        val cases = sut.loadCases(areaData.areaCode, areaData.areaType)
+        every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
+        every { appDatabase.areaDataDao() } returns areaDataDao
+
+        val cases = sut.loadAreaData(areaData.areaCode, areaData.areaType)
 
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases.first()).isEqualTo(
             CaseDto(
                 date = areaData.date,
-                dailyLabConfirmedCases = areaData.newCases!!,
-                totalLabConfirmedCases = areaData.cumulativeCases!!
+                dailyLabConfirmedCases = areaData.newCases,
+                totalLabConfirmedCases = areaData.cumulativeCases
             )
         )
     }

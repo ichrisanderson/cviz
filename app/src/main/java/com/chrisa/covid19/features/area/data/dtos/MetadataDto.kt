@@ -18,4 +18,4 @@ package com.chrisa.covid19.features.area.data.dtos
 
 import java.time.LocalDateTime
 
-data class MetadataDto(val lastUpdatedAt: LocalDateTime)
+data class MetadataDto(val lastUpdatedAt: LocalDateTime, val lastSyncTime: LocalDateTime)

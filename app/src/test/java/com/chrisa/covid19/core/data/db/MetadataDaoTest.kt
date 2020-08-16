@@ -48,9 +48,13 @@ class MetadataDaoTest {
     @Test
     fun `GIVEN no metadata exists WHEN insertMetadata called THEN metadata is inserted`() {
 
+        val lastUpdated = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        val lastSynced = LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneOffset.UTC)
+
         val newMetadata = MetadataEntity(
-            id = Companion.METADATA_ID,
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            id = METADATA_ID,
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
         )
 
         db.metadataDao().insert(newMetadata)
@@ -63,15 +67,20 @@ class MetadataDaoTest {
     @Test
     fun `GIVEN metadata exists WHEN insertMetadata called with same metadata is THEN metadata is updated`() {
 
+        val lastUpdated = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        val lastSynced = LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneOffset.UTC)
+
         val oldMetadata = MetadataEntity(
             id = METADATA_ID,
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
         )
         db.metadataDao().insert(oldMetadata)
 
         val newMetadata = MetadataEntity(
             id = METADATA_ID,
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
         )
 
         db.metadataDao().insert(newMetadata)

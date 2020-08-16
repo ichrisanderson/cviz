@@ -15,14 +15,3 @@
  */
 
 package com.chrisa.covid19.features.area.data.mappers
-
-import com.chrisa.covid19.core.data.db.MetadataEntity
-import com.chrisa.covid19.features.area.data.dtos.MetadataDto
-
-object MetadataEntityMapper {
-    fun MetadataEntity.toMetadataDto(): MetadataDto {
-        return MetadataDto(
-            lastUpdatedAt = lastUpdatedAt
-        )
-    }
-}

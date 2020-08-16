@@ -150,17 +150,20 @@ interface AreaDataDao {
     @Query("SELECT COUNT(areaCode) FROM areaData")
     fun countAll(): Int
 
+    @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
+    fun countAllByAreaType(areaType: String): Int
+
     @Query("DELETE FROM areaData WHERE :areaType = areaType")
-    fun deleteAllByType(areaType: String)
+    fun deleteAllByAreaType(areaType: String)
 
     @Query("DELETE FROM areaData WHERE :areaCode = areaCode")
-    fun deleteAllByCode(areaCode: String)
-
-    @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
-    fun countAllByType(areaType: String): Int
+    fun deleteAllByAreaCode(areaCode: String)
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
-    fun allByAreaCode(areaCode: String): Flow<List<AreaDataEntity>>
+    fun allByAreaCodeFlow(areaCode: String): Flow<List<AreaDataEntity>>
+
+    @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
+    fun allByAreaCode(areaCode: String): List<AreaDataEntity>
 
     @Query("SELECT * FROM areaData INNER JOIN savedArea ON areaData.areaCode = savedArea.areaCode ORDER BY date ASC")
     fun allSavedAreaData(): Flow<List<AreaDataEntity>>
@@ -177,13 +180,10 @@ data class MetadataEntity(
     @ColumnInfo(name = "id")
     val id: String,
     @ColumnInfo(name = "lastUpdatedAt")
-    val lastUpdatedAt: LocalDateTime
-) {
-    companion object {
-        const val AREA_METADATA_ID = "AREA_METADATA"
-        const val AREA_DATA_OVERVIEW_METADATA_ID = "AREA_DATA_OVERVIEW_METADATA"
-    }
-}
+    val lastUpdatedAt: LocalDateTime,
+    @ColumnInfo(name = "lastSyncTime")
+    val lastSyncTime: LocalDateTime
+)
 
 @Dao
 interface MetadataDao {
@@ -198,7 +198,7 @@ interface MetadataDao {
     fun metadata(id: String): MetadataEntity?
 
     @Query("SELECT * FROM metadata WHERE id = :id LIMIT 1")
-    fun metadataAsFlow(id: String): Flow<MetadataEntity>
+    fun metadataAsFlow(id: String): Flow<MetadataEntity?>
 }
 
 @Entity(
@@ -224,4 +224,13 @@ interface SavedAreaDao {
 
     @Delete
     fun delete(savedAreaEntity: SavedAreaEntity): Int
+}
+
+object Constants {
+    const val UK_AREA_CODE = "K02000001"
+}
+object MetaDataHelper {
+    fun areaListKey(): String = "AREA_METADATA"
+    fun ukOverviewKey(): String = "UK_OVERVIEW_CODE"
+    fun areaKey(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
 }

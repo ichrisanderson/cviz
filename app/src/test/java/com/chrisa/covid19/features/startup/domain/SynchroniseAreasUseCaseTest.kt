@@ -16,7 +16,7 @@
 
 package com.chrisa.covid19.features.startup.domain
 
-import com.chrisa.covid19.core.data.synchronisation.AreaSynchroniser
+import com.chrisa.covid19.core.data.synchronisation.AreaListSynchroniser
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,7 +29,7 @@ import org.junit.Test
 
 class SynchroniseAreasUseCaseTest {
 
-    private val caseDataSynchroniser = mockk<AreaSynchroniser>()
+    private val caseDataSynchroniser = mockk<AreaListSynchroniser>()
     private val testDispatcher = TestCoroutineDispatcher()
     private val testCoroutineScope = TestCoroutineScope(testDispatcher)
 

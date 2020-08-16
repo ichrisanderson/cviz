@@ -17,7 +17,8 @@
 package com.chrisa.covid19.features.area.presentation
 
 import android.os.Bundle
-import android.text.format.DateUtils
+import android.text.format.DateUtils.MINUTE_IN_MILLIS
+import android.text.format.DateUtils.getRelativeTimeSpanString
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -31,8 +32,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import java.time.LocalDateTime
 import java.time.ZoneId
-import kotlinx.android.synthetic.main.fragment_area.*
+import kotlinx.android.synthetic.main.fragment_area.allCasesChart
+import kotlinx.android.synthetic.main.fragment_area.areaToolbar
+import kotlinx.android.synthetic.main.fragment_area.latestCasesChart
+import kotlinx.android.synthetic.main.fragment_area.totalCasesSubtitle
 
 @AndroidEntryPoint
 class AreaFragment : Fragment(R.layout.fragment_area) {
@@ -81,13 +86,9 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     private fun observeCases() {
         viewModel.areaCases.observe(viewLifecycleOwner, Observer {
             val areaCasesModel = it ?: return@Observer
-            val zoneId = ZoneId.of("GMT")
-            totalCasesSubtitle.text = getString(
-                R.string.last_updated_date,
-                DateUtils.getRelativeTimeSpanString(
-                    areaCasesModel.lastUpdatedAt.atZone(zoneId).toInstant().toEpochMilli()
-                )
-            )
+
+            bindLastUpdated(areaCasesModel.lastUpdatedAt)
+
             latestCasesChart.setData(
                 areaCasesModel.latestCasesBarChartData,
                 areaCasesModel.latestCasesRollingAverageLineChartData
@@ -97,6 +98,25 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
                 areaCasesModel.allCasesRollingAverageLineChartData
             )
         })
+    }
+
+    private fun bindLastUpdated(lastUpdatedAt: LocalDateTime?) {
+        if (lastUpdatedAt == null) {
+            totalCasesSubtitle.text = ""
+        } else {
+            val zoneId = ZoneId.of("GMT")
+            val gmtTime = lastUpdatedAt.atZone(zoneId)
+            val now = LocalDateTime.now().atZone(zoneId)
+
+            totalCasesSubtitle.text = getString(
+                R.string.last_updated_date,
+                getRelativeTimeSpanString(
+                    gmtTime.toInstant().toEpochMilli(),
+                    now.toInstant().toEpochMilli(),
+                    MINUTE_IN_MILLIS
+                )
+            )
+        }
     }
 
     private fun observeIsSaved() {

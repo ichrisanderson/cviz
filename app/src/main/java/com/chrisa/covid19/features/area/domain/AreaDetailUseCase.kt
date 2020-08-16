@@ -33,15 +33,14 @@ class AreaDetailUseCase @Inject constructor(
     private val rollingAverageHelper: RollingAverageHelper
 ) {
 
-    suspend fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
-
-        val metadataFlow = areaDataSource.loadAreaMetadata()
-        val cases = areaDataSource.loadCases(areaCode, areaType)
-
+    fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
+        val metadataFlow = areaDataSource.loadAreaMetadata(areaCode, areaType)
         return metadataFlow.map { metadata ->
-            val allCases = mapAllCases(cases.distinct().sortedBy { it.date })
+            val areaData = areaDataSource.loadAreaData(areaCode, areaType)
+            val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
             AreaDetailModel(
-                lastUpdatedAt = metadata.lastUpdatedAt,
+                lastUpdatedAt = metadata?.lastUpdatedAt,
+                lastSyncedAt = metadata?.lastSyncTime,
                 allCases = allCases,
                 latestCases = allCases.takeLast(14)
             )

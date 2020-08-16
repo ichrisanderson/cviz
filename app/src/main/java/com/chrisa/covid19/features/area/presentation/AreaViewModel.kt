@@ -28,12 +28,16 @@ import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
+import com.chrisa.covid19.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
+import java.time.LocalDateTime
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class AreaViewModel @ViewModelInject constructor(
+    private val syncAreaDetailUseCase: SyncAreaDetailUseCase,
     private val areaDetailUseCase: AreaDetailUseCase,
     private val isSavedUseCase: IsSavedUseCase,
     private val insertSavedAreaUseCase: InsertSavedAreaUseCase,
@@ -83,10 +87,28 @@ class AreaViewModel @ViewModelInject constructor(
 
     private fun loadAreaDetail(areCode: String, areaType: String) {
         viewModelScope.launch(dispatchers.io) {
-            val areaDetail = areaDetailUseCase.execute(areCode, areaType)
-            areaDetail.collect {
-                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(it))
+            runCatching {
+                areaDetailUseCase.execute(areCode, areaType)
+            }.onSuccess { areaDetail ->
+                areaDetail.collect {
+                    val now = LocalDateTime.now()
+                    if (it.lastSyncedAt == null || it.lastSyncedAt.plusHours(1).isBefore(now)) {
+                        syncAreaCases(areaType)
+                    } else {
+                        _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(it))
+                    }
+                }
+            }.onFailure {
+                Timber.e("Error loading area detail")
             }
+        }
+    }
+
+    private suspend fun syncAreaCases(areaType: String) {
+        runCatching {
+            syncAreaDetailUseCase.execute(areaCode, areaType)
+        }.onFailure {
+            Timber.e("Error loading area detail")
         }
     }
 }

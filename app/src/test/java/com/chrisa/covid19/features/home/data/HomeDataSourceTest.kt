@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.MetaDataHelper
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
@@ -42,15 +43,17 @@ class HomeDataSourceTest {
     fun `WHEN overviewMetadata called THEN overview metadata from database is returned`() =
         runBlockingTest {
 
+            val now = LocalDateTime.now()
             val metadataEntity = MetadataEntity(
-                id = MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID,
-                lastUpdatedAt = LocalDateTime.now()
+                id = MetaDataHelper.ukOverviewKey(),
+                lastUpdatedAt = now.minusDays(1),
+                lastSyncTime = now
             )
 
             val overviewMetadataFlow = flow { emit(metadataEntity) }
 
             every {
-                appDatabase.metadataDao().metadataAsFlow(MetadataEntity.AREA_DATA_OVERVIEW_METADATA_ID)
+                appDatabase.metadataDao().metadataAsFlow(MetaDataHelper.ukOverviewKey())
             } returns overviewMetadataFlow
 
             val emittedItems = mutableListOf<MetadataDto>()

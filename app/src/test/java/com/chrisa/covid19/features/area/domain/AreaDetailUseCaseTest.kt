@@ -26,16 +26,16 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 @InternalCoroutinesApi
 class AreaDetailUseCaseTest {
 
@@ -50,8 +50,10 @@ class AreaDetailUseCaseTest {
             val areaCode = "1234"
             val areaType = "utla"
 
+            val now = LocalDateTime.now()
             val metadataDTO = MetadataDto(
-                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+                lastUpdatedAt = now.minusDays(1),
+                lastSyncTime = now
             )
 
             var totalLabConfirmedCases = 0
@@ -65,8 +67,8 @@ class AreaDetailUseCaseTest {
             }
 
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
-            every { areaDataSource.loadAreaMetadata() } returns listOf(metadataDTO).asFlow()
-            coEvery { areaDataSource.loadCases(areaCode, areaType) } returns caseDTOs
+            every { areaDataSource.loadAreaMetadata(areaCode, areaType) } returns listOf(metadataDTO).asFlow()
+            coEvery { areaDataSource.loadAreaData(areaCode, areaType) } returns caseDTOs
 
             val caseModels = caseDTOs.map {
                 CaseModel(
@@ -82,6 +84,7 @@ class AreaDetailUseCaseTest {
                 assertThat(areaDetailModel).isEqualTo(
                     AreaDetailModel(
                         lastUpdatedAt = metadataDTO.lastUpdatedAt,
+                        lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
                         latestCases = caseModels.takeLast(14)
                     )

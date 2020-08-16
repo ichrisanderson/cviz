@@ -29,31 +29,35 @@ import retrofit2.http.Query
 interface CovidApi {
     @Headers(
         "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
+        "Accept: application/json",
+        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
     )
     @GET("v1/lookup?filters=areaType=nation%257CareaType=region%257CareaType=utla%257CareaType=ltla&structure=%7B%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22areaType%22:%22areaType%22%7D")
     suspend fun pagedAreaResponse(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
 
     @Headers(
         "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
+        "Accept: application/json",
+        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
     )
     @GET("v1/data?filters=areaType=overview&structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cmlCases%22:%22cumCasesByPublishDate%22,%22infectionRate%22:%22cumCasesByPublishDateRate%22%7D&format=json")
-    suspend fun pagedOverviewAreaDataResponse(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaDataModel>>
+    suspend fun pagedUkOverviewAreaDataResponse(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaDataModel>>
 
     @Headers(
         "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
+        "Accept: application/json",
+        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
     )
     @GET("v1/data?structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cmlCases%22:%22cumCasesByPublishDate%22,%22infectionRate%22:%22cumCasesByPublishDateRate%22%7D&format=json")
-    suspend fun pagedAreaCodeDataByPublishDate(@Query(encoded = true, value = "filters") filters: String): Page<AreaDataModel>
+    suspend fun pagedAreaCodeDataByPublishDateResponse(@Query(encoded = true, value = "filters") filters: String): Response<Page<AreaDataModel>>
 
     @Headers(
         "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
+        "Accept: application/json",
+        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
     )
     @GET("v1/data?structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesBySpecimenDate%22,%22cmlCases%22:%22cumCasesBySpecimenDate%22,%22infectionRate%22:%22cumCasesBySpecimenDateRate%22%7D&format=json")
-    suspend fun pagedAreaCodeDataBySpeciminDate(@Query(encoded = true, value = "filters") filters: String): Page<AreaDataModel>
+    suspend fun pagedAreaCodeDataBySpeciminDateResponse(@Query(encoded = true, value = "filters") filters: String): Response<Page<AreaDataModel>>
 }
 
 @JsonClass(generateAdapter = true)
@@ -86,3 +90,17 @@ data class AreaDataModel(
 data class MetadataModel(
     val lastUpdatedAt: LocalDateTime
 )
+
+// curl 'https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=ltla&latestBy=cumCasesByPublishDate&structure=%7B%22areaName%22:%22areaName%22,%22cumCasesByPublishDate%22:%22cumCasesByPublishDate%22,%22cumCasesByPublishDateRate%22:%22cumCasesByPublishDateRate%22%7D' \
+// -H 'Connection: keep-alive' \
+// -H 'Pragma: no-cache' \
+// -H 'Cache-Control: no-cache' \
+// -H 'Accept: application/json, text/plain, */*' \
+// -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36' \
+// -H 'Origin: https://coronavirus.data.gov.uk' \
+// -H 'Sec-Fetch-Site: same-site' \
+// -H 'Sec-Fetch-Mode: cors' \
+// -H 'Sec-Fetch-Dest: empty' \
+// -H 'Referer: https://coronavirus.data.gov.uk/cases?areaType=nation&areaName=England' \
+// -H 'Accept-Language: en-GB,en-US;q=0.9,en;q=0.8' \
+// --compressed
