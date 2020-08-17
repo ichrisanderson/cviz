@@ -144,20 +144,24 @@ data class AreaDataEntity(
 
 @Dao
 interface AreaDataDao {
+
     @Query("DELETE FROM areaData")
     fun deleteAll()
-
-    @Query("SELECT COUNT(areaCode) FROM areaData")
-    fun countAll(): Int
-
-    @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
-    fun countAllByAreaType(areaType: String): Int
 
     @Query("DELETE FROM areaData WHERE :areaType = areaType")
     fun deleteAllByAreaType(areaType: String)
 
     @Query("DELETE FROM areaData WHERE :areaCode = areaCode")
     fun deleteAllByAreaCode(areaCode: String)
+
+    @Query("DELETE FROM areaData WHERE areaCode NOT IN (:areaCodes)")
+    fun deleteAllNotInAreaCodes(areaCodes: List<String>)
+
+    @Query("SELECT COUNT(areaCode) FROM areaData")
+    fun countAll(): Int
+
+    @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
+    fun countAllByAreaType(areaType: String): Int
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allByAreaCodeFlow(areaCode: String): Flow<List<AreaDataEntity>>
@@ -191,6 +195,9 @@ interface MetadataDao {
     @Query("DELETE FROM metadata")
     fun deleteAll()
 
+    @Query("DELETE FROM metadata WHERE id NOT IN (:id)")
+    fun deleteAllNotInIds(id: List<String>)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(metadata: MetadataEntity)
 
@@ -213,6 +220,12 @@ data class SavedAreaEntity(
 @Dao
 interface SavedAreaDao {
 
+    @Query("SELECT * FROM savedArea")
+    fun all(): List<SavedAreaEntity>
+
+    @Delete
+    fun delete(savedAreaEntity: SavedAreaEntity): Int
+
     @Query("DELETE FROM savedArea")
     fun deleteAll()
 
@@ -221,16 +234,14 @@ interface SavedAreaDao {
 
     @Query("SELECT COUNT(areaCode) > 0 FROM savedArea WHERE areaCode = :areaCode")
     fun isSaved(areaCode: String): Flow<Boolean>
-
-    @Delete
-    fun delete(savedAreaEntity: SavedAreaEntity): Int
 }
 
 object Constants {
     const val UK_AREA_CODE = "K02000001"
 }
-object MetaDataHelper {
-    fun areaListKey(): String = "AREA_METADATA"
-    fun ukOverviewKey(): String = "UK_OVERVIEW_CODE"
-    fun areaKey(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
+
+object MetaDataIds {
+    fun areaListId(): String = "AREA_LIST_METADATA"
+    fun ukOverviewId(): String = "UK_OVERVIEW_METADATA"
+    fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
 }

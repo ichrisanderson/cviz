@@ -57,8 +57,7 @@ class AreaDetailUseCase @Inject constructor(
 
     private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
         return cases.mapIndexed { index, case ->
-            val previousCase = cases.getOrNull(index - 7)
-            val rollingAverage = rollingAverageHelper.average(case, previousCase)
+            var rollingAverage = rollingAverageHelper.average(index, cases)
             CaseModel(
                 dailyLabConfirmedCases = case.dailyLabConfirmedCases,
                 rollingAverage = rollingAverage,

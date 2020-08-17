@@ -19,7 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
@@ -42,11 +42,9 @@ class UkOverviewDataSynchroniser @Inject constructor(
         if (!networkUtils.hasNetworkConnection()) return
         val now = LocalDateTime.now()
         val areaMetadata =
-            metadataDao.metadata(MetaDataHelper.ukOverviewKey()) ?: return
+            metadataDao.metadata(MetaDataIds.ukOverviewId()) ?: return
 
-        if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now) ||
-            areaMetadata.lastSyncTime.plusHours(1).isAfter(now)
-        ) {
+        if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
             return
         }
         runCatching {
@@ -71,7 +69,7 @@ class UkOverviewDataSynchroniser @Inject constructor(
                     })
                     metadataDao.insert(
                         MetadataEntity(
-                            id = MetaDataHelper.ukOverviewKey(),
+                            id = MetaDataIds.ukOverviewId(),
                             lastUpdatedAt = lastModified?.toGmtDateTime() ?: LocalDateTime.now(),
                             lastSyncTime = LocalDateTime.now()
                         )

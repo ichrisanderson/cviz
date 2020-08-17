@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain.helper
+package com.chrisa.covid19.features.startup.domain
 
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.startup.data.StartupDataSource
 import javax.inject.Inject
 
-class RollingAverageHelper @Inject constructor() {
-    fun average(index: Int, cases: List<CaseDto>): Double {
-        var average = 0
-        for (i in 0 until 7) {
-            average += cases.getOrNull(index - i)?.dailyLabConfirmedCases ?: 0
-        }
-        return when {
-            (average == 0) -> 0.0
-            else -> average / 7.0
-        }
+class ClearNonSavedAreaCacheDataUseCase @Inject constructor(
+    private val startupDataSource: StartupDataSource
+) {
+    suspend fun execute() {
+        startupDataSource.clearNonSavedAreaDataCache()
     }
 }

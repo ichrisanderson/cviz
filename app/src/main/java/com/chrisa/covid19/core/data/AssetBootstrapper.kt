@@ -20,7 +20,7 @@ import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import java.time.LocalDateTime
@@ -57,7 +57,7 @@ class AssetBootstrapper @Inject constructor(
             })
             appDatabase.metadataDao().insert(
                 MetadataEntity(
-                    id = MetaDataHelper.areaListKey(),
+                    id = MetaDataIds.areaListId(),
                     lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
                     lastSyncTime = LocalDateTime.now()
                 )
@@ -83,7 +83,7 @@ class AssetBootstrapper @Inject constructor(
             })
             appDatabase.metadataDao().insert(
                 MetadataEntity(
-                    id = MetaDataHelper.ukOverviewKey(),
+                    id = MetaDataIds.ukOverviewId(),
                     lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
                     lastSyncTime = LocalDateTime.now()
                 )

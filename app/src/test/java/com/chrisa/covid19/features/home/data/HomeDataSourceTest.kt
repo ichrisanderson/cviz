@@ -18,7 +18,7 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
@@ -45,7 +45,7 @@ class HomeDataSourceTest {
 
             val now = LocalDateTime.now()
             val metadataEntity = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = now.minusDays(1),
                 lastSyncTime = now
             )
@@ -53,7 +53,7 @@ class HomeDataSourceTest {
             val overviewMetadataFlow = flow { emit(metadataEntity) }
 
             every {
-                appDatabase.metadataDao().metadataAsFlow(MetaDataHelper.ukOverviewKey())
+                appDatabase.metadataDao().metadataAsFlow(MetaDataIds.ukOverviewId())
             } returns overviewMetadataFlow
 
             val emittedItems = mutableListOf<MetadataDto>()

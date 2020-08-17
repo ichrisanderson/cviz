@@ -18,7 +18,7 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.Constants
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
@@ -33,7 +33,7 @@ class HomeDataSource @Inject constructor(
 
     fun overviewMetadata(): Flow<MetadataDto> {
         return appDatabase.metadataDao()
-            .metadataAsFlow(MetaDataHelper.ukOverviewKey())
+            .metadataAsFlow(MetaDataIds.ukOverviewId())
             .map {
                 MetadataDto(
                     lastUpdatedAt = it?.lastUpdatedAt ?: LocalDateTime.now()

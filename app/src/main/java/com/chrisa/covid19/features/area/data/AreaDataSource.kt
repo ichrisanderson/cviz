@@ -19,7 +19,7 @@ package com.chrisa.covid19.features.area.data
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
@@ -75,7 +75,6 @@ class AreaDataSource @Inject constructor(
             val lastModified = casesFromNetwork.headers().get("Last-Modified")
             cacheAreaData(
                 areaCode,
-                MetaDataHelper.areaKey(areaCode, areaType),
                 pagedAreaCodeData,
                 lastModified?.toGmtDateTime() ?: LocalDateTime.now()
             )
@@ -97,13 +96,11 @@ class AreaDataSource @Inject constructor(
 
     private suspend fun cacheAreaData(
         areaCode: String,
-        cacheKey: String,
         pagedAreaCodeData: Page<AreaDataModel>,
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
             appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
-
             appDatabase.areaDataDao().insertAll(pagedAreaCodeData.data.map {
                 AreaDataEntity(
                     areaCode = it.areaCode,
@@ -115,10 +112,9 @@ class AreaDataSource @Inject constructor(
                     newCases = it.newCases ?: 0
                 )
             })
-
             appDatabase.metadataDao().insert(
                 metadata = MetadataEntity(
-                    id = cacheKey,
+                    id = MetaDataIds.areaCodeId(areaCode),
                     lastUpdatedAt = lastModified,
                     lastSyncTime = LocalDateTime.now()
                 )
@@ -128,7 +124,7 @@ class AreaDataSource @Inject constructor(
 
     fun loadAreaMetadata(areaCode: String, areaType: String): Flow<MetadataDto?> {
         return appDatabase.metadataDao()
-            .metadataAsFlow(MetaDataHelper.areaKey(areaCode, areaType))
+            .metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
             .map {
                 it?.let {
                     MetadataDto(

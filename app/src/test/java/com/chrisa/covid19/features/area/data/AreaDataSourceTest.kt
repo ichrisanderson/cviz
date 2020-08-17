@@ -19,7 +19,7 @@ package com.chrisa.covid19.features.area.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.mockTransaction
@@ -114,7 +114,7 @@ class AreaDataSourceTest {
 
         val now = LocalDateTime.now()
         val metadataDTO = MetadataEntity(
-            id = MetaDataHelper.areaKey(areaCode, areaType),
+            id = MetaDataIds.areaCodeId(areaCode),
             lastUpdatedAt = now.minusDays(1),
             lastSyncTime = now
         )
@@ -122,7 +122,7 @@ class AreaDataSourceTest {
         val allMetadata = listOf(metadataDTO)
 
         every {
-            appDatabase.metadataDao().metadataAsFlow(MetaDataHelper.areaKey(areaCode, areaType))
+            appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
         } returns allMetadata.asFlow()
 
         val metadataFlow = sut.loadAreaMetadata(areaCode, areaType)

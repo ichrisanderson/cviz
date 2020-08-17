@@ -19,7 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaEntity
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
@@ -42,7 +42,7 @@ class AreaListSynchroniser @Inject constructor(
         if (!networkUtils.hasNetworkConnection()) return
 
         val now = LocalDateTime.now()
-        val areaMetadata = metadataDao.metadata(MetaDataHelper.areaListKey()) ?: return
+        val areaMetadata = metadataDao.metadata(MetaDataIds.areaListId()) ?: return
 
         if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now) ||
             areaMetadata.lastSyncTime.plusHours(1).isAfter(now)) {
@@ -64,7 +64,7 @@ class AreaListSynchroniser @Inject constructor(
                     })
                     metadataDao.insert(
                         MetadataEntity(
-                            id = MetaDataHelper.areaListKey(),
+                            id = MetaDataIds.areaListId(),
                             lastUpdatedAt = lastModified?.toGmtDateTime() ?: LocalDateTime.now(),
                             lastSyncTime = LocalDateTime.now()
                         )

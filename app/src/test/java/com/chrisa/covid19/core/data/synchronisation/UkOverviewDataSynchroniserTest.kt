@@ -19,7 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
-import com.chrisa.covid19.core.data.db.MetaDataHelper
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AreaDataModel
@@ -73,7 +73,7 @@ class UkOverviewDataSynchroniserTest {
     fun `GIVEN no metadata WHEN performSync called THEN api is not hit`() =
         testDispatcher.runBlockingTest {
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns null
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns null
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
@@ -88,7 +88,7 @@ class UkOverviewDataSynchroniserTest {
             val now = LocalDateTime.now()
 
             val metadata = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now.minusDays(1)
             )
@@ -99,7 +99,7 @@ class UkOverviewDataSynchroniserTest {
 
             coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
@@ -114,7 +114,7 @@ class UkOverviewDataSynchroniserTest {
             val now = LocalDateTime.now()
 
             val metadata = MetadataEntity(
-                id = MetaDataHelper.areaListKey(),
+                id = MetaDataIds.areaListId(),
                 lastUpdatedAt = now.minusDays(1),
                 lastSyncTime = now.minusMinutes(1)
             )
@@ -125,7 +125,7 @@ class UkOverviewDataSynchroniserTest {
 
             coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
@@ -139,7 +139,7 @@ class UkOverviewDataSynchroniserTest {
 
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = now.minusDays(1),
                 lastSyncTime = now.minusHours(1)
             )
@@ -148,7 +148,7 @@ class UkOverviewDataSynchroniserTest {
 
             coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
@@ -162,7 +162,7 @@ class UkOverviewDataSynchroniserTest {
 
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now
             )
@@ -171,7 +171,7 @@ class UkOverviewDataSynchroniserTest {
 
             coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns false
 
             sut.performSync()
@@ -187,7 +187,7 @@ class UkOverviewDataSynchroniserTest {
 
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = now.minusDays(1),
                 lastSyncTime = now.minusHours(1)
             )
@@ -198,7 +198,7 @@ class UkOverviewDataSynchroniserTest {
 
             coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } throws error
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
@@ -214,7 +214,7 @@ class UkOverviewDataSynchroniserTest {
 
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now
             )
@@ -227,7 +227,7 @@ class UkOverviewDataSynchroniserTest {
                 ResponseBody.create(MediaType.get("application/json"), "")
             )
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
@@ -242,7 +242,7 @@ class UkOverviewDataSynchroniserTest {
 
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now
             )
@@ -252,7 +252,7 @@ class UkOverviewDataSynchroniserTest {
 
             coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
@@ -269,7 +269,7 @@ class UkOverviewDataSynchroniserTest {
 
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
             val metadata = MetadataEntity(
-                id = MetaDataHelper.ukOverviewKey(),
+                id = MetaDataIds.ukOverviewId(),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusHours(1)
             )
@@ -301,7 +301,7 @@ class UkOverviewDataSynchroniserTest {
 
             appDatabase.mockTransaction()
 
-            every { metadataDao.metadata(MetaDataHelper.ukOverviewKey()) } returns metadata
+            every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { metadataDao.insert(any()) } just Runs
             every { areaDataDao.insertAll(any()) } just Runs
 
@@ -310,7 +310,7 @@ class UkOverviewDataSynchroniserTest {
             verify(exactly = 1) {
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetaDataHelper.ukOverviewKey(),
+                        id = MetaDataIds.ukOverviewId(),
                         lastUpdatedAt = syncTime,
                         lastSyncTime = syncTime
                     )

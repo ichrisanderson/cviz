@@ -108,7 +108,7 @@ class AreaViewModel @ViewModelInject constructor(
             }.onSuccess { areaDetail ->
                 areaDetail.collect {
                     val now = LocalDateTime.now()
-                    if (it.lastSyncedAt == null || it.lastSyncedAt.plusHours(1).isBefore(now)) {
+                    if (it.lastSyncedAt == null || it.lastSyncedAt.plusMinutes(5).isBefore(now)) {
                         syncAreaCases(it)
                     } else {
                         _isLoading.postValue(false)
