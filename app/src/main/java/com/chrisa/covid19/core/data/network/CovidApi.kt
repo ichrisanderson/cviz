@@ -18,14 +18,14 @@ package com.chrisa.covid19.core.data.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.time.LocalDate
+import java.time.LocalDateTime
 import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Query
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 interface CovidApi {
     @Headers(

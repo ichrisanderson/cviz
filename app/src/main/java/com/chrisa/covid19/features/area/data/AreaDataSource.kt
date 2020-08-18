@@ -29,12 +29,12 @@ import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import retrofit2.Response
 import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import retrofit2.Response
 
 class AreaDataSource @Inject constructor(
     private val appDatabase: AppDatabase,
