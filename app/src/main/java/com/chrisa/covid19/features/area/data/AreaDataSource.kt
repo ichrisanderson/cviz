@@ -29,12 +29,12 @@ import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
-import java.io.IOException
-import java.time.LocalDateTime
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.Response
+import java.io.IOException
+import java.time.LocalDateTime
+import javax.inject.Inject
 
 class AreaDataSource @Inject constructor(
     private val appDatabase: AppDatabase,
@@ -66,9 +66,7 @@ class AreaDataSource @Inject constructor(
 
     suspend fun syncAreaData(areaCode: String, areaType: String) {
 
-        val filter = "areaCode=$areaCode;areaType=$areaType"
-
-        val casesFromNetwork = getResponse(areaType, filter)
+        val casesFromNetwork = getResponse(areaCode, areaType)
 
         if (casesFromNetwork.isSuccessful) {
             val pagedAreaCodeData = casesFromNetwork.body()!!
@@ -84,13 +82,26 @@ class AreaDataSource @Inject constructor(
     }
 
     private suspend fun getResponse(
-        areaType: String,
-        filter: String
+        areaCode: String,
+        areaType: String
     ): Response<Page<AreaDataModel>> {
+        val filter = CovidApi.AREA_DATA_FILTER(areaCode, areaType)
         return when (areaType) {
-            "overview" -> covidApi.pagedAreaCodeDataByPublishDateResponse(filter)
-            "nation" -> covidApi.pagedAreaCodeDataByPublishDateResponse(filter)
-            else -> covidApi.pagedAreaCodeDataBySpeciminDateResponse(filter)
+            "overview" -> covidApi.pagedAreaDataResponse(
+                modifiedDate = null,
+                filters = filter,
+                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+            )
+            "nation" -> covidApi.pagedAreaDataResponse(
+                modifiedDate = null,
+                filters = filter,
+                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+            )
+            else -> covidApi.pagedAreaDataResponse(
+                modifiedDate = null,
+                filters = filter,
+                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
+            )
         }
     }
 

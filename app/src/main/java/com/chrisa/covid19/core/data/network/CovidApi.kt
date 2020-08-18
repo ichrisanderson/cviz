@@ -18,13 +18,14 @@ package com.chrisa.covid19.core.data.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDate
-import java.time.LocalDateTime
+import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Query
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 interface CovidApi {
     @Headers(
@@ -32,32 +33,57 @@ interface CovidApi {
         "Accept: application/json",
         "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
     )
-    @GET("v1/lookup?filters=areaType=nation%257CareaType=region%257CareaType=utla%257CareaType=ltla&structure=%7B%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22areaType%22:%22areaType%22%7D")
-    suspend fun pagedAreaResponse(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaModel>>
+    @GET("v1/lookup")
+    suspend fun pagedAreaResponse(
+        @Header("If-Modified-Since") modifiedDate: String? = null,
+        @Query(encoded = true, value = "filters") filters: String = AREA_FILTER,
+        @Query(value = "structure") areaDataModelStructure: String = AREA_MODEL_STRUCTURE
+    ): Response<Page<AreaModel>>
 
     @Headers(
         "Content-Type: application/json;charset=utf-8",
         "Accept: application/json",
         "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
     )
-    @GET("v1/data?filters=areaType=overview&structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cmlCases%22:%22cumCasesByPublishDate%22,%22infectionRate%22:%22cumCasesByPublishDateRate%22%7D&format=json")
-    suspend fun pagedUkOverviewAreaDataResponse(@Header("If-Modified-Since") modifiedDate: String): Response<Page<AreaDataModel>>
+    @GET("v1/data")
+    suspend fun pagedAreaDataResponse(
+        @Header("If-Modified-Since") modifiedDate: String? = null,
+        @Query(encoded = true, value = "filters") filters: String,
+        @Query(value = "structure") areaDataModelStructure: String
+    ): Response<Page<AreaDataModel>>
 
-    @Headers(
-        "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json",
-        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
-    )
-    @GET("v1/data?structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesByPublishDate%22,%22cmlCases%22:%22cumCasesByPublishDate%22,%22infectionRate%22:%22cumCasesByPublishDateRate%22%7D&format=json")
-    suspend fun pagedAreaCodeDataByPublishDateResponse(@Query(encoded = true, value = "filters") filters: String): Response<Page<AreaDataModel>>
+    companion object {
 
-    @Headers(
-        "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json",
-        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
-    )
-    @GET("v1/data?structure=%7B%22areaType%22:%22areaType%22,%22areaName%22:%22areaName%22,%22areaCode%22:%22areaCode%22,%22date%22:%22date%22,%22newCases%22:%22newCasesBySpecimenDate%22,%22cmlCases%22:%22cumCasesBySpecimenDate%22,%22infectionRate%22:%22cumCasesBySpecimenDateRate%22%7D&format=json")
-    suspend fun pagedAreaCodeDataBySpeciminDateResponse(@Query(encoded = true, value = "filters") filters: String): Response<Page<AreaDataModel>>
+        val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"
+        fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
+        fun DAILY_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
+
+        val AREA_MODEL_STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+        }.toString()
+
+        val AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+            put("date", "date")
+            put("newCases", "newCasesByPublishDate")
+            put("cmlCases", "cumCasesByPublishDate")
+            put("infRate", "cumCasesByPublishDateRate")
+        }.toString()
+
+        val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+            put("date", "date")
+            put("newCases", "newCasesBySpecimenDate")
+            put("cmlCases", "cumCasesBySpecimenDate")
+            put("infRate", "cumCasesBySpecimenDateRate")
+        }.toString()
+    }
 }
 
 @JsonClass(generateAdapter = true)
@@ -83,6 +109,7 @@ data class AreaDataModel(
     val newCases: Int?,
     @Json(name = "cmlCases")
     val cumulativeCases: Int?,
+    @Json(name = "infRate")
     val infectionRate: Double?
 )
 

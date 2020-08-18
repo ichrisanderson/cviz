@@ -19,15 +19,16 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.core.util.NetworkUtils
+import timber.log.Timber
 import java.time.LocalDateTime
 import javax.inject.Inject
-import timber.log.Timber
 
 class UkOverviewDataSynchroniser @Inject constructor(
     private val networkUtils: NetworkUtils,
@@ -47,9 +48,12 @@ class UkOverviewDataSynchroniser @Inject constructor(
         if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
             return
         }
+
         runCatching {
-            api.pagedUkOverviewAreaDataResponse(
-                areaMetadata.lastUpdatedAt.formatAsGmt()
+            api.pagedAreaDataResponse(
+                modifiedDate = areaMetadata.lastUpdatedAt.formatAsGmt(),
+                filters = CovidApi.AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
             )
         }.onSuccess { areasResponse ->
             if (areasResponse.isSuccessful) {
