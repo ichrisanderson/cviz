@@ -22,6 +22,8 @@ import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AREA_DATA_FILTER
+import com.chrisa.covid19.core.data.network.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
@@ -52,8 +54,8 @@ class UkOverviewDataSynchroniser @Inject constructor(
         runCatching {
             api.pagedAreaDataResponse(
                 modifiedDate = areaMetadata.lastUpdatedAt.formatAsGmt(),
-                filters = CovidApi.AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
-                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                filters = AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                areaDataModelStructure = AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
             )
         }.onSuccess { areasResponse ->
             if (areasResponse.isSuccessful) {

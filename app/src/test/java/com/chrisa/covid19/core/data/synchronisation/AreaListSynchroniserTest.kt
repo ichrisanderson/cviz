@@ -22,6 +22,8 @@ import com.chrisa.covid19.core.data.db.AreaEntity
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AREA_FILTER
+import com.chrisa.covid19.core.data.network.AREA_MODEL_STRUCTURE
 import com.chrisa.covid19.core.data.network.AreaModel
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
@@ -36,8 +38,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
-import java.io.IOException
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -47,6 +47,8 @@ import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
 import timber.log.Timber
+import java.io.IOException
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class AreaListSynchroniserTest {
@@ -77,7 +79,7 @@ class AreaListSynchroniserTest {
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(any()) }
+            coVerify(exactly = 0) { covidApi.pagedAreaResponse(any(), any(), any()) }
         }
 
     @Test
@@ -85,7 +87,6 @@ class AreaListSynchroniserTest {
         testDispatcher.runBlockingTest {
 
             val now = LocalDateTime.now()
-
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
                 lastUpdatedAt = now.minusMinutes(1),
@@ -96,14 +97,26 @@ class AreaListSynchroniserTest {
                 .plusHours(1)
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -122,14 +135,26 @@ class AreaListSynchroniserTest {
                 .plusHours(1)
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -145,14 +170,26 @@ class AreaListSynchroniserTest {
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 1) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 1) {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -168,14 +205,26 @@ class AreaListSynchroniserTest {
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns false
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -195,7 +244,13 @@ class AreaListSynchroniserTest {
 
             val error = IOException()
 
-            coEvery { covidApi.pagedAreaResponse(date) } throws error
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } throws error
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
@@ -221,7 +276,13 @@ class AreaListSynchroniserTest {
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.error(
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } returns Response.error(
                 404,
                 ResponseBody.create(MediaType.get("application/json"), "")
             )
@@ -249,7 +310,13 @@ class AreaListSynchroniserTest {
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
@@ -289,7 +356,13 @@ class AreaListSynchroniserTest {
                 .formatAsGmt()
 
             every { LocalDateTime.now() } returns syncTime
-            coEvery { covidApi.pagedAreaResponse(date) } returns Response.success(pageModel)
+            coEvery {
+                covidApi.pagedAreaResponse(
+                    date,
+                    AREA_FILTER,
+                    AREA_MODEL_STRUCTURE
+                )
+            } returns Response.success(pageModel)
             every { networkUtils.hasNetworkConnection() } returns true
 
             appDatabase.mockTransaction()

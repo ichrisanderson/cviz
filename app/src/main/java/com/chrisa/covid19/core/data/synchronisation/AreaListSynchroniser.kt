@@ -21,6 +21,8 @@ import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaEntity
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AREA_FILTER
+import com.chrisa.covid19.core.data.network.AREA_MODEL_STRUCTURE
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
@@ -48,7 +50,11 @@ class AreaListSynchroniser @Inject constructor(
             return
         }
         runCatching {
-            api.pagedAreaResponse(areaMetadata.lastUpdatedAt.formatAsGmt())
+            api.pagedAreaResponse(
+                areaMetadata.lastUpdatedAt.formatAsGmt(),
+                AREA_FILTER,
+                AREA_MODEL_STRUCTURE
+            )
         }.onSuccess { areasResponse ->
             if (areasResponse.isSuccessful) {
                 val lastModified = areasResponse.headers().get("Last-Modified")

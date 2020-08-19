@@ -19,9 +19,12 @@ package com.chrisa.covid19.core.data.synchronisation
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AREA_DATA_FILTER
+import com.chrisa.covid19.core.data.network.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
 import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
@@ -36,9 +39,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
-import java.io.IOException
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -48,6 +48,9 @@ import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
 import timber.log.Timber
+import java.io.IOException
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class UkOverviewDataSynchroniserTest {
@@ -78,7 +81,13 @@ class UkOverviewDataSynchroniserTest {
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedUkOverviewAreaDataResponse(any()) }
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaDataResponse(
+                    any(),
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -97,14 +106,26 @@ class UkOverviewDataSynchroniserTest {
                 .plusHours(1)
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedUkOverviewAreaDataResponse(date) }
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -123,14 +144,26 @@ class UkOverviewDataSynchroniserTest {
                 .plusHours(1)
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedAreaResponse(date) }
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -146,14 +179,26 @@ class UkOverviewDataSynchroniserTest {
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
             sut.performSync()
 
-            coVerify(exactly = 1) { covidApi.pagedUkOverviewAreaDataResponse(date) }
+            coVerify(exactly = 1) {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -169,14 +214,26 @@ class UkOverviewDataSynchroniserTest {
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns false
 
             sut.performSync()
 
-            coVerify(exactly = 0) { covidApi.pagedUkOverviewAreaDataResponse(date) }
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            }
         }
 
     @Test
@@ -196,7 +253,13 @@ class UkOverviewDataSynchroniserTest {
 
             val error = IOException()
 
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } throws error
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } throws error
 
             every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
@@ -222,7 +285,13 @@ class UkOverviewDataSynchroniserTest {
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.error(
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } returns Response.error(
                 404,
                 ResponseBody.create(MediaType.get("application/json"), "")
             )
@@ -250,7 +319,13 @@ class UkOverviewDataSynchroniserTest {
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
 
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(null)
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } returns Response.success(null)
 
             every { metadataDao.metadata(MetaDataIds.ukOverviewId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
@@ -294,9 +369,14 @@ class UkOverviewDataSynchroniserTest {
                 .formatAsGmt()
 
             every { LocalDateTime.now() } returns syncTime
-            coEvery { covidApi.pagedUkOverviewAreaDataResponse(date) } returns Response.success(
-                pageModel
-            )
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    date,
+                    AREA_DATA_FILTER(Constants.UK_AREA_CODE, "overview"),
+                    AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                )
+            } returns Response.success(pageModel)
+
             every { networkUtils.hasNetworkConnection() } returns true
 
             appDatabase.mockTransaction()

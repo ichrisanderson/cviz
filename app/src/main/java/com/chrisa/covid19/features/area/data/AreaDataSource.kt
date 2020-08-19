@@ -21,6 +21,9 @@ import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AREA_DATA_FILTER
+import com.chrisa.covid19.core.data.network.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+import com.chrisa.covid19.core.data.network.AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
 import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
@@ -85,22 +88,22 @@ class AreaDataSource @Inject constructor(
         areaCode: String,
         areaType: String
     ): Response<Page<AreaDataModel>> {
-        val filter = CovidApi.AREA_DATA_FILTER(areaCode, areaType)
+        val filter = AREA_DATA_FILTER(areaCode, areaType)
         return when (areaType) {
             "overview" -> covidApi.pagedAreaDataResponse(
                 modifiedDate = null,
                 filters = filter,
-                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                areaDataModelStructure = AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
             )
             "nation" -> covidApi.pagedAreaDataResponse(
                 modifiedDate = null,
                 filters = filter,
-                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+                areaDataModelStructure = AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
             )
             else -> covidApi.pagedAreaDataResponse(
                 modifiedDate = null,
                 filters = filter,
-                areaDataModelStructure = CovidApi.AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
+                areaDataModelStructure = AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
             )
         }
     }

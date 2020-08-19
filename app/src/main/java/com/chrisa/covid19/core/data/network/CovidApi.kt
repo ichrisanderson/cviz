@@ -35,9 +35,9 @@ interface CovidApi {
     )
     @GET("v1/lookup")
     suspend fun pagedAreaResponse(
-        @Header("If-Modified-Since") modifiedDate: String? = null,
-        @Query(encoded = true, value = "filters") filters: String = AREA_FILTER,
-        @Query(value = "structure") areaDataModelStructure: String = AREA_MODEL_STRUCTURE
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @Query(encoded = true, value = "filters") filters: String,
+        @Query(value = "structure") areaDataModelStructure: String
     ): Response<Page<AreaModel>>
 
     @Headers(
@@ -47,44 +47,41 @@ interface CovidApi {
     )
     @GET("v1/data")
     suspend fun pagedAreaDataResponse(
-        @Header("If-Modified-Since") modifiedDate: String? = null,
+        @Header("If-Modified-Since") modifiedDate: String?,
         @Query(encoded = true, value = "filters") filters: String,
         @Query(value = "structure") areaDataModelStructure: String
     ): Response<Page<AreaDataModel>>
-
-    companion object {
-
-        val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"
-        fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
-        fun DAILY_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
-
-        val AREA_MODEL_STRUCTURE = JSONObject().apply {
-            put("areaCode", "areaCode")
-            put("areaName", "areaName")
-            put("areaType", "areaType")
-        }.toString()
-
-        val AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE = JSONObject().apply {
-            put("areaCode", "areaCode")
-            put("areaName", "areaName")
-            put("areaType", "areaType")
-            put("date", "date")
-            put("newCases", "newCasesByPublishDate")
-            put("cmlCases", "cumCasesByPublishDate")
-            put("infRate", "cumCasesByPublishDateRate")
-        }.toString()
-
-        val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
-            put("areaCode", "areaCode")
-            put("areaName", "areaName")
-            put("areaType", "areaType")
-            put("date", "date")
-            put("newCases", "newCasesBySpecimenDate")
-            put("cmlCases", "cumCasesBySpecimenDate")
-            put("infRate", "cumCasesBySpecimenDateRate")
-        }.toString()
-    }
 }
+
+val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"
+fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
+fun DAILY_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
+
+val AREA_MODEL_STRUCTURE = JSONObject().apply {
+    put("areaCode", "areaCode")
+    put("areaName", "areaName")
+    put("areaType", "areaType")
+}.toString()
+
+val AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE = JSONObject().apply {
+    put("areaCode", "areaCode")
+    put("areaName", "areaName")
+    put("areaType", "areaType")
+    put("date", "date")
+    put("newCases", "newCasesByPublishDate")
+    put("cmlCases", "cumCasesByPublishDate")
+    put("infRate", "cumCasesByPublishDateRate")
+}.toString()
+
+val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
+    put("areaCode", "areaCode")
+    put("areaName", "areaName")
+    put("areaType", "areaType")
+    put("date", "date")
+    put("newCases", "newCasesBySpecimenDate")
+    put("cmlCases", "cumCasesBySpecimenDate")
+    put("infRate", "cumCasesBySpecimenDateRate")
+}.toString()
 
 @JsonClass(generateAdapter = true)
 data class Page<T>(
