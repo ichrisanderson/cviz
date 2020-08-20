@@ -21,6 +21,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
+import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
