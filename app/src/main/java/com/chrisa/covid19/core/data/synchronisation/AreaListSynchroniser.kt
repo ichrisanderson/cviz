@@ -49,6 +49,7 @@ class AreaListSynchroniser @Inject constructor(
         if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
             return
         }
+
         runCatching {
             api.pagedAreaResponse(
                 areaMetadata.lastUpdatedAt.formatAsGmt(),

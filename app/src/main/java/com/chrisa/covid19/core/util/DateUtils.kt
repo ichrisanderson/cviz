@@ -17,6 +17,7 @@
 package com.chrisa.covid19.core.util
 
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -27,6 +28,7 @@ import java.util.TimeZone
 
 object DateUtils {
     const val RFC_1123_DATE_TIME = "EEE, dd MMM yyyy HH:mm:ss z"
+    const val ISO_8601_DATE = "yyyy-MM-dd"
 
     fun Date.addHours(hours: Int): Date {
         val calendar = Calendar.getInstance()
@@ -55,6 +57,13 @@ object DateUtils {
 
         return this.format(formatter)
     }
+
+    fun LocalDate.formatAsIso8601(): String {
+        val formatter = DateTimeFormatter
+            .ofPattern(ISO_8601_DATE)
+        return this.format(formatter)
+    }
+
     fun String.toGmtDateTime(): LocalDateTime {
 
         val formatter = DateTimeFormatter

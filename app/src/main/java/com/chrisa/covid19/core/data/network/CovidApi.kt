@@ -55,7 +55,7 @@ interface CovidApi {
 
 val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
-fun DAILY_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
+fun DAILY_AREA_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
 
 val AREA_MODEL_STRUCTURE = JSONObject().apply {
     put("areaCode", "areaCode")

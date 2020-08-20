@@ -23,18 +23,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.startup.domain.BootstrapDataUseCase
-import com.chrisa.covid19.features.startup.domain.ClearNonSavedAreaCacheDataUseCase
 import com.chrisa.covid19.features.startup.domain.SynchroniseAreasUseCase
 import com.chrisa.covid19.features.startup.domain.SynchroniseOverviewDataUseCase
+import com.chrisa.covid19.features.startup.domain.SynchroniseSnapshotDataUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class StartupViewModel @ViewModelInject constructor(
     private val bootstrapDataUseCase: BootstrapDataUseCase,
-    private val clearNonSavedAreaCacheDataUseCase: ClearNonSavedAreaCacheDataUseCase,
     private val synchroniseAreasUseCase: SynchroniseAreasUseCase,
     private val synchroniseOverviewDataUseCase: SynchroniseOverviewDataUseCase,
+    private val synchroniseSnapshotDataUseCase: SynchroniseSnapshotDataUseCase,
     dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
@@ -47,16 +47,10 @@ class StartupViewModel @ViewModelInject constructor(
     init {
         viewModelScope.launch(dispatchers.io) {
             _startupState.postValue(StartupState.Loading)
-            clearNonSavedAreaCacheData()
             boostrapData()
             triggerDataRefresh()
             _startupState.postValue(StartupState.Success)
         }
-    }
-
-    private suspend fun clearNonSavedAreaCacheData() {
-        // TODO: Error handling
-        clearNonSavedAreaCacheDataUseCase.execute()
     }
 
     private suspend fun boostrapData() {
@@ -68,6 +62,7 @@ class StartupViewModel @ViewModelInject constructor(
         // TODO: Synchronize data for saved areas
         synchroniseAreasUseCase.execute(syncScope)
         synchroniseOverviewDataUseCase.execute(syncScope)
+        synchroniseSnapshotDataUseCase.execute(syncScope)
     }
 }
 

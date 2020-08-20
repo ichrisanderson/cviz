@@ -30,7 +30,7 @@ class StartupDataSource @Inject constructor(
             val ukOverviewCode = listOf(Constants.UK_AREA_CODE)
             val nonAreaMetadataIds = listOf(MetaDataIds.areaListId(), MetaDataIds.ukOverviewId())
             val savedAreas = appDatabase.savedAreaDao().all()
-            deteleNonSavedAreaData(ukOverviewCode, savedAreas.map { it.areaCode })
+            deleteNonSavedAreaData(ukOverviewCode, savedAreas.map { it.areaCode })
             deleteNonSavedMetadata(
                 nonAreaMetadataIds,
                 savedAreas.map { MetaDataIds.areaCodeId(it.areaCode) })
@@ -43,7 +43,7 @@ class StartupDataSource @Inject constructor(
     ) = appDatabase.metadataDao()
         .deleteAllNotInIds(nonAreaMetadataIds + savedAreaMetadataIds)
 
-    private fun deteleNonSavedAreaData(
+    private fun deleteNonSavedAreaData(
         ukOverviewCode: List<String>,
         savedAreasCodes: List<String>
     ) = appDatabase.areaDataDao()
