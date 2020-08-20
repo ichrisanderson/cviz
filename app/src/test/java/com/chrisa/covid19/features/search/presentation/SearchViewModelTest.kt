@@ -18,7 +18,6 @@ package com.chrisa.covid19.features.search.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
-import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.search.domain.SearchUseCase
 import com.chrisa.covid19.features.search.domain.models.AreaModel
 import com.google.common.truth.Truth.assertThat

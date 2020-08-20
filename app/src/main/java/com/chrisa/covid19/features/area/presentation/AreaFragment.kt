@@ -31,6 +31,7 @@ import com.chrisa.covid19.R
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
+import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
@@ -147,28 +148,25 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     }
 
     private fun observeSyncAreaError() {
-        viewModel.syncAreaError.observe(viewLifecycleOwner, Observer { syncAreaError ->
-            syncAreaError?.let { syncAreaErrorEvent ->
-                val isFatal = syncAreaErrorEvent.consume() ?: false
-                if (isFatal) {
-                    errorAction.setOnClickListener { viewModel.refresh() }
-                    areaError.isVisible = true
-                    Snackbar.make(
-                        areaContent,
-                        getString(R.string.sync_error_message),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                } else {
-                    Snackbar.make(
-                        areaContent,
-                        getString(R.string.sync_error_message),
-                        Snackbar.LENGTH_SHORT
-                    )
-                        .setAction(R.string.retry) {
-                            viewModel.refresh()
-                        }
-                        .show()
-                }
+        viewModel.syncAreaError.observe(viewLifecycleOwner, EventObserver { isFatal ->
+            if (isFatal) {
+                errorAction.setOnClickListener { viewModel.refresh() }
+                areaError.isVisible = true
+                Snackbar.make(
+                    areaContent,
+                    getString(R.string.sync_error_message),
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            } else {
+                Snackbar.make(
+                    areaContent,
+                    getString(R.string.sync_error_message),
+                    Snackbar.LENGTH_SHORT
+                )
+                    .setAction(R.string.retry) {
+                        viewModel.refresh()
+                    }
+                    .show()
             }
         })
     }

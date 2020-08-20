@@ -53,6 +53,20 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
+                srcDir 'src/external/java'
+            }
+        }
+        test {
+            java {
+                srcDir 'src/test/java'
+                srcDir 'src/externalTest/java'
+            }
+        }
+    }
 }
 
 kapt {

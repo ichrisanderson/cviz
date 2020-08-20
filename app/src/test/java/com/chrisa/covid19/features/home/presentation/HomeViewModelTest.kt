@@ -18,7 +18,6 @@ package com.chrisa.covid19.features.home.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
-import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkData

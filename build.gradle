@@ -78,14 +78,19 @@ subprojects {
     apply plugin: "org.jlleitschuh.gradle.ktlint"
 
     String[] copiedKotlinFiles = [
-        "FlowAssert"
     ].collect { "**/*${it}.kt" } as String[]
 
     spotless {
         kotlin {
             target '**/*.kt'
             ktlint(versions.ktlint)
-            targetExclude (copiedKotlinFiles)
+            targetExclude (
+                copiedKotlinFiles,
+                '**/src/external/**/*.java',
+                '**/src/external/**/*.kt',
+                '**/src/externalTest/**/*.java',
+                '**/src/externalTest/**/*.kt'
+            )
             licenseHeaderFile project.rootProject.file('scripts/copyright.kt')
         }
     }

@@ -18,7 +18,6 @@ package com.chrisa.covid19.features.startup.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
-import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.startup.domain.BootstrapDataUseCase
 import com.chrisa.covid19.features.startup.domain.ClearNonSavedAreaCacheDataUseCase
 import com.chrisa.covid19.features.startup.domain.SynchroniseAreasUseCase

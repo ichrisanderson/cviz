@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.chrisa.covid19.core.util
+package com.squareup.sqldelight.runtime.coroutines
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -31,7 +31,11 @@ suspend fun <T> Flow<T>.test(timeoutMs: Long = 1000L, validate: suspend FlowAsse
         val collectJob = launch {
             val terminalEvent = try {
                 collect { item ->
-                    events.send(Event.Item(item))
+                    events.send(
+                        Event.Item(
+                            item
+                        )
+                    )
                 }
                 Event.Complete
             } catch (_: CancellationException) {
@@ -44,7 +48,11 @@ suspend fun <T> Flow<T>.test(timeoutMs: Long = 1000L, validate: suspend FlowAsse
             }
             events.close()
         }
-        val flowAssert = FlowAssert(events, collectJob, timeoutMs)
+        val flowAssert = FlowAssert(
+            events,
+            collectJob,
+            timeoutMs
+        )
         val ensureConsumed = try {
             flowAssert.validate()
             true
