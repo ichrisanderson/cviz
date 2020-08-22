@@ -17,14 +17,26 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.core.data.synchronisation.UnsafeAreaDataSynchroniser
-import javax.inject.Inject
+import io.mockk.coVerify
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
+import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class SyncAreaDetailUseCase @Inject constructor(
-    private val unsafeAreaDataSynchroniser: UnsafeAreaDataSynchroniser
-) {
-    suspend fun execute(areaCode: String, areaType: String) {
-        return unsafeAreaDataSynchroniser.performSync(areaCode, areaType)
-    }
+class SyncAreaDetailUseCaseTest {
+
+    private val unsafeAreaDataSynchroniser = mockk<UnsafeAreaDataSynchroniser>(relaxed = true)
+    private val sut = SyncAreaDetailUseCase(unsafeAreaDataSynchroniser)
+
+    @Test
+    fun `WHEN execute called THEN performSync is called`() =
+        runBlocking {
+            val areaCode = "1234"
+            val areaType = "overview"
+
+            sut.execute(areaCode, areaType)
+
+            coVerify { unsafeAreaDataSynchroniser.performSync(areaCode, areaType) }
+        }
 }

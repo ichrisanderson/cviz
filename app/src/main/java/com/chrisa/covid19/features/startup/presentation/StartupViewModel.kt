@@ -21,24 +21,23 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chrisa.covid19.DataSyncCoroutineScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.startup.domain.BootstrapDataUseCase
 import com.chrisa.covid19.features.startup.domain.SynchroniseAreasUseCase
 import com.chrisa.covid19.features.startup.domain.SynchroniseOverviewDataUseCase
-import com.chrisa.covid19.features.startup.domain.SynchroniseSnapshotDataUseCase
+import com.chrisa.covid19.features.startup.domain.SynchroniseSavedAreaDataUseCase
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class StartupViewModel @ViewModelInject constructor(
     private val bootstrapDataUseCase: BootstrapDataUseCase,
     private val synchroniseAreasUseCase: SynchroniseAreasUseCase,
     private val synchroniseOverviewDataUseCase: SynchroniseOverviewDataUseCase,
-    private val synchroniseSnapshotDataUseCase: SynchroniseSnapshotDataUseCase,
+    private val synchroniseSavedAreaDataUseCase: SynchroniseSavedAreaDataUseCase,
+    @DataSyncCoroutineScope private val syncScope: CoroutineScope,
     dispatchers: CoroutineDispatchers
 ) : ViewModel() {
-
-    private val syncScope = CoroutineScope(dispatchers.io + Job())
 
     private val _startupState = MutableLiveData<StartupState>()
     val startupState: LiveData<StartupState>
@@ -62,7 +61,7 @@ class StartupViewModel @ViewModelInject constructor(
         // TODO: Synchronize data for saved areas
         synchroniseAreasUseCase.execute(syncScope)
         synchroniseOverviewDataUseCase.execute(syncScope)
-        synchroniseSnapshotDataUseCase.execute(syncScope)
+        synchroniseSavedAreaDataUseCase.execute(syncScope)
     }
 }
 

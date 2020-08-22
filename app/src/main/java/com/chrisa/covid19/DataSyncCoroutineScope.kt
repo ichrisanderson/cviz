@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.startup.domain
+package com.chrisa.covid19
 
-import com.chrisa.covid19.features.startup.data.StartupDataSource
-import javax.inject.Inject
+import javax.inject.Qualifier
 
-class ClearNonSavedAreaCacheDataUseCase @Inject constructor(
-    private val startupDataSource: StartupDataSource
-) {
-    suspend fun execute() {
-        startupDataSource.clearNonSavedAreaDataCache()
-    }
-}
+@Qualifier
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class DataSyncCoroutineScope

@@ -64,6 +64,39 @@ class AreaDaoTest {
         assertThat(count).isEqualTo(1)
     }
 
+    @Test
+    fun `GIVEN areas does not exist WHEN search called THEN an empty list is returned`() {
+        db.areaDao().insertAll(
+            listOf(
+                AreaEntity(
+                    areaCode = "1234",
+                    areaName = "UK",
+                    areaType = "overview"
+                )
+            )
+        )
+
+        val items = db.areaDao().search("London")
+        assertThat(items).isEqualTo(listOf<AreaEntity>())
+    }
+
+    @Test
+    fun `GIVEN areas does exist WHEN search called THEN a list is returned`() {
+
+        val allAreas = listOf(
+            AreaEntity(
+                areaCode = "1234",
+                areaName = "UK",
+                areaType = "overview"
+            )
+        )
+
+        db.areaDao().insertAll(allAreas)
+
+        val items = db.areaDao().search(allAreas.first().areaName)
+        assertThat(items).isEqualTo(allAreas)
+    }
+
     @After
     @Throws(IOException::class)
     fun closeDb() {

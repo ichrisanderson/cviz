@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.core.data.synchronisation.UnsafeAreaDataSynchroniser
+import com.chrisa.covid19.core.data.db.AppDatabase
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import timber.log.Timber
 
-@ExperimentalCoroutinesApi
-class SyncAreaDetailUseCase @Inject constructor(
-    private val unsafeAreaDataSynchroniser: UnsafeAreaDataSynchroniser
+class SavedAreaDataSynchroniser @Inject constructor(
+    private val unsafeAreaDataSynchroniser: UnsafeAreaDataSynchroniser,
+    private val appDatabase: AppDatabase
 ) {
-    suspend fun execute(areaCode: String, areaType: String) {
-        return unsafeAreaDataSynchroniser.performSync(areaCode, areaType)
+
+    suspend fun performSync() {
+        runCatching {
+            val areas = appDatabase.areaDao().allSavedAreas()
+            areas.forEach {
+                unsafeAreaDataSynchroniser.performSync(it.areaCode, it.areaType)
+            }
+        }.onFailure {
+            Timber.e(it, "Error syncing saved areas")
+        }
     }
 }

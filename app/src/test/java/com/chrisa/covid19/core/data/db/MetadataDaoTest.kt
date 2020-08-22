@@ -20,10 +20,12 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.squareup.sqldelight.runtime.coroutines.test
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -95,6 +97,54 @@ class MetadataDaoTest {
         val metadata = db.metadataDao().metadata(METADATA_ID)
         assertThat(metadata).isNull()
     }
+
+    @Test
+    fun `GIVEN metadata data exists WHEN deleteAllNotInIds called THEN metadata with id is not deleted`() {
+
+        val lastUpdated = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        val lastSynced = LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneOffset.UTC)
+
+        val newMetadata = MetadataEntity(
+            id = METADATA_ID,
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
+        )
+
+        val idToRetain = METADATA_ID + "_retained"
+
+        db.metadataDao().insert(newMetadata)
+        db.metadataDao().insert(newMetadata.copy(id = idToRetain))
+
+        assertThat(db.metadataDao().metadata(METADATA_ID)).isNotNull()
+        assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()
+
+        db.metadataDao().deleteAllNotInIds(listOf(idToRetain))
+
+        assertThat(db.metadataDao().metadata(METADATA_ID)).isNull()
+        assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()
+    }
+
+    @Test
+    fun `GIVEN saved area does not exist WHEN insert called THEN new entity is inserted`() =
+        runBlocking {
+
+            val metadataEntity = MetadataEntity(
+                id = "1234",
+                lastSyncTime = LocalDateTime.now(),
+                lastUpdatedAt = LocalDateTime.now()
+            )
+
+            db.metadataDao().metadataAsFlow(metadataEntity.id).test {
+                expectNoEvents()
+
+                assertThat(expectItem()).isEqualTo(null)
+
+                db.metadataDao().insert(metadataEntity)
+                assertThat(expectItem()).isEqualTo(metadataEntity)
+
+                cancel()
+            }
+        }
 
     @After
     @Throws(IOException::class)

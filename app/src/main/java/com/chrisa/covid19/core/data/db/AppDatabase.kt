@@ -91,7 +91,7 @@ class LocalDateTimeConverter {
 }
 
 @Entity(
-    tableName = "areas",
+    tableName = "area",
     primaryKeys = ["areaCode"]
 )
 data class AreaEntity(
@@ -105,20 +105,18 @@ data class AreaEntity(
 
 @Dao
 interface AreaDao {
-    @Query("DELETE FROM areas")
-    fun deleteAll()
 
-    @Query("SELECT COUNT(areaCode) FROM areas")
+    @Query("SELECT COUNT(areaCode) FROM area")
     fun count(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(areas: List<AreaEntity>)
+    fun insertAll(area: List<AreaEntity>)
 
-    @Query("SELECT * FROM areas ORDER BY areaName ASC")
-    fun all(): List<AreaEntity>
-
-    @Query("SELECT * FROM areas WHERE areaName LIKE :areaName ORDER BY areaName ASC")
+    @Query("SELECT * FROM area WHERE areaName LIKE :areaName ORDER BY areaName ASC")
     fun search(areaName: String): List<AreaEntity>
+
+    @Query("SELECT * FROM area INNER JOIN savedArea ON area.areaCode = savedArea.areaCode ORDER BY areaName ASC")
+    fun allSavedAreas(): List<AreaEntity>
 }
 
 @Entity(
@@ -144,12 +142,6 @@ data class AreaDataEntity(
 
 @Dao
 interface AreaDataDao {
-
-    @Query("DELETE FROM areaData")
-    fun deleteAll()
-
-    @Query("DELETE FROM areaData WHERE :areaType = areaType")
-    fun deleteAllByAreaType(areaType: String)
 
     @Query("DELETE FROM areaData WHERE :areaCode = areaCode")
     fun deleteAllByAreaCode(areaCode: String)
@@ -192,9 +184,6 @@ data class MetadataEntity(
 @Dao
 interface MetadataDao {
 
-    @Query("DELETE FROM metadata")
-    fun deleteAll()
-
     @Query("DELETE FROM metadata WHERE id NOT IN (:id)")
     fun deleteAllNotInIds(id: List<String>)
 
@@ -225,9 +214,6 @@ interface SavedAreaDao {
 
     @Delete
     fun delete(savedAreaEntity: SavedAreaEntity): Int
-
-    @Query("DELETE FROM savedArea")
-    fun deleteAll()
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(savedAreaEntity: SavedAreaEntity)

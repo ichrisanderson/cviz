@@ -67,7 +67,7 @@ class AreaViewModelTest {
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Test
-    fun `GIVEN area detail usecase succeeds WHEN viewmodel initialized THEN success state emitted`() =
+    fun `GIVEN area detail succeeds WHEN viewmodel initialized THEN success state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
 
@@ -137,7 +137,7 @@ class AreaViewModelTest {
         }
 
     @Test
-    fun `GIVEN isSaved usecase succeeds WHEN viewmodel initialized THEN saved state is emitted`() =
+    fun `GIVEN isSaved succeeds WHEN viewmodel initialized THEN saved state is emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
 

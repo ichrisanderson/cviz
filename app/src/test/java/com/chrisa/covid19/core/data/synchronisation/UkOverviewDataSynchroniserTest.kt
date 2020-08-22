@@ -312,7 +312,7 @@ class UkOverviewDataSynchroniserTest {
             val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.ukOverviewId(),
-                lastUpdatedAt = now.minusMinutes(1),
+                lastUpdatedAt = now.minusMinutes(61),
                 lastSyncTime = now
             )
 

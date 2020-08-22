@@ -26,10 +26,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 
 @InstallIn(ApplicationComponent::class)
 @Module
 class AppModule {
+
     @Singleton
     @Provides
     fun provideCoroutineDispatchers(): CoroutineDispatchers {
@@ -39,5 +42,11 @@ class AppModule {
     @Provides
     fun assetManager(@ApplicationContext context: Context): AssetManager {
         return context.assets
+    }
+
+    @DataSyncCoroutineScope
+    @Provides
+    fun coroutineScope(dispatchers: CoroutineDispatchers): CoroutineScope {
+        return CoroutineScope(dispatchers.io + Job())
     }
 }

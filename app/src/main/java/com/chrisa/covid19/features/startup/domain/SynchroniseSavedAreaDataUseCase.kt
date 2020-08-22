@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain
+package com.chrisa.covid19.features.startup.domain
 
-import com.chrisa.covid19.core.data.synchronisation.UnsafeAreaDataSynchroniser
+import com.chrisa.covid19.core.data.synchronisation.SavedAreaDataSynchroniser
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-@ExperimentalCoroutinesApi
-class SyncAreaDetailUseCase @Inject constructor(
-    private val unsafeAreaDataSynchroniser: UnsafeAreaDataSynchroniser
+class SynchroniseSavedAreaDataUseCase @Inject constructor(
+    private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser
 ) {
-    suspend fun execute(areaCode: String, areaType: String) {
-        return unsafeAreaDataSynchroniser.performSync(areaCode, areaType)
+    suspend fun execute(syncScope: CoroutineScope) {
+        syncScope.launch {
+            savedAreaDataSynchroniser.performSync()
+        }
     }
 }

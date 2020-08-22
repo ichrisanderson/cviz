@@ -21,8 +21,6 @@ import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
-import com.chrisa.covid19.core.data.network.CovidApi
-import com.chrisa.covid19.core.util.mockTransaction
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
@@ -51,8 +49,7 @@ class AreaDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
-    private val covidApi = mockk<CovidApi>()
-    private val sut = AreaDataSource(appDatabase, covidApi)
+    private val sut = AreaDataSource(appDatabase)
 
     @Test
     fun `GIVEN area is not saved WHEN isSaved called THEN savedState is false`() = runBlockingTest {
@@ -107,10 +104,9 @@ class AreaDataSourceTest {
     }
 
     @Test
-    fun `WHEN loadCaseMetadata called THEN case metadata is returned`() = runBlocking {
+    fun `WHEN loadAreaMetadata called THEN area metadata is returned`() = runBlocking {
 
         val areaCode = "1234"
-        val areaType = "utla"
 
         val now = LocalDateTime.now()
         val metadataDTO = MetadataEntity(
@@ -125,7 +121,7 @@ class AreaDataSourceTest {
             appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
         } returns allMetadata.asFlow()
 
-        val metadataFlow = sut.loadAreaMetadata(areaCode, areaType)
+        val metadataFlow = sut.loadAreaMetadata(areaCode)
 
         metadataFlow.collect { metadata ->
             assertThat(metadata).isEqualTo(
@@ -138,7 +134,7 @@ class AreaDataSourceTest {
     }
 
     @Test
-    fun `WHEN loadCases called THEN case data is returned`() = runBlocking {
+    fun `WHEN loadAreaData called THEN area data is returned`() = runBlocking {
 
         val areaData = AreaDataEntity(
             areaCode = "1234",
@@ -149,8 +145,6 @@ class AreaDataSourceTest {
             infectionRate = 122.0,
             newCases = 122
         )
-
-        appDatabase.mockTransaction()
 
         every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
         every { appDatabase.areaDataDao() } returns areaDataDao

@@ -33,7 +33,7 @@ class AreaDetailUseCase @Inject constructor(
 ) {
 
     fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
-        val metadataFlow = areaDataSource.loadAreaMetadata(areaCode, areaType)
+        val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
                 AreaDetailModel(

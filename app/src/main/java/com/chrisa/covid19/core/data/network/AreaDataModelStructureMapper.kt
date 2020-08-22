@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.startup.domain
+package com.chrisa.covid19.core.data.network
 
-import com.chrisa.covid19.core.data.synchronisation.SnapshotDataSynchroniser
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
-class SynchroniseSnapshotDataUseCase @Inject constructor(
-    private val snapshotDataSynchroniser: SnapshotDataSynchroniser
-) {
-    suspend fun execute(syncScope: CoroutineScope) {
-        syncScope.launch {
-            snapshotDataSynchroniser.performSync()
+class AreaDataModelStructureMapper @Inject constructor() {
+    fun mapAreaTypeToDataModel(areaType: String): String {
+        return when (areaType) {
+            "overview", "nation" -> AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+            else -> AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
         }
     }
 }
