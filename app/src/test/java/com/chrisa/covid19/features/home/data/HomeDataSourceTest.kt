@@ -18,8 +18,10 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.google.common.truth.Truth.assertThat
@@ -65,6 +67,46 @@ class HomeDataSourceTest {
                 lastUpdatedAt = metadataEntity.lastUpdatedAt
             ))
         }
+
+    @Test
+    fun `WHEN ukOverview called THEN all cases from uk are returned`() = runBlockingTest {
+
+        val caseEntity = AreaDataEntity(
+            areaCode = "1234",
+            areaName = "London",
+            areaType = "utla",
+            date = LocalDate.ofEpochDay(0),
+            cumulativeCases = 222,
+            infectionRate = 122.0,
+            newCases = 122
+        )
+
+        val allCases = listOf(
+            caseEntity,
+            caseEntity.copy(areaCode = "1111", areaName = "England")
+        )
+        val allCasesFlow = flow { emit(allCases) }
+
+        val allDailyRecordDtos = allCases.map {
+            DailyRecordDto(
+                areaName = it.areaName,
+                dailyLabConfirmedCases = it.newCases,
+                totalLabConfirmedCases = it.cumulativeCases,
+                date = it.date
+            )
+        }
+
+        every {
+            appDatabase.areaDataDao().allByAreaCodeFlow(Constants.UK_AREA_CODE)
+        } returns allCasesFlow
+
+        val emittedItems = mutableListOf<List<DailyRecordDto>>()
+
+        sut.ukOverview().collect { emittedItems.add(it) }
+
+        assertThat(emittedItems.size).isEqualTo(1)
+        assertThat(emittedItems.first()).isEqualTo(allDailyRecordDtos)
+    }
 
     @Test
     fun `WHEN savedAreaCases called THEN all saved areas from database are returned`() = runBlockingTest {

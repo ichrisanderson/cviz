@@ -22,12 +22,10 @@ import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
-import com.chrisa.covid19.core.data.network.AREA_DATA_FILTER
 import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
-import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.NetworkUtils
 import com.chrisa.covid19.core.util.mockTransaction
 import io.mockk.Runs
@@ -38,13 +36,12 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.verify
+import java.io.IOException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
-import okhttp3.MediaType
-import okhttp3.ResponseBody
 import org.junit.Before
 import org.junit.Test
 import retrofit2.Response
@@ -81,7 +78,7 @@ class UnsafeAreaDataSynchroniserTest {
             UnsafeAreaDataSynchroniser(networkUtils, appDatabase, areaDataModelStructureMapper, covidApi)
     }
 
-    @Test
+    @Test(expected = IOException::class)
     fun `GIVEN no internet WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
 
@@ -90,59 +87,6 @@ class UnsafeAreaDataSynchroniserTest {
             sut.performSync(areaCode, areaType)
 
             coVerify(exactly = 0) { covidApi.pagedAreaDataResponse(any(), any(), any()) }
-        }
-
-    @Test
-    fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
-        testDispatcher.runBlockingTest {
-            val emptyBody = ResponseBody.create(MediaType.get("text/plain"), "")
-
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns null
-            coEvery { covidApi.pagedAreaDataResponse(any(), any(), any()) } returns Response.error(
-                500,
-                emptyBody
-            )
-
-            sut.performSync(areaCode, areaType)
-
-            coVerify(exactly = 1) {
-                covidApi.pagedAreaDataResponse(
-                    null,
-                    AREA_DATA_FILTER(areaCode, areaType),
-                    areaDataModel
-                )
-            }
-        }
-
-    @Test
-    fun `GIVEN area metadata WHEN performSync THEN area data is cached`() =
-        testDispatcher.runBlockingTest {
-            val emptyBody = ResponseBody.create(MediaType.get("text/plain"), "")
-
-            val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
-            val lastUpdatedAt = lastSyncedTime.minusDays(1)
-
-            val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = lastUpdatedAt,
-                lastSyncTime = lastSyncedTime
-            )
-
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
-            coEvery { covidApi.pagedAreaDataResponse(any(), any(), any()) } returns Response.error(
-                500,
-                emptyBody
-            )
-
-            sut.performSync(areaCode, areaType)
-
-            coVerify(exactly = 1) {
-                covidApi.pagedAreaDataResponse(
-                    lastUpdatedAt.formatAsGmt(),
-                    AREA_DATA_FILTER(areaCode, areaType),
-                    areaDataModel
-                )
-            }
         }
 
     @Test(expected = NullPointerException::class)

@@ -44,6 +44,29 @@ class AreaDetailUseCaseTest {
     private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper)
 
     @Test
+    fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
+        runBlocking {
+
+            val areaCode = "1234"
+            val areaType = "utla"
+
+            every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
+
+            val areaDetailModelFlow = sut.execute(areaCode, areaType)
+
+            areaDetailModelFlow.collect { areaDetailModel ->
+                assertThat(areaDetailModel).isEqualTo(
+                    AreaDetailModel(
+                        lastUpdatedAt = null,
+                        lastSyncedAt = null,
+                        allCases = emptyList(),
+                        latestCases = emptyList()
+                    )
+                )
+            }
+        }
+
+    @Test
     fun `WHEN execute called THEN area detail contains the latest cases for the area`() =
         runBlocking {
 

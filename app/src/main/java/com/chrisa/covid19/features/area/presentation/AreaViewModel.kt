@@ -106,17 +106,18 @@ class AreaViewModel @ViewModelInject constructor(
             runCatching {
                 areaDetailUseCase.execute(areCode, areaType)
             }.onSuccess { areaDetail ->
-                areaDetail.collect {
+                areaDetail.collect { areaDetailModel ->
                     val now = LocalDateTime.now()
-                    if (it.lastSyncedAt == null || it.lastSyncedAt.plusMinutes(5).isBefore(now)) {
-                        syncAreaCases(it)
+                    if (areaDetailModel.lastSyncedAt == null || areaDetailModel.lastSyncedAt.plusMinutes(5).isBefore(now)) {
+                        syncAreaCases(areaDetailModel)
                     } else {
                         _isLoading.postValue(false)
-                        _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(it))
+                        _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
                     }
                 }
             }.onFailure {
                 _isLoading.postValue(false)
+                _syncAreaError.postValue(Event(true))
             }
         }
     }

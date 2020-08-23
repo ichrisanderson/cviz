@@ -53,17 +53,13 @@ class UnsafeAreaDataSynchroniser @Inject constructor(
             )
         )
 
-        if (casesFromNetwork.isSuccessful) {
-            val pagedAreaCodeData = casesFromNetwork.body()!!
-            val lastModified = casesFromNetwork.headers().get("Last-Modified")
-            cacheAreaData(
-                areaCode,
-                pagedAreaCodeData,
-                lastModified?.toGmtDateTime() ?: LocalDateTime.now()
-            )
-        } else {
-            throw IOException() // For area detail page we need to know when the data fails to load from the network
-        }
+        val pagedAreaCodeData = casesFromNetwork.body()!!
+        val lastModified = casesFromNetwork.headers().get("Last-Modified")
+        cacheAreaData(
+            areaCode,
+            pagedAreaCodeData,
+            lastModified?.toGmtDateTime() ?: LocalDateTime.now()
+        )
     }
 
     private suspend fun cacheAreaData(
