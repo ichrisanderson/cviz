@@ -16,82 +16,101 @@
 
 package com.chrisa.covid19.core.data.network
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 import java.time.LocalDateTime
+import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
+import retrofit2.http.Query
 
 interface CovidApi {
+    @Headers(
+        "Content-Type: application/json;charset=utf-8",
+        "Accept: application/json",
+        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
+    )
+    @GET("v1/lookup")
+    suspend fun pagedAreaResponse(
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @Query(encoded = true, value = "filters") filters: String,
+        @Query(value = "structure") areaDataModelStructure: String
+    ): Response<Page<AreaModel>>
 
     @Headers(
-        "Accept-Encoding: gzip, deflate",
         "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
+        "Accept: application/json",
+        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
     )
-    @GET("downloads/json/coronavirus-cases_latest.json")
-    suspend fun getCases(@Header("If-Modified-Since") modifiedDate: String): Response<CasesModel>
-
-    @Headers(
-        "Accept-Encoding: gzip, deflate",
-        "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json"
-    )
-    @GET("downloads/json/coronavirus-deaths_latest.json")
-    suspend fun getDeaths(@Header("If-Modified-Since") modifiedDate: String): Response<DeathsModel>
+    @GET("v1/data")
+    suspend fun pagedAreaDataResponse(
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @Query(encoded = true, value = "filters") filters: String,
+        @Query(value = "structure") areaDataModelStructure: String
+    ): Response<Page<AreaDataModel>>
 }
 
+val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"
+fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
+fun DAILY_AREA_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
+
+val AREA_MODEL_STRUCTURE = JSONObject().apply {
+    put("areaCode", "areaCode")
+    put("areaName", "areaName")
+    put("areaType", "areaType")
+}.toString()
+
+val AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE = JSONObject().apply {
+    put("areaCode", "areaCode")
+    put("areaName", "areaName")
+    put("areaType", "areaType")
+    put("date", "date")
+    put("newCases", "newCasesByPublishDate")
+    put("cmlCases", "cumCasesByPublishDate")
+    put("infRate", "cumCasesByPublishDateRate")
+}.toString()
+
+val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
+    put("areaCode", "areaCode")
+    put("areaName", "areaName")
+    put("areaType", "areaType")
+    put("date", "date")
+    put("newCases", "newCasesBySpecimenDate")
+    put("cmlCases", "cumCasesBySpecimenDate")
+    put("infRate", "cumCasesBySpecimenDateRate")
+}.toString()
+
 @JsonClass(generateAdapter = true)
-data class CasesModel(
-    val countries: List<CaseModel>,
-    val dailyRecords: DailyRecordModel,
-    val ltlas: List<CaseModel>,
-    val metadata: MetadataModel,
-    val regions: List<CaseModel>,
-    val utlas: List<CaseModel>
+data class Page<T>(
+    val length: Int?,
+    val maxPageLimit: Int?,
+    val data: List<T>
 )
 
 @JsonClass(generateAdapter = true)
-data class DailyRecordModel(
+data class AreaModel(
+    val areaCode: String,
     val areaName: String,
-    val dailyLabConfirmedCases: Int,
-    val totalLabConfirmedCases: Int?
+    val areaType: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AreaDataModel(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val date: LocalDate,
+    val newCases: Int?,
+    @Json(name = "cmlCases")
+    val cumulativeCases: Int?,
+    @Json(name = "infRate")
+    val infectionRate: Double?
 )
 
 @JsonClass(generateAdapter = true)
 data class MetadataModel(
-    val disclaimer: String,
     val lastUpdatedAt: LocalDateTime
-)
-
-@JsonClass(generateAdapter = true)
-data class CaseModel(
-    val areaCode: String,
-    val areaName: String,
-    val changeInDailyCases: Int?,
-    val changeInTotalCases: Int?,
-    val dailyLabConfirmedCases: Int?,
-    val dailyTotalLabConfirmedCasesRate: Double?,
-    val previouslyReportedDailyCases: Int?,
-    val previouslyReportedTotalCases: Int?,
-    val specimenDate: LocalDate,
-    val totalLabConfirmedCases: Int?
-)
-
-@JsonClass(generateAdapter = true)
-data class DeathsModel(
-    val countries: List<DeathModel>,
-    val metadata: MetadataModel,
-    val overview: List<DeathModel>
-)
-
-@JsonClass(generateAdapter = true)
-data class DeathModel(
-    val areaCode: String,
-    val areaName: String,
-    val cumulativeDeaths: Int,
-    val dailyChangeInDeaths: Int?,
-    val reportingDate: LocalDate
 )

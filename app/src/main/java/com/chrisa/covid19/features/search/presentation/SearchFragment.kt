@@ -123,7 +123,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private fun navigateToArea(area: AreaModel) {
         val action =
-            SearchFragmentDirections.searchToArea(areaCode = area.code, areaName = area.name)
+            SearchFragmentDirections.searchToArea(areaCode = area.code, areaName = area.name, areaType = area.type)
         findNavController().navigate(action)
     }
 

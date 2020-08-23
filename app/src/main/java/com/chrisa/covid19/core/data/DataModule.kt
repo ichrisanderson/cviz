@@ -18,9 +18,6 @@ package com.chrisa.covid19.core.data
 
 import android.content.Context
 import com.chrisa.covid19.core.data.db.AppDatabase
-import com.chrisa.covid19.core.data.db.CaseDao
-import com.chrisa.covid19.core.data.db.DailyRecordDao
-import com.chrisa.covid19.core.data.db.DeathDao
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.squareup.moshi.FromJson
@@ -59,7 +56,7 @@ internal object DataModule {
     fun okHttpClient(): OkHttpClient {
 
         val httpLoggingInterceptor = HttpLoggingInterceptor()
-            .setLevel(HttpLoggingInterceptor.Level.HEADERS)
+            .setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val builder = OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)
@@ -73,7 +70,7 @@ internal object DataModule {
         moshi: Moshi
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://coronavirus.data.gov.uk/")
+            .baseUrl("https://api.coronavirus.data.gov.uk/")
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
@@ -94,21 +91,6 @@ internal object DatabaseModule {
         return AppDatabase.buildDatabase(
             context
         )
-    }
-
-    @Provides
-    fun provideCasesDao(appDatabase: AppDatabase): CaseDao {
-        return appDatabase.casesDao()
-    }
-
-    @Provides
-    fun provideDailyRecordsDao(appDatabase: AppDatabase): DailyRecordDao {
-        return appDatabase.dailyRecordsDao()
-    }
-
-    @Provides
-    fun provideDeathsDao(appDatabase: AppDatabase): DeathDao {
-        return appDatabase.deathsDao()
     }
 
     @Provides

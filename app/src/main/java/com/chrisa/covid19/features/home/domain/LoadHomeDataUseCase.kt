@@ -43,14 +43,14 @@ class LoadHomeDataUseCase @Inject constructor(
 ) {
     fun execute(): Flow<HomeScreenDataModel> {
 
-        val metadata = homeDataSource.metadata()
-        val dailyRecords = homeDataSource.dailyRecords("United Kingdom")
+        val metadata = homeDataSource.overviewMetadata()
+        val ukOverview = homeDataSource.ukOverview()
         val savedAreaCases = homeDataSource.savedAreaCases()
 
-        return combine(metadata, dailyRecords, savedAreaCases) { metadata, dailyRecords, cases ->
+        return combine(metadata, ukOverview, savedAreaCases) { metadata, ukOverview, cases ->
             HomeScreenDataModel(
                 savedAreas = savedAreas(cases),
-                latestUkData = latestUkData(dailyRecords, metadata)
+                latestUkData = latestUkData(ukOverview, metadata)
             )
         }
     }
@@ -80,6 +80,7 @@ class LoadHomeDataUseCase @Inject constructor(
                 SavedAreaModel(
                     areaCode = group.key.first,
                     areaName = group.key.second,
+                    areaType = group.value.first().areaType,
                     changeInTotalLabConfirmedCases = weeklyCaseDifference.changeInWeeklyLabConfirmedCases,
                     changeInDailyTotalLabConfirmedCasesRate = weeklyCaseDifference.changeInTotalLabConfirmedCasesRate,
                     dailyTotalLabConfirmedCasesRate = pastTwoWeekCaseBreakdown.weekTwoData.totalLabConfirmedCasesRate,
@@ -90,10 +91,10 @@ class LoadHomeDataUseCase @Inject constructor(
     }
 
     private fun latestUkData(
-        dailyRecords: List<DailyRecordDto>,
+        ukOverview: List<DailyRecordDto>,
         metadata: MetadataDto
     ): LatestUkData {
-        return dailyRecords.takeLast(1).map { dailyRecord ->
+        return ukOverview.takeLast(1).map { dailyRecord ->
             LatestUkData(
                 areaName = dailyRecord.areaName,
                 dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,

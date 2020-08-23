@@ -16,46 +16,82 @@
 
 package com.chrisa.covid19.core.data
 
+import androidx.room.withTransaction
+import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.MetaDataIds
+import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 
 class AssetBootstrapper @Inject constructor(
     private val assetDataSource: AssetDataSource,
-    private val offlineDataSource: OfflineDataSource,
+    private val appDatabase: AppDatabase,
     private val coroutineDispatchers: CoroutineDispatchers
 ) : Bootstrapper {
 
     override suspend fun bootstrapData() {
         return withContext(coroutineDispatchers.io) {
-            val bootstrapCases = async { bootstrapCases() }
-            val bootstrapDeaths = async { bootstrapDeaths() }
-            bootstrapCases.await()
-            bootstrapDeaths.await()
+            val bootstrapAreas = async { bootstrapAreas() }
+            val bootstrapOverview = async { bootstrapOverview() }
+            bootstrapAreas.await()
+            bootstrapOverview.await()
         }
     }
 
-    private fun bootstrapCases() {
-        val casesCount = offlineDataSource.casesCount()
-        if (casesCount > 0) return
-
-        val cases = assetDataSource.getCases()
-        val allCases = cases.countries.union(cases.ltlas).union(cases.utlas).union(cases.regions)
-
-        offlineDataSource.insertCaseMetadata(cases.metadata)
-        offlineDataSource.insertDailyRecord(cases.dailyRecords, cases.metadata.lastUpdatedAt.toLocalDate())
-        offlineDataSource.insertCases(allCases)
+    private suspend fun bootstrapAreas() {
+        val areaCount = appDatabase.areaDao().count()
+        if (areaCount > 0) return
+        val areas = assetDataSource.getAreas()
+        appDatabase.withTransaction {
+            appDatabase.areaDao().insertAll(areas.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = it.areaType
+                )
+            })
+            appDatabase.metadataDao().insert(
+                MetadataEntity(
+                    id = MetaDataIds.areaListId(),
+                    lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
+                    lastSyncTime = LocalDateTime.now()
+                )
+            )
+        }
     }
 
-    private fun bootstrapDeaths() {
-        val deathsCount = offlineDataSource.deathsCount()
-        if (deathsCount > 0) return
+    private suspend fun bootstrapOverview() {
+        val areaCount = appDatabase.areaDataDao().countAllByAreaType("overview")
+        if (areaCount > 0) return
+        val areas = assetDataSource.getOverviewAreaData()
+        appDatabase.withTransaction {
+            appDatabase.areaDataDao().insertAll(areas.map {
+                AreaDataEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = it.areaType,
+                    cumulativeCases = it.cumulativeCases ?: 0,
+                    date = it.date,
+                    newCases = it.newCases ?: 0,
+                    infectionRate = it.infectionRate ?: 0.0
+                )
+            })
+            appDatabase.metadataDao().insert(
+                MetadataEntity(
+                    id = MetaDataIds.ukOverviewId(),
+                    lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
+                    lastSyncTime = LocalDateTime.now()
+                )
+            )
+        }
+    }
 
-        val deaths = assetDataSource.getDeaths()
-        val allDeaths = deaths.countries.union(deaths.overview)
-
-        offlineDataSource.insertDeathMetadata(deaths.metadata)
-        offlineDataSource.insertDeaths(allDeaths)
+    companion object {
+        val BOOTSTRAP_DATA_TIMESTAMP = LocalDateTime.of(2020, 8, 7, 0, 0)
     }
 }

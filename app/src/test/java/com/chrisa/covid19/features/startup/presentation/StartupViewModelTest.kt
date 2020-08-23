@@ -20,18 +20,24 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.startup.domain.BootstrapDataUseCase
-import com.chrisa.covid19.features.startup.domain.SynchronizeCasesUseCase
-import com.chrisa.covid19.features.startup.domain.SynchronizeDeathsUseCase
+import com.chrisa.covid19.features.startup.domain.SynchroniseAreasUseCase
+import com.chrisa.covid19.features.startup.domain.SynchroniseOverviewDataUseCase
+import com.chrisa.covid19.features.startup.domain.SynchroniseSavedAreaDataUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class StartupViewModelTest {
 
     @Rule
@@ -39,9 +45,12 @@ class StartupViewModelTest {
     val liveDataJunitRule = InstantTaskExecutorRule()
 
     private val bootstrapDataUseCase = mockk<BootstrapDataUseCase>()
-    private val synchronizeCasesUseCase = mockk<SynchronizeCasesUseCase>()
-    private val synchronizeDeathsUseCase = mockk<SynchronizeDeathsUseCase>()
+    private val synchroniseAreasUseCase = mockk<SynchroniseAreasUseCase>()
+    private val synchroniseOverviewDataUseCase = mockk<SynchroniseOverviewDataUseCase>()
+    private val synchroniseSavedAreaDataUseCase = mockk<SynchroniseSavedAreaDataUseCase>()
     private val testDispatcher = TestCoroutineDispatcher()
+    private val dispatchers = TestCoroutineDispatchersImpl(testDispatcher)
+    private val dataSyncScope = CoroutineScope(dispatchers.io + Job())
 
     @Test
     fun `GIVEN bootstap succeeds WHEN viewmodel initialized THEN success state emitted`() =
@@ -49,14 +58,17 @@ class StartupViewModelTest {
             pauseDispatcher {
 
                 coEvery { bootstrapDataUseCase.execute() } just Runs
-                coEvery { synchronizeCasesUseCase.execute(any()) } just Runs
-                coEvery { synchronizeDeathsUseCase.execute(any()) } just Runs
+                coEvery { synchroniseAreasUseCase.execute(dataSyncScope) } just Runs
+                coEvery { synchroniseOverviewDataUseCase.execute(dataSyncScope) } just Runs
+                coEvery { synchroniseSavedAreaDataUseCase.execute(dataSyncScope) } just Runs
 
                 val sut = StartupViewModel(
                     bootstrapDataUseCase,
-                    synchronizeCasesUseCase,
-                    synchronizeDeathsUseCase,
-                    TestCoroutineDispatchersImpl(testDispatcher)
+                    synchroniseAreasUseCase,
+                    synchroniseOverviewDataUseCase,
+                    synchroniseSavedAreaDataUseCase,
+                    dataSyncScope,
+                    dispatchers
                 )
 
                 val statesObserver = sut.startupState.test()
@@ -65,6 +77,11 @@ class StartupViewModelTest {
 
                 assertThat(statesObserver.values[0]).isEqualTo(StartupState.Loading)
                 assertThat(statesObserver.values[1]).isEqualTo(StartupState.Success)
+
+                coVerify { bootstrapDataUseCase.execute() }
+                coVerify { synchroniseOverviewDataUseCase.execute(dataSyncScope) }
+                coVerify { synchroniseSavedAreaDataUseCase.execute(dataSyncScope) }
+                coVerify { synchroniseSavedAreaDataUseCase.execute(dataSyncScope) }
             }
         }
 }

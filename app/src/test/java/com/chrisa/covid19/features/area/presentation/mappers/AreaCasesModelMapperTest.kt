@@ -27,11 +27,9 @@ import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import org.junit.Test
@@ -56,8 +54,10 @@ class AreaCasesModelMapperTest {
             )
         )
 
+        val now = LocalDateTime.now()
         val areaDetailModel = AreaDetailModel(
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
+            lastUpdatedAt = now.minusDays(1),
+            lastSyncedAt = now,
             allCases = caseModels,
             latestCases = caseModels.takeLast(7)
         )

@@ -56,6 +56,7 @@ class HomeViewModelTest {
                 val savedArea = SavedAreaModel(
                     areaCode = "UK001",
                     areaName = "England",
+                    areaType = "utla",
                     dailyTotalLabConfirmedCasesRate = 111.0,
                     totalLabConfirmedCases = 22,
                     changeInDailyTotalLabConfirmedCasesRate = 11.0,

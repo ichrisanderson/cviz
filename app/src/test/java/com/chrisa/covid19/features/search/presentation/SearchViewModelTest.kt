@@ -67,7 +67,8 @@ class SearchViewModelTest {
             val area =
                 AreaModel(
                     code = "001",
-                    name = "London"
+                    name = "London",
+                    type = "utla"
                 )
 
             val expectedResults = listOf(area)

@@ -17,7 +17,9 @@
 package com.chrisa.covid19.features.area.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
-import com.chrisa.covid19.core.data.db.CaseEntity
+import com.chrisa.covid19.core.data.db.AreaDataDao
+import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
@@ -29,10 +31,8 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -48,6 +48,7 @@ import org.junit.Test
 class AreaDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
+    private val areaDataDao = mockk<AreaDataDao>()
     private val sut = AreaDataSource(appDatabase)
 
     @Test
@@ -103,58 +104,60 @@ class AreaDataSourceTest {
     }
 
     @Test
-    fun `WHEN loadCaseMetadata called THEN case metadata is returned`() = runBlocking {
+    fun `WHEN loadAreaMetadata called THEN area metadata is returned`() = runBlocking {
 
+        val areaCode = "1234"
+
+        val now = LocalDateTime.now()
         val metadataDTO = MetadataEntity(
-            id = MetadataEntity.CASE_METADATA_ID,
-            disclaimer = "disclaimer",
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            id = MetaDataIds.areaCodeId(areaCode),
+            lastUpdatedAt = now.minusDays(1),
+            lastSyncTime = now
         )
 
         val allMetadata = listOf(metadataDTO)
 
         every {
-            appDatabase.metadataDao().metadataAsFlow(MetadataEntity.CASE_METADATA_ID)
+            appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
         } returns allMetadata.asFlow()
 
-        val metadataFlow = sut.loadCaseMetadata()
+        val metadataFlow = sut.loadAreaMetadata(areaCode)
 
         metadataFlow.collect { metadata ->
             assertThat(metadata).isEqualTo(
                 MetadataDto(
-                    lastUpdatedAt = metadataDTO.lastUpdatedAt
+                    lastUpdatedAt = metadataDTO.lastUpdatedAt,
+                    lastSyncTime = metadataDTO.lastSyncTime
                 )
             )
         }
     }
 
     @Test
-    fun `WHEN loadCases called THEN case data is returned`() = runBlocking {
+    fun `WHEN loadAreaData called THEN area data is returned`() = runBlocking {
 
-        val casesEntity = CaseEntity(
+        val areaData = AreaDataEntity(
             areaCode = "1234",
             areaName = "London",
+            areaType = "utla",
             date = LocalDate.ofEpochDay(0),
-            dailyLabConfirmedCases = 222,
-            dailyTotalLabConfirmedCasesRate = 122.0,
-            totalLabConfirmedCases = 122
+            cumulativeCases = 222,
+            infectionRate = 122.0,
+            newCases = 122
         )
 
-        val allCases = listOf(listOf(casesEntity)).asFlow()
+        every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
+        every { appDatabase.areaDataDao() } returns areaDataDao
 
-        every { appDatabase.casesDao().areaCases(casesEntity.areaCode) } returns allCases
+        val cases = sut.loadAreaData(areaData.areaCode, areaData.areaType)
 
-        val casesFlow = sut.loadCases(casesEntity.areaCode)
-
-        casesFlow.collect { cases ->
-            assertThat(cases.size).isEqualTo(1)
-            assertThat(cases.first()).isEqualTo(
-                CaseDto(
-                    date = casesEntity.date,
-                    dailyLabConfirmedCases = casesEntity.dailyLabConfirmedCases,
-                    totalLabConfirmedCases = casesEntity.totalLabConfirmedCases
-                )
+        assertThat(cases.size).isEqualTo(1)
+        assertThat(cases.first()).isEqualTo(
+            CaseDto(
+                date = areaData.date,
+                dailyLabConfirmedCases = areaData.newCases,
+                totalLabConfirmedCases = areaData.cumulativeCases
             )
-        }
+        )
     }
 }

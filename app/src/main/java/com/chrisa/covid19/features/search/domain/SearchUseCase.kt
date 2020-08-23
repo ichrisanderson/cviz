@@ -25,6 +25,6 @@ class SearchUseCase @Inject constructor(
 ) {
     fun execute(query: String): List<AreaModel> {
         return searchDataSource.searchAreas(query)
-            .map { AreaModel(it.code, it.name) }
+            .map { AreaModel(it.code, it.name, it.type) }
     }
 }

@@ -25,8 +25,8 @@ class SearchDataSource @Inject constructor(
     private val searchQueryTransformer: SearchQueryTransformer
 ) {
     fun searchAreas(query: String): List<AreaDTO> {
-        return appDatabase.casesDao()
-            .allAreas(searchQueryTransformer.transformQuery(query))
-            .map { AreaDTO(it.areaCode, it.areaName) }
+        return appDatabase.areaDao()
+            .search(searchQueryTransformer.transformQuery(query))
+            .map { AreaDTO(it.areaCode, it.areaName, it.areaType) }
     }
 }

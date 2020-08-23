@@ -17,12 +17,10 @@
 package com.chrisa.covid19.features.area.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
-import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
-import com.chrisa.covid19.features.area.data.mappers.CaseEntityMapper.toCaseDto
-import com.chrisa.covid19.features.area.data.mappers.MetadataEntityMapper.toMetadataDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -44,13 +42,27 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadCases(areaCode: String): Flow<List<CaseDto>> {
-        return appDatabase.casesDao()
-            .areaCases(areaCode).map { cases -> cases.map { it.toCaseDto() } }
+    fun loadAreaData(areaCode: String, areaType: String): List<CaseDto> {
+        return appDatabase.areaDataDao().allByAreaCode(areaCode)
+            .map {
+                CaseDto(
+                    dailyLabConfirmedCases = it.newCases,
+                    totalLabConfirmedCases = it.cumulativeCases,
+                    date = it.date
+                )
+            }
     }
 
-    fun loadCaseMetadata(): Flow<MetadataDto> {
+    fun loadAreaMetadata(areaCode: String): Flow<MetadataDto?> {
         return appDatabase.metadataDao()
-            .metadataAsFlow(MetadataEntity.CASE_METADATA_ID).map { it.toMetadataDto() }
+            .metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
+            .map {
+                it?.let {
+                    MetadataDto(
+                        lastUpdatedAt = it.lastUpdatedAt,
+                        lastSyncTime = it.lastSyncTime
+                    )
+                }
+            }
     }
 }

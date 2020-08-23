@@ -21,7 +21,7 @@ import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import java.time.LocalDateTime
 
 data class AreaCasesModel(
-    val lastUpdatedAt: LocalDateTime,
+    val lastUpdatedAt: LocalDateTime?,
     val latestCasesBarChartData: BarChartData,
     val latestCasesRollingAverageLineChartData: LineChartData,
     val allCasesChartData: BarChartData,

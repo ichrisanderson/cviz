@@ -19,8 +19,8 @@ package com.chrisa.covid19.core.data.db
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.chrisa.covid19.core.util.test
 import com.google.common.truth.Truth.assertThat
+import com.squareup.sqldelight.runtime.coroutines.test
 import java.io.IOException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking

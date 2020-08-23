@@ -23,18 +23,19 @@ import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.google.common.truth.Truth.assertThat
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 @InternalCoroutinesApi
 class AreaDetailUseCaseTest {
 
@@ -43,13 +44,39 @@ class AreaDetailUseCaseTest {
     private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper)
 
     @Test
+    fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
+        runBlocking {
+
+            val areaCode = "1234"
+            val areaType = "utla"
+
+            every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
+
+            val areaDetailModelFlow = sut.execute(areaCode, areaType)
+
+            areaDetailModelFlow.collect { areaDetailModel ->
+                assertThat(areaDetailModel).isEqualTo(
+                    AreaDetailModel(
+                        lastUpdatedAt = null,
+                        lastSyncedAt = null,
+                        allCases = emptyList(),
+                        latestCases = emptyList()
+                    )
+                )
+            }
+        }
+
+    @Test
     fun `WHEN execute called THEN area detail contains the latest cases for the area`() =
         runBlocking {
 
             val areaCode = "1234"
+            val areaType = "utla"
 
+            val now = LocalDateTime.now()
             val metadataDTO = MetadataDto(
-                lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+                lastUpdatedAt = now.minusDays(1),
+                lastSyncTime = now
             )
 
             var totalLabConfirmedCases = 0
@@ -63,8 +90,8 @@ class AreaDetailUseCaseTest {
             }
 
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
-            every { areaDataSource.loadCaseMetadata() } returns listOf(metadataDTO).asFlow()
-            every { areaDataSource.loadCases(areaCode) } returns listOf(caseDTOs).asFlow()
+            every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadataDTO).asFlow()
+            coEvery { areaDataSource.loadAreaData(areaCode, areaType) } returns caseDTOs
 
             val caseModels = caseDTOs.map {
                 CaseModel(
@@ -74,12 +101,13 @@ class AreaDetailUseCaseTest {
                 )
             }
 
-            val areaDetailModelFlow = sut.execute(areaCode)
+            val areaDetailModelFlow = sut.execute(areaCode, areaType)
 
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(
                     AreaDetailModel(
                         lastUpdatedAt = metadataDTO.lastUpdatedAt,
+                        lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
                         latestCases = caseModels.takeLast(14)
                     )

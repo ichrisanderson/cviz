@@ -28,12 +28,14 @@ class AreaDiffCallbackTest {
     fun `GIVEN area codes are the same WHEN items are compared THEN areItemsTheSame returns true`() {
 
         val item1 = AreaModel(
-            "001",
-            "London"
+            code = "001",
+            name = "London",
+            type = "utla"
         )
         val item2 = AreaModel(
-            "001",
-            "Birmingham"
+            code = "001",
+            name = "Birmingham",
+            type = "utla"
         )
 
         assertThat(sut.areItemsTheSame(item1, item2)).isEqualTo(true)
@@ -44,11 +46,13 @@ class AreaDiffCallbackTest {
 
         val item1 = AreaModel(
             "001",
-            "London"
+            name = "London",
+            type = "utla"
         )
         val item2 = AreaModel(
             "002",
-            "Birmingham"
+            name = "Birmingham",
+            type = "utla"
         )
 
         assertThat(sut.areItemsTheSame(item1, item2)).isEqualTo(false)
@@ -59,11 +63,13 @@ class AreaDiffCallbackTest {
 
         val item1 = AreaModel(
             "001",
-            "London"
+            name = "London",
+            type = "utla"
         )
         val item2 = AreaModel(
             "001",
-            "London"
+            name = "London",
+            type = "utla"
         )
 
         assertThat(sut.areContentsTheSame(item1, item2)).isEqualTo(true)
@@ -74,11 +80,13 @@ class AreaDiffCallbackTest {
 
         val item1 = AreaModel(
             "001",
-            "London"
+            name = "London",
+            type = "utla"
         )
         val item2 = AreaModel(
             "001",
-            "Birmingham"
+            "Birmingham",
+            type = "utla"
         )
 
         assertThat(sut.areContentsTheSame(item1, item2)).isEqualTo(false)

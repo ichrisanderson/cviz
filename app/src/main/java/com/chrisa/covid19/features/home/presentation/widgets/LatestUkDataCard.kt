@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.home.presentation.widgets
 
 import android.content.Context
 import android.text.format.DateUtils
+import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import android.util.AttributeSet
 import androidx.cardview.widget.CardView
 import com.airbnb.epoxy.ModelProp
@@ -25,6 +26,7 @@ import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.features.home.domain.models.LatestUkData
 import java.text.NumberFormat
+import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.*
 
@@ -41,10 +43,15 @@ class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context
         areaName.text = latestUkData.areaName
 
         val zoneId = ZoneId.of("GMT")
+        val gmtTime = latestUkData.lastUpdated.atZone(zoneId)
+        val now = LocalDateTime.now().atZone(zoneId)
+
         lastUpdated.text = lastUpdated.context.getString(
             R.string.last_updated_date,
             DateUtils.getRelativeTimeSpanString(
-                latestUkData.lastUpdated.atZone(zoneId).toInstant().toEpochMilli()
+                gmtTime.toInstant().toEpochMilli(),
+                now.toInstant().toEpochMilli(),
+                MINUTE_IN_MILLIS
             )
         )
 

@@ -17,14 +17,15 @@
 package com.chrisa.covid19.core.data
 
 import android.content.res.AssetManager
-import com.chrisa.covid19.core.data.TestData.TEST_CASE_MODEL
-import com.chrisa.covid19.core.data.TestData.TEST_DEATH_MODEL
-import com.chrisa.covid19.core.data.network.CasesModel
-import com.chrisa.covid19.core.data.network.DeathsModel
+import com.chrisa.covid19.core.data.network.AreaDataModel
+import com.chrisa.covid19.core.data.network.AreaModel
+import com.chrisa.covid19.core.data.network.Page
 import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
@@ -50,29 +51,57 @@ class AssetDataSourceTest {
     }
 
     @Test
-    fun `GIVEN case model exists WHEN getCases is called THEN case model is returned`() =
+    fun `GIVEN area model exists WHEN getAreas is called THEN area model is returned`() =
         testCoroutineScope.runBlockingTest {
-            val caseModel = TEST_CASE_MODEL
+            val areaModel = AreaModel(
+                areaCode = "1234",
+                areaName = "UK",
+                areaType = "overview"
+            )
 
-            val casesModelAdapter = moshi.adapter(CasesModel::class.java)
-            val testCaseModelJson = casesModelAdapter.toJson(caseModel)
-            every { assetManager.open("coronavirus-cases_latest.json") } returns testCaseModelJson.byteInputStream()
+            val page = Page(
+                length = null,
+                maxPageLimit = null,
+                data = listOf(areaModel)
+            )
 
-            val result = sut.getCases()
-            assertThat(result).isEqualTo(caseModel)
+            val type = Types.newParameterizedType(Page::class.java, AreaModel::class.java)
+            val adapter = moshi.adapter<Page<AreaModel>>(type)
+
+            val modelJson = adapter.toJson(page)
+            every { assetManager.open("areas.json") } returns modelJson.byteInputStream()
+
+            val result = sut.getAreas()
+            assertThat(result).isEqualTo(page.data)
         }
 
     @Test
-    fun `GIVEN deaths model exists WHEN getDeaths is called THEN deaths model is returned`() =
+    fun `GIVEN overview area model exists WHEN getOverviewAreaData is called THEN overview area model is returned`() =
         testCoroutineScope.runBlockingTest {
 
-            val deathsModel = TEST_DEATH_MODEL
+            val areaModel = AreaDataModel(
+                areaCode = "1234",
+                areaName = "UK",
+                areaType = "overview",
+                cumulativeCases = 100,
+                date = LocalDate.now(),
+                newCases = 10,
+                infectionRate = 100.0
+            )
 
-            val deathsModeldapter = moshi.adapter(DeathsModel::class.java)
-            val deathsModelJson = deathsModeldapter.toJson(deathsModel)
-            every { assetManager.open("coronavirus-deaths_latest.json") } returns deathsModelJson.byteInputStream()
+            val page = Page(
+                length = null,
+                maxPageLimit = null,
+                data = listOf(areaModel)
+            )
 
-            val result = sut.getDeaths()
-            assertThat(result).isEqualTo(deathsModel)
+            val type = Types.newParameterizedType(Page::class.java, AreaDataModel::class.java)
+            val adapter = moshi.adapter<Page<AreaDataModel>>(type)
+
+            val modelJson = adapter.toJson(page)
+            every { assetManager.open("overview.json") } returns modelJson.byteInputStream()
+
+            val result = sut.getOverviewAreaData()
+            assertThat(result).isEqualTo(page.data)
         }
 }

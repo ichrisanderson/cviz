@@ -24,35 +24,42 @@ import com.chrisa.covid19.features.area.domain.models.CaseModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
     private val rollingAverageHelper: RollingAverageHelper
 ) {
-    fun execute(areaCode: String): Flow<AreaDetailModel> {
 
-        val metadata = areaDataSource.loadCaseMetadata()
-        val allCases = areaDataSource.loadCases(areaCode)
-
-        return combine(metadata, allCases) { metadata, cases ->
-            val allCases = mapAllCases(cases)
-            AreaDetailModel(
-                lastUpdatedAt = metadata.lastUpdatedAt,
-                allCases = allCases,
-                latestCases = allCases.takeLast(14)
-            )
+    fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
+        val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
+        return metadataFlow.map { metadata ->
+            if (metadata == null) {
+                AreaDetailModel(
+                    lastUpdatedAt = null,
+                    lastSyncedAt = null,
+                    allCases = emptyList(),
+                    latestCases = emptyList()
+                )
+            } else {
+                val areaData = areaDataSource.loadAreaData(areaCode, areaType)
+                val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
+                AreaDetailModel(
+                    lastUpdatedAt = metadata.lastUpdatedAt,
+                    lastSyncedAt = metadata.lastSyncTime,
+                    allCases = allCases,
+                    latestCases = allCases.takeLast(14)
+                )
+            }
         }
     }
 
     private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
         return cases.mapIndexed { index, case ->
-            val previousCase = cases.getOrNull(index - 7)
-            val rollingAverage = rollingAverageHelper.average(case, previousCase)
             CaseModel(
                 dailyLabConfirmedCases = case.dailyLabConfirmedCases,
-                rollingAverage = rollingAverage,
+                rollingAverage = rollingAverageHelper.average(index, cases),
                 date = case.date
             )
         }

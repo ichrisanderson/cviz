@@ -16,111 +16,176 @@
 
 package com.chrisa.covid19.core.data
 
-import com.chrisa.covid19.core.data.network.CasesModel
-import com.chrisa.covid19.core.data.network.DeathsModel
+import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDao
+import com.chrisa.covid19.core.data.db.AreaDataDao
+import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.MetaDataIds
+import com.chrisa.covid19.core.data.db.MetadataDao
+import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.network.AreaDataModel
+import com.chrisa.covid19.core.data.network.AreaModel
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
+import com.chrisa.covid19.core.util.mockTransaction
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import io.mockk.verify
+import java.time.LocalDate
+import java.time.LocalDateTime
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class AssetBootstrapperTest {
 
     private val assetDataSource = mockk<AssetDataSource>(relaxed = true)
-    private val offlineDataSource = mockk<OfflineDataSource>(relaxed = true)
+    private val appDatabase = mockk<AppDatabase>()
+    private val areaDao = mockk<AreaDao>(relaxed = true)
+    private val areaDataDao = mockk<AreaDataDao>(relaxed = true)
+    private val metadataDao = mockk<MetadataDao>(relaxed = true)
     private val testDispatcher = TestCoroutineDispatcher()
     private val testCoroutineScope = TestCoroutineScope(testDispatcher)
-    private val casesModel = mockk<CasesModel>(relaxed = true)
-    private val deathsModel = mockk<DeathsModel>(relaxed = true)
 
     private lateinit var sut: AssetBootstrapper
 
     @Before
     fun setup() {
+        every { appDatabase.areaDao() } returns areaDao
+        every { appDatabase.metadataDao() } returns metadataDao
+        every { appDatabase.areaDataDao() } returns areaDataDao
 
-        coEvery { assetDataSource.getCases() } returns casesModel
-        coEvery { assetDataSource.getDeaths() } returns deathsModel
+        every { areaDataDao.countAllByAreaType(any()) } returns 1
+        every { areaDao.count() } returns 1
 
         sut = AssetBootstrapper(
             assetDataSource,
-            offlineDataSource,
+            appDatabase,
             TestCoroutineDispatchersImpl(testDispatcher)
         )
     }
 
     @Test
-    fun `GIVEN no offline cases WHEN bootstrap data THEN case data is updated`() =
+    fun `GIVEN offline areas WHEN bootstrap data THEN area data is not updated`() =
         testCoroutineScope.runBlockingTest {
 
-            every { offlineDataSource.casesCount() } returns 0
+            every { areaDao.count() } returns 1
 
             sut.bootstrapData()
 
-            val allCases = casesModel.countries.union(casesModel.ltlas).union(casesModel.utlas)
-                .union(casesModel.regions)
+            verify(exactly = 0) {
+                assetDataSource.getAreas()
+            }
+        }
 
-            verify { offlineDataSource.insertCaseMetadata(casesModel.metadata) }
+    @Test
+    fun `GIVEN no offline areas WHEN bootstrap data THEN area data is updated`() =
+        testCoroutineScope.runBlockingTest {
+            mockkStatic(LocalDateTime::class)
+
+            val area = AreaModel(
+                areaCode = "1234",
+                areaName = "UK",
+                areaType = "overview"
+            )
+
+            val date = LocalDateTime.of(2020, 1, 1, 0, 0)
+            val areas = listOf(area)
+
+            appDatabase.mockTransaction()
+
+            coEvery { assetDataSource.getAreas() } returns areas
+            every { areaDao.count() } returns 0
+            every { LocalDateTime.now() } returns date
+
+            sut.bootstrapData()
+
             verify {
-                offlineDataSource.insertDailyRecord(
-                    casesModel.dailyRecords,
-                    casesModel.metadata.lastUpdatedAt.toLocalDate()
+                metadataDao.insert(
+                    MetadataEntity(
+                        id = MetaDataIds.areaListId(),
+                        lastUpdatedAt = AssetBootstrapper.BOOTSTRAP_DATA_TIMESTAMP,
+                        lastSyncTime = date
+                    )
                 )
             }
-            verify { offlineDataSource.insertCases(allCases) }
-        }
-
-    @Test
-    fun `GIVEN offline cases WHEN bootstrap data THEN case data is not updated`() =
-        testCoroutineScope.runBlockingTest {
-
-            every { offlineDataSource.casesCount() } returns 1
-
-            sut.bootstrapData()
-
-            verify(exactly = 0) {
-                offlineDataSource.insertCaseMetadata(any())
-            }
-
-            verify(exactly = 0) {
-                offlineDataSource.insertDailyRecord(any(), any())
-            }
-            verify(exactly = 0) {
-                offlineDataSource.insertCases(any())
+            verify {
+                areaDao.insertAll(areas.map {
+                    AreaEntity(
+                        areaCode = it.areaCode,
+                        areaName = it.areaName,
+                        areaType = it.areaType
+                    )
+                })
             }
         }
 
     @Test
-    fun `GIVEN no offline deaths WHEN bootstrap data THEN offline deaths are updated`() =
+    fun `GIVEN offline area data overview WHEN bootstrap data THEN area data overview is not updated`() =
         testCoroutineScope.runBlockingTest {
 
-            every { offlineDataSource.deathsCount() } returns 0
+            every { areaDataDao.countAllByAreaType("overview") } returns 1
 
             sut.bootstrapData()
 
-            val allDeaths = deathsModel.countries.union(deathsModel.overview)
-
-            verify(exactly = 1) {
-                offlineDataSource.insertDeathMetadata(deathsModel.metadata)
-            }
-            verify(exactly = 1) {
-                offlineDataSource.insertDeaths(allDeaths)
+            verify(exactly = 0) {
+                assetDataSource.getOverviewAreaData()
             }
         }
 
     @Test
-    fun `GIVEN offline deaths WHEN bootstrap data THEN offline deaths not are updated`() =
+    fun `GIVEN no offline area data overview WHEN bootstrap data THEN area data overview is updated`() =
         testCoroutineScope.runBlockingTest {
+            mockkStatic(LocalDateTime::class)
 
-            every { offlineDataSource.deathsCount() } returns 1
+            val area = AreaDataModel(
+                areaCode = "1234",
+                areaName = "UK",
+                areaType = "overview",
+                cumulativeCases = 100,
+                date = LocalDate.now(),
+                infectionRate = 100.0,
+                newCases = 10
+            )
+
+            val date = LocalDateTime.of(2020, 1, 1, 0, 0)
+            val areas = listOf(area)
+
+            appDatabase.mockTransaction()
+
+            coEvery { assetDataSource.getOverviewAreaData() } returns areas
+            every { areaDataDao.countAllByAreaType("overview") } returns 0
+            every { LocalDateTime.now() } returns date
 
             sut.bootstrapData()
 
-            verify(exactly = 0) { offlineDataSource.insertDeathMetadata(any()) }
-            verify(exactly = 0) { offlineDataSource.insertDeaths(any()) }
+            verify {
+                metadataDao.insert(
+                    MetadataEntity(
+                        id = MetaDataIds.ukOverviewId(),
+                        lastUpdatedAt = AssetBootstrapper.BOOTSTRAP_DATA_TIMESTAMP,
+                        lastSyncTime = date
+                    )
+                )
+            }
+            verify {
+                areaDataDao.insertAll(areas.map {
+                    AreaDataEntity(
+                        areaCode = it.areaCode,
+                        areaName = it.areaName,
+                        areaType = it.areaType,
+                        cumulativeCases = it.cumulativeCases!!,
+                        date = it.date,
+                        newCases = it.newCases!!,
+                        infectionRate = it.infectionRate!!
+                    )
+                })
+            }
         }
 }

@@ -19,10 +19,8 @@ package com.chrisa.covid19.core.data.db
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.CASE_METADATA_ID
-import com.chrisa.covid19.core.data.db.MetadataEntity.Companion.DEATH_METADATA_ID
-import com.chrisa.covid19.core.util.test
 import com.google.common.truth.Truth.assertThat
+import com.squareup.sqldelight.runtime.coroutines.test
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDateTime
@@ -52,104 +50,109 @@ class MetadataDaoTest {
     @Test
     fun `GIVEN no metadata exists WHEN insertMetadata called THEN metadata is inserted`() {
 
+        val lastUpdated = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        val lastSynced = LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneOffset.UTC)
+
         val newMetadata = MetadataEntity(
-            id = CASE_METADATA_ID,
-            disclaimer = "New metadata",
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            id = METADATA_ID,
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
         )
 
-        db.metadataDao().insertAll(listOf(newMetadata))
+        db.metadataDao().insert(newMetadata)
 
-        val metadata = db.metadataDao().metadata(CASE_METADATA_ID)
+        val metadata = db.metadataDao().metadata(METADATA_ID)
 
-        assertThat(metadata.size).isEqualTo(1)
-        assertThat(metadata.first()).isEqualTo(newMetadata)
+        assertThat(metadata).isEqualTo(newMetadata)
     }
 
     @Test
     fun `GIVEN metadata exists WHEN insertMetadata called with same metadata is THEN metadata is updated`() {
 
+        val lastUpdated = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        val lastSynced = LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneOffset.UTC)
+
         val oldMetadata = MetadataEntity(
-            id = CASE_METADATA_ID,
-            disclaimer = "Old Metadata",
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            id = METADATA_ID,
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
         )
-        db.metadataDao().insertAll(listOf(oldMetadata))
+        db.metadataDao().insert(oldMetadata)
 
         val newMetadata = MetadataEntity(
-            id = CASE_METADATA_ID,
-            disclaimer = "New metadata",
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+            id = METADATA_ID,
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
         )
 
-        db.metadataDao().insertAll(listOf(newMetadata))
+        db.metadataDao().insert(newMetadata)
 
-        val metadata = db.metadataDao().metadata(CASE_METADATA_ID)
+        val metadata = db.metadataDao().metadata(METADATA_ID)
 
-        assertThat(metadata.size).isEqualTo(1)
-        assertThat(metadata.first()).isEqualTo(newMetadata)
+        assertThat(metadata).isEqualTo(newMetadata)
     }
 
     @Test
-    fun `GIVEN no case metadata WHEN casesMetadata called THEN metadata is null`() {
-        val casesMetadata = db.metadataDao().metadata(CASE_METADATA_ID)
-        assertThat(casesMetadata).isEmpty()
+    fun `GIVEN no metadata WHEN metadata called THEN metadata is null`() {
+        val metadata = db.metadataDao().metadata(METADATA_ID)
+        assertThat(metadata).isNull()
     }
 
     @Test
-    fun `GIVEN case metadata exists WHEN casesMetadata called THEN metadata is not null`() {
-        val metadata = MetadataEntity(
-            id = CASE_METADATA_ID,
-            disclaimer = "test Metadata",
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
-        )
-        db.metadataDao().insertAll(listOf(metadata))
+    fun `GIVEN metadata data exists WHEN deleteAllNotInIds called THEN metadata with id is not deleted`() {
 
-        val casesMetadata = db.metadataDao().metadata(CASE_METADATA_ID)
-        assertThat(casesMetadata).isEqualTo(listOf(metadata))
-    }
+        val lastUpdated = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        val lastSynced = LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneOffset.UTC)
 
-    @Test
-    fun `GIVEN no death metadata WHEN deathsMetadata called THEN death metadata is null`() {
-        val deathsMetadata = db.metadataDao().metadata(DEATH_METADATA_ID)
-        assertThat(deathsMetadata).isEmpty()
-    }
-
-    @Test
-    fun `GIVEN death metadata exists WHEN deathsMetadata called THEN death metadata is not null`() {
-        val metadata = MetadataEntity(
-            id = DEATH_METADATA_ID,
-            disclaimer = "Test Metadata",
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
-        )
-        db.metadataDao().insertAll(listOf(metadata))
-
-        val deathsMetadata = db.metadataDao().metadata(DEATH_METADATA_ID)
-        assertThat(deathsMetadata).isEqualTo(listOf(metadata))
-    }
-
-    @Test
-    fun `GIVEN metadata exists WHEN metadataAsFlow called THEN entity is emitted`() = runBlocking {
-        val metadata = MetadataEntity(
-            id = CASE_METADATA_ID,
-            disclaimer = "test Metadata",
-            lastUpdatedAt = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
+        val newMetadata = MetadataEntity(
+            id = METADATA_ID,
+            lastUpdatedAt = lastUpdated,
+            lastSyncTime = lastSynced
         )
 
-        db.metadataDao().metadataAsFlow(CASE_METADATA_ID).test {
-            expectNoEvents()
-            db.metadataDao().insertAll(listOf(metadata))
+        val idToRetain = METADATA_ID + "_retained"
 
-            val casesMetadata = expectItem()
-            assertThat(casesMetadata).isEqualTo(metadata)
+        db.metadataDao().insert(newMetadata)
+        db.metadataDao().insert(newMetadata.copy(id = idToRetain))
 
-            cancel()
+        assertThat(db.metadataDao().metadata(METADATA_ID)).isNotNull()
+        assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()
+
+        db.metadataDao().deleteAllNotInIds(listOf(idToRetain))
+
+        assertThat(db.metadataDao().metadata(METADATA_ID)).isNull()
+        assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()
+    }
+
+    @Test
+    fun `GIVEN saved area does not exist WHEN insert called THEN new entity is inserted`() =
+        runBlocking {
+
+            val metadataEntity = MetadataEntity(
+                id = "1234",
+                lastSyncTime = LocalDateTime.now(),
+                lastUpdatedAt = LocalDateTime.now()
+            )
+
+            db.metadataDao().metadataAsFlow(metadataEntity.id).test {
+                expectNoEvents()
+
+                assertThat(expectItem()).isEqualTo(null)
+
+                db.metadataDao().insert(metadataEntity)
+                assertThat(expectItem()).isEqualTo(metadataEntity)
+
+                cancel()
+            }
         }
-    }
 
     @After
     @Throws(IOException::class)
     fun closeDb() {
         db.close()
+    }
+
+    companion object {
+        private const val METADATA_ID = "1234"
     }
 }

@@ -17,10 +17,12 @@
 package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
-import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.db.Constants
+import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -29,43 +31,44 @@ class HomeDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
-    fun metadata(): Flow<MetadataDto> {
+    fun overviewMetadata(): Flow<MetadataDto> {
         return appDatabase.metadataDao()
-            .metadataAsFlow(MetadataEntity.CASE_METADATA_ID)
+            .metadataAsFlow(MetaDataIds.ukOverviewId())
             .map {
                 MetadataDto(
-                    lastUpdatedAt = it.lastUpdatedAt
+                    lastUpdatedAt = it?.lastUpdatedAt ?: LocalDateTime.now()
                 )
             }
     }
 
-    fun dailyRecords(areaName: String): Flow<List<DailyRecordDto>> {
-        return appDatabase.dailyRecordsDao()
-            .dailyRecords(areaName)
-            .map { dailyRecordList ->
-                dailyRecordList.map { dailyRecord ->
+    fun ukOverview(): Flow<List<DailyRecordDto>> {
+        return appDatabase.areaDataDao()
+            .allByAreaCodeFlow(Constants.UK_AREA_CODE)
+            .map { areaDataList ->
+                areaDataList.map { areaData ->
                     DailyRecordDto(
-                        areaName = dailyRecord.areaName,
-                        dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,
-                        totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
-                        date = dailyRecord.date
+                        areaName = areaData.areaName,
+                        dailyLabConfirmedCases = areaData.newCases,
+                        totalLabConfirmedCases = areaData.cumulativeCases,
+                        date = areaData.date
                     )
                 }
             }
     }
 
     fun savedAreaCases(): Flow<List<SavedAreaCaseDto>> {
-        return appDatabase.casesDao()
-            .savedAreaCases()
-            .map { casesList ->
-                casesList.map {
+        return appDatabase.areaDataDao()
+            .allSavedAreaData()
+            .map { areaDataList ->
+                areaDataList.map {
                     SavedAreaCaseDto(
                         areaCode = it.areaCode,
                         areaName = it.areaName,
+                        areaType = it.areaType,
                         date = it.date,
-                        dailyLabConfirmedCases = it.dailyLabConfirmedCases,
-                        totalLabConfirmedCases = it.totalLabConfirmedCases,
-                        dailyTotalLabConfirmedCasesRate = it.dailyTotalLabConfirmedCasesRate
+                        dailyLabConfirmedCases = it.newCases,
+                        totalLabConfirmedCases = it.cumulativeCases,
+                        dailyTotalLabConfirmedCasesRate = it.infectionRate
                     )
                 }
             }

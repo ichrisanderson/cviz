@@ -17,9 +17,11 @@
 package com.chrisa.covid19.core.data
 
 import android.content.res.AssetManager
-import com.chrisa.covid19.core.data.network.CasesModel
-import com.chrisa.covid19.core.data.network.DeathsModel
+import com.chrisa.covid19.core.data.network.AreaDataModel
+import com.chrisa.covid19.core.data.network.AreaModel
+import com.chrisa.covid19.core.data.network.Page
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import java.io.InputStream
 import javax.inject.Inject
 import okio.buffer
@@ -30,23 +32,25 @@ class AssetDataSource @Inject constructor(
     private val moshi: Moshi
 ) {
 
-    fun getCases(): CasesModel {
-        val adapter = moshi.adapter(CasesModel::class.java)
-        val cases = adapter.fromJson(casesFile().source().buffer())
-        return cases!!
+    fun getAreas(): List<AreaModel> {
+        val type = Types.newParameterizedType(Page::class.java, AreaModel::class.java)
+        val adapter = moshi.adapter<Page<AreaModel>>(type)
+        val areas = adapter.fromJson(areasFile().source().buffer())
+        return areas!!.data
     }
 
-    fun getDeaths(): DeathsModel {
-        val adapter = moshi.adapter(DeathsModel::class.java)
-        val deaths = adapter.fromJson(deathsFile().source().buffer())
-        return deaths!!
+    fun getOverviewAreaData(): List<AreaDataModel> {
+        val type = Types.newParameterizedType(Page::class.java, AreaDataModel::class.java)
+        val adapter = moshi.adapter<Page<AreaDataModel>>(type)
+        val areas = adapter.fromJson(overviewFile().source().buffer())
+        return areas!!.data
     }
 
-    private fun casesFile(): InputStream {
-        return assetManager.open("coronavirus-cases_latest.json")
+    private fun areasFile(): InputStream {
+        return assetManager.open("areas.json")
     }
 
-    private fun deathsFile(): InputStream {
-        return assetManager.open("coronavirus-deaths_latest.json")
+    private fun overviewFile(): InputStream {
+        return assetManager.open("overview.json")
     }
 }

@@ -59,6 +59,9 @@
         <argument
             android:name="areaName"
             app:argType="string" />
+        <argument
+            android:name="areaType"
+            app:argType="string" />
     </fragment>
 
 </navigation>
