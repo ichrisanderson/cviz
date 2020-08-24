@@ -37,6 +37,7 @@ import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
 class AreaViewModel @ViewModelInject constructor(
@@ -108,7 +109,10 @@ class AreaViewModel @ViewModelInject constructor(
             }.onSuccess { areaDetail ->
                 areaDetail.collect { areaDetailModel ->
                     val now = LocalDateTime.now()
-                    if (areaDetailModel.lastSyncedAt == null || areaDetailModel.lastSyncedAt.plusMinutes(5).isBefore(now)) {
+                    if (areaDetailModel.lastSyncedAt == null || areaDetailModel.lastSyncedAt.plusMinutes(
+                            5
+                        ).isBefore(now)
+                    ) {
                         syncAreaCases(areaDetailModel)
                     } else {
                         _isLoading.postValue(false)
@@ -125,8 +129,11 @@ class AreaViewModel @ViewModelInject constructor(
     private suspend fun syncAreaCases(areaDetailModel: AreaDetailModel) {
         runCatching {
             syncAreaDetailUseCase.execute(areaCode, areaType)
-        }.onFailure {
-            if (areaDetailModel.lastSyncedAt == null) {
+        }.onFailure { error ->
+            if (error is HttpException && error.code() == 304) {
+                _isLoading.postValue(false)
+                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+            } else if (areaDetailModel.lastSyncedAt == null) {
                 _isLoading.postValue(false)
                 _syncAreaError.postValue(Event(true))
             } else {

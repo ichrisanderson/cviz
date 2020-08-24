@@ -52,6 +52,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
+import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
 class AreaViewModelTest {
@@ -75,7 +76,8 @@ class AreaViewModelTest {
 
                 val areaCode = "AC-001"
                 val areaType = "utla"
-                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+                val savedStateHandle =
+                    SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val caseModels = listOf(
                     CaseModel(
@@ -116,7 +118,9 @@ class AreaViewModelTest {
                     )
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(areaDetailModel).asFlow()
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                    areaDetailModel
+                ).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
                 val sut = areaViewModel(savedStateHandle)
@@ -139,7 +143,8 @@ class AreaViewModelTest {
 
                 val areaCode = "AC-001"
                 val areaType = "utla"
-                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+                val savedStateHandle =
+                    SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val caseModels = listOf(
                     CaseModel(
@@ -180,7 +185,9 @@ class AreaViewModelTest {
                     )
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(areaDetailModel).asFlow()
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                    areaDetailModel
+                ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
@@ -206,7 +213,8 @@ class AreaViewModelTest {
 
                 val areaCode = "AC-001"
                 val areaType = "utla"
-                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+                val savedStateHandle =
+                    SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val areaDetailModel = AreaDetailModel(
                     lastUpdatedAt = null,
@@ -215,7 +223,9 @@ class AreaViewModelTest {
                     latestCases = emptyList()
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(areaDetailModel).asFlow()
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                    areaDetailModel
+                ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
 
                 val sut = areaViewModel(savedStateHandle)
@@ -234,13 +244,78 @@ class AreaViewModelTest {
         }
 
     @Test
+    fun `GIVEN area detail succeeds with no sync data AND syncAreaDetailUseCase fails with 304 WHEN viewmodel initialized THEN error state emitted`() =
+        testDispatcher.runBlockingTest {
+            pauseDispatcher {
+
+                val areaCode = "AC-001"
+                val areaType = "utla"
+                val savedStateHandle =
+                    SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+
+                val areaDetailModel = AreaDetailModel(
+                    lastUpdatedAt = null,
+                    lastSyncedAt = null,
+                    allCases = emptyList(),
+                    latestCases = emptyList()
+                )
+
+                val areaCasesModel = AreaCasesModel(
+                    lastUpdatedAt = LocalDateTime.ofInstant(
+                        Instant.ofEpochMilli(0),
+                        ZoneOffset.UTC
+                    ),
+                    allCasesChartData = BarChartData(
+                        label = "All cases",
+                        values = emptyList()
+                    ),
+                    allCasesRollingAverageLineChartData = LineChartData(
+                        label = "Rolling average",
+                        values = emptyList()
+                    ),
+                    latestCasesBarChartData = BarChartData(
+                        label = "Latest cases",
+                        values = emptyList()
+                    ),
+                    latestCasesRollingAverageLineChartData = LineChartData(
+                        label = "Rolling average",
+                        values = emptyList()
+                    )
+                )
+
+                val exception = mockk<HttpException>()
+                every { exception.code() } returns 304
+
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                    areaDetailModel
+                ).asFlow()
+                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
+                coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws exception
+
+                val sut = areaViewModel(savedStateHandle)
+
+                val statesObserver = sut.areaCases.test()
+                val isLoadingObserver = sut.isLoading.test()
+                val syncAreaError = sut.syncAreaError.test()
+
+                runCurrent()
+
+                assertThat(statesObserver.values[0]).isEqualTo(areaCasesModel)
+                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
+                assertThat(isLoadingObserver.values[1]).isEqualTo(false)
+                assertThat(syncAreaError.values).isEmpty()
+            }
+        }
+
+    @Test
     fun `GIVEN areaDetailUseCase fails WHEN viewmodel initialized THEN error state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
 
                 val areaCode = "AC-001"
                 val areaType = "utla"
-                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+                val savedStateHandle =
+                    SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
 
@@ -265,7 +340,8 @@ class AreaViewModelTest {
 
             val areaCode = "AC-001"
             val areaType = "utla"
-            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+            val savedStateHandle =
+                SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
             coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
 
@@ -285,7 +361,8 @@ class AreaViewModelTest {
 
                 val areaCode = "AC-001"
                 val areaType = "utla"
-                val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+                val savedStateHandle =
+                    SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val publisher = ConflatedBroadcastChannel(false)
 
@@ -320,7 +397,8 @@ class AreaViewModelTest {
 
             val areaCode = "AC-001"
             val areaType = "utla"
-            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+            val savedStateHandle =
+                SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
             every { insertSavedAreaUseCase.execute(areaCode) } just Runs
 
@@ -337,7 +415,8 @@ class AreaViewModelTest {
 
             val areaCode = "AC-001"
             val areaType = "utla"
-            val savedStateHandle = SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+            val savedStateHandle =
+                SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
             every { deleteSavedAreaUseCase.execute(areaCode) } returns 1
 

@@ -32,6 +32,10 @@ import com.chrisa.covid19.core.util.NetworkUtils
 import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
+import okhttp3.MediaType
+import okhttp3.ResponseBody
+import retrofit2.HttpException
+import retrofit2.Response
 
 class UnsafeAreaDataSynchroniser @Inject constructor(
     private val networkUtils: NetworkUtils,
@@ -52,14 +56,24 @@ class UnsafeAreaDataSynchroniser @Inject constructor(
                 areaType
             )
         )
-
-        val pagedAreaCodeData = casesFromNetwork.body()!!
-        val lastModified = casesFromNetwork.headers().get("Last-Modified")
-        cacheAreaData(
-            areaCode,
-            pagedAreaCodeData,
-            lastModified?.toGmtDateTime() ?: LocalDateTime.now()
-        )
+        if (casesFromNetwork.isSuccessful) {
+            val pagedAreaCodeData = casesFromNetwork.body()!!
+            val lastModified = casesFromNetwork.headers().get("Last-Modified")
+            cacheAreaData(
+                areaCode,
+                pagedAreaCodeData,
+                lastModified?.toGmtDateTime() ?: LocalDateTime.now()
+            )
+        } else {
+            throw HttpException(
+                Response.error<Page<AreaDataModel>>(
+                    casesFromNetwork.errorBody() ?: ResponseBody.create(
+                        MediaType.get("application/json"), ""
+                    ),
+                    casesFromNetwork.raw()
+                )
+            )
+        }
     }
 
     private suspend fun cacheAreaData(
