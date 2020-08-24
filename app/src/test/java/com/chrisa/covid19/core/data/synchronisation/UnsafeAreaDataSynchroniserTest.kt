@@ -42,8 +42,11 @@ import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import okhttp3.MediaType
+import okhttp3.ResponseBody
 import org.junit.Before
 import org.junit.Test
+import retrofit2.HttpException
 import retrofit2.Response
 
 @ExperimentalCoroutinesApi
@@ -87,6 +90,33 @@ class UnsafeAreaDataSynchroniserTest {
             sut.performSync(areaCode, areaType)
 
             coVerify(exactly = 0) { covidApi.pagedAreaDataResponse(any(), any(), any()) }
+        }
+
+    @Test(expected = HttpException::class)
+    fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
+        testDispatcher.runBlockingTest {
+            val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
+            val lastUpdatedAt = lastSyncedTime.minusDays(1)
+
+            val metadataEntity = MetadataEntity(
+                id = MetaDataIds.areaCodeId(areaCode),
+                lastUpdatedAt = lastUpdatedAt,
+                lastSyncTime = lastSyncedTime
+            )
+
+            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            coEvery {
+                covidApi.pagedAreaDataResponse(
+                    any(),
+                    any(),
+                    any()
+                )
+            } returns Response.error(
+                404,
+                ResponseBody.create(MediaType.get("application/json"), "")
+            )
+
+            sut.performSync(areaCode, areaType)
         }
 
     @Test(expected = NullPointerException::class)
