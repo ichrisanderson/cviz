@@ -31,7 +31,7 @@ import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import kotlinx.android.synthetic.main.widget_combined_chart.view.*
+import kotlinx.android.synthetic.main.widget_combined_chart.view.chart
 
 class CombinedChart(
     context: Context,

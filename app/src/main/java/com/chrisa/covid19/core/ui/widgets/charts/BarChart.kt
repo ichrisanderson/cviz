@@ -26,7 +26,7 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import kotlinx.android.synthetic.main.widget_bar_chart.view.*
+import kotlinx.android.synthetic.main.widget_bar_chart.view.chart
 
 class BarChart(
     context: Context,

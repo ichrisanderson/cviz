@@ -16,9 +16,6 @@
 
 package com.chrisa.covid19
 
-import javax.inject.Qualifier
+import android.app.Application
 
-@Qualifier
-@MustBeDocumented
-@Retention(AnnotationRetention.RUNTIME)
-annotation class DataSyncCoroutineScope
+class TestApp : Application()

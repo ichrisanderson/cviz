@@ -18,6 +18,7 @@ package com.chrisa.covid19
 
 import android.content.Context
 import android.content.res.AssetManager
+import com.chrisa.covid19.core.data.synchronisation.DataSyncCoroutineScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchersImpl
 import dagger.Module
