@@ -53,7 +53,7 @@ class SynchroniseDataWorkerTest {
         sut.doWork()
 
         coVerify { areaListSynchroniser.performSync() }
-        coVerify { savedAreaDataSynchroniser.performSync() }
+        coVerify { savedAreaDataSynchroniser.performSync(any()) }
         coVerify { ukOverviewDataSynchroniser.performSync() }
     }
 }

@@ -18,21 +18,16 @@ package com.chrisa.covid19.core.data.synchronisation
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import javax.inject.Inject
-import timber.log.Timber
 
 class SavedAreaDataSynchroniser @Inject constructor(
-    private val unsafeAreaDataSynchroniser: UnsafeAreaDataSynchroniser,
+    private val areaDataSynchroniser: AreaDataSynchroniser,
     private val appDatabase: AppDatabase
 ) {
 
-    suspend fun performSync() {
+    suspend fun performSync(onError: (error: Throwable) -> Unit) {
         val areas = appDatabase.areaDao().allSavedAreas()
         areas.forEach { area ->
-            runCatching {
-                unsafeAreaDataSynchroniser.performSync(area.areaCode, area.areaType)
-            }.onFailure { error ->
-                Timber.e(error, "Error syncing saved area ${area.areaCode}")
-            }
+            areaDataSynchroniser.performSync(area.areaCode, area.areaType, onError)
         }
     }
 }

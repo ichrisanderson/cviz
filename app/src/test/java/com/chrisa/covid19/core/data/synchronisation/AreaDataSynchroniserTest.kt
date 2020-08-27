@@ -50,7 +50,7 @@ import retrofit2.HttpException
 import retrofit2.Response
 
 @ExperimentalCoroutinesApi
-class UnsafeAreaDataSynchroniserTest {
+class AreaDataSynchroniserTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
@@ -60,7 +60,7 @@ class UnsafeAreaDataSynchroniserTest {
     private val areaDataModelStructureMapper = mockk<AreaDataModelStructureMapper>()
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private lateinit var sut: UnsafeAreaDataSynchroniser
+    private lateinit var sut: AreaDataSynchroniser
     private val areaCode = "1234"
     private val areaType = "overview"
     private val areaDataModel = "{}"
@@ -78,7 +78,7 @@ class UnsafeAreaDataSynchroniserTest {
         appDatabase.mockTransaction()
 
         sut =
-            UnsafeAreaDataSynchroniser(networkUtils, appDatabase, areaDataModelStructureMapper, covidApi)
+            AreaDataSynchroniser(networkUtils, appDatabase, areaDataModelStructureMapper, covidApi)
     }
 
     @Test(expected = IOException::class)
@@ -86,8 +86,9 @@ class UnsafeAreaDataSynchroniserTest {
         testDispatcher.runBlockingTest {
 
             every { networkUtils.hasNetworkConnection() } returns false
+            val onError: (error: Throwable) -> Unit = { throw it }
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode, areaType, onError)
 
             coVerify(exactly = 0) { covidApi.pagedAreaDataResponse(any(), any(), any()) }
         }
@@ -97,12 +98,12 @@ class UnsafeAreaDataSynchroniserTest {
         testDispatcher.runBlockingTest {
             val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
             val lastUpdatedAt = lastSyncedTime.minusDays(1)
-
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
                 lastUpdatedAt = lastUpdatedAt,
                 lastSyncTime = lastSyncedTime
             )
+            val onError: (error: Throwable) -> Unit = { throw it }
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
@@ -116,7 +117,7 @@ class UnsafeAreaDataSynchroniserTest {
                 ResponseBody.create(MediaType.get("application/json"), "")
             )
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode, areaType, onError)
         }
 
     @Test(expected = NullPointerException::class)
@@ -124,12 +125,12 @@ class UnsafeAreaDataSynchroniserTest {
         testDispatcher.runBlockingTest {
             val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
             val lastUpdatedAt = lastSyncedTime.minusDays(1)
-
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
                 lastUpdatedAt = lastUpdatedAt,
                 lastSyncTime = lastSyncedTime
             )
+            val onError: (error: Throwable) -> Unit = { throw it }
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
@@ -140,7 +141,7 @@ class UnsafeAreaDataSynchroniserTest {
                 )
             } returns Response.success(null)
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode, areaType, onError)
         }
 
     @Test
@@ -148,13 +149,11 @@ class UnsafeAreaDataSynchroniserTest {
         testDispatcher.runBlockingTest {
             val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
             val lastUpdatedAt = lastSyncedTime.minusDays(1)
-
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
                 lastUpdatedAt = lastUpdatedAt,
                 lastSyncTime = lastSyncedTime
             )
-
             val areaModel = AreaDataModel(
                 areaCode = "001",
                 areaName = "UK",
@@ -164,13 +163,13 @@ class UnsafeAreaDataSynchroniserTest {
                 newCases = 10,
                 infectionRate = 100.0
             )
-
             val pageModel = Page(
                 length = 1,
                 maxPageLimit = null,
                 data = listOf(areaModel)
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
+            val onError: (error: Throwable) -> Unit = { }
 
             mockkStatic(LocalDateTime::class)
             every { LocalDateTime.now() } returns syncTime
@@ -184,7 +183,7 @@ class UnsafeAreaDataSynchroniserTest {
                 )
             } returns Response.success(pageModel)
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode, areaType, onError)
 
             verify(exactly = 1) { areaDataDao.deleteAllByAreaCode(areaCode) }
             verify(exactly = 1) {

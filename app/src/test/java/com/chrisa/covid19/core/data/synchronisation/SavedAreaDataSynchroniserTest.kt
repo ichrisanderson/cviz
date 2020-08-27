@@ -25,21 +25,17 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.verify
-import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
-import timber.log.Timber
 
 @ExperimentalCoroutinesApi
 class SavedAreaDataSynchroniserTest {
 
     private val appDatabase = mockk<AppDatabase>()
-    private val areaDataSynchroniser = mockk<UnsafeAreaDataSynchroniser>()
+    private val areaDataSynchroniser = mockk<AreaDataSynchroniser>()
     private val areaDao = mockk<AreaDao>()
     private val testDispatcher = TestCoroutineDispatcher()
 
@@ -56,11 +52,12 @@ class SavedAreaDataSynchroniserTest {
     fun `GIVEN no saved areas WHEN performSync THEN no area data is synced`() =
         testDispatcher.runBlockingTest {
 
+            val onError: (error: Throwable) -> Unit = { }
             every { areaDao.allSavedAreas() } returns emptyList()
 
-            sut.performSync()
+            sut.performSync(onError)
 
-            coVerify(exactly = 0) { areaDataSynchroniser.performSync(any(), any()) }
+            coVerify(exactly = 0) { areaDataSynchroniser.performSync(any(), any(), onError) }
         }
 
     @Test
@@ -77,47 +74,25 @@ class SavedAreaDataSynchroniserTest {
                 areaCode = "12345",
                 areaType = "nation"
             )
-            coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
+            val onError: (error: Throwable) -> Unit = { }
+            coEvery { areaDataSynchroniser.performSync(any(), any(), onError) } just Runs
             every { areaDao.allSavedAreas() } returns listOf(area1, area2)
 
-            sut.performSync()
+            sut.performSync(onError)
 
             coVerify(exactly = 1) {
                 areaDataSynchroniser.performSync(
                     area1.areaCode,
-                    area1.areaType
+                    area1.areaType,
+                    onError
                 )
             }
             coVerify(exactly = 1) {
                 areaDataSynchroniser.performSync(
                     area2.areaCode,
-                    area2.areaType
+                    area2.areaType,
+                    onError
                 )
             }
-        }
-
-    @Test
-    fun `GIVEN areaDataSynchroniser throws WHEN performSync THEN error is handled`() =
-        testDispatcher.runBlockingTest {
-
-            mockkStatic(Timber::class)
-            val area1 = AreaEntity(
-                areaName = "UK",
-                areaCode = "1234",
-                areaType = "overview"
-            )
-            val area2 = AreaEntity(
-                areaName = "Scotland",
-                areaCode = "12345",
-                areaType = "nation"
-            )
-            val error = IOException()
-            every { areaDao.allSavedAreas() } returns listOf(area1, area2)
-            coEvery { areaDataSynchroniser.performSync(any(), any()) } throws error
-
-            sut.performSync()
-
-            verify { Timber.e(error, "Error syncing saved area ${area1.areaCode}") }
-            verify { Timber.e(error, "Error syncing saved area ${area2.areaCode}") }
         }
 }

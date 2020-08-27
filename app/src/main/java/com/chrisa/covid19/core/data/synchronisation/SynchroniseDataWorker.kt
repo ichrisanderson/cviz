@@ -36,13 +36,15 @@ class SynchroniseDataWorker @WorkerInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result = withContext(coroutineDispatchers.io) {
+        var hasError = false
         val jobs = listOf(
             async { areaListSynchroniser.performSync() },
             async { ukOverviewDataSynchroniser.performSync() },
-            async { savedAreaDataSynchroniser.performSync() }
+            async { savedAreaDataSynchroniser.performSync { hasError = true } }
         )
         // awaitAll will throw an exception if a download fails, which CoroutineWorker will treat as a failure
         jobs.awaitAll()
-        Result.success()
+
+        return@withContext if (hasError) Result.failure() else Result.success()
     }
 }

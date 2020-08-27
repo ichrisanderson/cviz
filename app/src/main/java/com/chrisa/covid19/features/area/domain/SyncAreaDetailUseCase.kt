@@ -16,15 +16,15 @@
 
 package com.chrisa.covid19.features.area.domain
 
-import com.chrisa.covid19.core.data.synchronisation.UnsafeAreaDataSynchroniser
+import com.chrisa.covid19.core.data.synchronisation.AreaDataSynchroniser
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 class SyncAreaDetailUseCase @Inject constructor(
-    private val unsafeAreaDataSynchroniser: UnsafeAreaDataSynchroniser
+    private val areaDataSynchroniser: AreaDataSynchroniser
 ) {
     suspend fun execute(areaCode: String, areaType: String) {
-        return unsafeAreaDataSynchroniser.performSync(areaCode, areaType)
+        return areaDataSynchroniser.performSync(areaCode, areaType) { throw it }
     }
 }
