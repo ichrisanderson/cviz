@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.chrisa.covid19">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -22,6 +23,11 @@
             </intent-filter>
             <nav-graph android:value="@navigation/main_navigation" />
         </activity>
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            tools:node="remove"
+            android:exported="false" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

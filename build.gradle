@@ -8,9 +8,16 @@ buildscript {
         'supportLibrary'         : '28.0.2',
         'okhttp'                 : '3.10.0',
         'retrofit'               : '2.6.2',
-        'archLifecycle'          : '2.2.0',
-        'archNavigation'         : '2.2.2',
-        'dagger'                 : '2.24',
+        'lifecycleExtensions'    : '2.2.0',
+        'androidxAnnotations'    : '1.0.1',
+        'androidxArchCoreTesting': '2.1.0',
+        'androidxHilt'           : '1.0.0-alpha01',
+        'androidxRoom'           : '2.2.5',
+        'androidxTestCore'       : '1.3.0-rc01',
+        'androidxTruth'          : '1.3.0-rc01',
+        'androidxjunit'          : '1.1.2-rc01',
+        'androidxWork'           : '2.4.0',
+        'dagger'                 : '2.28.3',
         'mockitoKotlin'          : '1.6.0',
         'archRuntime'            : '1.1.0',
         'appCompat'              : '1.1.0',
@@ -20,7 +27,6 @@ buildscript {
         'material'               : '1.2.0-alpha06',
         'archLifecycleExtensions': '2.2.0',
         'appcompat'              : '1.1.0-alpha01',
-        'androidxAnnotations'    : '1.0.1',
         'constraintlayout'       : '1.1.3',
         'firebaseCore'           : '17.2.3',
         'moshi'                  : '1.8.0',
@@ -28,17 +34,21 @@ buildscript {
         'coil'                   : '0.10.0',
         'junit'                  : '4.13',
         'mockk'                  : '1.9.3',
-        'timber'                 : '4.7.1',
         'robolectric'            : '4.3.1',
-        'androidxArchCoreTesting': '2.0.0',
-        'androidxTest'           : '1.1.0',
-        'truth'                  : '1.0.1',
         'coroutines'             : '1.3.5',
-        'ktlint'             : '0.36.0'
+        'ktlint'                 : '0.36.0',
+        'rxjava'                 : '3.0.4',
+        'rxandroid'              : '3.0.0',
+        'rxbinding'              : '4.0.0',
+        'mpChart'                : 'v3.1.0',
+        'timber'                 : '4.7.1',
+        'flowExtensions'         : '0.0.5',
+        'desugarJdk'             : '1.0.9'
     ]
 
+    ext.androidx_navigation = '2.3.0'
     ext.kotlin_version = '1.3.72'
-    ext.hilt_version = '2.28-alpha'
+    ext.hilt_version = '2.28.3-alpha'
 
     repositories {
         google()
@@ -49,9 +59,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.0'
+        classpath 'com.android.tools.build:gradle:4.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.2.2"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$androidx_navigation"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hilt_version"
         classpath 'com.google.gms:google-services:4.3.3'
         classpath "org.jlleitschuh.gradle:ktlint-gradle:9.2.1"
@@ -77,15 +87,11 @@ subprojects {
     apply plugin: 'com.diffplug.gradle.spotless'
     apply plugin: "org.jlleitschuh.gradle.ktlint"
 
-    String[] copiedKotlinFiles = [
-    ].collect { "**/*${it}.kt" } as String[]
-
     spotless {
         kotlin {
             target '**/*.kt'
             ktlint(versions.ktlint)
-            targetExclude (
-                copiedKotlinFiles,
+            targetExclude(
                 '**/src/external/**/*.java',
                 '**/src/external/**/*.kt',
                 '**/src/externalTest/**/*.java',

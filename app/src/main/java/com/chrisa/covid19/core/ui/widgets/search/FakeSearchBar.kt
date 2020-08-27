@@ -21,7 +21,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import com.chrisa.covid19.R
 import com.google.android.material.textfield.TextInputLayout
-import kotlinx.android.synthetic.main.widget_fake_search_bar.view.*
+import kotlinx.android.synthetic.main.widget_fake_search_bar.view.fakeSearchTextInputEditText
 
 class FakeSearchBar(
     context: Context,

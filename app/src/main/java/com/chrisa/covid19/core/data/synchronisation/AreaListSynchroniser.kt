@@ -23,12 +23,19 @@ import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AREA_FILTER
 import com.chrisa.covid19.core.data.network.AREA_MODEL_STRUCTURE
+import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
+import com.chrisa.covid19.core.data.network.Page
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.core.util.NetworkUtils
+import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
+import okhttp3.MediaType
+import okhttp3.ResponseBody
+import retrofit2.HttpException
+import retrofit2.Response
 import timber.log.Timber
 
 class AreaListSynchroniser @Inject constructor(
@@ -40,8 +47,17 @@ class AreaListSynchroniser @Inject constructor(
     private val metadataDao = appDatabase.metadataDao()
     private val areaDao = appDatabase.areaDao()
 
-    suspend fun performSync() {
-        if (!networkUtils.hasNetworkConnection()) return
+    suspend fun performSync(onError: (error: Throwable) -> Unit) {
+        runCatching {
+            syncList()
+        }.onFailure { error ->
+            onError(error)
+            Timber.e(error, "Error syncing area list")
+        }
+    }
+
+    private suspend fun syncList() {
+        if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val now = LocalDateTime.now()
         val areaMetadata = metadataDao.metadata(MetaDataIds.areaListId()) ?: return
@@ -50,35 +66,40 @@ class AreaListSynchroniser @Inject constructor(
             return
         }
 
-        runCatching {
-            api.pagedAreaResponse(
-                areaMetadata.lastUpdatedAt.formatAsGmt(),
-                AREA_FILTER,
-                AREA_MODEL_STRUCTURE
-            )
-        }.onSuccess { areasResponse ->
-            if (areasResponse.isSuccessful) {
-                val lastModified = areasResponse.headers().get("Last-Modified")
-                val areas = areasResponse.body() ?: return@onSuccess
-                appDatabase.withTransaction {
-                    areaDao.insertAll(areas.data.map {
-                        AreaEntity(
-                            areaType = it.areaType,
-                            areaName = it.areaName,
-                            areaCode = it.areaCode
-                        )
-                    })
-                    metadataDao.insert(
-                        MetadataEntity(
-                            id = MetaDataIds.areaListId(),
-                            lastUpdatedAt = lastModified?.toGmtDateTime() ?: LocalDateTime.now(),
-                            lastSyncTime = LocalDateTime.now()
-                        )
+        val areasResponse = api.pagedAreaResponse(
+            areaMetadata.lastUpdatedAt.formatAsGmt(),
+            AREA_FILTER,
+            AREA_MODEL_STRUCTURE
+        )
+
+        if (areasResponse.isSuccessful) {
+            val lastModified = areasResponse.headers().get("Last-Modified")
+            val areas = areasResponse.body()!!
+            appDatabase.withTransaction {
+                areaDao.insertAll(areas.data.map {
+                    AreaEntity(
+                        areaType = it.areaType,
+                        areaName = it.areaName,
+                        areaCode = it.areaCode
                     )
-                }
+                })
+                metadataDao.insert(
+                    MetadataEntity(
+                        id = MetaDataIds.areaListId(),
+                        lastUpdatedAt = lastModified?.toGmtDateTime() ?: LocalDateTime.now(),
+                        lastSyncTime = LocalDateTime.now()
+                    )
+                )
             }
-        }.onFailure { error ->
-            Timber.e(error, "Error synchronizing areas")
+        } else {
+            throw HttpException(
+                Response.error<Page<AreaDataModel>>(
+                    areasResponse.errorBody() ?: ResponseBody.create(
+                        MediaType.get("application/json"), ""
+                    ),
+                    areasResponse.raw()
+                )
+            )
         }
     }
 }

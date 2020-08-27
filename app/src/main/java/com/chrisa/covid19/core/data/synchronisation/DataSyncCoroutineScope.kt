@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.startup.domain
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.core.data.synchronisation.AreaListSynchroniser
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import javax.inject.Qualifier
 
-class SynchroniseAreasUseCase @Inject constructor(
-    private val areaListSynchroniser: AreaListSynchroniser
-) {
-    suspend fun execute(syncScope: CoroutineScope) {
-        syncScope.launch {
-            areaListSynchroniser.performSync()
-        }
-    }
-}
+@Qualifier
+@MustBeDocumented
+@Retention(AnnotationRetention.RUNTIME)
+annotation class DataSyncCoroutineScope

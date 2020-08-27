@@ -17,6 +17,7 @@
 package com.chrisa.covid19.core.data
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.network.CovidApi
@@ -70,7 +71,7 @@ internal object DataModule {
         moshi: Moshi
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.coronavirus.data.gov.uk/")
+            .baseUrl("https://api.coronavirus-staging.data.gov.uk/")
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
@@ -79,6 +80,11 @@ internal object DataModule {
     @Provides
     fun covidApi(retrofit: Retrofit): CovidApi {
         return retrofit.create(CovidApi::class.java)
+    }
+
+    @Provides
+    fun workManager(@ApplicationContext context: Context): WorkManager {
+        return WorkManager.getInstance(context)
     }
 }
 

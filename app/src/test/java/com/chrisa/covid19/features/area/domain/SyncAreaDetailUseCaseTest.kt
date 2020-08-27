@@ -16,7 +16,7 @@
 
 package com.chrisa.covid19.features.area.domain
 
-import com.chrisa.covid19.core.data.synchronisation.UnsafeAreaDataSynchroniser
+import com.chrisa.covid19.core.data.synchronisation.AreaDataSynchroniser
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,7 +26,7 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class SyncAreaDetailUseCaseTest {
 
-    private val unsafeAreaDataSynchroniser = mockk<UnsafeAreaDataSynchroniser>(relaxed = true)
+    private val unsafeAreaDataSynchroniser = mockk<AreaDataSynchroniser>(relaxed = true)
     private val sut = SyncAreaDetailUseCase(unsafeAreaDataSynchroniser)
 
     @Test
@@ -37,6 +37,6 @@ class SyncAreaDetailUseCaseTest {
 
             sut.execute(areaCode, areaType)
 
-            coVerify { unsafeAreaDataSynchroniser.performSync(areaCode, areaType) }
+            coVerify { unsafeAreaDataSynchroniser.performSync(areaCode, areaType, any()) }
         }
 }

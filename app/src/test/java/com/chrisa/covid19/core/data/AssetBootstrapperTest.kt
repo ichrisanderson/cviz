@@ -21,6 +21,7 @@ import com.chrisa.covid19.core.data.db.AreaDao
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
@@ -168,7 +169,7 @@ class AssetBootstrapperTest {
             verify {
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetaDataIds.ukOverviewId(),
+                        id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
                         lastUpdatedAt = AssetBootstrapper.BOOTSTRAP_DATA_TIMESTAMP,
                         lastSyncTime = date
                     )

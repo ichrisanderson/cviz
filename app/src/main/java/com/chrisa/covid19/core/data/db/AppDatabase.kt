@@ -228,6 +228,5 @@ object Constants {
 
 object MetaDataIds {
     fun areaListId(): String = "AREA_LIST_METADATA"
-    fun ukOverviewId(): String = "UK_OVERVIEW_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
 }

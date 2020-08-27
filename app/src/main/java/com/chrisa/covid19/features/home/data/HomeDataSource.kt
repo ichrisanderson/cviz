@@ -33,7 +33,7 @@ class HomeDataSource @Inject constructor(
 
     fun overviewMetadata(): Flow<MetadataDto> {
         return appDatabase.metadataDao()
-            .metadataAsFlow(MetaDataIds.ukOverviewId())
+            .metadataAsFlow(MetaDataIds.areaCodeId(Constants.UK_AREA_CODE))
             .map {
                 MetadataDto(
                     lastUpdatedAt = it?.lastUpdatedAt ?: LocalDateTime.now()

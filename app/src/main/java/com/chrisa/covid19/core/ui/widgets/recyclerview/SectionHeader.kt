@@ -22,7 +22,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
-import kotlinx.android.synthetic.main.widget_section_header.view.*
+import kotlinx.android.synthetic.main.widget_section_header.view.textView
 
 @ModelView(defaultLayout = R.layout.widget_section_header)
 class SectionHeader(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
