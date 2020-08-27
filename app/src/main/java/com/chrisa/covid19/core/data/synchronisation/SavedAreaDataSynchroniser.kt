@@ -26,13 +26,13 @@ class SavedAreaDataSynchroniser @Inject constructor(
 ) {
 
     suspend fun performSync() {
-        runCatching {
-            val areas = appDatabase.areaDao().allSavedAreas()
-            areas.forEach {
-                unsafeAreaDataSynchroniser.performSync(it.areaCode, it.areaType)
+        val areas = appDatabase.areaDao().allSavedAreas()
+        areas.forEach { area ->
+            runCatching {
+                unsafeAreaDataSynchroniser.performSync(area.areaCode, area.areaType)
+            }.onFailure { error ->
+                Timber.e(error, "Error syncing saved area ${area.areaCode}")
             }
-        }.onFailure {
-            Timber.e(it, "Error syncing saved areas")
         }
     }
 }

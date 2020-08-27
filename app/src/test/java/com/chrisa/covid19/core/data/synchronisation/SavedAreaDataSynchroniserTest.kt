@@ -117,6 +117,7 @@ class SavedAreaDataSynchroniserTest {
 
             sut.performSync()
 
-            verify { Timber.e(error, "Error syncing saved areas") }
+            verify { Timber.e(error, "Error syncing saved area ${area1.areaCode}") }
+            verify { Timber.e(error, "Error syncing saved area ${area2.areaCode}") }
         }
 }
