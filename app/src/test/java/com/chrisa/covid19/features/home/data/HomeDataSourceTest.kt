@@ -47,7 +47,7 @@ class HomeDataSourceTest {
 
             val now = LocalDateTime.now()
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.ukOverviewId(),
+                id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
                 lastUpdatedAt = now.minusDays(1),
                 lastSyncTime = now
             )
@@ -55,7 +55,7 @@ class HomeDataSourceTest {
             val overviewMetadataFlow = flow { emit(metadataEntity) }
 
             every {
-                appDatabase.metadataDao().metadataAsFlow(MetaDataIds.ukOverviewId())
+                appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(Constants.UK_AREA_CODE))
             } returns overviewMetadataFlow
 
             val emittedItems = mutableListOf<MetadataDto>()

@@ -76,8 +76,9 @@ class AreaListSynchroniserTest {
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns null
             every { networkUtils.hasNetworkConnection() } returns true
+            val onError: (error: Throwable) -> Unit = { }
 
-            sut.performSync()
+            sut.performSync(onError)
 
             coVerify(exactly = 0) { covidApi.pagedAreaResponse(any(), any(), any()) }
         }
@@ -92,6 +93,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now.minusDays(1)
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val date = metadata.lastUpdatedAt
                 .plusHours(1)
@@ -108,7 +110,7 @@ class AreaListSynchroniserTest {
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
-            sut.performSync()
+            sut.performSync(onError)
 
             coVerify(exactly = 0) {
                 covidApi.pagedAreaResponse(
@@ -130,6 +132,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = now.minusDays(1),
                 lastSyncTime = now.minusMinutes(1)
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val date = metadata.lastUpdatedAt
                 .plusHours(1)
@@ -146,7 +149,7 @@ class AreaListSynchroniserTest {
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
-            sut.performSync()
+            sut.performSync(onError)
 
             coVerify(exactly = 0) {
                 covidApi.pagedAreaResponse(
@@ -167,6 +170,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = now.minusMinutes(61),
                 lastSyncTime = now.minusHours(1)
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
@@ -181,7 +185,7 @@ class AreaListSynchroniserTest {
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
-            sut.performSync()
+            sut.performSync(onError)
 
             coVerify(exactly = 1) {
                 covidApi.pagedAreaResponse(
@@ -202,6 +206,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
@@ -216,7 +221,7 @@ class AreaListSynchroniserTest {
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns false
 
-            sut.performSync()
+            sut.performSync(onError)
 
             coVerify(exactly = 0) {
                 covidApi.pagedAreaResponse(
@@ -228,7 +233,7 @@ class AreaListSynchroniserTest {
         }
 
     @Test
-    fun `GIVEN api call throws WHEN performSync called THEN error is logged`() =
+    fun `GIVEN api call throws WHEN performSync called THEN database is not updated`() =
         testDispatcher.runBlockingTest {
 
             mockkStatic(Timber::class)
@@ -239,6 +244,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = now.minusDays(1),
                 lastSyncTime = now.minusHours(1)
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
@@ -255,11 +261,10 @@ class AreaListSynchroniserTest {
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
-            sut.performSync()
+            sut.performSync(onError)
 
             verify(exactly = 0) { metadataDao.insert(any()) }
             verify(exactly = 0) { areaDao.insertAll(any()) }
-            verify(exactly = 1) { Timber.e(error, "Error synchronizing areas") }
         }
 
     @Test
@@ -272,6 +277,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
@@ -290,7 +296,7 @@ class AreaListSynchroniserTest {
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
-            sut.performSync()
+            sut.performSync(onError)
 
             verify(exactly = 0) { metadataDao.insert(any()) }
             verify(exactly = 0) { areaDao.insertAll(any()) }
@@ -306,6 +312,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = now.minusMinutes(1),
                 lastSyncTime = now
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
@@ -321,7 +328,7 @@ class AreaListSynchroniserTest {
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata
             every { networkUtils.hasNetworkConnection() } returns true
 
-            sut.performSync()
+            sut.performSync(onError)
 
             verify(exactly = 0) { metadataDao.insert(any()) }
             verify(exactly = 0) { areaDao.insertAll(any()) }
@@ -339,6 +346,7 @@ class AreaListSynchroniserTest {
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusHours(1)
             )
+            val onError: (error: Throwable) -> Unit = { }
 
             val areaModel = AreaModel(
                 areaCode = "1234",
@@ -371,7 +379,7 @@ class AreaListSynchroniserTest {
             every { metadataDao.insert(any()) } just Runs
             every { areaDao.insertAll(any()) } just Runs
 
-            sut.performSync()
+            sut.performSync(onError)
 
             verify(exactly = 1) {
                 metadataDao.insert(

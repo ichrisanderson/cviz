@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDao
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.Constants
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -53,11 +54,12 @@ class SavedAreaDataSynchroniserTest {
         testDispatcher.runBlockingTest {
 
             val onError: (error: Throwable) -> Unit = { }
+            coEvery { areaDataSynchroniser.performSync(any(), any(), onError) } just Runs
             every { areaDao.allSavedAreas() } returns emptyList()
 
             sut.performSync(onError)
 
-            coVerify(exactly = 0) { areaDataSynchroniser.performSync(any(), any(), onError) }
+            coVerify(exactly = 1) { areaDataSynchroniser.performSync(Constants.UK_AREA_CODE, "overview", onError) }
         }
 
     @Test
