@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.core.ui.widgets.recyclerview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -24,9 +25,9 @@ import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import kotlinx.android.synthetic.main.widget_section_header.view.textView
 
+@SuppressLint("NonConstantResourceId")
 @ModelView(defaultLayout = R.layout.widget_section_header)
 class SectionHeader(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
-
     @ModelProp
     fun title(title: String) {
         textView.text = title

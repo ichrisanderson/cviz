@@ -32,6 +32,7 @@ class SynchroniseDataWorkerTest {
 
     private val areaListSynchroniser: AreaListSynchroniser = mockk(relaxed = true)
     private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser = mockk(relaxed = true)
+    private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser = mockk(relaxed = true)
     private val params: WorkerParameters = mockk(relaxed = true)
     private val context: Context = mockk()
     private val testDispatcher = TestCoroutineDispatcher()
@@ -42,6 +43,7 @@ class SynchroniseDataWorkerTest {
         params,
         TestCoroutineDispatchersImpl(testDispatcher),
         areaListSynchroniser,
+        areaSummaryDataSynchroniser,
         savedAreaDataSynchroniser
     )
 
@@ -51,6 +53,7 @@ class SynchroniseDataWorkerTest {
         sut.doWork()
 
         coVerify { areaListSynchroniser.performSync(any()) }
+        coVerify { areaSummaryDataSynchroniser.performSync(any()) }
         coVerify { savedAreaDataSynchroniser.performSync(any()) }
     }
 }

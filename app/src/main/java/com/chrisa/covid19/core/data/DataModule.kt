@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.work.WorkManager
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.MetadataDao
+import com.chrisa.covid19.core.data.network.CommonHeaderInterceptor
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
@@ -56,10 +57,13 @@ internal object DataModule {
     @Provides
     fun okHttpClient(): OkHttpClient {
 
+        val commonHeaderInterceptor = CommonHeaderInterceptor()
+
         val httpLoggingInterceptor = HttpLoggingInterceptor()
             .setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val builder = OkHttpClient.Builder()
+            .addInterceptor(commonHeaderInterceptor)
             .addInterceptor(httpLoggingInterceptor)
 
         return builder.build()

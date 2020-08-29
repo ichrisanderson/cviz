@@ -24,33 +24,30 @@ import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Headers
 import retrofit2.http.Query
 
 interface CovidApi {
-    @Headers(
-        "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json",
-        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
-    )
+
     @GET("v1/lookup")
     suspend fun pagedAreaResponse(
         @Header("If-Modified-Since") modifiedDate: String?,
         @Query(encoded = true, value = "filters") filters: String,
-        @Query(value = "structure") areaDataModelStructure: String
+        @Query(value = "structure") structure: String
     ): Response<Page<AreaModel>>
 
-    @Headers(
-        "Content-Type: application/json;charset=utf-8",
-        "Accept: application/json",
-        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36"
-    )
     @GET("v1/data")
     suspend fun pagedAreaDataResponse(
         @Header("If-Modified-Since") modifiedDate: String?,
         @Query(encoded = true, value = "filters") filters: String,
-        @Query(value = "structure") areaDataModelStructure: String
+        @Query(value = "structure") structure: String
     ): Response<Page<AreaDataModel>>
+
+    @GET("v1/data")
+    suspend fun pagedAreaData(
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @Query(encoded = true, value = "filters") filters: String,
+        @Query(value = "structure") structure: String
+    ): Page<AreaDataModel>
 }
 
 val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"

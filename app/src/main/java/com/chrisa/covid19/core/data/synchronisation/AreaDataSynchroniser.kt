@@ -62,7 +62,7 @@ class AreaDataSynchroniser @Inject constructor(
         val casesFromNetwork = api.pagedAreaDataResponse(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
             filters = AREA_DATA_FILTER(areaCode, areaType),
-            areaDataModelStructure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
+            structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
                 areaType
             )
         )

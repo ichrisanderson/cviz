@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.Flow
     entities = [
         AreaEntity::class,
         AreaDataEntity::class,
+        AreaSummaryEntity::class,
         MetadataEntity::class,
         SavedAreaEntity::class
     ],
@@ -53,6 +54,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun areaDao(): AreaDao
     abstract fun areaDataDao(): AreaDataDao
+    abstract fun areaSummaryEntityDao(): AreaSummaryEntityDao
     abstract fun metadataDao(): MetadataDao
     abstract fun savedAreaDao(): SavedAreaDao
 
@@ -228,5 +230,60 @@ object Constants {
 
 object MetaDataIds {
     fun areaListId(): String = "AREA_LIST_METADATA"
+    fun areaSummaryId(): String = "AREA_SUMMARY_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
+}
+
+@Entity(
+    tableName = "areaSummary",
+    primaryKeys = ["areaCode"]
+)
+data class AreaSummaryEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: String,
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "baseInfectionRate")
+    val baseInfectionRate: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek1")
+    val cumulativeCasesWeek1: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek1")
+    val cumulativeCaseInfectionRateWeek1: Double,
+    @ColumnInfo(name = "newCasesWeek1")
+    val newCasesWeek1: Int,
+    @ColumnInfo(name = "newCaseInfectionRateWeek1")
+    val newCaseInfectionRateWeek1: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek2")
+    val cumulativeCasesWeek2: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek2")
+    val cumulativeCaseInfectionRateWeek2: Double,
+    @ColumnInfo(name = "newCasesWeek2")
+    val newCasesWeek2: Int,
+    @ColumnInfo(name = "newCaseInfectionRateWeek2")
+    val newCaseInfectionRateWeek2: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek3")
+    val cumulativeCasesWeek3: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek3")
+    val cumulativeCaseInfectionRateWeek3: Double,
+    @ColumnInfo(name = "newCasesWeek3")
+    val newCasesWeek3: Int,
+    @ColumnInfo(name = "newCaseInfectionRateWeek¬3")
+    val newCaseInfectionRateWeek3: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek4")
+    val cumulativeCasesWeek4: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek4")
+    val cumulativeCaseInfectionRateWeek4: Double
+)
+
+@Dao
+interface AreaSummaryEntityDao {
+    @Query("DELETE FROM areaSummary")
+    fun deleteAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(areaSummaries: List<AreaSummaryEntity>)
 }

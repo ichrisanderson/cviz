@@ -31,6 +31,7 @@ class SynchroniseDataWorker @WorkerInject constructor(
     @Assisted params: WorkerParameters,
     private val coroutineDispatchers: CoroutineDispatchers,
     private val areaListSynchroniser: AreaListSynchroniser,
+    private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser,
     private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser
 ) : CoroutineWorker(context, params) {
 
@@ -39,6 +40,7 @@ class SynchroniseDataWorker @WorkerInject constructor(
         val onError: (error: Throwable) -> Unit = { hasError = true }
         val jobs = listOf(
             async { areaListSynchroniser.performSync(onError) },
+            async { areaSummaryDataSynchroniser.performSync(onError) },
             async { savedAreaDataSynchroniser.performSync(onError) }
         )
         // awaitAll will throw an exception if a download fails, which CoroutineWorker will treat as a failure

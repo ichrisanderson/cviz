@@ -23,16 +23,22 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import com.chrisa.covid19.features.home.presentation.widgets.emptySavedAreasCard
+import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.latestUkDataCard
-import com.chrisa.covid19.features.home.presentation.widgets.savedAreaCard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_home.fakeSearchBar
+import kotlinx.android.synthetic.main.fragment_home.homeProgress
+import kotlinx.android.synthetic.main.fragment_home.homeRecyclerView
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
+@FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -77,34 +83,42 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     id("dailyRecordHeader")
                     title(getString(R.string.daily_records_title))
                 }
-
                 latestUkDataCard {
                     id("dailyRecordCard")
                     latestUkData(homeScreenData.latestUkData)
                 }
-
+                sectionHeader {
+                    id("hotspotsHeader")
+                    title("Hotspots")
+                }
+                carousel {
+                    id("hotspotsCarousel")
+                    models(savedAreaModels("hotspot_", homeScreenData.savedAreas))
+                }
                 sectionHeader {
                     id("savedAreaHeader")
                     title(getString(R.string.saved_locations_title))
                 }
-                if (homeScreenData.savedAreas.isEmpty()) {
-                    emptySavedAreasCard {
-                        id("emptySavedAreas")
-                    }
-                } else {
-                    homeScreenData.savedAreas.forEach { savedAreaModel ->
-                        savedAreaCard {
-                            id(savedAreaModel.areaCode)
-                            savedAreaModel(savedAreaModel)
-                            clickListener { _ ->
-                                navigateToArea(savedAreaModel)
-                            }
-                        }
-                    }
+                carousel {
+                    id("savedAreaCarousel")
+                    models(savedAreaModels("savedArea_", homeScreenData.savedAreas))
                 }
             }
         })
     }
+
+    private fun savedAreaModels(
+        idPrefix: String,
+        savedAreas: List<SavedAreaModel>
+    ): List<EpoxyModel<*>> =
+        savedAreas.map { savedAreaModel ->
+            SavedAreaCardModel_()
+                .id(idPrefix + savedAreaModel.areaCode)
+                .savedAreaModel(savedAreaModel)
+                .clickListener { _ ->
+                    navigateToArea(savedAreaModel)
+                }
+        }.ifEmpty { listOf(EmptySavedAreasCardModel_().id("emptySavedAreas")) }
 
     private fun navigateToHome() {
         findNavController().navigate(HomeFragmentDirections.homeToSearch())
