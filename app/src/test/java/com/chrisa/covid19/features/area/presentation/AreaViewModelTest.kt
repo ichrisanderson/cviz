@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.area.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
@@ -118,7 +119,7 @@ class AreaViewModelTest {
                     )
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
@@ -185,7 +186,7 @@ class AreaViewModelTest {
                     )
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
@@ -223,7 +224,7 @@ class AreaViewModelTest {
                     latestCases = emptyList()
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
@@ -286,7 +287,7 @@ class AreaViewModelTest {
                 val exception = mockk<HttpException>()
                 every { exception.code() } returns 304
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
@@ -317,7 +318,7 @@ class AreaViewModelTest {
                 val savedStateHandle =
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
+                coEvery { areaDetailUseCase.execute(areaCode) } throws IOException()
 
                 val sut = areaViewModel(savedStateHandle)
 
@@ -343,15 +344,15 @@ class AreaViewModelTest {
             val savedStateHandle =
                 SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
-            coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
+            coEvery { areaDetailUseCase.execute(areaCode) } throws IOException()
 
             val sut = areaViewModel(savedStateHandle)
 
-            verify(exactly = 1) { areaDetailUseCase.execute(areaCode, areaType) }
+            verify(exactly = 1) { areaDetailUseCase.execute(areaCode) }
 
             sut.refresh()
 
-            verify(exactly = 2) { areaDetailUseCase.execute(areaCode, areaType) }
+            verify(exactly = 2) { areaDetailUseCase.execute(areaCode) }
         }
 
     @Test

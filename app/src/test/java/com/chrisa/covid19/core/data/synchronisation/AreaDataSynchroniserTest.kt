@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
@@ -62,7 +63,7 @@ class AreaDataSynchroniserTest {
 
     private lateinit var sut: AreaDataSynchroniser
     private val areaCode = "1234"
-    private val areaType = "overview"
+    private val areaType = AreaType.OVERVIEW
     private val areaDataModel = "{}"
 
     @Before
@@ -192,7 +193,7 @@ class AreaDataSynchroniserTest {
                         AreaDataEntity(
                             areaCode = areaModel.areaCode,
                             areaName = areaModel.areaName,
-                            areaType = areaModel.areaType,
+                            areaType = AreaType.from(areaModel.areaType)!!,
                             cumulativeCases = areaModel.cumulativeCases!!,
                             date = areaModel.date,
                             newCases = areaModel.newCases!!,

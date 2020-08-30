@@ -55,7 +55,7 @@ class AreaDaoTest {
                 AreaEntity(
                     areaCode = "1234",
                     areaName = "UK",
-                    areaType = "overview"
+                    areaType = AreaType.OVERVIEW
                 )
             )
         )
@@ -71,7 +71,7 @@ class AreaDaoTest {
                 AreaEntity(
                     areaCode = "1234",
                     areaName = "UK",
-                    areaType = "overview"
+                    areaType = AreaType.OVERVIEW
                 )
             )
         )
@@ -87,7 +87,7 @@ class AreaDaoTest {
             AreaEntity(
                 areaCode = "1234",
                 areaName = "UK",
-                areaType = "overview"
+                areaType = AreaType.OVERVIEW
             )
         )
 

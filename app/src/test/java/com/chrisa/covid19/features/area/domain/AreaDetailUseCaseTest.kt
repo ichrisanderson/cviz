@@ -52,7 +52,7 @@ class AreaDetailUseCaseTest {
 
             every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
 
-            val areaDetailModelFlow = sut.execute(areaCode, areaType)
+            val areaDetailModelFlow = sut.execute(areaCode)
 
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(
@@ -91,7 +91,7 @@ class AreaDetailUseCaseTest {
 
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
             every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadataDTO).asFlow()
-            coEvery { areaDataSource.loadAreaData(areaCode, areaType) } returns caseDTOs
+            coEvery { areaDataSource.loadAreaData(areaCode) } returns caseDTOs
 
             val caseModels = caseDTOs.map {
                 CaseModel(
@@ -101,7 +101,7 @@ class AreaDetailUseCaseTest {
                 )
             }
 
-            val areaDetailModelFlow = sut.execute(areaCode, areaType)
+            val areaDetailModelFlow = sut.execute(areaCode)
 
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(

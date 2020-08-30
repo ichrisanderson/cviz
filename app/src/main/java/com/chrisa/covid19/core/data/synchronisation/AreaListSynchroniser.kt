@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AREA_FILTER
@@ -78,7 +79,7 @@ class AreaListSynchroniser @Inject constructor(
             appDatabase.withTransaction {
                 areaDao.insertAll(areas.data.map {
                     AreaEntity(
-                        areaType = it.areaType,
+                        areaType = AreaType.from(it.areaType)!!,
                         areaName = it.areaName,
                         areaCode = it.areaCode
                     )

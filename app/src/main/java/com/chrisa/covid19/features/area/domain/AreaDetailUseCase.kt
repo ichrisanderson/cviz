@@ -32,7 +32,7 @@ class AreaDetailUseCase @Inject constructor(
     private val rollingAverageHelper: RollingAverageHelper
 ) {
 
-    fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
+    fun execute(areaCode: String): Flow<AreaDetailModel> {
         val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
@@ -43,7 +43,7 @@ class AreaDetailUseCase @Inject constructor(
                     latestCases = emptyList()
                 )
             } else {
-                val areaData = areaDataSource.loadAreaData(areaCode, areaType)
+                val areaData = areaDataSource.loadAreaData(areaCode)
                 val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
                 AreaDetailModel(
                     lastUpdatedAt = metadata.lastUpdatedAt,

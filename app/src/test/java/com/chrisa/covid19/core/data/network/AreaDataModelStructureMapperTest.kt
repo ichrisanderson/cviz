@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.core.data.network
 
+import com.chrisa.covid19.core.data.db.AreaType
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -26,7 +27,7 @@ class AreaDataModelStructureMapperTest {
     @Test
     fun `GIVEN overview type WHEN mapAreaTypeToDataModel THEN publish date model structure returned`() {
 
-        val modelStructure = sut.mapAreaTypeToDataModel("overview")
+        val modelStructure = sut.mapAreaTypeToDataModel(AreaType.OVERVIEW)
 
         assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE)
     }
@@ -34,15 +35,31 @@ class AreaDataModelStructureMapperTest {
     @Test
     fun `GIVEN nation type WHEN mapAreaTypeToDataModel THEN publish date model structure returned`() {
 
-        val modelStructure = sut.mapAreaTypeToDataModel("nation")
+        val modelStructure = sut.mapAreaTypeToDataModel(AreaType.NATION)
 
         assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE)
     }
 
     @Test
-    fun `GIVEN other type WHEN mapAreaTypeToDataModel THEN specimen date model structure returned`() {
+    fun `GIVEN region type WHEN mapAreaTypeToDataModel THEN specimen date model structure returned`() {
 
-        val modelStructure = sut.mapAreaTypeToDataModel("")
+        val modelStructure = sut.mapAreaTypeToDataModel(AreaType.REGION)
+
+        assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE)
+    }
+
+    @Test
+    fun `GIVEN utla type WHEN mapAreaTypeToDataModel THEN specimen date model structure returned`() {
+
+        val modelStructure = sut.mapAreaTypeToDataModel(AreaType.UTLA)
+
+        assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE)
+    }
+
+    @Test
+    fun `GIVEN ltla type WHEN mapAreaTypeToDataModel THEN specimen date model structure returned`() {
+
+        val modelStructure = sut.mapAreaTypeToDataModel(AreaType.LTLA)
 
         assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE)
     }

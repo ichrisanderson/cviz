@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
@@ -105,7 +106,7 @@ class AreaViewModel @ViewModelInject constructor(
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
             runCatching {
-                areaDetailUseCase.execute(areCode, areaType)
+                areaDetailUseCase.execute(areCode)
             }.onSuccess { areaDetail ->
                 areaDetail.collect { areaDetailModel ->
                     val now = LocalDateTime.now()

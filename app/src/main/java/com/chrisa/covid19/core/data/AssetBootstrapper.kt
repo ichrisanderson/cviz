@@ -20,6 +20,7 @@ import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
@@ -53,7 +54,7 @@ class AssetBootstrapper @Inject constructor(
                 AreaEntity(
                     areaCode = it.areaCode,
                     areaName = it.areaName,
-                    areaType = it.areaType
+                    areaType = AreaType.from(it.areaType)!!
                 )
             })
             appDatabase.metadataDao().insert(
@@ -67,7 +68,7 @@ class AssetBootstrapper @Inject constructor(
     }
 
     private suspend fun bootstrapOverview() {
-        val areaCount = appDatabase.areaDataDao().countAllByAreaType("overview")
+        val areaCount = appDatabase.areaDataDao().countAllByAreaType(AreaType.OVERVIEW)
         if (areaCount > 0) return
         val areas = assetDataSource.getOverviewAreaData()
         appDatabase.withTransaction {
@@ -75,7 +76,7 @@ class AssetBootstrapper @Inject constructor(
                 AreaDataEntity(
                     areaCode = it.areaCode,
                     areaName = it.areaName,
-                    areaType = it.areaType,
+                    areaType = AreaType.from(it.areaType)!!,
                     cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
                     newCases = it.newCases ?: 0,

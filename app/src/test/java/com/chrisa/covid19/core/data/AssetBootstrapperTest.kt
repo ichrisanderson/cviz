@@ -21,6 +21,7 @@ import com.chrisa.covid19.core.data.db.AreaDao
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
@@ -121,7 +122,7 @@ class AssetBootstrapperTest {
                     AreaEntity(
                         areaCode = it.areaCode,
                         areaName = it.areaName,
-                        areaType = it.areaType
+                        areaType = AreaType.from(it.areaType)!!
                     )
                 })
             }
@@ -131,7 +132,7 @@ class AssetBootstrapperTest {
     fun `GIVEN offline area data overview WHEN bootstrap data THEN area data overview is not updated`() =
         testCoroutineScope.runBlockingTest {
 
-            every { areaDataDao.countAllByAreaType("overview") } returns 1
+            every { areaDataDao.countAllByAreaType(AreaType.OVERVIEW) } returns 1
 
             sut.bootstrapData()
 
@@ -161,7 +162,7 @@ class AssetBootstrapperTest {
             appDatabase.mockTransaction()
 
             coEvery { assetDataSource.getOverviewAreaData() } returns areas
-            every { areaDataDao.countAllByAreaType("overview") } returns 0
+            every { areaDataDao.countAllByAreaType(AreaType.OVERVIEW) } returns 0
             every { LocalDateTime.now() } returns date
 
             sut.bootstrapData()
@@ -180,7 +181,7 @@ class AssetBootstrapperTest {
                     AreaDataEntity(
                         areaCode = it.areaCode,
                         areaName = it.areaName,
-                        areaType = it.areaType,
+                        areaType = AreaType.from(it.areaType)!!,
                         cumulativeCases = it.cumulativeCases!!,
                         date = it.date,
                         newCases = it.newCases!!,

@@ -42,7 +42,7 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadAreaData(areaCode: String, areaType: String): List<CaseDto> {
+    fun loadAreaData(areaCode: String): List<CaseDto> {
         return appDatabase.areaDataDao().allByAreaCode(areaCode)
             .map {
                 CaseDto(

@@ -16,12 +16,13 @@
 
 package com.chrisa.covid19.core.data.network
 
+import com.chrisa.covid19.core.data.db.AreaType
 import javax.inject.Inject
 
 class AreaDataModelStructureMapper @Inject constructor() {
-    fun mapAreaTypeToDataModel(areaType: String): String {
+    fun mapAreaTypeToDataModel(areaType: AreaType): String {
         return when (areaType) {
-            "overview", "nation" -> AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+            AreaType.OVERVIEW, AreaType.NATION -> AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
             else -> AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
         }
     }

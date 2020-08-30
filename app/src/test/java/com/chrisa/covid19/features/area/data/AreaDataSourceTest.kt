@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.area.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
@@ -31,8 +32,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -42,6 +41,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @InternalCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -139,7 +140,7 @@ class AreaDataSourceTest {
         val areaData = AreaDataEntity(
             areaCode = "1234",
             areaName = "London",
-            areaType = "utla",
+            areaType = AreaType.UTLA,
             date = LocalDate.ofEpochDay(0),
             cumulativeCases = 222,
             infectionRate = 122.0,
@@ -149,7 +150,7 @@ class AreaDataSourceTest {
         every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
         every { appDatabase.areaDataDao() } returns areaDataDao
 
-        val cases = sut.loadAreaData(areaData.areaCode, areaData.areaType)
+        val cases = sut.loadAreaData(areaData.areaCode)
 
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases.first()).isEqualTo(

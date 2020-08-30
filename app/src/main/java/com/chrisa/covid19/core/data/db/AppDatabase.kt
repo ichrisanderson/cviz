@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.Flow
     exportSchema = false
 )
 @TypeConverters(
+    AreTypeConverter::class,
     LocalDateConverter::class,
     LocalDateTimeConverter::class
 )
@@ -92,6 +93,39 @@ class LocalDateTimeConverter {
     }
 }
 
+class AreTypeConverter {
+    @TypeConverter
+    fun areaTypeFromString(value: String?): AreaType? {
+        return value?.let { AreaType.from(value) }
+    }
+
+    @TypeConverter
+    fun areaTypeToString(areaType: AreaType?): String? {
+        return areaType?.value
+    }
+}
+
+enum class AreaType(val value: String) {
+    OVERVIEW("overview"),
+    NATION("nation"),
+    REGION("region"),
+    UTLA("utla"),
+    LTLA("ltla");
+    companion object {
+        fun from(type: String) : AreaType? {
+            return when (type) {
+                OVERVIEW.value -> OVERVIEW
+                NATION.value -> NATION
+                REGION.value -> REGION
+                UTLA.value -> UTLA
+                LTLA.value -> LTLA
+                else -> null
+            }
+        }
+    }
+
+}
+
 @Entity(
     tableName = "area",
     primaryKeys = ["areaCode"]
@@ -102,7 +136,7 @@ data class AreaEntity(
     @ColumnInfo(name = "areaName")
     val areaName: String,
     @ColumnInfo(name = "areaType")
-    val areaType: String
+    val areaType: AreaType
 )
 
 @Dao
@@ -131,7 +165,7 @@ data class AreaDataEntity(
     @ColumnInfo(name = "areaName")
     val areaName: String,
     @ColumnInfo(name = "areaType")
-    val areaType: String,
+    val areaType: AreaType,
     @ColumnInfo(name = "newCases")
     val newCases: Int,
     @ColumnInfo(name = "infectionRate")
@@ -155,7 +189,7 @@ interface AreaDataDao {
     fun countAll(): Int
 
     @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
-    fun countAllByAreaType(areaType: String): Int
+    fun countAllByAreaType(areaType: AreaType): Int
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allByAreaCodeFlow(areaCode: String): Flow<List<AreaDataEntity>>
@@ -226,6 +260,10 @@ interface SavedAreaDao {
 
 object Constants {
     const val UK_AREA_CODE = "K02000001"
+    const val ENGLAND_AREA_CODE = "E92000001"
+    const val NORTHERN_IRELAND_AREA_CODE = "N92000002"
+    const val SCOTLAND_AREA_CODE = "S92000003"
+    const val WALES_AREA_CODE = "W92000004"
 }
 
 object MetaDataIds {
@@ -244,7 +282,7 @@ data class AreaSummaryEntity(
     @ColumnInfo(name = "areaName")
     val areaName: String,
     @ColumnInfo(name = "areaType")
-    val areaType: String,
+    val areaType: AreaType,
     @ColumnInfo(name = "date")
     val date: LocalDate,
     @ColumnInfo(name = "baseInfectionRate")

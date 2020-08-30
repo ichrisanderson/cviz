@@ -60,7 +60,7 @@ class AreaDataDaoTest {
                 AreaDataEntity(
                     areaCode = "1234",
                     areaName = "UK",
-                    areaType = "overview",
+                    areaType = AreaType.OVERVIEW,
                     infectionRate = 11.0,
                     newCases = 1,
                     date = LocalDate.ofEpochDay(0),
@@ -79,7 +79,7 @@ class AreaDataDaoTest {
             AreaDataEntity(
                 areaCode = "1234",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 infectionRate = 11.0,
                 newCases = 1,
                 date = LocalDate.ofEpochDay(0),
@@ -89,11 +89,11 @@ class AreaDataDaoTest {
         db.areaDataDao().insertAll(
             listOf(
                 area,
-                area.copy(areaCode = "1", areaName = "Liverpool", areaType = "utla")
+                area.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
             )
         )
 
-        val count = db.areaDataDao().countAllByAreaType("utla")
+        val count = db.areaDataDao().countAllByAreaType(AreaType.UTLA)
         assertThat(count).isEqualTo(1)
     }
 
@@ -104,7 +104,7 @@ class AreaDataDaoTest {
             AreaDataEntity(
                 areaCode = "1234",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 infectionRate = 11.0,
                 newCases = 1,
                 date = LocalDate.ofEpochDay(0),
@@ -114,7 +114,7 @@ class AreaDataDaoTest {
         db.areaDataDao().insertAll(
             listOf(
                 area,
-                area.copy(areaCode = "1", areaName = "Liverpool", areaType = "utla")
+                area.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
             )
         )
 
@@ -132,7 +132,7 @@ class AreaDataDaoTest {
             AreaDataEntity(
                 areaCode = "1234",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 infectionRate = 11.0,
                 newCases = 1,
                 date = LocalDate.ofEpochDay(0),
@@ -142,7 +142,7 @@ class AreaDataDaoTest {
         db.areaDataDao().insertAll(
             listOf(
                 area,
-                area.copy(areaCode = "1", areaName = "Liverpool", areaType = "utla")
+                area.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
             )
         )
 
@@ -161,7 +161,7 @@ class AreaDataDaoTest {
             AreaDataEntity(
                 areaCode = "1234",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 infectionRate = 11.0,
                 newCases = 1,
                 date = LocalDate.ofEpochDay(0),
@@ -184,7 +184,7 @@ class AreaDataDaoTest {
         val newCaseEntity = AreaDataEntity(
             areaCode = "001",
             areaName = "UK",
-            areaType = "overview",
+            areaType = AreaType.OVERVIEW,
             date = LocalDate.ofEpochDay(0),
             newCases = 12,
             cumulativeCases = 33,
@@ -219,7 +219,7 @@ class AreaDataDaoTest {
             val oldCaseEntity = AreaDataEntity(
                 areaCode = "001",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 date = LocalDate.ofEpochDay(0),
                 newCases = 9,
                 cumulativeCases = 9,
@@ -231,7 +231,7 @@ class AreaDataDaoTest {
             val newCaseEntity = AreaDataEntity(
                 areaCode = "001",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 date = LocalDate.ofEpochDay(0),
                 newCases = 12,
                 cumulativeCases = 33,
@@ -259,7 +259,7 @@ class AreaDataDaoTest {
             val oldCaseEntity = AreaDataEntity(
                 areaCode = "001",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 date = LocalDate.ofEpochDay(0),
                 newCases = 9,
                 cumulativeCases = 9,
@@ -271,7 +271,7 @@ class AreaDataDaoTest {
             val newCaseEntity = AreaDataEntity(
                 areaCode = "001",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 date = LocalDate.ofEpochDay(1),
                 newCases = 12,
                 cumulativeCases = 33,
@@ -300,7 +300,7 @@ class AreaDataDaoTest {
             val areaDataEntity = AreaDataEntity(
                 areaCode = "001",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 date = LocalDate.ofEpochDay(0),
                 newCases = 9,
                 cumulativeCases = 9,
@@ -327,7 +327,7 @@ class AreaDataDaoTest {
             val areaDataEntity = AreaDataEntity(
                 areaCode = "001",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 date = LocalDate.ofEpochDay(0),
                 newCases = 9,
                 cumulativeCases = 9,
@@ -364,7 +364,7 @@ class AreaDataDaoTest {
             val areaDataEntity = AreaDataEntity(
                 areaCode = "001",
                 areaName = "UK",
-                areaType = "overview",
+                areaType = AreaType.OVERVIEW,
                 date = LocalDate.ofEpochDay(0),
                 newCases = 9,
                 cumulativeCases = 9,

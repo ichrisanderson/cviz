@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDao
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
@@ -395,7 +396,7 @@ class AreaListSynchroniserTest {
                     AreaEntity(
                         areaCode = it.areaCode,
                         areaName = it.areaName,
-                        areaType = it.areaType
+                        areaType = AreaType.from(it.areaType)!!
                     )
                 })
             }

@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AREA_DATA_FILTER
@@ -45,7 +46,7 @@ class AreaDataSynchroniser @Inject constructor(
     private val api: CovidApi
 ) {
 
-    suspend fun performSync(areaCode: String, areaType: String, onError: (error: Throwable) -> Unit) {
+    suspend fun performSync(areaCode: String, areaType: AreaType, onError: (error: Throwable) -> Unit) {
         runCatching {
             syncArea(areaCode, areaType)
         }.onFailure { error ->
@@ -54,14 +55,14 @@ class AreaDataSynchroniser @Inject constructor(
         }
     }
 
-    private suspend fun syncArea(areaCode: String, areaType: String) {
+    private suspend fun syncArea(areaCode: String, areaType: AreaType) {
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
 
         val casesFromNetwork = api.pagedAreaDataResponse(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
-            filters = AREA_DATA_FILTER(areaCode, areaType),
+            filters = AREA_DATA_FILTER(areaCode, areaType.value),
             structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
                 areaType
             )
@@ -97,7 +98,7 @@ class AreaDataSynchroniser @Inject constructor(
                 AreaDataEntity(
                     areaCode = it.areaCode,
                     areaName = it.areaName,
-                    areaType = it.areaType,
+                    areaType = AreaType.from(it.areaType)!!,
                     cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
                     infectionRate = it.infectionRate ?: 0.0,

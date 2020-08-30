@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaSummaryEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AreaDataModel
@@ -43,8 +44,7 @@ class AreaSummaryDataSynchroniser @Inject constructor(
         val date = LocalDate.now().minusDays(3)
         val data = appDatabase.metadataDao().metadata(MetaDataIds.areaSummaryId())
         if (data != null && data.lastUpdatedAt.toLocalDate() == date) return
-        val areaType = "ltla"
-        val monthlyData = monthlyData(date, areaType)
+        val monthlyData = monthlyData(date, AreaType.LTLA)
         val areaEntityList = buildAreaEntityList(monthlyData)
         insertAreaEntityList(date, areaEntityList)
     }
@@ -66,7 +66,7 @@ class AreaSummaryDataSynchroniser @Inject constructor(
         }
     }
 
-    private suspend fun monthlyData(lastDate: LocalDate, areaType: String): MonthlyData {
+    private suspend fun monthlyData(lastDate: LocalDate, areaType: AreaType): MonthlyData {
         val week1 = pagedAreaData(lastDate, areaType)
         require(week1.length != 0)
         val week2 = pagedAreaData(lastDate.minusDays(7), areaType)
@@ -90,7 +90,7 @@ class AreaSummaryDataSynchroniser @Inject constructor(
         monthlyData.week1.data.forEach {
             val data = AreaSummaryEntity(
                 areaCode = it.areaCode,
-                areaType = it.areaType,
+                areaType = AreaType.from(it.areaType)!!,
                 areaName = it.areaName,
                 date = it.date,
                 baseInfectionRate = it.infectionRate!! / it.cumulativeCases!!,
@@ -150,11 +150,11 @@ class AreaSummaryDataSynchroniser @Inject constructor(
 
     private suspend fun pagedAreaData(
         lastDate: LocalDate,
-        areaType: String
+        areaType: AreaType
     ): Page<AreaDataModel> {
         return api.pagedAreaData(
             modifiedDate = null,
-            filters = DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), areaType),
+            filters = DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), areaType.value),
             structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
                 areaType
             )
@@ -163,7 +163,7 @@ class AreaSummaryDataSynchroniser @Inject constructor(
 
     data class MonthlyData(
         val lastDate: LocalDate,
-        val areaType: String,
+        val areaType: AreaType,
         val week1: Page<AreaDataModel>,
         val week2: Page<AreaDataModel>,
         val week3: Page<AreaDataModel>,

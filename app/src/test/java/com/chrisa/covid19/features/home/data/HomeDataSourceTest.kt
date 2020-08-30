@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
@@ -74,7 +75,7 @@ class HomeDataSourceTest {
         val caseEntity = AreaDataEntity(
             areaCode = "1234",
             areaName = "London",
-            areaType = "utla",
+            areaType = AreaType.UTLA,
             date = LocalDate.ofEpochDay(0),
             cumulativeCases = 222,
             infectionRate = 122.0,
@@ -114,7 +115,7 @@ class HomeDataSourceTest {
         val caseEntity = AreaDataEntity(
             areaCode = "1234",
             areaName = "London",
-            areaType = "utla",
+            areaType = AreaType.UTLA,
             date = LocalDate.ofEpochDay(0),
             cumulativeCases = 222,
             infectionRate = 122.0,
@@ -131,7 +132,7 @@ class HomeDataSourceTest {
             SavedAreaCaseDto(
                 areaCode = it.areaCode,
                 areaName = it.areaName,
-                areaType = it.areaType,
+                areaType = it.areaType.value,
                 dailyLabConfirmedCases = it.newCases,
                 totalLabConfirmedCases = it.cumulativeCases,
                 dailyTotalLabConfirmedCasesRate = it.infectionRate,
