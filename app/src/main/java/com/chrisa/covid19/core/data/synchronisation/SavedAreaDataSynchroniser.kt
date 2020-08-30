@@ -27,7 +27,7 @@ class SavedAreaDataSynchroniser @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
-    suspend fun performSync(onError: (error: Throwable) -> Unit) {
+    suspend fun performSync() {
         val areas = listOf(
             AreaEntity(Constants.UK_AREA_CODE, "UK", AreaType.OVERVIEW),
             AreaEntity(Constants.ENGLAND_AREA_CODE, "England", AreaType.NATION),
@@ -38,7 +38,7 @@ class SavedAreaDataSynchroniser @Inject constructor(
             .plus(appDatabase.areaDao().allSavedAreas())
 
         areas.forEach { area ->
-            areaDataSynchroniser.performSync(area.areaCode, area.areaType, onError)
+            areaDataSynchroniser.performSync(area.areaCode, area.areaType)
         }
     }
 }

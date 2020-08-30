@@ -26,6 +26,6 @@ class SyncAreaDetailUseCase @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser
 ) {
     suspend fun execute(areaCode: String, areaType: String) {
-        return areaDataSynchroniser.performSync(areaCode, AreaType.from(areaType)!!) { throw it }
+        return areaDataSynchroniser.performSync(areaCode, AreaType.from(areaType)!!)
     }
 }

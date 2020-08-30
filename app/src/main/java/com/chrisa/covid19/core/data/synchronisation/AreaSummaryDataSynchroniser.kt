@@ -39,11 +39,13 @@ class AreaSummaryDataSynchroniser @Inject constructor(
     private val appDatabase: AppDatabase,
     private val areaDataModelStructureMapper: AreaDataModelStructureMapper
 ) {
-    suspend fun performSync(onError: (error: Throwable) -> Unit) {
+    suspend fun performSync() {
         if (!networkUtils.hasNetworkConnection()) throw IOException()
+
         val date = LocalDate.now().minusDays(3)
         val data = appDatabase.metadataDao().metadata(MetaDataIds.areaSummaryId())
         if (data != null && data.lastUpdatedAt.toLocalDate() == date) return
+
         val monthlyData = monthlyData(date, AreaType.LTLA)
         val areaEntityList = buildAreaEntityList(monthlyData)
         insertAreaEntityList(date, areaEntityList)

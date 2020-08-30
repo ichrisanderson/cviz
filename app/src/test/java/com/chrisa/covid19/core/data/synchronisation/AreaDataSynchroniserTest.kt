@@ -87,9 +87,8 @@ class AreaDataSynchroniserTest {
         testDispatcher.runBlockingTest {
 
             every { networkUtils.hasNetworkConnection() } returns false
-            val onError: (error: Throwable) -> Unit = { throw it }
 
-            sut.performSync(areaCode, areaType, onError)
+            sut.performSync(areaCode, areaType)
 
             coVerify(exactly = 0) { covidApi.pagedAreaDataResponse(any(), any(), any()) }
         }
@@ -104,7 +103,6 @@ class AreaDataSynchroniserTest {
                 lastUpdatedAt = lastUpdatedAt,
                 lastSyncTime = lastSyncedTime
             )
-            val onError: (error: Throwable) -> Unit = { throw it }
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
@@ -118,7 +116,7 @@ class AreaDataSynchroniserTest {
                 ResponseBody.create(MediaType.get("application/json"), "")
             )
 
-            sut.performSync(areaCode, areaType, onError)
+            sut.performSync(areaCode, areaType)
         }
 
     @Test(expected = NullPointerException::class)
@@ -131,7 +129,6 @@ class AreaDataSynchroniserTest {
                 lastUpdatedAt = lastUpdatedAt,
                 lastSyncTime = lastSyncedTime
             )
-            val onError: (error: Throwable) -> Unit = { throw it }
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
@@ -142,7 +139,7 @@ class AreaDataSynchroniserTest {
                 )
             } returns Response.success(null)
 
-            sut.performSync(areaCode, areaType, onError)
+            sut.performSync(areaCode, areaType)
         }
 
     @Test
@@ -170,7 +167,6 @@ class AreaDataSynchroniserTest {
                 data = listOf(areaModel)
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
-            val onError: (error: Throwable) -> Unit = { }
 
             mockkStatic(LocalDateTime::class)
             every { LocalDateTime.now() } returns syncTime
@@ -184,7 +180,7 @@ class AreaDataSynchroniserTest {
                 )
             } returns Response.success(pageModel)
 
-            sut.performSync(areaCode, areaType, onError)
+            sut.performSync(areaCode, areaType)
 
             verify(exactly = 1) { areaDataDao.deleteAllByAreaCode(areaCode) }
             verify(exactly = 1) {

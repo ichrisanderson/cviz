@@ -75,7 +75,7 @@ internal object DataModule {
         moshi: Moshi
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.coronavirus-staging.data.gov.uk/")
+            .baseUrl("https://api.coronavirus.data.gov.uk/")
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()

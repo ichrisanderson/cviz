@@ -38,6 +38,6 @@ class SyncAreaDetailUseCaseTest {
 
             sut.execute(areaCode, areaType.value)
 
-            coVerify { unsafeAreaDataSynchroniser.performSync(areaCode, areaType, any()) }
+            coVerify { unsafeAreaDataSynchroniser.performSync(areaCode, areaType) }
         }
 }

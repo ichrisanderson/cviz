@@ -37,7 +37,6 @@ import okhttp3.MediaType
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
-import timber.log.Timber
 
 class AreaDataSynchroniser @Inject constructor(
     private val networkUtils: NetworkUtils,
@@ -46,16 +45,10 @@ class AreaDataSynchroniser @Inject constructor(
     private val api: CovidApi
 ) {
 
-    suspend fun performSync(areaCode: String, areaType: AreaType, onError: (error: Throwable) -> Unit) {
-        runCatching {
-            syncArea(areaCode, areaType)
-        }.onFailure { error ->
-            onError(error)
-            Timber.e(error, "Error syncing saved area $areaCode")
-        }
-    }
-
-    private suspend fun syncArea(areaCode: String, areaType: AreaType) {
+    suspend fun performSync(
+        areaCode: String,
+        areaType: AreaType
+    ) {
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
