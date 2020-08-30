@@ -19,16 +19,17 @@ package com.chrisa.covid19.features.home.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
-import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class HomeDataSource @Inject constructor(
-    private val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val timeProvider: TimeProvider
 ) {
 
     fun overviewMetadata(): Flow<MetadataDto> {
@@ -36,7 +37,7 @@ class HomeDataSource @Inject constructor(
             .metadataAsFlow(MetaDataIds.areaCodeId(Constants.UK_AREA_CODE))
             .map {
                 MetadataDto(
-                    lastUpdatedAt = it?.lastUpdatedAt ?: LocalDateTime.now()
+                    lastUpdatedAt = it?.lastUpdatedAt ?: timeProvider.currentTime()
                 )
             }
     }

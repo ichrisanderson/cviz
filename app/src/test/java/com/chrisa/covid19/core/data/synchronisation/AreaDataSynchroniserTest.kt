@@ -27,6 +27,7 @@ import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.NetworkUtils
 import com.chrisa.covid19.core.util.mockTransaction
 import io.mockk.Runs
@@ -35,7 +36,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.verify
 import java.io.IOException
 import java.time.LocalDate
@@ -59,12 +59,14 @@ class AreaDataSynchroniserTest {
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
     private val areaDataModelStructureMapper = mockk<AreaDataModelStructureMapper>()
+    private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
 
     private lateinit var sut: AreaDataSynchroniser
     private val areaCode = "1234"
     private val areaType = AreaType.OVERVIEW
     private val areaDataModel = "{}"
+    private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
 
     @Before
     fun setup() {
@@ -75,11 +77,12 @@ class AreaDataSynchroniserTest {
         every { areaDataDao.deleteAllByAreaCode(areaCode) } just Runs
         every { areaDataDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { timeProvider.currentTime() } returns syncTime
 
         appDatabase.mockTransaction()
 
         sut =
-            AreaDataSynchroniser(networkUtils, appDatabase, areaDataModelStructureMapper, covidApi)
+            AreaDataSynchroniser(covidApi, appDatabase, areaDataModelStructureMapper, networkUtils, timeProvider)
     }
 
     @Test(expected = IOException::class)
@@ -96,12 +99,10 @@ class AreaDataSynchroniserTest {
     @Test(expected = HttpException::class)
     fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
         testDispatcher.runBlockingTest {
-            val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
-            val lastUpdatedAt = lastSyncedTime.minusDays(1)
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = lastUpdatedAt,
-                lastSyncTime = lastSyncedTime
+                lastUpdatedAt = syncTime.minusDays(1),
+                lastSyncTime = syncTime
             )
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
@@ -122,12 +123,10 @@ class AreaDataSynchroniserTest {
     @Test(expected = NullPointerException::class)
     fun `GIVEN api succeeds with null response WHEN performSync THEN area data is not updated`() =
         testDispatcher.runBlockingTest {
-            val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
-            val lastUpdatedAt = lastSyncedTime.minusDays(1)
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = lastUpdatedAt,
-                lastSyncTime = lastSyncedTime
+                lastUpdatedAt = syncTime.minusDays(1),
+                lastSyncTime = syncTime
             )
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
@@ -145,12 +144,10 @@ class AreaDataSynchroniserTest {
     @Test
     fun `GIVEN api succeeds with non-null response WHEN performSync THEN area data is updated`() =
         testDispatcher.runBlockingTest {
-            val lastSyncedTime = LocalDateTime.of(2020, 3, 2, 0, 0)
-            val lastUpdatedAt = lastSyncedTime.minusDays(1)
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = lastUpdatedAt,
-                lastSyncTime = lastSyncedTime
+                lastUpdatedAt = syncTime.minusDays(1),
+                lastSyncTime = syncTime
             )
             val areaModel = AreaDataModel(
                 areaCode = "001",
@@ -167,9 +164,6 @@ class AreaDataSynchroniserTest {
                 data = listOf(areaModel)
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
-
-            mockkStatic(LocalDateTime::class)
-            every { LocalDateTime.now() } returns syncTime
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {

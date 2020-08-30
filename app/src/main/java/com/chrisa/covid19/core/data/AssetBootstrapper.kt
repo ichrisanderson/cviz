@@ -24,6 +24,7 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -31,9 +32,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 
 class AssetBootstrapper @Inject constructor(
-    private val assetDataSource: AssetDataSource,
     private val appDatabase: AppDatabase,
-    private val coroutineDispatchers: CoroutineDispatchers
+    private val assetDataSource: AssetDataSource,
+    private val coroutineDispatchers: CoroutineDispatchers,
+    private val timeProvider: TimeProvider
 ) : Bootstrapper {
 
     override suspend fun bootstrapData() {
@@ -61,7 +63,7 @@ class AssetBootstrapper @Inject constructor(
                 MetadataEntity(
                     id = MetaDataIds.areaListId(),
                     lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
-                    lastSyncTime = LocalDateTime.now()
+                    lastSyncTime = timeProvider.currentTime()
                 )
             )
         }
@@ -87,7 +89,7 @@ class AssetBootstrapper @Inject constructor(
                 MetadataEntity(
                     id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
                     lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
-                    lastSyncTime = LocalDateTime.now()
+                    lastSyncTime = timeProvider.currentTime()
                 )
             )
         }

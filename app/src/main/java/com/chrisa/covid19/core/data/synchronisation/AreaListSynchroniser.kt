@@ -27,11 +27,11 @@ import com.chrisa.covid19.core.data.network.AREA_MODEL_STRUCTURE
 import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.core.util.NetworkUtils
 import java.io.IOException
-import java.time.LocalDateTime
 import javax.inject.Inject
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -39,9 +39,10 @@ import retrofit2.HttpException
 import retrofit2.Response
 
 class AreaListSynchroniser @Inject constructor(
-    private val networkUtils: NetworkUtils,
+    private val api: CovidApi,
     private val appDatabase: AppDatabase,
-    private val api: CovidApi
+    private val networkUtils: NetworkUtils,
+    private val timeProvider: TimeProvider
 ) {
 
     private val metadataDao = appDatabase.metadataDao()
@@ -50,7 +51,7 @@ class AreaListSynchroniser @Inject constructor(
     suspend fun performSync() {
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
-        val now = LocalDateTime.now()
+        val now = timeProvider.currentTime()
         val areaMetadata = metadataDao.metadata(MetaDataIds.areaListId()) ?: return
 
         if (areaMetadata.lastUpdatedAt.plusHours(1).isAfter(now)) {
@@ -77,8 +78,8 @@ class AreaListSynchroniser @Inject constructor(
                 metadataDao.insert(
                     MetadataEntity(
                         id = MetaDataIds.areaListId(),
-                        lastUpdatedAt = lastModified?.toGmtDateTime() ?: LocalDateTime.now(),
-                        lastSyncTime = LocalDateTime.now()
+                        lastUpdatedAt = lastModified?.toGmtDateTime() ?: timeProvider.currentTime(),
+                        lastSyncTime = timeProvider.currentTime()
                     )
                 )
             }

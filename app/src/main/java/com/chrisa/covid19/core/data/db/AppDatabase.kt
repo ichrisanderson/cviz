@@ -112,7 +112,7 @@ enum class AreaType(val value: String) {
     UTLA("utla"),
     LTLA("ltla");
     companion object {
-        fun from(type: String) : AreaType? {
+        fun from(type: String): AreaType? {
             return when (type) {
                 OVERVIEW.value -> OVERVIEW
                 NATION.value -> NATION
@@ -123,7 +123,6 @@ enum class AreaType(val value: String) {
             }
         }
     }
-
 }
 
 @Entity(

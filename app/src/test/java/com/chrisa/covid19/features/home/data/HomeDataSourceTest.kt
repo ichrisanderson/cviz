@@ -22,6 +22,7 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
@@ -34,23 +35,30 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class HomeDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
-    private val sut = HomeDataSource(appDatabase)
+    private val timeProvider = mockk<TimeProvider>()
+    private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
+    private val sut = HomeDataSource(appDatabase, timeProvider)
+
+    @Before
+    fun setup() {
+        every { timeProvider.currentTime() } returns syncTime
+    }
 
     @Test
     fun `WHEN overviewMetadata called THEN overview metadata from database is returned`() =
         runBlockingTest {
 
-            val now = LocalDateTime.now()
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
-                lastUpdatedAt = now.minusDays(1),
-                lastSyncTime = now
+                lastUpdatedAt = syncTime.minusDays(1),
+                lastSyncTime = syncTime
             )
 
             val overviewMetadataFlow = flow { emit(metadataEntity) }

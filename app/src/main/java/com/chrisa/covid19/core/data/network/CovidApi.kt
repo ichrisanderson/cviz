@@ -60,26 +60,6 @@ val AREA_MODEL_STRUCTURE = JSONObject().apply {
     put("areaType", "areaType")
 }.toString()
 
-val AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE = JSONObject().apply {
-    put("areaCode", "areaCode")
-    put("areaName", "areaName")
-    put("areaType", "areaType")
-    put("date", "date")
-    put("newCases", "newCasesByPublishDate")
-    put("cmlCases", "cumCasesByPublishDate")
-    put("infRate", "cumCasesByPublishDateRate")
-}.toString()
-
-val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
-    put("areaCode", "areaCode")
-    put("areaName", "areaName")
-    put("areaType", "areaType")
-    put("date", "date")
-    put("newCases", "newCasesBySpecimenDate")
-    put("cmlCases", "cumCasesBySpecimenDate")
-    put("infRate", "cumCasesBySpecimenDateRate")
-}.toString()
-
 @JsonClass(generateAdapter = true)
 data class Page<T>(
     val length: Int?,
@@ -105,7 +85,30 @@ data class AreaDataModel(
     val cumulativeCases: Int?,
     @Json(name = "infRate")
     val infectionRate: Double?
-)
+) {
+    companion object {
+
+        val AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+            put("date", "date")
+            put("newCases", "newCasesByPublishDate")
+            put("cmlCases", "cumCasesByPublishDate")
+            put("infRate", "cumCasesByPublishDateRate")
+        }.toString()
+
+        val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+            put("date", "date")
+            put("newCases", "newCasesBySpecimenDate")
+            put("cmlCases", "cumCasesBySpecimenDate")
+            put("infRate", "cumCasesBySpecimenDateRate")
+        }.toString()
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class MetadataModel(

@@ -27,6 +27,7 @@ import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.core.util.NetworkUtils
@@ -39,10 +40,11 @@ import retrofit2.HttpException
 import retrofit2.Response
 
 class AreaDataSynchroniser @Inject constructor(
-    private val networkUtils: NetworkUtils,
+    private val api: CovidApi,
     private val appDatabase: AppDatabase,
     private val areaDataModelStructureMapper: AreaDataModelStructureMapper,
-    private val api: CovidApi
+    private val networkUtils: NetworkUtils,
+    private val timeProvider: TimeProvider
 ) {
 
     suspend fun performSync(
@@ -66,7 +68,7 @@ class AreaDataSynchroniser @Inject constructor(
             cacheAreaData(
                 areaCode,
                 pagedAreaCodeData,
-                lastModified?.toGmtDateTime() ?: LocalDateTime.now()
+                lastModified?.toGmtDateTime() ?: timeProvider.currentTime()
             )
         } else {
             throw HttpException(
@@ -102,7 +104,7 @@ class AreaDataSynchroniser @Inject constructor(
                 metadata = MetadataEntity(
                     id = MetaDataIds.areaCodeId(areaCode),
                     lastUpdatedAt = lastModified,
-                    lastSyncTime = LocalDateTime.now()
+                    lastSyncTime = timeProvider.currentTime()
                 )
             )
         }

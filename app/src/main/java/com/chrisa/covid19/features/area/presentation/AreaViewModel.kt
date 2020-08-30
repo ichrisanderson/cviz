@@ -23,7 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
@@ -34,7 +34,6 @@ import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import io.plaidapp.core.util.event.Event
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -49,6 +48,7 @@ class AreaViewModel @ViewModelInject constructor(
     private val deleteSavedAreaUseCase: DeleteSavedAreaUseCase,
     private val dispatchers: CoroutineDispatchers,
     private val areaCasesModelMapper: AreaCasesModelMapper,
+    private val timeProvider: TimeProvider,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -109,7 +109,7 @@ class AreaViewModel @ViewModelInject constructor(
                 areaDetailUseCase.execute(areCode)
             }.onSuccess { areaDetail ->
                 areaDetail.collect { areaDetailModel ->
-                    val now = LocalDateTime.now()
+                    val now = timeProvider.currentTime()
                     if (areaDetailModel.lastSyncedAt == null || areaDetailModel.lastSyncedAt.plusMinutes(
                             5
                         ).isBefore(now)

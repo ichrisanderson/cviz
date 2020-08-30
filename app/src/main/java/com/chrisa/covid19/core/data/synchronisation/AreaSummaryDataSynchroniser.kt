@@ -27,6 +27,7 @@ import com.chrisa.covid19.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.DAILY_AREA_DATA_FILTER
 import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.DateUtils.formatAsIso8601
 import com.chrisa.covid19.core.util.NetworkUtils
 import java.io.IOException
@@ -34,21 +35,21 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 class AreaSummaryDataSynchroniser @Inject constructor(
-    private val networkUtils: NetworkUtils,
-    private val api: CovidApi,
     private val appDatabase: AppDatabase,
-    private val areaDataModelStructureMapper: AreaDataModelStructureMapper
+    private val monthlyDataLoader: MonthlyDataLoader,
+    private val areaEntityListBuilder: AreaEntityListBuilder,
+    private val networkUtils: NetworkUtils,
+    private val timeProvider: TimeProvider
 ) {
     suspend fun performSync() {
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
-        val date = LocalDate.now().minusDays(3)
+        val date = timeProvider.currentDate().minusDays(3)
         val data = appDatabase.metadataDao().metadata(MetaDataIds.areaSummaryId())
         if (data != null && data.lastUpdatedAt.toLocalDate() == date) return
 
-        val monthlyData = monthlyData(date, AreaType.LTLA)
-        val areaEntityList = buildAreaEntityList(monthlyData)
-        insertAreaEntityList(date, areaEntityList)
+        val monthlyData = monthlyDataLoader.load(date, AreaType.LTLA)
+        insertAreaEntityList(date, areaEntityListBuilder.build(monthlyData))
     }
 
     private suspend fun insertAreaEntityList(
@@ -67,8 +68,23 @@ class AreaSummaryDataSynchroniser @Inject constructor(
             )
         }
     }
+}
 
-    private suspend fun monthlyData(lastDate: LocalDate, areaType: AreaType): MonthlyData {
+data class MonthlyData(
+    val lastDate: LocalDate,
+    val areaType: AreaType,
+    val week1: Page<AreaDataModel>,
+    val week2: Page<AreaDataModel>,
+    val week3: Page<AreaDataModel>,
+    val week4: Page<AreaDataModel>
+)
+
+class MonthlyDataLoader @Inject constructor(
+    private val api: CovidApi,
+    private val areaDataModelStructureMapper: AreaDataModelStructureMapper
+) {
+
+    suspend fun load(lastDate: LocalDate, areaType: AreaType): MonthlyData {
         val week1 = pagedAreaData(lastDate, areaType)
         require(week1.length != 0)
         val week2 = pagedAreaData(lastDate.minusDays(7), areaType)
@@ -87,7 +103,22 @@ class AreaSummaryDataSynchroniser @Inject constructor(
         )
     }
 
-    private fun buildAreaEntityList(monthlyData: MonthlyData): List<AreaSummaryEntity> {
+    private suspend fun pagedAreaData(
+        lastDate: LocalDate,
+        areaType: AreaType
+    ): Page<AreaDataModel> {
+        return api.pagedAreaData(
+            modifiedDate = null,
+            filters = DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), areaType.value),
+            structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
+                areaType
+            )
+        )
+    }
+}
+
+class AreaEntityListBuilder @Inject constructor() {
+    fun build(monthlyData: MonthlyData): List<AreaSummaryEntity> {
         val areaSummaryMap = mutableMapOf<String, AreaSummaryEntity>()
         monthlyData.week1.data.forEach {
             val data = AreaSummaryEntity(
@@ -149,26 +180,4 @@ class AreaSummaryDataSynchroniser @Inject constructor(
 
         return areaSummaryMap.values.toList()
     }
-
-    private suspend fun pagedAreaData(
-        lastDate: LocalDate,
-        areaType: AreaType
-    ): Page<AreaDataModel> {
-        return api.pagedAreaData(
-            modifiedDate = null,
-            filters = DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), areaType.value),
-            structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
-                areaType
-            )
-        )
-    }
-
-    data class MonthlyData(
-        val lastDate: LocalDate,
-        val areaType: AreaType,
-        val week1: Page<AreaDataModel>,
-        val week2: Page<AreaDataModel>,
-        val week3: Page<AreaDataModel>,
-        val week4: Page<AreaDataModel>
-    )
 }

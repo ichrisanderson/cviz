@@ -18,7 +18,7 @@ package com.chrisa.covid19.features.area.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
-import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
@@ -51,6 +51,7 @@ import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import retrofit2.HttpException
@@ -68,7 +69,14 @@ class AreaViewModelTest {
     private val insertSavedAreaUseCase = mockk<InsertSavedAreaUseCase>(relaxed = true)
     private val deleteSavedAreaUseCase = mockk<DeleteSavedAreaUseCase>(relaxed = true)
     private val areaUiModelMapper = mockk<AreaCasesModelMapper>()
+    private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
+    private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
+
+    @Before
+    fun setup() {
+        every { timeProvider.currentTime() } returns syncTime
+    }
 
     @Test
     fun `GIVEN area detail succeeds WHEN viewmodel initialized THEN success state emitted`() =
@@ -88,10 +96,9 @@ class AreaViewModelTest {
                     )
                 )
 
-                val now = LocalDateTime.now()
                 val areaDetailModel = AreaDetailModel(
-                    lastUpdatedAt = now.minusDays(1),
-                    lastSyncedAt = now,
+                    lastUpdatedAt = syncTime.minusDays(1),
+                    lastSyncedAt = syncTime,
                     allCases = caseModels,
                     latestCases = caseModels.takeLast(7)
                 )
@@ -155,10 +162,9 @@ class AreaViewModelTest {
                     )
                 )
 
-                val now = LocalDateTime.now()
                 val areaDetailModel = AreaDetailModel(
-                    lastUpdatedAt = now.minusDays(1),
-                    lastSyncedAt = now.minusDays(1),
+                    lastUpdatedAt = syncTime.minusDays(1),
+                    lastSyncedAt = syncTime.minusDays(1),
                     allCases = caseModels,
                     latestCases = caseModels.takeLast(7)
                 )
@@ -437,6 +443,7 @@ class AreaViewModelTest {
             deleteSavedAreaUseCase,
             TestCoroutineDispatchersImpl(testDispatcher),
             areaUiModelMapper,
+            timeProvider,
             savedStateHandle
         )
     }

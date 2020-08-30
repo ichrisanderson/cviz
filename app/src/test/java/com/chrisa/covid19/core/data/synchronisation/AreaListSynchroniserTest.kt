@@ -28,6 +28,7 @@ import com.chrisa.covid19.core.data.network.AREA_MODEL_STRUCTURE
 import com.chrisa.covid19.core.data.network.AreaModel
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.NetworkUtils
 import com.chrisa.covid19.core.util.mockTransaction
@@ -59,7 +60,9 @@ class AreaListSynchroniserTest {
     private val appDatabase = mockk<AppDatabase>()
     private val areaDao = mockk<AreaDao>()
     private val metadataDao = mockk<MetadataDao>()
+    private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
+    private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
 
     private lateinit var sut: AreaListSynchroniser
 
@@ -67,8 +70,9 @@ class AreaListSynchroniserTest {
     fun setup() {
         every { appDatabase.areaDao() } returns areaDao
         every { appDatabase.metadataDao() } returns metadataDao
+        every { timeProvider.currentTime() } returns syncTime
 
-        sut = AreaListSynchroniser(networkUtils, appDatabase, covidApi)
+        sut = AreaListSynchroniser(covidApi, appDatabase, networkUtils, timeProvider)
     }
 
     @Test
@@ -86,11 +90,10 @@ class AreaListSynchroniserTest {
     fun `GIVEN metadata last updated less than an hour ago WHEN performSync called THEN api is not hit`() =
         testDispatcher.runBlockingTest {
 
-            val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
-                lastUpdatedAt = now.minusMinutes(1),
-                lastSyncTime = now.minusDays(1)
+                lastUpdatedAt = syncTime.minusMinutes(1),
+                lastSyncTime = syncTime.minusDays(1)
             )
             val date = metadata.lastUpdatedAt
                 .plusHours(1)
@@ -122,11 +125,10 @@ class AreaListSynchroniserTest {
     fun `GIVEN metadata last synced less than an hour ago WHEN performSync called THEN api is not hit`() =
         testDispatcher.runBlockingTest {
 
-            val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
-                lastUpdatedAt = now.minusMinutes(59),
-                lastSyncTime = now.minusMinutes(1)
+                lastUpdatedAt = syncTime.minusMinutes(59),
+                lastSyncTime = syncTime.minusMinutes(1)
             )
             val date = metadata.lastUpdatedAt
                 .plusHours(1)
@@ -157,11 +159,10 @@ class AreaListSynchroniserTest {
     @Test(expected = NullPointerException::class)
     fun `GIVEN metadata last updated more than an hour ago WHEN performSync called THEN api is hit`() =
         testDispatcher.runBlockingTest {
-            val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
-                lastUpdatedAt = now.minusMinutes(61),
-                lastSyncTime = now.minusHours(1)
+                lastUpdatedAt = syncTime.minusMinutes(61),
+                lastSyncTime = syncTime.minusHours(1)
             )
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
@@ -190,11 +191,10 @@ class AreaListSynchroniserTest {
     @Test(expected = IOException::class)
     fun `GIVEN no internet connection and metadata last updated more than an hour ago WHEN performSync called THEN api is not hit`() =
         testDispatcher.runBlockingTest {
-            val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
-                lastUpdatedAt = now.minusMinutes(1),
-                lastSyncTime = now
+                lastUpdatedAt = syncTime.minusMinutes(1),
+                lastSyncTime = syncTime
             )
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
@@ -226,11 +226,10 @@ class AreaListSynchroniserTest {
 
             mockkStatic(Timber::class)
 
-            val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
-                lastUpdatedAt = now.minusDays(1),
-                lastSyncTime = now.minusHours(1)
+                lastUpdatedAt = syncTime.minusDays(1),
+                lastSyncTime = syncTime.minusHours(1)
             )
             val date = metadata.lastUpdatedAt.formatAsGmt()
 
@@ -257,11 +256,10 @@ class AreaListSynchroniserTest {
     fun `GIVEN api call fails WHEN performSync called THEN database is not updated`() =
         testDispatcher.runBlockingTest {
 
-            val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
-                lastUpdatedAt = now.minusMinutes(1),
-                lastSyncTime = now
+                lastUpdatedAt = syncTime.minusMinutes(1),
+                lastSyncTime = syncTime
             )
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
@@ -290,11 +288,10 @@ class AreaListSynchroniserTest {
     fun `GIVEN api call succeeds with null body WHEN performSync called THEN database is not updated`() =
         testDispatcher.runBlockingTest {
 
-            val now = LocalDateTime.now()
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
-                lastUpdatedAt = now.minusMinutes(1),
-                lastSyncTime = now
+                lastUpdatedAt = syncTime.minusMinutes(1),
+                lastSyncTime = syncTime
             )
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
@@ -320,9 +317,6 @@ class AreaListSynchroniserTest {
     fun `GIVEN api call succeeds WHEN performSync called THEN database is updated`() =
         testDispatcher.runBlockingTest {
 
-            mockkStatic(LocalDateTime::class)
-            val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
-
             val metadata = MetadataEntity(
                 id = MetaDataIds.areaListId(),
                 lastUpdatedAt = syncTime.minusDays(1),
@@ -341,7 +335,6 @@ class AreaListSynchroniserTest {
             val date = metadata.lastUpdatedAt
                 .formatAsGmt()
 
-            every { LocalDateTime.now() } returns syncTime
             coEvery {
                 covidApi.pagedAreaResponse(
                     date,

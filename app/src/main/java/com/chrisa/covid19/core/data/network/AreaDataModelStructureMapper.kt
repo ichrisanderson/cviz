@@ -17,6 +17,8 @@
 package com.chrisa.covid19.core.data.network
 
 import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.network.AreaDataModel.Companion.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
+import com.chrisa.covid19.core.data.network.AreaDataModel.Companion.AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
 import javax.inject.Inject
 
 class AreaDataModelStructureMapper @Inject constructor() {
