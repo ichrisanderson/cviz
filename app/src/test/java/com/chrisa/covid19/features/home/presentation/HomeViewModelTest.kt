@@ -73,7 +73,7 @@ class HomeViewModelTest {
 
                 val homeScreenDataModel = HomeScreenDataModel(
                     savedAreas = listOf(savedArea),
-                    latestUkData = latestUkData
+                    latestUkData = listOf(latestUkData)
                 )
 
                 every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()

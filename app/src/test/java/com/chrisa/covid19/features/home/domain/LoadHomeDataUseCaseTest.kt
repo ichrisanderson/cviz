@@ -62,20 +62,15 @@ class LoadHomeDataUseCaseTest {
 
             val areaName = "United Kingdom"
 
-            val metadataDto = MetadataDto(
-                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
-            )
-
             val dailyRecordDto = DailyRecordDto(
                 areaName = areaName,
                 totalLabConfirmedCases = 122,
                 dailyLabConfirmedCases = 22,
-                date = LocalDate.of(2020, 5, 6)
+                lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
             )
 
             val dailyRecords = listOf(dailyRecordDto)
 
-            every { homeDataSource.overviewMetadata() } returns listOf(metadataDto).asFlow()
             every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
 
@@ -92,11 +87,11 @@ class LoadHomeDataUseCaseTest {
                     areaName = it.areaName,
                     dailyLabConfirmedCases = it.dailyLabConfirmedCases,
                     totalLabConfirmedCases = it.totalLabConfirmedCases,
-                    lastUpdated = metadataDto.lastUpdatedAt
+                    lastUpdated = it.lastUpdated
                 )
             }
 
-            assertThat(homeScreenDataModel.latestUkData).isEqualTo(expectedItems.takeLast(1).first())
+            assertThat(homeScreenDataModel.latestUkData).isEqualTo(expectedItems)
         }
 
     @Test
@@ -120,19 +115,14 @@ class LoadHomeDataUseCaseTest {
                 areaType
             )
 
-            val metadataDto = MetadataDto(
-                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
-            )
-
             val dailyRecordDto = DailyRecordDto(
                 areaName = "United Kingdom",
                 dailyLabConfirmedCases = 111,
                 totalLabConfirmedCases = 111,
-                date = LocalDate.of(2020, 1, 1)
+                lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
             )
             val dailyRecords = listOf(dailyRecordDto)
 
-            every { homeDataSource.overviewMetadata() } returns listOf(metadataDto).asFlow()
             every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(latestWeekData.cases).asFlow()
 
@@ -192,19 +182,14 @@ class LoadHomeDataUseCaseTest {
 
             val allCases = previousWeekData.cases + latestWeekData.cases
 
-            val metadataDto = MetadataDto(
-                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
-            )
-
             val dailyRecordDto = DailyRecordDto(
                 areaName = "United Kingdom",
                 dailyLabConfirmedCases = 111,
                 totalLabConfirmedCases = 111,
-                date = LocalDate.of(2020, 1, 1)
+                lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
             )
             val dailyRecords = listOf(dailyRecordDto)
 
-            every { homeDataSource.overviewMetadata() } returns listOf(metadataDto).asFlow()
             every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
 
@@ -261,19 +246,14 @@ class LoadHomeDataUseCaseTest {
             val allCases =
                 wokingCases.weekOne.cases + wokingCases.weekTwo.cases + aldershotCases.weekOne.cases + aldershotCases.weekTwo.cases
 
-            val metadataDto = MetadataDto(
-                lastUpdatedAt = LocalDateTime.of(2020, 5, 6, 1, 1)
-            )
-
             val dailyRecordDto = DailyRecordDto(
                 areaName = "United Kingdom",
                 dailyLabConfirmedCases = 111,
                 totalLabConfirmedCases = 111,
-                date = LocalDate.of(2020, 1, 1)
+                lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
             )
             val dailyRecords = listOf(dailyRecordDto)
 
-            every { homeDataSource.overviewMetadata() } returns listOf(metadataDto).asFlow()
             every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
 

@@ -159,6 +159,27 @@ interface AreaDao {
     primaryKeys = ["areaCode", "date"]
 )
 data class AreaDataEntity(
+    @ColumnInfo(name = "metadataId")
+    val metadataId: String,
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: AreaType,
+    @ColumnInfo(name = "newCases")
+    val newCases: Int,
+    @ColumnInfo(name = "infectionRate")
+    val infectionRate: Double,
+    @ColumnInfo(name = "cumulativeCases")
+    val cumulativeCases: Int,
+    @ColumnInfo(name = "date")
+    val date: LocalDate
+)
+
+data class AreaDataMetadataTuple(
+    @ColumnInfo(name = "lastUpdatedAt")
+    val lastUpdatedAt: LocalDateTime,
     @ColumnInfo(name = "areaCode")
     val areaCode: String,
     @ColumnInfo(name = "areaName")
@@ -191,13 +212,16 @@ interface AreaDataDao {
     fun countAllByAreaType(areaType: AreaType): Int
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
-    fun allByAreaCodeFlow(areaCode: String): Flow<List<AreaDataEntity>>
+    fun allByAreaCodeAsFlow(areaCode: String): Flow<List<AreaDataEntity>>
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allByAreaCode(areaCode: String): List<AreaDataEntity>
 
+    @Query("SELECT * FROM areaData INNER JOIN metadata on areaData.metadataId = metadata.id WHERE areaCode IN (:areaCodes) ORDER BY date DESC LIMIT :limit")
+    fun latestWithMetadataByAreaCodeAsFlow(areaCodes: List<String>, limit: Int = areaCodes.size): Flow<List<AreaDataMetadataTuple>>
+
     @Query("SELECT * FROM areaData INNER JOIN savedArea ON areaData.areaCode = savedArea.areaCode ORDER BY date ASC")
-    fun allSavedAreaData(): Flow<List<AreaDataEntity>>
+    fun allSavedAreaDataAsFlow(): Flow<List<AreaDataEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaData: List<AreaDataEntity>)

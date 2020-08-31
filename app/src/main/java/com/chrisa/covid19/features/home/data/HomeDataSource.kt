@@ -18,48 +18,54 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.Constants
-import com.chrisa.covid19.core.data.db.MetaDataIds
-import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class HomeDataSource @Inject constructor(
-    private val appDatabase: AppDatabase,
-    private val timeProvider: TimeProvider
+    private val appDatabase: AppDatabase
 ) {
 
-    fun overviewMetadata(): Flow<MetadataDto> {
-        return appDatabase.metadataDao()
-            .metadataAsFlow(MetaDataIds.areaCodeId(Constants.UK_AREA_CODE))
-            .map {
-                MetadataDto(
-                    lastUpdatedAt = it?.lastUpdatedAt ?: timeProvider.currentTime()
-                )
-            }
-    }
-
     fun ukOverview(): Flow<List<DailyRecordDto>> {
+
+        val sortOrder = mapOf(
+            Constants.UK_AREA_CODE to 1,
+            Constants.ENGLAND_AREA_CODE to 2,
+            Constants.SCOTLAND_AREA_CODE to 3,
+            Constants.WALES_AREA_CODE to 4,
+            Constants.NORTHERN_IRELAND_AREA_CODE to 5
+        )
+
         return appDatabase.areaDataDao()
-            .allByAreaCodeFlow(Constants.UK_AREA_CODE)
+            .latestWithMetadataByAreaCodeAsFlow(listOf(
+                Constants.UK_AREA_CODE,
+                Constants.ENGLAND_AREA_CODE,
+                Constants.NORTHERN_IRELAND_AREA_CODE,
+                Constants.SCOTLAND_AREA_CODE,
+                Constants.WALES_AREA_CODE
+            ))
             .map { areaDataList ->
-                areaDataList.map { areaData ->
-                    DailyRecordDto(
-                        areaName = areaData.areaName,
-                        dailyLabConfirmedCases = areaData.newCases,
-                        totalLabConfirmedCases = areaData.cumulativeCases,
-                        date = areaData.date
-                    )
+                areaDataList
+                    .sortedBy { sortOrder[it.areaCode] }
+                    .groupBy { it.areaCode }
+                    .flatMap { areaDataGroup ->
+                        areaDataGroup.value.take(1).map { areaData ->
+                            DailyRecordDto(
+                                areaName = areaData.areaName,
+                                dailyLabConfirmedCases = areaData.newCases,
+                                totalLabConfirmedCases = areaData.cumulativeCases,
+                                lastUpdated = areaData.lastUpdatedAt
+                            )
+                        }
                 }
             }
     }
 
     fun savedAreaCases(): Flow<List<SavedAreaCaseDto>> {
         return appDatabase.areaDataDao()
-            .allSavedAreaData()
+            .allSavedAreaDataAsFlow()
             .map { areaDataList ->
                 areaDataList.map {
                     SavedAreaCaseDto(

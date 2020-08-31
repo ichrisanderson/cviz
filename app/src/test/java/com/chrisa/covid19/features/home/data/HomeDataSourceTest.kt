@@ -18,69 +18,37 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaDataMetadataTuple
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
-import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class HomeDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
-    private val timeProvider = mockk<TimeProvider>()
     private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
-    private val sut = HomeDataSource(appDatabase, timeProvider)
-
-    @Before
-    fun setup() {
-        every { timeProvider.currentTime() } returns syncTime
-    }
-
-    @Test
-    fun `WHEN overviewMetadata called THEN overview metadata from database is returned`() =
-        runBlockingTest {
-
-            val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
-                lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime
-            )
-
-            val overviewMetadataFlow = flow { emit(metadataEntity) }
-
-            every {
-                appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(Constants.UK_AREA_CODE))
-            } returns overviewMetadataFlow
-
-            val emittedItems = mutableListOf<MetadataDto>()
-
-            sut.overviewMetadata().collect { emittedItems.add(it) }
-
-            assertThat(emittedItems.size).isEqualTo(1)
-            assertThat(emittedItems.first()).isEqualTo(MetadataDto(
-                lastUpdatedAt = metadataEntity.lastUpdatedAt
-            ))
-        }
+    private val sut = HomeDataSource(appDatabase)
 
     @Test
     fun `WHEN ukOverview called THEN all cases from uk are returned`() = runBlockingTest {
 
-        val caseEntity = AreaDataEntity(
+        val caseEntity = AreaDataMetadataTuple(
+            lastUpdatedAt = LocalDateTime.now(),
             areaCode = "1234",
             areaName = "London",
             areaType = AreaType.UTLA,
@@ -101,12 +69,20 @@ class HomeDataSourceTest {
                 areaName = it.areaName,
                 dailyLabConfirmedCases = it.newCases,
                 totalLabConfirmedCases = it.cumulativeCases,
-                date = it.date
+                lastUpdated = it.lastUpdatedAt
             )
         }
 
         every {
-            appDatabase.areaDataDao().allByAreaCodeFlow(Constants.UK_AREA_CODE)
+            appDatabase.areaDataDao().latestWithMetadataByAreaCodeAsFlow(
+                listOf(
+                    Constants.UK_AREA_CODE,
+                    Constants.ENGLAND_AREA_CODE,
+                    Constants.NORTHERN_IRELAND_AREA_CODE,
+                    Constants.SCOTLAND_AREA_CODE,
+                    Constants.WALES_AREA_CODE
+                )
+            )
         } returns allCasesFlow
 
         val emittedItems = mutableListOf<List<DailyRecordDto>>()
@@ -118,45 +94,153 @@ class HomeDataSourceTest {
     }
 
     @Test
-    fun `WHEN savedAreaCases called THEN all saved areas from database are returned`() = runBlockingTest {
+    fun `GIVEN duplicate areas WHEN ukOverview called THEN all unique cases from uk are returned`() =
+        runBlockingTest {
 
-        val caseEntity = AreaDataEntity(
-            areaCode = "1234",
-            areaName = "London",
-            areaType = AreaType.UTLA,
-            date = LocalDate.ofEpochDay(0),
-            cumulativeCases = 222,
-            infectionRate = 122.0,
-            newCases = 122
-        )
-
-        val allCases = listOf(
-            caseEntity,
-            caseEntity.copy(areaCode = "1111", areaName = "England")
-        )
-        val allCasesFlow = flow { emit(allCases) }
-
-        val allSavedAreaDtos = allCases.map {
-            SavedAreaCaseDto(
-                areaCode = it.areaCode,
-                areaName = it.areaName,
-                areaType = it.areaType.value,
-                dailyLabConfirmedCases = it.newCases,
-                totalLabConfirmedCases = it.cumulativeCases,
-                dailyTotalLabConfirmedCasesRate = it.infectionRate,
-                date = it.date
+            val ukData = AreaDataMetadataTuple(
+                lastUpdatedAt = LocalDateTime.now(),
+                areaCode = Constants.UK_AREA_CODE,
+                areaName = "UK",
+                areaType = AreaType.OVERVIEW,
+                date = syncTime.toLocalDate(),
+                cumulativeCases = 222,
+                infectionRate = 122.0,
+                newCases = 122
             )
+
+            val englandData = ukData.copy(
+                areaCode = Constants.ENGLAND_AREA_CODE,
+                areaName = "England",
+                areaType = AreaType.NATION,
+                lastUpdatedAt = ukData.lastUpdatedAt.minusDays(4)
+            )
+            val northernIrelandData = ukData.copy(
+                areaCode = Constants.NORTHERN_IRELAND_AREA_CODE,
+                areaName = "Northern Ireland",
+                areaType = AreaType.NATION,
+                lastUpdatedAt = ukData.lastUpdatedAt.minusDays(3)
+            )
+            val scotlandData = ukData.copy(
+                areaCode = Constants.SCOTLAND_AREA_CODE,
+                areaName = "Scotland",
+                areaType = AreaType.NATION,
+                lastUpdatedAt = ukData.lastUpdatedAt.minusDays(2)
+            )
+            val walesData = ukData.copy(
+                areaCode = Constants.WALES_AREA_CODE,
+                areaName = "Wales",
+                areaType = AreaType.NATION,
+                lastUpdatedAt = ukData.lastUpdatedAt.minusDays(1)
+            )
+
+            val allCases = listOf(
+                scotlandData,
+                scotlandData.copy(date = ukData.date.minusDays(7)),
+                northernIrelandData,
+                northernIrelandData.copy(date = ukData.date.minusDays(7)),
+                ukData,
+                ukData.copy(date = ukData.date.minusDays(7)),
+                walesData,
+                walesData.copy(date = ukData.date.minusDays(7)),
+                englandData,
+                englandData.copy(date = englandData.date.minusDays(7))
+            )
+            val allCasesFlow = flow { emit(allCases) }
+
+
+            every {
+                appDatabase.areaDataDao().latestWithMetadataByAreaCodeAsFlow(
+                    listOf(
+                        Constants.UK_AREA_CODE,
+                        Constants.ENGLAND_AREA_CODE,
+                        Constants.NORTHERN_IRELAND_AREA_CODE,
+                        Constants.SCOTLAND_AREA_CODE,
+                        Constants.WALES_AREA_CODE
+                    )
+                )
+            } returns allCasesFlow
+
+            val emittedItems = mutableListOf<List<DailyRecordDto>>()
+
+            sut.ukOverview().collect { emittedItems.add(it) }
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems.first()).isEqualTo(listOf(
+                DailyRecordDto(
+                    areaName = ukData.areaName,
+                    dailyLabConfirmedCases = ukData.newCases,
+                    totalLabConfirmedCases = ukData.cumulativeCases,
+                    lastUpdated = ukData.lastUpdatedAt
+                ),
+                DailyRecordDto(
+                    areaName = englandData.areaName,
+                    dailyLabConfirmedCases = englandData.newCases,
+                    totalLabConfirmedCases = englandData.cumulativeCases,
+                    lastUpdated = englandData.lastUpdatedAt
+                ),
+                DailyRecordDto(
+                    areaName = scotlandData.areaName,
+                    dailyLabConfirmedCases = scotlandData.newCases,
+                    totalLabConfirmedCases = scotlandData.cumulativeCases,
+                    lastUpdated = scotlandData.lastUpdatedAt
+                ),
+                DailyRecordDto(
+                    areaName = walesData.areaName,
+                    dailyLabConfirmedCases = walesData.newCases,
+                    totalLabConfirmedCases = walesData.cumulativeCases,
+                    lastUpdated = walesData.lastUpdatedAt
+                ),
+                DailyRecordDto(
+                    areaName = northernIrelandData.areaName,
+                    dailyLabConfirmedCases = northernIrelandData.newCases,
+                    totalLabConfirmedCases = northernIrelandData.cumulativeCases,
+                    lastUpdated = northernIrelandData.lastUpdatedAt
+                )
+            ))
         }
 
-        every {
-            appDatabase.areaDataDao().allSavedAreaData()
-        } returns allCasesFlow
+    @Test
+    fun `WHEN savedAreaCases called THEN all saved areas from database are returned`() =
+        runBlockingTest {
 
-        val emittedItems = mutableListOf<List<SavedAreaCaseDto>>()
+            val caseEntity = AreaDataEntity(
+                metadataId = MetaDataIds.areaCodeId("1234"),
+                areaCode = "1234",
+                areaName = "London",
+                areaType = AreaType.UTLA,
+                date = LocalDate.ofEpochDay(0),
+                cumulativeCases = 222,
+                infectionRate = 122.0,
+                newCases = 122
+            )
 
-        sut.savedAreaCases().collect { emittedItems.add(it) }
+            val allCases = listOf(
+                caseEntity,
+                caseEntity.copy(areaCode = "1111", areaName = "England")
+            )
+            val allCasesFlow = flow { emit(allCases) }
 
-        assertThat(emittedItems.size).isEqualTo(1)
-        assertThat(emittedItems.first()).isEqualTo(allSavedAreaDtos)
-    }
+            val allSavedAreaDtos = allCases.map {
+                SavedAreaCaseDto(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = it.areaType.value,
+                    dailyLabConfirmedCases = it.newCases,
+                    totalLabConfirmedCases = it.cumulativeCases,
+                    dailyTotalLabConfirmedCasesRate = it.infectionRate,
+                    date = it.date
+                )
+            }
+
+            every {
+                appDatabase.areaDataDao().allSavedAreaDataAsFlow()
+            } returns allCasesFlow
+
+            val emittedItems = mutableListOf<List<SavedAreaCaseDto>>()
+
+            sut.savedAreaCases().collect { emittedItems.add(it) }
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems.first()).isEqualTo(allSavedAreaDtos)
+        }
 }

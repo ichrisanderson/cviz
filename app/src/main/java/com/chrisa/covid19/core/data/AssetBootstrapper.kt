@@ -74,8 +74,10 @@ class AssetBootstrapper @Inject constructor(
         if (areaCount > 0) return
         val areas = assetDataSource.getOverviewAreaData()
         appDatabase.withTransaction {
+            val metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE)
             appDatabase.areaDataDao().insertAll(areas.map {
                 AreaDataEntity(
+                    metadataId = metadataId,
                     areaCode = it.areaCode,
                     areaName = it.areaName,
                     areaType = AreaType.from(it.areaType)!!,
@@ -87,7 +89,7 @@ class AssetBootstrapper @Inject constructor(
             })
             appDatabase.metadataDao().insert(
                 MetadataEntity(
-                    id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+                    id = metadataId,
                     lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
                     lastSyncTime = timeProvider.currentTime()
                 )

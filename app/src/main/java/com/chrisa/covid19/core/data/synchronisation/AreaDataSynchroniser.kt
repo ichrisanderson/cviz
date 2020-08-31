@@ -20,6 +20,7 @@ import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AREA_DATA_FILTER
@@ -88,9 +89,11 @@ class AreaDataSynchroniser @Inject constructor(
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
+            val metadataId = MetaDataIds.areaCodeId(areaCode)
             appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
             appDatabase.areaDataDao().insertAll(pagedAreaCodeData.data.map {
                 AreaDataEntity(
+                    metadataId = metadataId,
                     areaCode = it.areaCode,
                     areaName = it.areaName,
                     areaType = AreaType.from(it.areaType)!!,
@@ -102,7 +105,7 @@ class AreaDataSynchroniser @Inject constructor(
             })
             appDatabase.metadataDao().insert(
                 metadata = MetadataEntity(
-                    id = MetaDataIds.areaCodeId(areaCode),
+                    id = metadataId,
                     lastUpdatedAt = lastModified,
                     lastSyncTime = timeProvider.currentTime()
                 )

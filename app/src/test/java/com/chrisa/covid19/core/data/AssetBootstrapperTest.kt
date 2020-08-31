@@ -175,6 +175,7 @@ class AssetBootstrapperTest {
             verify {
                 areaDataDao.insertAll(areas.map {
                     AreaDataEntity(
+                        metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
                         areaCode = it.areaCode,
                         areaName = it.areaName,
                         areaType = AreaType.from(it.areaType)!!,

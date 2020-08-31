@@ -27,10 +27,11 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
+import com.chrisa.covid19.features.home.domain.models.LatestUkData
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
-import com.chrisa.covid19.features.home.presentation.widgets.latestUkDataCard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.fakeSearchBar
 import kotlinx.android.synthetic.main.fragment_home.homeProgress
@@ -83,9 +84,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     id("dailyRecordHeader")
                     title(getString(R.string.daily_records_title))
                 }
-                latestUkDataCard {
-                    id("dailyRecordCard")
-                    latestUkData(homeScreenData.latestUkData)
+                carousel {
+                    id("dailyRecordCarousel")
+                    models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
                 sectionHeader {
                     id("hotspotsHeader")
@@ -106,6 +107,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         })
     }
+
+    private fun dailyRecordModels(
+        idPrefix: String,
+        latestUkData: List<LatestUkData>
+    ): List<EpoxyModel<*>> =
+        latestUkData.map { data ->
+            LatestUkDataCardModel_()
+                .id(idPrefix + data.areaName + data.lastUpdated)
+                .latestUkData(data)
+        }
 
     private fun savedAreaModels(
         idPrefix: String,

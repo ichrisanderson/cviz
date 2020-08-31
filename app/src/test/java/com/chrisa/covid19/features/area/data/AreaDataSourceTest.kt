@@ -138,6 +138,7 @@ class AreaDataSourceTest {
     fun `WHEN loadAreaData called THEN area data is returned`() = runBlocking {
 
         val areaData = AreaDataEntity(
+            metadataId = MetaDataIds.areaCodeId("1234"),
             areaCode = "1234",
             areaName = "London",
             areaType = AreaType.UTLA,

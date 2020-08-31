@@ -18,21 +18,20 @@ package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
 import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkData
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -43,14 +42,13 @@ class LoadHomeDataUseCase @Inject constructor(
 ) {
     fun execute(): Flow<HomeScreenDataModel> {
 
-        val metadata = homeDataSource.overviewMetadata()
         val ukOverview = homeDataSource.ukOverview()
         val savedAreaCases = homeDataSource.savedAreaCases()
 
-        return combine(metadata, ukOverview, savedAreaCases) { metadata, ukOverview, cases ->
+        return combine(ukOverview, savedAreaCases) { overview, cases ->
             HomeScreenDataModel(
                 savedAreas = savedAreas(cases),
-                latestUkData = latestUkData(ukOverview, metadata)
+                latestUkData = latestUkData(overview)
             )
         }
     }
@@ -91,16 +89,15 @@ class LoadHomeDataUseCase @Inject constructor(
     }
 
     private fun latestUkData(
-        ukOverview: List<DailyRecordDto>,
-        metadata: MetadataDto
-    ): LatestUkData {
-        return ukOverview.takeLast(1).map { dailyRecord ->
+        ukOverview: List<DailyRecordDto>
+    ): List<LatestUkData> {
+        return ukOverview.map { dailyRecord ->
             LatestUkData(
                 areaName = dailyRecord.areaName,
                 dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,
                 totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
-                lastUpdated = metadata.lastUpdatedAt
+                lastUpdated = dailyRecord.lastUpdated
             )
-        }.first()
+        }
     }
 }
