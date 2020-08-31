@@ -22,20 +22,18 @@ import com.chrisa.covid19.core.data.db.AreaDataMetadataTuple
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
-import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class HomeDataSourceTest {
@@ -146,7 +144,6 @@ class HomeDataSourceTest {
                 englandData.copy(date = englandData.date.minusDays(7))
             )
             val allCasesFlow = flow { emit(allCases) }
-
 
             every {
                 appDatabase.areaDataDao().latestWithMetadataByAreaCodeAsFlow(

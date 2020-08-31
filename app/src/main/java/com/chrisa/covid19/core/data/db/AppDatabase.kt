@@ -342,8 +342,18 @@ data class AreaSummaryEntity(
 
 @Dao
 interface AreaSummaryEntityDao {
+
+    @Query("SELECT COUNT(areaCode) FROM areaSummary")
+    fun countAll(): Int
+
     @Query("DELETE FROM areaSummary")
     fun deleteAll()
+
+    @Query("SELECT * FROM areaSummary WHERE areaCode = :areaCode")
+    fun byAreaCode(areaCode: String): AreaSummaryEntity
+
+    @Query("SELECT * FROM areaSummary ORDER BY newCaseInfectionRateWeek1 DESC LIMIT 10")
+    fun topAreasByLastestCaseInfectionRateAsFlow(): Flow<List<AreaSummaryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaSummaries: List<AreaSummaryEntity>)

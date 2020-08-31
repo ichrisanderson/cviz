@@ -24,4 +24,3 @@ data class DailyRecordDto(
     val totalLabConfirmedCases: Int,
     val lastUpdated: LocalDateTime
 )
-
