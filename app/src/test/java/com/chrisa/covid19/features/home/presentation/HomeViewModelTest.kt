@@ -21,7 +21,7 @@ import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
-import com.chrisa.covid19.features.home.domain.models.LatestUkData
+import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -64,7 +64,7 @@ class HomeViewModelTest {
                     totalLabConfirmedCasesLastWeek = 11
                 )
 
-                val latestUkData = LatestUkData(
+                val latestUkData = LatestUkDataModel(
                     areaName = "England",
                     totalLabConfirmedCases = 22,
                     dailyLabConfirmedCases = 33,
@@ -73,7 +73,8 @@ class HomeViewModelTest {
 
                 val homeScreenDataModel = HomeScreenDataModel(
                     savedAreas = listOf(savedArea),
-                    latestUkData = listOf(latestUkData)
+                    latestUkData = listOf(latestUkData),
+                    hotSpots = emptyList()
                 )
 
                 every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()

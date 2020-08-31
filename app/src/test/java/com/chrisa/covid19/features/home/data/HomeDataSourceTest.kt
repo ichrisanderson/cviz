@@ -19,10 +19,12 @@ package com.chrisa.covid19.features.home.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaDataMetadataTuple
+import com.chrisa.covid19.core.data.db.AreaSummaryEntity
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
+import com.chrisa.covid19.features.home.data.dtos.HotSpotDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -240,4 +242,52 @@ class HomeDataSourceTest {
             assertThat(emittedItems.size).isEqualTo(1)
             assertThat(emittedItems.first()).isEqualTo(allSavedAreaDtos)
         }
+
+    @Test
+    fun `WHEN hotspots called THEN all hotspot areas are returned`() = runBlockingTest {
+
+        val areaSummaryEntity = AreaSummaryEntity(
+            areaCode = Constants.UK_AREA_CODE,
+            areaType = AreaType.OVERVIEW,
+            areaName = "UK",
+            date = syncTime.toLocalDate(),
+            baseInfectionRate = 100.0,
+            cumulativeCasesWeek1 = 100,
+            cumulativeCaseInfectionRateWeek1 = 85.0,
+            newCaseInfectionRateWeek1 = 25.0,
+            newCasesWeek1 = 30,
+            cumulativeCasesWeek2 = 80,
+            cumulativeCaseInfectionRateWeek2 = 80.0,
+            newCaseInfectionRateWeek2 = 22.0,
+            newCasesWeek2 = 22,
+            cumulativeCasesWeek3 = 66,
+            cumulativeCaseInfectionRateWeek3 = 82.0,
+            newCaseInfectionRateWeek3 = 33.0,
+            newCasesWeek3 = 26,
+            cumulativeCasesWeek4 = 50,
+            cumulativeCaseInfectionRateWeek4 = 75.0
+        )
+
+        val areaSummaryEntities = listOf(areaSummaryEntity)
+        val allAreaSummaryEntities = flow { emit(areaSummaryEntities) }
+
+        val allDailyRecordDtos = areaSummaryEntities.map {
+            HotSpotDto(
+                areaName = it.areaName,
+                casesThisWeek = it.newCasesWeek1,
+                currentInfectionRate = it.newCaseInfectionRateWeek1
+            )
+        }
+
+        every {
+            appDatabase.areaSummaryEntityDao().topAreasByLastestCaseInfectionRateAsFlow()
+        } returns allAreaSummaryEntities
+
+        val emittedItems = mutableListOf<List<HotSpotDto>>()
+
+        sut.hotspots().collect { emittedItems.add(it) }
+
+        assertThat(emittedItems.size).isEqualTo(1)
+        assertThat(emittedItems.first()).isEqualTo(allDailyRecordDtos)
+    }
 }

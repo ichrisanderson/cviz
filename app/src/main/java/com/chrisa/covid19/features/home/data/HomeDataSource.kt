@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.home.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
+import com.chrisa.covid19.features.home.data.dtos.HotSpotDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -39,13 +40,15 @@ class HomeDataSource @Inject constructor(
         )
 
         return appDatabase.areaDataDao()
-            .latestWithMetadataByAreaCodeAsFlow(listOf(
-                Constants.UK_AREA_CODE,
-                Constants.ENGLAND_AREA_CODE,
-                Constants.NORTHERN_IRELAND_AREA_CODE,
-                Constants.SCOTLAND_AREA_CODE,
-                Constants.WALES_AREA_CODE
-            ))
+            .latestWithMetadataByAreaCodeAsFlow(
+                listOf(
+                    Constants.UK_AREA_CODE,
+                    Constants.ENGLAND_AREA_CODE,
+                    Constants.NORTHERN_IRELAND_AREA_CODE,
+                    Constants.SCOTLAND_AREA_CODE,
+                    Constants.WALES_AREA_CODE
+                )
+            )
             .map { areaDataList ->
                 areaDataList
                     .sortedBy { sortOrder[it.areaCode] }
@@ -59,7 +62,7 @@ class HomeDataSource @Inject constructor(
                                 lastUpdated = areaData.lastUpdatedAt
                             )
                         }
-                }
+                    }
             }
     }
 
@@ -76,6 +79,20 @@ class HomeDataSource @Inject constructor(
                         dailyLabConfirmedCases = it.newCases,
                         totalLabConfirmedCases = it.cumulativeCases,
                         dailyTotalLabConfirmedCasesRate = it.infectionRate
+                    )
+                }
+            }
+    }
+
+    fun hotspots(): Flow<List<HotSpotDto>> {
+        return appDatabase.areaSummaryEntityDao()
+            .topAreasByLastestCaseInfectionRateAsFlow()
+            .map { areaDataList ->
+                areaDataList.map {
+                    HotSpotDto(
+                        areaName = it.areaName,
+                        casesThisWeek = it.newCasesWeek1,
+                        currentInfectionRate = it.newCaseInfectionRateWeek1
                     )
                 }
             }

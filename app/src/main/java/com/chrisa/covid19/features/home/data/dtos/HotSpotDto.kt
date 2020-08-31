@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.domain.models
+package com.chrisa.covid19.features.home.data.dtos
 
-data class HomeScreenDataModel(
-    val savedAreas: List<SavedAreaModel>,
-    val latestUkData: List<LatestUkDataModel>,
-    val hotSpots: List<HotSpotModel>
+data class HotSpotDto(
+    val areaName: String,
+    val casesThisWeek: Int,
+    val currentInfectionRate: Double
 )

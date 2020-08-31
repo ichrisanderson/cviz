@@ -18,11 +18,13 @@ package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
+import com.chrisa.covid19.features.home.data.dtos.HotSpotDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
 import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
-import com.chrisa.covid19.features.home.domain.models.LatestUkData
+import com.chrisa.covid19.features.home.domain.models.HotSpotModel
+import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -44,11 +46,13 @@ class LoadHomeDataUseCase @Inject constructor(
 
         val ukOverview = homeDataSource.ukOverview()
         val savedAreaCases = homeDataSource.savedAreaCases()
+        val hotspotsData = homeDataSource.hotspots()
 
-        return combine(ukOverview, savedAreaCases) { overview, cases ->
+        return combine(ukOverview, hotspotsData, savedAreaCases) { overview, hotspots, cases ->
             HomeScreenDataModel(
                 savedAreas = savedAreas(cases),
-                latestUkData = latestUkData(overview)
+                latestUkData = latestUkData(overview),
+                hotSpots = latestHotpots(hotspots)
             )
         }
     }
@@ -62,7 +66,7 @@ class LoadHomeDataUseCase @Inject constructor(
 
                 // TODO: Reported data needs cleaning up on import, will be better
                 // to calculate averages when inputting into DB - the totalLabConfirmedCases
-                // are undereported - we need to calcualte the difference in total figures to get the
+                // are under reported - we need to calculate the difference in total figures to get the
                 // real reported numbers.
                 val pastTwoWeekCaseBreakdown =
                     pastTwoWeekCaseBreakdownHelper.pastTwoWeekCaseBreakdown(
@@ -90,13 +94,23 @@ class LoadHomeDataUseCase @Inject constructor(
 
     private fun latestUkData(
         ukOverview: List<DailyRecordDto>
-    ): List<LatestUkData> {
+    ): List<LatestUkDataModel> {
         return ukOverview.map { dailyRecord ->
-            LatestUkData(
+            LatestUkDataModel(
                 areaName = dailyRecord.areaName,
                 dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,
                 totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
                 lastUpdated = dailyRecord.lastUpdated
+            )
+        }
+    }
+
+    private fun latestHotpots(hotspots: List<HotSpotDto>): List<HotSpotModel> {
+        return hotspots.map { hotspot ->
+            HotSpotModel(
+                areaName = hotspot.areaName,
+                casesThisWeek = hotspot.casesThisWeek,
+                currentInfectionRate = hotspot.currentInfectionRate
             )
         }
     }

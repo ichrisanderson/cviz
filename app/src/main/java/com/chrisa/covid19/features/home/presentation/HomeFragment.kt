@@ -27,7 +27,7 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
-import com.chrisa.covid19.features.home.domain.models.LatestUkData
+import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
@@ -110,7 +110,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun dailyRecordModels(
         idPrefix: String,
-        latestUkData: List<LatestUkData>
+        latestUkData: List<LatestUkDataModel>
     ): List<EpoxyModel<*>> =
         latestUkData.map { data ->
             LatestUkDataCardModel_()
