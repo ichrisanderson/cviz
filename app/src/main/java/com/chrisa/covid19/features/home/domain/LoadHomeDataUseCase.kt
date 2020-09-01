@@ -18,12 +18,12 @@ package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.HotSpotDto
+import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
 import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
-import com.chrisa.covid19.features.home.domain.models.HotSpotModel
+import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import java.time.LocalDate
@@ -46,13 +46,13 @@ class LoadHomeDataUseCase @Inject constructor(
 
         val ukOverview = homeDataSource.ukOverview()
         val savedAreaCases = homeDataSource.savedAreaCases()
-        val hotspotsData = homeDataSource.hotspots()
+        val topInfectionRateData = homeDataSource.topInfectionRates()
 
-        return combine(ukOverview, hotspotsData, savedAreaCases) { overview, hotspots, cases ->
+        return combine(ukOverview, topInfectionRateData, savedAreaCases) { overview, topInfectionRates, cases ->
             HomeScreenDataModel(
                 savedAreas = savedAreas(cases),
                 latestUkData = latestUkData(overview),
-                hotSpots = latestHotpots(hotspots)
+                topInfectionRates = topInfectionRates(topInfectionRates)
             )
         }
     }
@@ -105,12 +105,14 @@ class LoadHomeDataUseCase @Inject constructor(
         }
     }
 
-    private fun latestHotpots(hotspots: List<HotSpotDto>): List<HotSpotModel> {
-        return hotspots.map { hotspot ->
-            HotSpotModel(
-                areaName = hotspot.areaName,
-                casesThisWeek = hotspot.casesThisWeek,
-                currentInfectionRate = hotspot.currentInfectionRate
+    private fun topInfectionRates(infectionRates: List<InfectionRateDto>): List<InfectionRateModel> {
+        return infectionRates.map { infectionRate ->
+            InfectionRateModel(
+                areaCode = infectionRate.areaCode,
+                areaName = infectionRate.areaName,
+                areaType = infectionRate.areaType,
+                changeInInfectionRate = infectionRate.changeInInfectionRate,
+                currentInfectionRate = infectionRate.currentInfectionRate
             )
         }
     }

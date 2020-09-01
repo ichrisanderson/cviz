@@ -38,7 +38,11 @@ class SavedAreaDataSynchroniser @Inject constructor(
             .plus(appDatabase.areaDao().allSavedAreas())
 
         areas.forEach { area ->
-            areaDataSynchroniser.performSync(area.areaCode, area.areaType)
+            try {
+                areaDataSynchroniser.performSync(area.areaCode, area.areaType)
+            } catch (throwable: Throwable) {
+                throw throwable
+            }
         }
     }
 }

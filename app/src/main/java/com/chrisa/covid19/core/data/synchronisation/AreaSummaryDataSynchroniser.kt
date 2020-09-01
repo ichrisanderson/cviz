@@ -48,8 +48,12 @@ class AreaSummaryDataSynchroniser @Inject constructor(
         val data = appDatabase.metadataDao().metadata(MetaDataIds.areaSummaryId())
         if (data != null && data.lastUpdatedAt.toLocalDate() == date) return
 
-        val monthlyData = monthlyDataLoader.load(date, AreaType.LTLA)
-        insertAreaEntityList(date, areaEntityListBuilder.build(monthlyData))
+        try {
+            val monthlyData = monthlyDataLoader.load(date, AreaType.LTLA)
+            insertAreaEntityList(date, areaEntityListBuilder.build(monthlyData))
+        } catch (throwable: Throwable) {
+            throw throwable
+        }
     }
 
     private suspend fun insertAreaEntityList(
@@ -88,11 +92,8 @@ class MonthlyDataLoader @Inject constructor(
         val week1 = pagedAreaData(lastDate, areaType)
         require(week1.length != 0)
         val week2 = pagedAreaData(lastDate.minusDays(7), areaType)
-        require(week1.length == week2.length)
         val week3 = pagedAreaData(lastDate.minusDays(14), areaType)
-        require(week2.length == week3.length)
         val week4 = pagedAreaData(lastDate.minusDays(21), areaType)
-        require(week3.length == week4.length)
         return MonthlyData(
             lastDate,
             areaType,
@@ -146,7 +147,7 @@ class AreaEntityListBuilder @Inject constructor() {
         }
 
         monthlyData.week2.data.forEach {
-            val summary = areaSummaryMap[it.areaCode]!!
+            val summary = areaSummaryMap[it.areaCode] ?: return@forEach
             val newCases = summary.cumulativeCasesWeek1 - it.cumulativeCases!!
             areaSummaryMap[it.areaCode] = summary.copy(
                 newCasesWeek1 = newCases,
@@ -157,7 +158,7 @@ class AreaEntityListBuilder @Inject constructor() {
         }
 
         monthlyData.week3.data.forEach {
-            val summary = areaSummaryMap[it.areaCode]!!
+            val summary = areaSummaryMap[it.areaCode] ?: return@forEach
             val newCases = summary.cumulativeCasesWeek2 - it.cumulativeCases!!
             areaSummaryMap[it.areaCode] = summary.copy(
                 newCasesWeek2 = newCases,
@@ -168,7 +169,7 @@ class AreaEntityListBuilder @Inject constructor() {
         }
 
         monthlyData.week4.data.forEach {
-            val summary = areaSummaryMap[it.areaCode]!!
+            val summary = areaSummaryMap[it.areaCode] ?: return@forEach
             val newCases = summary.cumulativeCasesWeek3 - it.cumulativeCases!!
             areaSummaryMap[it.areaCode] = summary.copy(
                 newCasesWeek3 = newCases,

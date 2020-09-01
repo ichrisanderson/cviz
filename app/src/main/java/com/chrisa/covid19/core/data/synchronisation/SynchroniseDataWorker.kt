@@ -37,13 +37,12 @@ class SynchroniseDataWorker @WorkerInject constructor(
 
     override suspend fun doWork(): Result = withContext(coroutineDispatchers.io) {
         val jobs = listOf(
-            async { areaListSynchroniser.performSync() },
             async { areaSummaryDataSynchroniser.performSync() },
-            async { savedAreaDataSynchroniser.performSync() }
+            async { savedAreaDataSynchroniser.performSync() },
+            async { areaListSynchroniser.performSync() }
         )
         // awaitAll will throw an exception if a download fails, which CoroutineWorker will treat as a failure
         jobs.awaitAll()
-
         return@withContext Result.success()
     }
 }

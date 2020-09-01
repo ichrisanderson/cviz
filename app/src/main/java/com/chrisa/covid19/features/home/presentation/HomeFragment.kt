@@ -27,11 +27,13 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
+import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.TopInfectionRateCardModel_
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.fakeSearchBar
 import kotlinx.android.synthetic.main.fragment_home.homeProgress
@@ -89,12 +91,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
                 sectionHeader {
-                    id("hotspotsHeader")
-                    title("Hotspots")
+                    id("topInfectionRatesHeader")
+                    title(getString(R.string.top_infection_rates))
                 }
                 carousel {
-                    id("hotspotsCarousel")
-                    models(savedAreaModels("hotspot_", homeScreenData.savedAreas))
+                    id("topInfectionRatesCarousel")
+                    models(topInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
                 }
                 sectionHeader {
                     id("savedAreaHeader")
@@ -107,6 +109,16 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         })
     }
+
+    private fun topInfectionRateModels(idPrefix: String, topInfectionRates: List<InfectionRateModel>): List<EpoxyModel<*>> =
+        topInfectionRates.map { data ->
+            TopInfectionRateCardModel_()
+                .id(idPrefix + data.areaName)
+                .hotspotModel(data)
+                .clickListener { _ ->
+                    navigateToArea(data.areaCode, data.areaName, data.areaType)
+                }
+        }
 
     private fun dailyRecordModels(
         idPrefix: String,
@@ -127,7 +139,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 .id(idPrefix + savedAreaModel.areaCode)
                 .savedAreaModel(savedAreaModel)
                 .clickListener { _ ->
-                    navigateToArea(savedAreaModel)
+                    navigateToArea(savedAreaModel.areaCode, savedAreaModel.areaName, savedAreaModel.areaType)
                 }
         }.ifEmpty { listOf(EmptySavedAreasCardModel_().id("emptySavedAreas")) }
 
@@ -135,12 +147,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         findNavController().navigate(HomeFragmentDirections.homeToSearch())
     }
 
-    private fun navigateToArea(savedAreaModel: SavedAreaModel) {
+    private fun navigateToArea(areaCode: String, areaName: String, areaType: String) {
         val action =
             HomeFragmentDirections.homeToArea(
-                areaCode = savedAreaModel.areaCode,
-                areaName = savedAreaModel.areaName,
-                areaType = savedAreaModel.areaType
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType
             )
         findNavController().navigate(action)
     }

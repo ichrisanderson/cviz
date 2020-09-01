@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCard xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chrisa.covid19.features.home.presentation.widgets.TopInfectionRateCard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -51,12 +51,12 @@
             tools:text="Lambeth" />
 
         <TextView
-            android:id="@+id/totalCases"
+            android:id="@+id/currentInfectionRate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintEnd_toStartOf="@+id/casesThisWeek"
+            app:layout_constraintEnd_toStartOf="@+id/changeThisWeek"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
@@ -64,58 +64,33 @@
             tools:text="12,345" />
 
         <TextView
-            android:id="@+id/totalCasesCaption"
+            android:id="@+id/currentInfectionRateCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:fontFamily="@font/roboto_light"
-            android:text="@string/total_cases"
+            android:text="@string/current_infection_rate"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             android:textColor="@color/lightGray"
             app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toBottomOf="@id/totalCases" />
+            app:layout_constraintTop_toBottomOf="@id/currentInfectionRate" />
 
         <TextView
-            android:id="@+id/casesThisWeek"
+            android:id="@+id/changeThisWeek"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintEnd_toStartOf="@+id/changeInCasesThisWeek"
+            app:layout_constraintEnd_toStartOf="@+id/guideline_end"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toEndOf="@+id/totalCases"
+            app:layout_constraintStart_toEndOf="@+id/currentInfectionRate"
             app:layout_constraintTop_toBottomOf="@id/areaName"
             tools:text="125" />
 
         <TextView
-            android:id="@+id/casesThisWeekCaption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:fontFamily="@font/roboto_light"
-            android:text="@string/cases_this_week"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="@color/lightGray"
-            app:layout_constraintStart_toStartOf="@id/casesThisWeek"
-            app:layout_constraintTop_toBottomOf="@id/totalCases" />
-
-        <TextView
-            android:id="@+id/changeInCasesThisWeek"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintEnd_toEndOf="@id/guideline_end"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toEndOf="@+id/casesThisWeek"
-            app:layout_constraintTop_toBottomOf="@id/areaName"
-            tools:text="-5" />
-
-        <TextView
-            android:id="@+id/changeInCasesThisWeekCaption"
+            android:id="@+id/changeThisWeekCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
@@ -123,9 +98,9 @@
             android:text="@string/change_this_week"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             android:textColor="@color/lightGray"
-            app:layout_constraintStart_toStartOf="@id/changeInCasesThisWeek"
-            app:layout_constraintTop_toBottomOf="@id/totalCases" />
+            app:layout_constraintStart_toStartOf="@id/changeThisWeek"
+            app:layout_constraintTop_toBottomOf="@id/currentInfectionRate" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCard>
+</com.chrisa.covid19.features.home.presentation.widgets.TopInfectionRateCard>

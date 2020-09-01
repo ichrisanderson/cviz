@@ -19,7 +19,7 @@ package com.chrisa.covid19.features.home.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.HotSpotDto
+import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -84,14 +84,16 @@ class HomeDataSource @Inject constructor(
             }
     }
 
-    fun hotspots(): Flow<List<HotSpotDto>> {
+    fun topInfectionRates(): Flow<List<InfectionRateDto>> {
         return appDatabase.areaSummaryEntityDao()
-            .topAreasByLastestCaseInfectionRateAsFlow()
+            .topAreasByLatestCaseInfectionRateAsFlow()
             .map { areaDataList ->
                 areaDataList.map {
-                    HotSpotDto(
+                    InfectionRateDto(
+                        areaCode = it.areaCode,
                         areaName = it.areaName,
-                        casesThisWeek = it.newCasesWeek1,
+                        areaType = it.areaType.value,
+                        changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2,
                         currentInfectionRate = it.newCaseInfectionRateWeek1
                     )
                 }

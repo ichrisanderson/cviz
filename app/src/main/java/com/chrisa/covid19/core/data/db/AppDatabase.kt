@@ -111,6 +111,7 @@ enum class AreaType(val value: String) {
     REGION("region"),
     UTLA("utla"),
     LTLA("ltla");
+
     companion object {
         fun from(type: String): AreaType? {
             return when (type) {
@@ -218,7 +219,10 @@ interface AreaDataDao {
     fun allByAreaCode(areaCode: String): List<AreaDataEntity>
 
     @Query("SELECT * FROM areaData INNER JOIN metadata on areaData.metadataId = metadata.id WHERE areaCode IN (:areaCodes) ORDER BY date DESC LIMIT :limit")
-    fun latestWithMetadataByAreaCodeAsFlow(areaCodes: List<String>, limit: Int = areaCodes.size): Flow<List<AreaDataMetadataTuple>>
+    fun latestWithMetadataByAreaCodeAsFlow(
+        areaCodes: List<String>,
+        limit: Int = areaCodes.size
+    ): Flow<List<AreaDataMetadataTuple>>
 
     @Query("SELECT * FROM areaData INNER JOIN savedArea ON areaData.areaCode = savedArea.areaCode ORDER BY date ASC")
     fun allSavedAreaDataAsFlow(): Flow<List<AreaDataEntity>>
@@ -353,7 +357,7 @@ interface AreaSummaryEntityDao {
     fun byAreaCode(areaCode: String): AreaSummaryEntity
 
     @Query("SELECT * FROM areaSummary ORDER BY newCaseInfectionRateWeek1 DESC LIMIT 10")
-    fun topAreasByLastestCaseInfectionRateAsFlow(): Flow<List<AreaSummaryEntity>>
+    fun topAreasByLatestCaseInfectionRateAsFlow(): Flow<List<AreaSummaryEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaSummaries: List<AreaSummaryEntity>)

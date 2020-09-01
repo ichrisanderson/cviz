@@ -74,7 +74,7 @@ class HomeViewModelTest {
                 val homeScreenDataModel = HomeScreenDataModel(
                     savedAreas = listOf(savedArea),
                     latestUkData = listOf(latestUkData),
-                    hotSpots = emptyList()
+                    topInfectionRates = emptyList()
                 )
 
                 every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()

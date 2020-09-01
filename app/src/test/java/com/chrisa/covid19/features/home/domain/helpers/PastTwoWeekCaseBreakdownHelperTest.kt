@@ -223,7 +223,7 @@ class PastTwoWeekCaseBreakdownHelperTest {
     }
 
     @Test
-    fun `GIVEN monthly data set WHEN  pastTwoWeekCaseBreakdown called THEN past 2 weeks of data is created`() {
+    fun `GIVEN monthly data set WHEN pastTwoWeekCaseBreakdown called THEN past 2 weeks of data is created`() {
 
         var cumulativeTotal = 0
         var caseNumber = 1

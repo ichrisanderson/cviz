@@ -16,8 +16,10 @@
 
 package com.chrisa.covid19.features.home.data.dtos
 
-data class HotSpotDto(
+data class InfectionRateDto(
+    val areaCode: String,
     val areaName: String,
-    val casesThisWeek: Int,
+    val areaType: String,
+    val changeInInfectionRate: Double,
     val currentInfectionRate: Double
 )

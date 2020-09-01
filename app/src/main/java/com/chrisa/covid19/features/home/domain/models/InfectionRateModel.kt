@@ -16,8 +16,10 @@
 
 package com.chrisa.covid19.features.home.domain.models
 
-data class HotSpotModel(
+data class InfectionRateModel(
+    val areaCode: String,
     val areaName: String,
-    val casesThisWeek: Int,
-    val currentInfectionRate: Double
+    val areaType: String,
+    val currentInfectionRate: Double,
+    val changeInInfectionRate: Double
 )

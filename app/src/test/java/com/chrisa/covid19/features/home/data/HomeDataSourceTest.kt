@@ -24,7 +24,7 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.HotSpotDto
+import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -244,7 +244,7 @@ class HomeDataSourceTest {
         }
 
     @Test
-    fun `WHEN hotspots called THEN all hotspot areas are returned`() = runBlockingTest {
+    fun `WHEN topInfectionRates called THEN all infection rates areas are returned`() = runBlockingTest {
 
         val areaSummaryEntity = AreaSummaryEntity(
             areaCode = Constants.UK_AREA_CODE,
@@ -271,23 +271,25 @@ class HomeDataSourceTest {
         val areaSummaryEntities = listOf(areaSummaryEntity)
         val allAreaSummaryEntities = flow { emit(areaSummaryEntities) }
 
-        val allDailyRecordDtos = areaSummaryEntities.map {
-            HotSpotDto(
+        val allInfectionRates = areaSummaryEntities.map {
+            InfectionRateDto(
+                areaCode = it.areaCode,
+                areaType = it.areaType.value,
                 areaName = it.areaName,
-                casesThisWeek = it.newCasesWeek1,
+                changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2,
                 currentInfectionRate = it.newCaseInfectionRateWeek1
             )
         }
 
         every {
-            appDatabase.areaSummaryEntityDao().topAreasByLastestCaseInfectionRateAsFlow()
+            appDatabase.areaSummaryEntityDao().topAreasByLatestCaseInfectionRateAsFlow()
         } returns allAreaSummaryEntities
 
-        val emittedItems = mutableListOf<List<HotSpotDto>>()
+        val emittedItems = mutableListOf<List<InfectionRateDto>>()
 
-        sut.hotspots().collect { emittedItems.add(it) }
+        sut.topInfectionRates().collect { emittedItems.add(it) }
 
         assertThat(emittedItems.size).isEqualTo(1)
-        assertThat(emittedItems.first()).isEqualTo(allDailyRecordDtos)
+        assertThat(emittedItems.first()).isEqualTo(allInfectionRates)
     }
 }

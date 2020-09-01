@@ -185,7 +185,7 @@ class AreaSummaryEntityDaoTest {
 
             val toInsert = listOf(ukSummary, englandSummary)
 
-            db.areaSummaryEntityDao().topAreasByLastestCaseInfectionRateAsFlow().test {
+            db.areaSummaryEntityDao().topAreasByLatestCaseInfectionRateAsFlow().test {
 
                 expectNoEvents()
 
@@ -231,7 +231,7 @@ class AreaSummaryEntityDaoTest {
                 )
             }
 
-            db.areaSummaryEntityDao().topAreasByLastestCaseInfectionRateAsFlow().test {
+            db.areaSummaryEntityDao().topAreasByLatestCaseInfectionRateAsFlow().test {
 
                 expectNoEvents()
 
