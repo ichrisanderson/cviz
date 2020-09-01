@@ -93,6 +93,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
                 sectionHeader {
+                    id("risingCasesHeader")
+                    title(getString(R.string.rising_cases))
+                }
+                carousel {
+                    id("risingCasesCarousel")
+                    models(mapCases("risingCase_", homeScreenData.risingNewCases))
+                }
+                sectionHeader {
                     id("risingInfectionRatesHeader")
                     title(getString(R.string.rising_infection_rates))
                 }
@@ -114,7 +122,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
                 carousel {
                     id("topNewCasesCarousel")
-                    models(topNewCases("topCase_", homeScreenData.topNewCases))
+                    models(mapCases("topCase_", homeScreenData.topNewCases))
                 }
                 sectionHeader {
                     id("savedAreaHeader")
@@ -138,8 +146,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
         }
 
-    private fun topNewCases(idPrefix: String, topNewCases: List<NewCaseModel>): List<EpoxyModel<*>> =
-        topNewCases.map { data ->
+    private fun mapCases(idPrefix: String, cases: List<NewCaseModel>): List<EpoxyModel<*>> =
+        cases.map { data ->
             TopNewCaseCardModel_()
                 .id(idPrefix + data.areaName)
                 .newCaseModel(data)

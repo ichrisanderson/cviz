@@ -17,9 +17,8 @@
 package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
+import com.chrisa.covid19.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
-import com.chrisa.covid19.features.home.data.dtos.NewCaseDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
 import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
@@ -28,14 +27,14 @@ import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -47,24 +46,37 @@ class LoadHomeDataUseCase @Inject constructor(
     fun execute(): Flow<HomeScreenDataModel> {
 
         val ukOverviewFlow = homeDataSource.ukOverview()
-        val topInfectionRatesFlow = homeDataSource.topInfectionRates()
-        val risingInfectionRatesFlow = homeDataSource.risingInfectionRates()
-        val topNewCasesFlow = homeDataSource.topNewCases()
+        val areaSummaryEntitiesAsFlow = homeDataSource.areaSummaryEntities()
         val savedAreaCasesFlow = homeDataSource.savedAreaCases()
 
         return combine(
             ukOverviewFlow,
-            topInfectionRatesFlow,
-            risingInfectionRatesFlow,
-            topNewCasesFlow,
+            areaSummaryEntitiesAsFlow,
             savedAreaCasesFlow
-        ) { overview, topInfectionRates, risingInfectionRates, topNewCases, cases ->
+        ) { overview, allAreaSummary, savedAreas ->
             HomeScreenDataModel(
-                savedAreas = savedAreas(cases),
+                savedAreas = savedAreas(savedAreas),
                 latestUkData = latestUkData(overview),
-                topInfectionRates = mapInfectionRates(topInfectionRates),
-                risingInfectionRates = mapInfectionRates(risingInfectionRates),
-                topNewCases = mapNewCases(topNewCases)
+                topInfectionRates = mapInfectionRates(
+                    allAreaSummary
+                        .sortedByDescending { it.currentInfectionRate }
+                        .take(10)
+                ),
+                risingInfectionRates = mapInfectionRates(
+                    allAreaSummary
+                        .sortedByDescending { it.changeInInfectionRate }
+                        .take(10)
+                ),
+                topNewCases = mapNewCases(
+                    allAreaSummary
+                        .sortedByDescending { it.currentNewCases }
+                        .take(10)
+                ),
+                risingNewCases = mapNewCases(
+                    allAreaSummary
+                        .sortedByDescending { it.changeInCases }
+                        .take(10)
+                )
             )
         }
     }
@@ -117,26 +129,26 @@ class LoadHomeDataUseCase @Inject constructor(
         }
     }
 
-    private fun mapInfectionRates(infectionRates: List<InfectionRateDto>): List<InfectionRateModel> {
-        return infectionRates.map { infectionRate ->
+    private fun mapInfectionRates(areaSummaries: List<AreaSummaryDto>): List<InfectionRateModel> {
+        return areaSummaries.map { areaSummary ->
             InfectionRateModel(
-                areaCode = infectionRate.areaCode,
-                areaName = infectionRate.areaName,
-                areaType = infectionRate.areaType,
-                changeInInfectionRate = infectionRate.changeInInfectionRate,
-                currentInfectionRate = infectionRate.currentInfectionRate
+                areaCode = areaSummary.areaCode,
+                areaName = areaSummary.areaName,
+                areaType = areaSummary.areaType,
+                changeInInfectionRate = areaSummary.changeInInfectionRate,
+                currentInfectionRate = areaSummary.currentInfectionRate
             )
         }
     }
 
-    private fun mapNewCases(newCases: List<NewCaseDto>): List<NewCaseModel> {
-        return newCases.map { newCase ->
+    private fun mapNewCases(areaSummaries: List<AreaSummaryDto>): List<NewCaseModel> {
+        return areaSummaries.map { areaSummary ->
             NewCaseModel(
-                areaCode = newCase.areaCode,
-                areaName = newCase.areaName,
-                areaType = newCase.areaType,
-                changeInCases = newCase.changeInCases,
-                currentNewCases = newCase.currentNewCases
+                areaCode = areaSummary.areaCode,
+                areaName = areaSummary.areaName,
+                areaType = areaSummary.areaType,
+                changeInCases = areaSummary.changeInCases,
+                currentNewCases = areaSummary.currentNewCases
             )
         }
     }

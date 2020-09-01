@@ -16,11 +16,12 @@
 
 package com.chrisa.covid19.features.home.data.dtos
 
-data class InfectionRateDto(
+data class AreaSummaryDto(
     val areaCode: String,
     val areaName: String,
     val areaType: String,
+    val changeInCases: Int,
+    val currentNewCases: Int,
     val changeInInfectionRate: Double,
     val currentInfectionRate: Double
 )
-

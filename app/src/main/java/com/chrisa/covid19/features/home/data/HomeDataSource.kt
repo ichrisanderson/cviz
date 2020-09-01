@@ -18,13 +18,12 @@ package com.chrisa.covid19.features.home.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.Constants
+import com.chrisa.covid19.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
-import com.chrisa.covid19.features.home.data.dtos.NewCaseDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 class HomeDataSource @Inject constructor(
     private val appDatabase: AppDatabase
@@ -85,47 +84,17 @@ class HomeDataSource @Inject constructor(
             }
     }
 
-    fun topInfectionRates(): Flow<List<InfectionRateDto>> {
+    fun areaSummaryEntities(): Flow<List<AreaSummaryDto>> {
         return appDatabase.areaSummaryEntityDao()
-            .topAreasByLatestCaseInfectionRateAsFlow()
+            .allAsFlow()
             .map { areaDataList ->
                 areaDataList.map {
-                    InfectionRateDto(
+                    AreaSummaryDto(
                         areaCode = it.areaCode,
                         areaName = it.areaName,
                         areaType = it.areaType.value,
+                        currentInfectionRate = it.newCaseInfectionRateWeek1,
                         changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2,
-                        currentInfectionRate = it.newCaseInfectionRateWeek1
-                    )
-                }
-            }
-    }
-
-    fun risingInfectionRates(): Flow<List<InfectionRateDto>> {
-        return appDatabase.areaSummaryEntityDao()
-            .topAreasByRisingCaseInfectionRateAsFlow()
-            .map { areaDataList ->
-                areaDataList.map {
-                    InfectionRateDto(
-                        areaCode = it.areaCode,
-                        areaName = it.areaName,
-                        areaType = it.areaType.value,
-                        changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2,
-                        currentInfectionRate = it.newCaseInfectionRateWeek1
-                    )
-                }
-            }
-    }
-
-    fun topNewCases(): Flow<List<NewCaseDto>> {
-        return appDatabase.areaSummaryEntityDao()
-            .topAreasByLatestNewCasesAsFlow()
-            .map { areaDataList ->
-                areaDataList.map {
-                    NewCaseDto(
-                        areaCode = it.areaCode,
-                        areaName = it.areaName,
-                        areaType = it.areaType.value,
                         changeInCases = it.newCasesWeek1 - it.newCasesWeek2,
                         currentNewCases = it.newCasesWeek1
                     )

@@ -4,10 +4,10 @@
     <string name="home_search_hint">Search for locations</string>
 
     <string name="saved_locations_title">Saved locations</string>
-    <string name="daily_records_title">Latest data</string>
     <string name="uk_overview">UK overview</string>
     <string name="top_infection_rates">Top infection rates</string>
     <string name="rising_infection_rates">Rising infection rates</string>
+    <string name="rising_cases">Rising cases</string>
     <string name="top_new_cases">Top new cases</string>
     <string name="empty_locations_title">You have no saved locations</string>
 

@@ -21,7 +21,6 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
-import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
 import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
 import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
@@ -96,7 +95,8 @@ class HomeViewModelTest {
                     savedAreas = listOf(savedArea),
                     latestUkData = listOf(latestUkData),
                     topInfectionRates = listOf(infectionRateModel),
-                    risingInfectionRates = emptyList(),
+                    risingInfectionRates = listOf(infectionRateModel),
+                    risingNewCases = listOf(newCaseModel),
                     topNewCases = listOf(newCaseModel)
                 )
 

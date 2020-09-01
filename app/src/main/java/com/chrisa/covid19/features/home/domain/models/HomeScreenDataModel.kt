@@ -21,5 +21,6 @@ data class HomeScreenDataModel(
     val latestUkData: List<LatestUkDataModel>,
     val topInfectionRates: List<InfectionRateModel>,
     val risingInfectionRates: List<InfectionRateModel>,
-    val topNewCases: List<NewCaseModel>
+    val topNewCases: List<NewCaseModel>,
+    val risingNewCases: List<NewCaseModel>
 )

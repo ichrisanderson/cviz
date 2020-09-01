@@ -21,14 +21,14 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.squareup.sqldelight.runtime.coroutines.test
+import java.time.LocalDateTime
+import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.time.LocalDateTime
-import kotlin.random.Random
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [27])
@@ -127,72 +127,25 @@ class AreaSummaryEntityDaoTest {
         }
 
     @Test
-    fun `GIVEN area summary exists WHEN topAreasByLatestCaseInfectionRateAsFlow called THEN area summary is emitted in correct order`() =
+    fun `GIVEN area summary exists WHEN allAsFlow called THEN area summary is emitted`() =
         runBlocking {
 
             val toInsert = buildAreaSummaryList()
 
-            db.areaSummaryEntityDao().topAreasByLatestCaseInfectionRateAsFlow().test {
+            db.areaSummaryEntityDao().allAsFlow().test {
 
                 expectNoEvents()
 
                 db.areaSummaryEntityDao().insertAll(toInsert)
-
                 val emittedItems = expectItem()
 
                 assertThat(emittedItems).isEqualTo(
-                    toInsert.sortedByDescending { it.newCaseInfectionRateWeek1 }
-                    .take(10))
-
-                cancel()
-            }
-        }
-
-    @Test
-    fun `GIVEN area summary exists WHEN topAreasByRisingCaseInfectionRateAsFlow called THEN area summary is emitted in correct order`() =
-        runBlocking {
-
-            val toInsert = buildAreaSummaryList()
-
-            db.areaSummaryEntityDao().topAreasByRisingCaseInfectionRateAsFlow().test {
-
-                expectNoEvents()
-
-                db.areaSummaryEntityDao().insertAll(toInsert)
-
-                val emittedItems = expectItem()
-
-                assertThat(emittedItems).isEqualTo(
-                    toInsert.sortedByDescending { it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2 }
-                        .take(10)
+                    toInsert
                 )
 
                 cancel()
             }
         }
-
-    @Test
-    fun `GIVEN area summary exists WHEN topAreasByLatestNewCasesAsFlow called THEN area summary is emitted in correct order`() =
-        runBlocking {
-
-            val toInsert = buildAreaSummaryList()
-
-            db.areaSummaryEntityDao().topAreasByLatestNewCasesAsFlow().test {
-
-                expectNoEvents()
-
-                db.areaSummaryEntityDao().insertAll(toInsert)
-                val emittedItems = expectItem()
-
-                assertThat(emittedItems).isEqualTo(
-                    toInsert.sortedByDescending { it.newCasesWeek1 }
-                        .take(10)
-                )
-
-                cancel()
-            }
-        }
-
 
     private fun buildAreaSummaryList(): List<AreaSummaryEntity> {
         val toInsert = mutableListOf<AreaSummaryEntity>()
@@ -225,3 +178,5 @@ class AreaSummaryEntityDaoTest {
         return toInsert
     }
 }
+
+data class Foo(val areaName: String, val cases: Int)

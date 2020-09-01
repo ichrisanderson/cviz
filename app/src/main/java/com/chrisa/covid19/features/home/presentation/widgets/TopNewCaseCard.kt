@@ -27,10 +27,10 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.features.home.domain.models.NewCaseModel
+import java.text.NumberFormat
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaName
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.changeThisWeek
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.currentNewCases
-import java.text.NumberFormat
 
 @SuppressLint("NonConstantResourceId")
 @ModelView(defaultLayout = R.layout.widget_top_new_case_card)
