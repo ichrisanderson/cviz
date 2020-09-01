@@ -23,3 +23,4 @@ data class InfectionRateDto(
     val changeInInfectionRate: Double,
     val currentInfectionRate: Double
 )
+

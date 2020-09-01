@@ -152,7 +152,7 @@ class AreaSummaryEntityDaoTest {
         }
 
     @Test
-    fun `GIVEN area summary exists WHEN topAreasByLastestCaseInfectionRateAsFlow called THEN area summary is emitted in correct order`() =
+    fun `GIVEN area summary exists WHEN topAreasByLatestCaseInfectionRateAsFlow called THEN area summary is emitted in correct order`() =
         runBlocking {
 
             val ukSummary = AreaSummaryEntity(
@@ -199,7 +199,7 @@ class AreaSummaryEntityDaoTest {
         }
 
     @Test
-    fun `GIVEN more than 10 area summaries exists WHEN topAreasByLastestCaseInfectionRateAsFlow called THEN area summary is emitted in with limit of 10`() =
+    fun `GIVEN more than 10 area summaries exists WHEN topAreasByLatestCaseInfectionRateAsFlow called THEN area summary is emitted in with limit of 10`() =
         runBlocking {
 
             val ukSummary = AreaSummaryEntity(
@@ -240,6 +240,103 @@ class AreaSummaryEntityDaoTest {
 
                 assertThat(emittedItems).isEqualTo(
                     toInsert.sortedByDescending { it.newCaseInfectionRateWeek1 }
+                        .take(10)
+                )
+
+                cancel()
+            }
+        }
+
+    @Test
+    fun `GIVEN area summary exists WHEN topAreasByLatestNewCasesAsFlow called THEN area summary is emitted in correct order`() =
+        runBlocking {
+
+            val ukSummary = AreaSummaryEntity(
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW,
+                areaName = "UK",
+                date = syncTime.toLocalDate(),
+                baseInfectionRate = 100.0,
+                cumulativeCasesWeek1 = 100,
+                cumulativeCaseInfectionRateWeek1 = 85.0,
+                newCaseInfectionRateWeek1 = 25.0,
+                newCasesWeek1 = 30,
+                cumulativeCasesWeek2 = 80,
+                cumulativeCaseInfectionRateWeek2 = 80.0,
+                newCaseInfectionRateWeek2 = 22.0,
+                newCasesWeek2 = 22,
+                cumulativeCasesWeek3 = 66,
+                cumulativeCaseInfectionRateWeek3 = 82.0,
+                newCaseInfectionRateWeek3 = 33.0,
+                newCasesWeek3 = 26,
+                cumulativeCasesWeek4 = 50,
+                cumulativeCaseInfectionRateWeek4 = 75.0
+            )
+            val englandSummary = ukSummary.copy(
+                areaCode = Constants.ENGLAND_AREA_CODE,
+                areaName = "England",
+                areaType = AreaType.REGION,
+                newCasesWeek1 = ukSummary.newCasesWeek1 * 2
+            )
+
+            val toInsert = listOf(ukSummary, englandSummary)
+
+            db.areaSummaryEntityDao().topAreasByLatestNewCasesAsFlow().test {
+
+                expectNoEvents()
+
+                db.areaSummaryEntityDao().insertAll(toInsert)
+                val emittedItems = expectItem()
+
+                assertThat(emittedItems).isEqualTo(toInsert.sortedByDescending { it.newCasesWeek1 })
+
+                cancel()
+            }
+        }
+
+    @Test
+    fun `GIVEN more than 10 area summaries exists WHEN topAreasByLatestNewCasesAsFlow called THEN area summary is emitted in with limit of 10`() =
+        runBlocking {
+
+            val ukSummary = AreaSummaryEntity(
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW,
+                areaName = "UK",
+                date = syncTime.toLocalDate(),
+                baseInfectionRate = 100.0,
+                cumulativeCasesWeek1 = 100,
+                cumulativeCaseInfectionRateWeek1 = 85.0,
+                newCaseInfectionRateWeek1 = 25.0,
+                newCasesWeek1 = 30,
+                cumulativeCasesWeek2 = 80,
+                cumulativeCaseInfectionRateWeek2 = 80.0,
+                newCaseInfectionRateWeek2 = 22.0,
+                newCasesWeek2 = 22,
+                cumulativeCasesWeek3 = 66,
+                cumulativeCaseInfectionRateWeek3 = 82.0,
+                newCaseInfectionRateWeek3 = 33.0,
+                newCasesWeek3 = 26,
+                cumulativeCasesWeek4 = 50,
+                cumulativeCaseInfectionRateWeek4 = 75.0
+            )
+
+            val toInsert = (1..12).map { index ->
+                ukSummary.copy(
+                    areaCode = "${ukSummary.areaCode}_$index",
+                    date = ukSummary.date.plusDays(index.toLong()),
+                    newCasesWeek1 = ukSummary.newCasesWeek1 + index
+                )
+            }
+
+            db.areaSummaryEntityDao().topAreasByLatestNewCasesAsFlow().test {
+
+                expectNoEvents()
+
+                db.areaSummaryEntityDao().insertAll(toInsert)
+                val emittedItems = expectItem()
+
+                assertThat(emittedItems).isEqualTo(
+                    toInsert.sortedByDescending { it.newCasesWeek1 }
                         .take(10)
                 )
 

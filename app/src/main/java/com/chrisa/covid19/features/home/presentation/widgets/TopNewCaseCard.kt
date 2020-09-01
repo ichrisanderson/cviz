@@ -26,13 +26,15 @@ import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
-import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
+import com.chrisa.covid19.features.home.domain.models.NewCaseModel
+import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaName
+import kotlinx.android.synthetic.main.widget_top_new_case_card.view.changeThisWeek
+import kotlinx.android.synthetic.main.widget_top_new_case_card.view.currentNewCases
 import java.text.NumberFormat
-import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.*
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.widget_top_infection_rate_card)
-class TopInfectionRateCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
+@ModelView(defaultLayout = R.layout.widget_top_new_case_card)
+class TopNewCaseCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
 
     var clickListener: OnClickListener? = null
         @CallbackProp set
@@ -43,35 +45,35 @@ class TopInfectionRateCard(context: Context, attrs: AttributeSet) : CardView(con
     }
 
     @ModelProp
-    fun infectionRateModel(infectionRateModel: InfectionRateModel) {
-        areaName.text = infectionRateModel.areaName
-        currentInfectionRate.text = formatNumber(infectionRateModel.currentInfectionRate)
-        changeThisWeek.text = getChangeText(infectionRateModel.changeInInfectionRate)
+    fun newCaseModel(newCaseModel: NewCaseModel) {
+        areaName.text = newCaseModel.areaName
+        currentNewCases.text = formatNumber(newCaseModel.currentNewCases)
+        changeThisWeek.text = getChangeText(newCaseModel.changeInCases)
         changeThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeThisWeek.context,
-                getChangeColour(infectionRateModel.changeInInfectionRate)
+                getChangeColour(newCaseModel.changeInCases)
             )
         )
     }
 
-    private fun formatNumber(toFormat: Double): String {
+    private fun formatNumber(toFormat: Int): String {
         return NumberFormat.getInstance().format(toFormat)
     }
 
     @ColorRes
-    private fun getChangeColour(change: Double): Int {
+    private fun getChangeColour(change: Int): Int {
         return when {
             change > 0 -> R.color.negativeChange
             else -> R.color.positiveChange
         }
     }
 
-    private fun getChangeText(change: Double): String {
+    private fun getChangeText(change: Int): String {
         val number = formatNumber(change)
         return when {
             change > 0 -> "+$number"
-            change == 0.0 -> "-$number"
+            change == 0 -> "-$number"
             else -> number
         }
     }

@@ -25,6 +25,7 @@ import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
+import com.chrisa.covid19.features.home.data.dtos.NewCaseDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -288,6 +289,56 @@ class HomeDataSourceTest {
         val emittedItems = mutableListOf<List<InfectionRateDto>>()
 
         sut.topInfectionRates().collect { emittedItems.add(it) }
+
+        assertThat(emittedItems.size).isEqualTo(1)
+        assertThat(emittedItems.first()).isEqualTo(allInfectionRates)
+    }
+
+    @Test
+    fun `WHEN topNewCases called THEN all new case rates areas are returned`() = runBlockingTest {
+
+        val areaSummaryEntity = AreaSummaryEntity(
+            areaCode = Constants.UK_AREA_CODE,
+            areaType = AreaType.OVERVIEW,
+            areaName = "UK",
+            date = syncTime.toLocalDate(),
+            baseInfectionRate = 100.0,
+            cumulativeCasesWeek1 = 100,
+            cumulativeCaseInfectionRateWeek1 = 85.0,
+            newCaseInfectionRateWeek1 = 25.0,
+            newCasesWeek1 = 30,
+            cumulativeCasesWeek2 = 80,
+            cumulativeCaseInfectionRateWeek2 = 80.0,
+            newCaseInfectionRateWeek2 = 22.0,
+            newCasesWeek2 = 22,
+            cumulativeCasesWeek3 = 66,
+            cumulativeCaseInfectionRateWeek3 = 82.0,
+            newCaseInfectionRateWeek3 = 33.0,
+            newCasesWeek3 = 26,
+            cumulativeCasesWeek4 = 50,
+            cumulativeCaseInfectionRateWeek4 = 75.0
+        )
+
+        val areaSummaryEntities = listOf(areaSummaryEntity)
+        val allAreaSummaryEntities = flow { emit(areaSummaryEntities) }
+
+        val allInfectionRates = areaSummaryEntities.map {
+            NewCaseDto(
+                areaCode = it.areaCode,
+                areaType = it.areaType.value,
+                areaName = it.areaName,
+                changeInCases = it.newCasesWeek1 - it.newCasesWeek2,
+                currentNewCases = it.newCasesWeek1
+            )
+        }
+
+        every {
+            appDatabase.areaSummaryEntityDao().topAreasByLatestNewCasesAsFlow()
+        } returns allAreaSummaryEntities
+
+        val emittedItems = mutableListOf<List<NewCaseDto>>()
+
+        sut.topNewCases().collect { emittedItems.add(it) }
 
         assertThat(emittedItems.size).isEqualTo(1)
         assertThat(emittedItems.first()).isEqualTo(allInfectionRates)

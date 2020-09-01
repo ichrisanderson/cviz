@@ -23,3 +23,4 @@ data class InfectionRateModel(
     val currentInfectionRate: Double,
     val changeInInfectionRate: Double
 )
+

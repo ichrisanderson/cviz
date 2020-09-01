@@ -21,27 +21,29 @@ import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
+import com.chrisa.covid19.features.home.data.dtos.NewCaseDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
 import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
 import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
+import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.util.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import java.util.Random
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -76,6 +78,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
 
             val emittedItems = mutableListOf<HomeScreenDataModel>()
@@ -113,6 +116,7 @@ class LoadHomeDataUseCaseTest {
             val infectionRates = listOf(infectionRateDto)
 
             every { homeDataSource.topInfectionRates() } returns listOf(infectionRates).asFlow()
+            every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
 
@@ -131,6 +135,44 @@ class LoadHomeDataUseCaseTest {
                     areaType = infectionRate.areaType,
                     changeInInfectionRate = infectionRate.changeInInfectionRate,
                     currentInfectionRate = infectionRate.currentInfectionRate
+                )
+            })
+        }
+
+    @Test
+    fun `WHEN execute called THEN new cases list is emitted`() =
+        runBlockingTest {
+
+            val newCaseDto = NewCaseDto(
+                areaName = "UK",
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW.value,
+                changeInCases = 10,
+                currentNewCases = 100
+            )
+
+            val newCases = listOf(newCaseDto)
+
+            every { homeDataSource.topNewCases() } returns listOf(newCases).asFlow()
+            every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
+            every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
+
+            val emittedItems = mutableListOf<HomeScreenDataModel>()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val homeScreenDataModel = emittedItems.first()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            assertThat(homeScreenDataModel.topNewCases).isEqualTo(newCases.map { newCase ->
+                NewCaseModel(
+                    areaCode = newCase.areaCode,
+                    areaName = newCase.areaName,
+                    areaType = newCase.areaType,
+                    changeInCases = newCase.changeInCases,
+                    currentNewCases = newCase.currentNewCases
                 )
             })
         }
@@ -158,6 +200,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(latestWeekData.cases).asFlow()
 
             val emittedItems = mutableListOf<HomeScreenDataModel>()
@@ -216,6 +259,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
 
             val emittedItems = mutableListOf<HomeScreenDataModel>()
@@ -273,6 +317,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
 
             val emittedItems = mutableListOf<HomeScreenDataModel>()

@@ -19,21 +19,23 @@ package com.chrisa.covid19.features.home.domain
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.InfectionRateDto
+import com.chrisa.covid19.features.home.data.dtos.NewCaseDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
 import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
 import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
+import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -47,12 +49,19 @@ class LoadHomeDataUseCase @Inject constructor(
         val ukOverview = homeDataSource.ukOverview()
         val savedAreaCases = homeDataSource.savedAreaCases()
         val topInfectionRateData = homeDataSource.topInfectionRates()
+        val topNewCaseData = homeDataSource.topNewCases()
 
-        return combine(ukOverview, topInfectionRateData, savedAreaCases) { overview, topInfectionRates, cases ->
+        return combine(
+            ukOverview,
+            topInfectionRateData,
+            topNewCaseData,
+            savedAreaCases
+        ) { overview, topInfectionRates, topNewCases, cases ->
             HomeScreenDataModel(
                 savedAreas = savedAreas(cases),
                 latestUkData = latestUkData(overview),
-                topInfectionRates = topInfectionRates(topInfectionRates)
+                topInfectionRates = topInfectionRates(topInfectionRates),
+                topNewCases = topNewCases(topNewCases)
             )
         }
     }
@@ -113,6 +122,18 @@ class LoadHomeDataUseCase @Inject constructor(
                 areaType = infectionRate.areaType,
                 changeInInfectionRate = infectionRate.changeInInfectionRate,
                 currentInfectionRate = infectionRate.currentInfectionRate
+            )
+        }
+    }
+
+    private fun topNewCases(newCases: List<NewCaseDto>): List<NewCaseModel> {
+        return newCases.map { newCase ->
+            NewCaseModel(
+                areaCode = newCase.areaCode,
+                areaName = newCase.areaName,
+                areaType = newCase.areaType,
+                changeInCases = newCase.changeInCases,
+                currentNewCases = newCase.currentNewCases
             )
         }
     }

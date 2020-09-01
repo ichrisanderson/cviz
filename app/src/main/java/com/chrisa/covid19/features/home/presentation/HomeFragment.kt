@@ -29,11 +29,13 @@ import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
 import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
+import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.TopInfectionRateCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.TopNewCaseCardModel_
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.fakeSearchBar
 import kotlinx.android.synthetic.main.fragment_home.homeProgress
@@ -99,6 +101,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     models(topInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
                 }
                 sectionHeader {
+                    id("topNewCasesHeader")
+                    title(getString(R.string.top_new_cases))
+                }
+                carousel {
+                    id("topNewCasesCarousel")
+                    models(topNewCases("topCase_", homeScreenData.topNewCases))
+                }
+                sectionHeader {
                     id("savedAreaHeader")
                     title(getString(R.string.saved_locations_title))
                 }
@@ -114,7 +124,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         topInfectionRates.map { data ->
             TopInfectionRateCardModel_()
                 .id(idPrefix + data.areaName)
-                .hotspotModel(data)
+                .infectionRateModel(data)
+                .clickListener { _ ->
+                    navigateToArea(data.areaCode, data.areaName, data.areaType)
+                }
+        }
+
+    private fun topNewCases(idPrefix: String, topNewCases: List<NewCaseModel>): List<EpoxyModel<*>> =
+        topNewCases.map { data ->
+            TopNewCaseCardModel_()
+                .id(idPrefix + data.areaName)
+                .newCaseModel(data)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }

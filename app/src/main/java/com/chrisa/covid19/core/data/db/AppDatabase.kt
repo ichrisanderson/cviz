@@ -359,6 +359,9 @@ interface AreaSummaryEntityDao {
     @Query("SELECT * FROM areaSummary ORDER BY newCaseInfectionRateWeek1 DESC LIMIT 10")
     fun topAreasByLatestCaseInfectionRateAsFlow(): Flow<List<AreaSummaryEntity>>
 
+    @Query("SELECT * FROM areaSummary ORDER BY newCasesWeek1 DESC LIMIT 10")
+    fun topAreasByLatestNewCasesAsFlow(): Flow<List<AreaSummaryEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaSummaries: List<AreaSummaryEntity>)
 }
