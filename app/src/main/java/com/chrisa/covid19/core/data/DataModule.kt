@@ -22,6 +22,7 @@ import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.network.CommonHeaderInterceptor
 import com.chrisa.covid19.core.data.network.CovidApi
+import com.chrisa.covid19.core.data.network.UrlDecodeInterceptor
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.ToJson
@@ -57,13 +58,12 @@ internal object DataModule {
     @Provides
     fun okHttpClient(): OkHttpClient {
 
-        val commonHeaderInterceptor = CommonHeaderInterceptor()
-
         val httpLoggingInterceptor = HttpLoggingInterceptor()
             .setLevel(HttpLoggingInterceptor.Level.BODY)
 
         val builder = OkHttpClient.Builder()
-            .addInterceptor(commonHeaderInterceptor)
+            .addInterceptor(CommonHeaderInterceptor())
+            .addInterceptor(UrlDecodeInterceptor())
             .addInterceptor(httpLoggingInterceptor)
 
         return builder.build()
@@ -75,7 +75,7 @@ internal object DataModule {
         moshi: Moshi
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.coronavirus.data.gov.uk/")
+            .baseUrl("https://api.coronavirus-staging.data.gov.uk/")
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
