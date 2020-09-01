@@ -101,6 +101,22 @@ class HomeDataSource @Inject constructor(
             }
     }
 
+    fun risingInfectionRates(): Flow<List<InfectionRateDto>> {
+        return appDatabase.areaSummaryEntityDao()
+            .topAreasByRisingCaseInfectionRateAsFlow()
+            .map { areaDataList ->
+                areaDataList.map {
+                    InfectionRateDto(
+                        areaCode = it.areaCode,
+                        areaName = it.areaName,
+                        areaType = it.areaType.value,
+                        changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2,
+                        currentInfectionRate = it.newCaseInfectionRateWeek1
+                    )
+                }
+            }
+    }
+
     fun topNewCases(): Flow<List<NewCaseDto>> {
         return appDatabase.areaSummaryEntityDao()
             .topAreasByLatestNewCasesAsFlow()

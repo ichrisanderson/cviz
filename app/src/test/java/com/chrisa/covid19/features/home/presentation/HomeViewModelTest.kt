@@ -96,6 +96,7 @@ class HomeViewModelTest {
                     savedAreas = listOf(savedArea),
                     latestUkData = listOf(latestUkData),
                     topInfectionRates = listOf(infectionRateModel),
+                    risingInfectionRates = emptyList(),
                     topNewCases = listOf(newCaseModel)
                 )
 

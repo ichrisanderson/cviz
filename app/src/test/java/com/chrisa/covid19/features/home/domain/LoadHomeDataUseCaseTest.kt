@@ -78,6 +78,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.risingInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
             every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
 
@@ -117,6 +118,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.topInfectionRates() } returns listOf(infectionRates).asFlow()
             every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
+            every { homeDataSource.risingInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
 
@@ -129,6 +131,45 @@ class LoadHomeDataUseCaseTest {
             sut.execute().collect { emittedItems.add(it) }
 
             assertThat(homeScreenDataModel.topInfectionRates).isEqualTo(infectionRates.map { infectionRate ->
+                InfectionRateModel(
+                    areaCode = infectionRate.areaCode,
+                    areaName = infectionRate.areaName,
+                    areaType = infectionRate.areaType,
+                    changeInInfectionRate = infectionRate.changeInInfectionRate,
+                    currentInfectionRate = infectionRate.currentInfectionRate
+                )
+            })
+        }
+
+    @Test
+    fun `WHEN execute called THEN rising infection rate list is emitted`() =
+        runBlockingTest {
+
+            val infectionRateDto = InfectionRateDto(
+                areaName = "UK",
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW.value,
+                changeInInfectionRate = 100.0,
+                currentInfectionRate = 10.0
+            )
+
+            val infectionRates = listOf(infectionRateDto)
+
+            every { homeDataSource.risingInfectionRates() } returns listOf(infectionRates).asFlow()
+            every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
+            every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
+            every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
+
+            val emittedItems = mutableListOf<HomeScreenDataModel>()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val homeScreenDataModel = emittedItems.first()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            assertThat(homeScreenDataModel.risingInfectionRates).isEqualTo(infectionRates.map { infectionRate ->
                 InfectionRateModel(
                     areaCode = infectionRate.areaCode,
                     areaName = infectionRate.areaName,
@@ -155,6 +196,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.topNewCases() } returns listOf(newCases).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.risingInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
 
@@ -200,6 +242,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.risingInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
             every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(latestWeekData.cases).asFlow()
 
@@ -259,6 +302,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.risingInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
             every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
 
@@ -317,6 +361,7 @@ class LoadHomeDataUseCaseTest {
 
             every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
             every { homeDataSource.topInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
+            every { homeDataSource.risingInfectionRates() } returns listOf(emptyList<InfectionRateDto>()).asFlow()
             every { homeDataSource.topNewCases() } returns listOf(emptyList<NewCaseDto>()).asFlow()
             every { homeDataSource.savedAreaCases() } returns listOf(allCases).asFlow()
 

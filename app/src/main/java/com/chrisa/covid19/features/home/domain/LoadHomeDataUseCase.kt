@@ -46,22 +46,25 @@ class LoadHomeDataUseCase @Inject constructor(
 ) {
     fun execute(): Flow<HomeScreenDataModel> {
 
-        val ukOverview = homeDataSource.ukOverview()
-        val savedAreaCases = homeDataSource.savedAreaCases()
-        val topInfectionRateData = homeDataSource.topInfectionRates()
-        val topNewCaseData = homeDataSource.topNewCases()
+        val ukOverviewFlow = homeDataSource.ukOverview()
+        val topInfectionRatesFlow = homeDataSource.topInfectionRates()
+        val risingInfectionRatesFlow = homeDataSource.risingInfectionRates()
+        val topNewCasesFlow = homeDataSource.topNewCases()
+        val savedAreaCasesFlow = homeDataSource.savedAreaCases()
 
         return combine(
-            ukOverview,
-            topInfectionRateData,
-            topNewCaseData,
-            savedAreaCases
-        ) { overview, topInfectionRates, topNewCases, cases ->
+            ukOverviewFlow,
+            topInfectionRatesFlow,
+            risingInfectionRatesFlow,
+            topNewCasesFlow,
+            savedAreaCasesFlow
+        ) { overview, topInfectionRates, risingInfectionRates, topNewCases, cases ->
             HomeScreenDataModel(
                 savedAreas = savedAreas(cases),
                 latestUkData = latestUkData(overview),
-                topInfectionRates = topInfectionRates(topInfectionRates),
-                topNewCases = topNewCases(topNewCases)
+                topInfectionRates = mapInfectionRates(topInfectionRates),
+                risingInfectionRates = mapInfectionRates(risingInfectionRates),
+                topNewCases = mapNewCases(topNewCases)
             )
         }
     }
@@ -114,7 +117,7 @@ class LoadHomeDataUseCase @Inject constructor(
         }
     }
 
-    private fun topInfectionRates(infectionRates: List<InfectionRateDto>): List<InfectionRateModel> {
+    private fun mapInfectionRates(infectionRates: List<InfectionRateDto>): List<InfectionRateModel> {
         return infectionRates.map { infectionRate ->
             InfectionRateModel(
                 areaCode = infectionRate.areaCode,
@@ -126,7 +129,7 @@ class LoadHomeDataUseCase @Inject constructor(
         }
     }
 
-    private fun topNewCases(newCases: List<NewCaseDto>): List<NewCaseModel> {
+    private fun mapNewCases(newCases: List<NewCaseDto>): List<NewCaseModel> {
         return newCases.map { newCase ->
             NewCaseModel(
                 areaCode = newCase.areaCode,

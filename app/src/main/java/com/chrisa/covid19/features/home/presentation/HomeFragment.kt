@@ -86,11 +86,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             homeRecyclerView.withModels {
                 sectionHeader {
                     id("dailyRecordHeader")
-                    title(getString(R.string.daily_records_title))
+                    title(getString(R.string.uk_overview))
                 }
                 carousel {
                     id("dailyRecordCarousel")
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
+                }
+                sectionHeader {
+                    id("risingInfectionRatesHeader")
+                    title(getString(R.string.rising_infection_rates))
+                }
+                carousel {
+                    id("risingInfectionRatesCarousel")
+                    models(mapInfectionRateModels("risingInfectionRate_", homeScreenData.risingInfectionRates))
                 }
                 sectionHeader {
                     id("topInfectionRatesHeader")
@@ -98,7 +106,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
                 carousel {
                     id("topInfectionRatesCarousel")
-                    models(topInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
+                    models(mapInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
                 }
                 sectionHeader {
                     id("topNewCasesHeader")
@@ -120,7 +128,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
     }
 
-    private fun topInfectionRateModels(idPrefix: String, topInfectionRates: List<InfectionRateModel>): List<EpoxyModel<*>> =
+    private fun mapInfectionRateModels(idPrefix: String, topInfectionRates: List<InfectionRateModel>): List<EpoxyModel<*>> =
         topInfectionRates.map { data ->
             TopInfectionRateCardModel_()
                 .id(idPrefix + data.areaName)
