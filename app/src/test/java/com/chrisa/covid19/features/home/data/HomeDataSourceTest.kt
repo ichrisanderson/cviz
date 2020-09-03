@@ -289,7 +289,7 @@ class HomeDataSourceTest {
 
         val emittedItems = mutableListOf<List<AreaSummaryDto>>()
 
-        sut.areaSummaryEntities().collect { emittedItems.add(it) }
+        sut.areaSummaries().collect { emittedItems.add(it) }
 
         assertThat(emittedItems.size).isEqualTo(1)
         assertThat(emittedItems.first()).isEqualTo(allInfectionRates)

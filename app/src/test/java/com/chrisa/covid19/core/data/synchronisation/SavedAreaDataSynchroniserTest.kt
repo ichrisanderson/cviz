@@ -54,7 +54,6 @@ class SavedAreaDataSynchroniserTest {
     fun `GIVEN no saved areas WHEN performSync THEN overview data is synced`() =
         testDispatcher.runBlockingTest {
 
-            val onError: (error: Throwable) -> Unit = { }
             coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
             every { areaDao.allSavedAreas() } returns emptyList()
 
@@ -72,7 +71,6 @@ class SavedAreaDataSynchroniserTest {
     fun `GIVEN no saved areas WHEN performSync THEN nation data is synced`() =
         testDispatcher.runBlockingTest {
 
-            val onError: (error: Throwable) -> Unit = { }
             coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
             every { areaDao.allSavedAreas() } returns emptyList()
 
@@ -121,7 +119,6 @@ class SavedAreaDataSynchroniserTest {
                 areaCode = "2",
                 areaType = AreaType.LTLA
             )
-            val onError: (error: Throwable) -> Unit = { }
             coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
             every { areaDao.allSavedAreas() } returns listOf(area1, area2)
 

@@ -76,11 +76,11 @@ class AreaViewModel @ViewModelInject constructor(
 
     init {
         loadAreaSavedState(areaCode)
-        loadAreaDetail(areaCode, areaType)
+        loadAreaDetail(areaCode)
     }
 
     fun refresh() {
-        loadAreaDetail(areaCode, areaType)
+        loadAreaDetail(areaCode)
     }
 
     fun insertSavedArea() {
@@ -102,7 +102,7 @@ class AreaViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun loadAreaDetail(areCode: String, areaType: String) {
+    private fun loadAreaDetail(areCode: String) {
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
             runCatching {
@@ -128,19 +128,21 @@ class AreaViewModel @ViewModelInject constructor(
     }
 
     private suspend fun syncAreaCases(areaDetailModel: AreaDetailModel) {
-        runCatching {
-            syncAreaDetailUseCase.execute(areaCode, areaType)
-        }.onFailure { error ->
-            if (error is HttpException && error.code() == 304) {
-                _isLoading.postValue(false)
-                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
-            } else if (areaDetailModel.lastSyncedAt == null) {
-                _isLoading.postValue(false)
-                _syncAreaError.postValue(Event(true))
-            } else {
-                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
-                _isLoading.postValue(false)
-                _syncAreaError.postValue(Event(false))
+        viewModelScope.launch(dispatchers.io) {
+            runCatching {
+                syncAreaDetailUseCase.execute(areaCode, areaType)
+            }.onFailure { error ->
+                if (error is HttpException && error.code() == 304) {
+                    _isLoading.postValue(false)
+                    _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+                } else if (areaDetailModel.lastSyncedAt == null) {
+                    _isLoading.postValue(false)
+                    _syncAreaError.postValue(Event(true))
+                } else {
+                    _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+                    _isLoading.postValue(false)
+                    _syncAreaError.postValue(Event(false))
+                }
             }
         }
     }

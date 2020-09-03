@@ -84,7 +84,7 @@ class HomeDataSource @Inject constructor(
             }
     }
 
-    fun areaSummaryEntities(): Flow<List<AreaSummaryDto>> {
+    fun areaSummaries(): Flow<List<AreaSummaryDto>> {
         return appDatabase.areaSummaryEntityDao()
             .allAsFlow()
             .map { areaDataList ->

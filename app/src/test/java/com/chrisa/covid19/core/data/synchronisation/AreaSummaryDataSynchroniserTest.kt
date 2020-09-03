@@ -97,21 +97,6 @@ class AreaSummaryDataSynchroniserTest {
         }
 
     @Test
-    fun `GIVEN metadata for day exists WHEN performSync THEN api is not called`() =
-        testDispatcher.runBlockingTest {
-            val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaSummaryId(),
-                lastUpdatedAt = syncTime.minusDays(3),
-                lastSyncTime = syncTime.minusDays(3)
-            )
-            every { metadataDao.metadata(MetaDataIds.areaSummaryId()) } returns metadataEntity
-
-            sut.performSync()
-
-            coVerify(exactly = 0) { monthlyDataLoader.load(any(), any()) }
-        }
-
-    @Test
     fun `GIVEN d for day exists WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
