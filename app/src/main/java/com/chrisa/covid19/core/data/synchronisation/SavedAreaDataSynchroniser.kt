@@ -21,6 +21,7 @@ import com.chrisa.covid19.core.data.db.AreaEntity
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import javax.inject.Inject
+import timber.log.Timber
 
 class SavedAreaDataSynchroniser @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser,
@@ -41,7 +42,7 @@ class SavedAreaDataSynchroniser @Inject constructor(
             try {
                 areaDataSynchroniser.performSync(area.areaCode, area.areaType)
             } catch (throwable: Throwable) {
-                throw throwable
+                Timber.e(throwable)
             }
         }
     }

@@ -29,6 +29,7 @@ import com.chrisa.covid19.R
 import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import java.text.NumberFormat
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaName
+import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaPosition
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.changeThisWeek
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.currentNewCases
 
@@ -46,6 +47,8 @@ class TopNewCaseCard(context: Context, attrs: AttributeSet) : CardView(context, 
 
     @ModelProp
     fun newCaseModel(newCaseModel: NewCaseModel) {
+        areaPosition.text =
+            areaPosition.context.getString(R.string.position_format, newCaseModel.position)
         areaName.text = newCaseModel.areaName
         currentNewCases.text = formatNumber(newCaseModel.currentNewCases)
         changeThisWeek.text = getChangeText(newCaseModel.changeInCases)

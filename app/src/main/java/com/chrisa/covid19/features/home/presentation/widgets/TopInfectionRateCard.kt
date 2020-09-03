@@ -28,7 +28,10 @@ import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import java.text.NumberFormat
-import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.*
+import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.areaName
+import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.areaPosition
+import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.changeThisWeek
+import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.currentInfectionRate
 
 @SuppressLint("NonConstantResourceId")
 @ModelView(defaultLayout = R.layout.widget_top_infection_rate_card)
@@ -44,6 +47,8 @@ class TopInfectionRateCard(context: Context, attrs: AttributeSet) : CardView(con
 
     @ModelProp
     fun infectionRateModel(infectionRateModel: InfectionRateModel) {
+        areaPosition.text =
+            areaPosition.context.getString(R.string.position_format, infectionRateModel.position)
         areaName.text = infectionRateModel.areaName
         currentInfectionRate.text = formatNumber(infectionRateModel.currentInfectionRate)
         changeThisWeek.text = getChangeText(infectionRateModel.changeInInfectionRate)

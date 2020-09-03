@@ -39,14 +39,28 @@
             app:layout_constraintGuide_end="8dp" />
 
         <TextView
+            android:id="@+id/areaPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_light"
+            android:paddingBottom="4dp"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toTopOf="@id/guideline_top"
+            tools:text="#1" />
+
+        <TextView
             android:id="@+id/areaName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_light"
             android:paddingBottom="4dp"
+            android:layout_marginStart="8dp"
+            android:lines="1"
+            android:ellipsize="end"
             android:textAppearance="?attr/textAppearanceHeadline5"
             app:layout_constraintEnd_toEndOf="@id/guideline_end"
-            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintStart_toEndOf="@id/areaPosition"
             app:layout_constraintTop_toTopOf="@id/guideline_top"
             tools:text="Lambeth" />
 

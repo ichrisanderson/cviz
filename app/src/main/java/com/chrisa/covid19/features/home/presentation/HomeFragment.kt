@@ -109,20 +109,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     models(mapInfectionRateModels("risingInfectionRate_", homeScreenData.risingInfectionRates))
                 }
                 sectionHeader {
-                    id("topInfectionRatesHeader")
-                    title(getString(R.string.top_infection_rates))
-                }
-                carousel {
-                    id("topInfectionRatesCarousel")
-                    models(mapInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
-                }
-                sectionHeader {
                     id("topNewCasesHeader")
                     title(getString(R.string.top_new_cases))
                 }
                 carousel {
                     id("topNewCasesCarousel")
                     models(mapCases("topCase_", homeScreenData.topNewCases))
+                }
+                sectionHeader {
+                    id("topInfectionRatesHeader")
+                    title(getString(R.string.top_infection_rates))
+                }
+                carousel {
+                    id("topInfectionRatesCarousel")
+                    models(mapInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
                 }
                 sectionHeader {
                     id("savedAreaHeader")

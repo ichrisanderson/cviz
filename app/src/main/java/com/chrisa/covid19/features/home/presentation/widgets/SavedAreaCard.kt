@@ -27,7 +27,9 @@ import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import java.text.NumberFormat
-import kotlinx.android.synthetic.main.widget_saved_area_card.view.*
+import kotlinx.android.synthetic.main.widget_saved_area_card.view.areaName
+import kotlinx.android.synthetic.main.widget_saved_area_card.view.casesThisWeek
+import kotlinx.android.synthetic.main.widget_saved_area_card.view.changeInCasesThisWeek
 
 @ModelView(defaultLayout = R.layout.widget_saved_area_card)
 class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
@@ -43,7 +45,6 @@ class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, a
     @ModelProp
     fun savedAreaModel(savedAreaModel: SavedAreaModel) {
         areaName.text = savedAreaModel.areaName
-        totalCases.text = formatNumber(savedAreaModel.totalLabConfirmedCases)
         casesThisWeek.text = formatNumber(savedAreaModel.totalLabConfirmedCasesLastWeek)
         changeInCasesThisWeek.setTextColor(
             ContextCompat.getColor(

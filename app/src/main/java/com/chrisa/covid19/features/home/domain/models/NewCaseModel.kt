@@ -17,6 +17,7 @@
 package com.chrisa.covid19.features.home.domain.models
 
 data class NewCaseModel(
+    val position: Int,
     val areaCode: String,
     val areaName: String,
     val areaType: String,

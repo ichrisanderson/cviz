@@ -25,6 +25,7 @@ import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class SynchroniseDataWorker @WorkerInject constructor(
     @Assisted context: Context,
@@ -37,12 +38,36 @@ class SynchroniseDataWorker @WorkerInject constructor(
 
     override suspend fun doWork(): Result = withContext(coroutineDispatchers.io) {
         val jobs = listOf(
-            async { areaSummaryDataSynchroniser.performSync() },
-            async { savedAreaDataSynchroniser.performSync() },
-            async { areaListSynchroniser.performSync() }
+            async { syncAreaSummaries() },
+            async { syncSavedAreas() },
+            async { syncAreaList() }
         )
         // awaitAll will throw an exception if a download fails, which CoroutineWorker will treat as a failure
         jobs.awaitAll()
         return@withContext Result.success()
+    }
+
+    private suspend fun syncAreaList() {
+        try {
+            areaListSynchroniser.performSync()
+        } catch (throwable: Throwable) {
+            Timber.e(throwable)
+        }
+    }
+
+    private suspend fun syncSavedAreas() {
+        try {
+            savedAreaDataSynchroniser.performSync()
+        } catch (throwable: Throwable) {
+            Timber.e(throwable)
+        }
+    }
+
+    private suspend fun syncAreaSummaries() {
+        try {
+            areaSummaryDataSynchroniser.performSync()
+        } catch (throwable: Throwable) {
+            Timber.e(throwable)
+        }
     }
 }

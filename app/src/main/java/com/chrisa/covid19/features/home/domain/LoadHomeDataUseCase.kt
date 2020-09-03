@@ -101,8 +101,9 @@ class LoadHomeDataUseCase @Inject constructor(
     }
 
     private fun mapInfectionRates(areaSummaries: List<AreaSummaryDto>): List<InfectionRateModel> {
-        return areaSummaries.map { areaSummary ->
+        return areaSummaries.mapIndexed { index, areaSummary ->
             InfectionRateModel(
+                position = index + 1,
                 areaCode = areaSummary.areaCode,
                 areaName = areaSummary.areaName,
                 areaType = areaSummary.areaType,
@@ -113,8 +114,9 @@ class LoadHomeDataUseCase @Inject constructor(
     }
 
     private fun mapNewCases(areaSummaries: List<AreaSummaryDto>): List<NewCaseModel> {
-        return areaSummaries.map { areaSummary ->
+        return areaSummaries.mapIndexed { index, areaSummary ->
             NewCaseModel(
+                position = index + 1,
                 areaCode = areaSummary.areaCode,
                 areaName = areaSummary.areaName,
                 areaType = areaSummary.areaType,
