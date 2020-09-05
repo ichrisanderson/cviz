@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import android.text.format.DateUtils.getRelativeTimeSpanString
 import android.view.View
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -35,10 +36,15 @@ import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.android.synthetic.main.area_content.allCasesChart
 import kotlinx.android.synthetic.main.area_content.areaContent
+import kotlinx.android.synthetic.main.area_content.changeInNewCasesThisWeek
+import kotlinx.android.synthetic.main.area_content.currentInfectionRate
+import kotlinx.android.synthetic.main.area_content.currentNewCases
+import kotlinx.android.synthetic.main.area_content.infectionRateChangeThisWeek
 import kotlinx.android.synthetic.main.area_content.latestCasesChart
 import kotlinx.android.synthetic.main.area_content.totalCasesSubtitle
 import kotlinx.android.synthetic.main.area_error.areaError
@@ -99,6 +105,24 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
 
             bindLastUpdated(areaCasesModel.lastUpdatedAt)
 
+            currentNewCases.text = formatNumber(areaCasesModel.currentNewCases)
+            changeInNewCasesThisWeek.text = getChangeText(areaCasesModel.changeInNewCasesThisWeek)
+            changeInNewCasesThisWeek.setTextColor(
+                ContextCompat.getColor(
+                    changeInNewCasesThisWeek.context,
+                    getChangeColour(areaCasesModel.changeInNewCasesThisWeek)
+                )
+            )
+
+            currentInfectionRate.text = formatNumber(areaCasesModel.currentInfectionRate)
+            infectionRateChangeThisWeek.text = getChangeText(areaCasesModel.changeInInfectionRatesThisWeek)
+            infectionRateChangeThisWeek.setTextColor(
+                ContextCompat.getColor(
+                    changeInNewCasesThisWeek.context,
+                    getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek)
+                )
+            )
+
             latestCasesChart.setData(
                 areaCasesModel.latestCasesBarChartData,
                 areaCasesModel.latestCasesRollingAverageLineChartData
@@ -109,6 +133,48 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
             )
             areaContent.isVisible = true
         })
+    }
+
+    private fun formatNumber(toFormat: Int): String {
+        return NumberFormat.getInstance().format(toFormat)
+    }
+
+    @ColorRes
+    private fun getChangeColour(change: Int): Int {
+        return when {
+            change > 0 -> R.color.negativeChange
+            else -> R.color.positiveChange
+        }
+    }
+
+    private fun getChangeText(change: Int): String {
+        val number = formatNumber(change)
+        return when {
+            change > 0 -> "+$number"
+            change == 0 -> "-$number"
+            else -> number
+        }
+    }
+
+    private fun formatNumber(toFormat: Double): String {
+        return NumberFormat.getInstance().format(toFormat)
+    }
+
+    @ColorRes
+    private fun getChangeColour(change: Double): Int {
+        return when {
+            change > 0 -> R.color.negativeChange
+            else -> R.color.positiveChange
+        }
+    }
+
+    private fun getChangeText(change: Double): String {
+        val number = formatNumber(change)
+        return when {
+            change > 0 -> "+$number"
+            change == 0.0 -> "-$number"
+            else -> number
+        }
     }
 
     private fun bindLastUpdated(lastUpdatedAt: LocalDateTime?) {

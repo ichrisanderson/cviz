@@ -90,13 +90,19 @@ class AreaViewModelTest {
 
                 val caseModels = listOf(
                     CaseModel(
-                        dailyLabConfirmedCases = 123,
+                        baseRate = 0.0,
+                        cumulativeCases = 0,
+                        newCases = 123,
                         date = LocalDate.ofEpochDay(0),
                         rollingAverage = 1.0
                     )
                 )
 
                 val areaDetailModel = AreaDetailModel(
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = syncTime.minusDays(1),
                     lastSyncedAt = syncTime,
                     allCases = caseModels,
@@ -104,6 +110,10 @@ class AreaViewModelTest {
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
@@ -156,13 +166,19 @@ class AreaViewModelTest {
 
                 val caseModels = listOf(
                     CaseModel(
-                        dailyLabConfirmedCases = 123,
+                        baseRate = 0.0,
+                        cumulativeCases = 0,
+                        newCases = 123,
                         date = LocalDate.ofEpochDay(0),
                         rollingAverage = 1.0
                     )
                 )
 
                 val areaDetailModel = AreaDetailModel(
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = syncTime.minusDays(1),
                     lastSyncedAt = syncTime.minusDays(1),
                     allCases = caseModels,
@@ -170,6 +186,10 @@ class AreaViewModelTest {
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
@@ -224,6 +244,10 @@ class AreaViewModelTest {
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val areaDetailModel = AreaDetailModel(
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
@@ -261,6 +285,10 @@ class AreaViewModelTest {
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val areaDetailModel = AreaDetailModel(
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
@@ -268,6 +296,10 @@ class AreaViewModelTest {
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC

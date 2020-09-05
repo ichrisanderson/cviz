@@ -22,6 +22,10 @@ import java.time.LocalDateTime
 
 data class AreaCasesModel(
     val lastUpdatedAt: LocalDateTime?,
+    val currentInfectionRate: Double,
+    val changeInInfectionRatesThisWeek: Double,
+    val currentNewCases: Int,
+    val changeInNewCasesThisWeek: Int,
     val latestCasesBarChartData: BarChartData,
     val latestCasesRollingAverageLineChartData: LineChartData,
     val allCasesChartData: BarChartData,

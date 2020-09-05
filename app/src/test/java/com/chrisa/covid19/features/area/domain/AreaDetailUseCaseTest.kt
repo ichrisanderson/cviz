@@ -41,15 +41,14 @@ class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
-    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper)
+    private val caseChangeModelMapper = mockk<CaseChangeModelMapper>()
+    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper, caseChangeModelMapper)
 
     @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
         runBlocking {
 
             val areaCode = "1234"
-            val areaType = "utla"
-
             every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
 
             val areaDetailModelFlow = sut.execute(areaCode)
@@ -60,7 +59,11 @@ class AreaDetailUseCaseTest {
                         lastUpdatedAt = null,
                         lastSyncedAt = null,
                         allCases = emptyList(),
-                        latestCases = emptyList()
+                        latestCases = emptyList(),
+                        changeInNewCasesThisWeek = 0,
+                        currentNewCases = 0,
+                        currentInfectionRate = 0.0,
+                        changeInInfectionRatesThisWeek = 0.0
                     )
                 )
             }
@@ -71,8 +74,6 @@ class AreaDetailUseCaseTest {
         runBlocking {
 
             val areaCode = "1234"
-            val areaType = "utla"
-
             val now = LocalDateTime.now()
             val metadataDTO = MetadataDto(
                 lastUpdatedAt = now.minusDays(1),
@@ -83,9 +84,11 @@ class AreaDetailUseCaseTest {
             val caseDTOs = (1 until 100).map {
                 totalLabConfirmedCases += it
                 CaseDto(
+                    newCases = it,
+                    cumulativeCases = totalLabConfirmedCases,
                     date = LocalDate.ofEpochDay(it.toLong()),
-                    dailyLabConfirmedCases = it,
-                    totalLabConfirmedCases = totalLabConfirmedCases
+                    infectionRate = 30.0,
+                    baseRate = 0.4
                 )
             }
 
@@ -95,11 +98,22 @@ class AreaDetailUseCaseTest {
 
             val caseModels = caseDTOs.map {
                 CaseModel(
-                    dailyLabConfirmedCases = it.dailyLabConfirmedCases,
+                    newCases = it.newCases,
                     date = it.date,
-                    rollingAverage = 1.0
+                    rollingAverage = 1.0,
+                    cumulativeCases = it.cumulativeCases,
+                    baseRate = 0.4
                 )
             }
+
+            val caseChangeModel = CaseChangeModel(
+                changeInNewCasesThisWeek = 0,
+                currentNewCases = 0,
+                cumulativeCases = 0,
+                currentInfectionRate = 0.0,
+                changeInInfectionRatesThisWeek = 0.0
+            )
+            every { caseChangeModelMapper.mapSavedAreaModel(caseModels) } returns caseChangeModel
 
             val areaDetailModelFlow = sut.execute(areaCode)
 
@@ -109,7 +123,11 @@ class AreaDetailUseCaseTest {
                         lastUpdatedAt = metadataDTO.lastUpdatedAt,
                         lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
-                        latestCases = caseModels.takeLast(14)
+                        latestCases = caseModels.takeLast(14),
+                        changeInNewCasesThisWeek = caseChangeModel.changeInNewCasesThisWeek,
+                        currentNewCases = caseChangeModel.currentNewCases,
+                        currentInfectionRate = caseChangeModel.currentInfectionRate,
+                        changeInInfectionRatesThisWeek = caseChangeModel.changeInInfectionRatesThisWeek
                     )
                 )
             }

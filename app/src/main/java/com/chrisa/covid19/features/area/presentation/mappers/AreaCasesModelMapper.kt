@@ -42,6 +42,10 @@ class AreaCasesModelMapper @Inject constructor(
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
+            currentInfectionRate = areaDetailModel.currentInfectionRate,
+            currentNewCases = areaDetailModel.currentNewCases,
+            changeInNewCasesThisWeek = areaDetailModel.changeInNewCasesThisWeek,
+            changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRatesThisWeek,
             latestCasesBarChartData = BarChartData(
                 label = context.getString(R.string.latest_cases_chart_label),
                 values = areaDetailModel.latestCases.map(this::mapCaseModelToBarChartItem)
@@ -63,7 +67,7 @@ class AreaCasesModelMapper @Inject constructor(
 
     private fun mapCaseModelToBarChartItem(caseModel: CaseModel): BarChartItem {
         return BarChartItem(
-            caseModel.dailyLabConfirmedCases.toFloat(),
+            caseModel.newCases.toFloat(),
             caseModel.date.format(formatter)
         )
     }

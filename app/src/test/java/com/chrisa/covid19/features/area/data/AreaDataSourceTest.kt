@@ -156,9 +156,11 @@ class AreaDataSourceTest {
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases.first()).isEqualTo(
             CaseDto(
+                newCases = areaData.newCases,
+                cumulativeCases = areaData.cumulativeCases,
                 date = areaData.date,
-                dailyLabConfirmedCases = areaData.newCases,
-                totalLabConfirmedCases = areaData.cumulativeCases
+                infectionRate = areaData.infectionRate,
+                baseRate = areaData.infectionRate / areaData.cumulativeCases
             )
         )
     }

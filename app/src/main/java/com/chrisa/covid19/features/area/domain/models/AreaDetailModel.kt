@@ -20,6 +20,10 @@ import java.time.LocalDateTime
 
 data class AreaDetailModel(
     val lastUpdatedAt: LocalDateTime?,
+    val currentInfectionRate: Double,
+    val changeInInfectionRatesThisWeek: Double,
+    val currentNewCases: Int,
+    val changeInNewCasesThisWeek: Int,
     val lastSyncedAt: LocalDateTime?,
     val allCases: List<CaseModel>,
     val latestCases: List<CaseModel>

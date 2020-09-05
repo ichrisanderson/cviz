@@ -46,8 +46,10 @@ class AreaDataSource @Inject constructor(
         return appDatabase.areaDataDao().allByAreaCode(areaCode)
             .map {
                 CaseDto(
-                    dailyLabConfirmedCases = it.newCases,
-                    totalLabConfirmedCases = it.cumulativeCases,
+                    baseRate = it.infectionRate / it.cumulativeCases,
+                    infectionRate = it.infectionRate,
+                    newCases = it.newCases,
+                    cumulativeCases = it.cumulativeCases,
                     date = it.date
                 )
             }

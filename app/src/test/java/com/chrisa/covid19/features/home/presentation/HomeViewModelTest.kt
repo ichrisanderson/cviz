@@ -74,6 +74,7 @@ class HomeViewModelTest {
                 )
 
                 val newCaseModel = NewCaseModel(
+                    position = 1,
                     areaCode = "1234",
                     areaName = "Lambeth",
                     areaType = "ltla",
@@ -82,6 +83,7 @@ class HomeViewModelTest {
                 )
 
                 val infectionRateModel = InfectionRateModel(
+                    position = 1,
                     areaName = "UK",
                     areaCode = Constants.UK_AREA_CODE,
                     areaType = AreaType.OVERVIEW.value,

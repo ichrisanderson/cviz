@@ -23,7 +23,7 @@ class RollingAverageHelper @Inject constructor() {
     fun average(index: Int, cases: List<CaseDto>): Double {
         var average = 0
         for (i in 0 until 7) {
-            average += cases.getOrNull(index - i)?.dailyLabConfirmedCases ?: 0
+            average += cases.getOrNull(index - i)?.newCases ?: 0
         }
         return when {
             (average == 0) -> 0.0

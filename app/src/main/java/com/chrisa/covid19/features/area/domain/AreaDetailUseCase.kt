@@ -29,7 +29,8 @@ import kotlinx.coroutines.flow.map
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
-    private val rollingAverageHelper: RollingAverageHelper
+    private val rollingAverageHelper: RollingAverageHelper,
+    private val caseChangeModelMapper: CaseChangeModelMapper
 ) {
 
     fun execute(areaCode: String): Flow<AreaDetailModel> {
@@ -40,16 +41,25 @@ class AreaDetailUseCase @Inject constructor(
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
-                    latestCases = emptyList()
+                    latestCases = emptyList(),
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    currentInfectionRate = 0.0,
+                    changeInInfectionRatesThisWeek = 0.0
                 )
             } else {
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
+                val c = caseChangeModelMapper.mapSavedAreaModel(allCases)
                 AreaDetailModel(
                     lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
                     allCases = allCases,
-                    latestCases = allCases.takeLast(14)
+                    latestCases = allCases.takeLast(14),
+                    currentInfectionRate = c.currentInfectionRate,
+                    changeInInfectionRatesThisWeek = c.changeInInfectionRatesThisWeek,
+                    currentNewCases = c.cumulativeCases,
+                    changeInNewCasesThisWeek = c.changeInNewCasesThisWeek
                 )
             }
         }
@@ -58,10 +68,54 @@ class AreaDetailUseCase @Inject constructor(
     private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
         return cases.mapIndexed { index, case ->
             CaseModel(
-                dailyLabConfirmedCases = case.dailyLabConfirmedCases,
+                baseRate = case.baseRate,
+                cumulativeCases = case.cumulativeCases,
+                newCases = case.newCases,
                 rollingAverage = rollingAverageHelper.average(index, cases),
                 date = case.date
             )
         }
     }
 }
+
+class CaseChangeModelMapper @Inject() constructor() {
+
+    fun mapSavedAreaModel(
+        allCases: List<CaseModel>
+    ): CaseChangeModel {
+
+        val offset = 3
+
+        val lastCase = allCases.getOrNull(allCases.size - offset)
+        val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
+        val prevCase1 = allCases.getOrNull(allCases.size - (offset + 14))
+
+        val lastTotalLabConfirmedCases = lastCase?.cumulativeCases ?: 0
+        val prevTotalLabConfirmedCases = prevCase?.cumulativeCases ?: 0
+        val prev1TotalLabConfirmedCases = prevCase1?.cumulativeCases ?: 0
+
+        val baseRate = lastCase?.baseRate ?: 0.0
+
+        val casesThisWeek = (lastTotalLabConfirmedCases - prevTotalLabConfirmedCases)
+        val casesLastWeek = (prevTotalLabConfirmedCases - prev1TotalLabConfirmedCases)
+
+        val infectionRateThisWeek = baseRate * casesThisWeek
+        val infectionRateLastWeek = baseRate * casesLastWeek
+
+        return CaseChangeModel(
+            changeInNewCasesThisWeek = casesThisWeek - casesLastWeek,
+            currentNewCases = lastTotalLabConfirmedCases,
+            cumulativeCases = casesThisWeek,
+            changeInInfectionRatesThisWeek = infectionRateThisWeek - infectionRateLastWeek,
+            currentInfectionRate = infectionRateThisWeek
+        )
+    }
+}
+
+data class CaseChangeModel(
+    val changeInNewCasesThisWeek: Int,
+    val currentNewCases: Int,
+    val cumulativeCases: Int,
+    val changeInInfectionRatesThisWeek: Double,
+    val currentInfectionRate: Double
+)

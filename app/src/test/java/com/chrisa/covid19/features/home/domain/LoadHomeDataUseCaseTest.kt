@@ -118,13 +118,14 @@ class LoadHomeDataUseCaseTest {
 
             sut.execute().collect { emittedItems.add(it) }
 
-            assertThat(homeScreenDataModel.topNewCases).isEqualTo(newCases.map { newCase ->
+            assertThat(homeScreenDataModel.topNewCases).isEqualTo(newCases.mapIndexed { index, areaSummary ->
                 NewCaseModel(
-                    areaCode = newCase.areaCode,
-                    areaName = newCase.areaName,
-                    areaType = newCase.areaType,
-                    changeInCases = newCase.changeInCases,
-                    currentNewCases = newCase.currentNewCases
+                    position = index + 1,
+                    areaCode = areaSummary.areaCode,
+                    areaName = areaSummary.areaName,
+                    areaType = areaSummary.areaType,
+                    changeInCases = areaSummary.changeInCases,
+                    currentNewCases = areaSummary.currentNewCases
                 )
             })
         }
