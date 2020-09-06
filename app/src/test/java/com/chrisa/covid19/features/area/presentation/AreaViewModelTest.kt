@@ -99,10 +99,11 @@ class AreaViewModelTest {
                 )
 
                 val areaDetailModel = AreaDetailModel(
-                    changeInNewCasesThisWeek = 0,
-                    currentNewCases = 0,
-                    changeInInfectionRatesThisWeek = 0.0,
-                    currentInfectionRate = 0.0,
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
                     lastUpdatedAt = syncTime.minusDays(1),
                     lastSyncedAt = syncTime,
                     allCases = caseModels,
@@ -110,6 +111,7 @@ class AreaViewModelTest {
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    totalCases = 0,
                     changeInNewCasesThisWeek = 0,
                     currentNewCases = 0,
                     changeInInfectionRatesThisWeek = 0.0,
@@ -175,10 +177,11 @@ class AreaViewModelTest {
                 )
 
                 val areaDetailModel = AreaDetailModel(
-                    changeInNewCasesThisWeek = 0,
-                    currentNewCases = 0,
-                    changeInInfectionRatesThisWeek = 0.0,
-                    currentInfectionRate = 0.0,
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
                     lastUpdatedAt = syncTime.minusDays(1),
                     lastSyncedAt = syncTime.minusDays(1),
                     allCases = caseModels,
@@ -186,6 +189,7 @@ class AreaViewModelTest {
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    totalCases = 0,
                     changeInNewCasesThisWeek = 0,
                     currentNewCases = 0,
                     changeInInfectionRatesThisWeek = 0.0,
@@ -244,10 +248,11 @@ class AreaViewModelTest {
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val areaDetailModel = AreaDetailModel(
-                    changeInNewCasesThisWeek = 0,
-                    currentNewCases = 0,
-                    changeInInfectionRatesThisWeek = 0.0,
-                    currentInfectionRate = 0.0,
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
@@ -285,10 +290,11 @@ class AreaViewModelTest {
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val areaDetailModel = AreaDetailModel(
-                    changeInNewCasesThisWeek = 0,
-                    currentNewCases = 0,
-                    changeInInfectionRatesThisWeek = 0.0,
-                    currentInfectionRate = 0.0,
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
@@ -296,6 +302,7 @@ class AreaViewModelTest {
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    totalCases = 0,
                     changeInNewCasesThisWeek = 0,
                     currentNewCases = 0,
                     changeInInfectionRatesThisWeek = 0.0,

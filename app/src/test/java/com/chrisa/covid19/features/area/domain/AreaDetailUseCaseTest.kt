@@ -60,10 +60,11 @@ class AreaDetailUseCaseTest {
                         lastSyncedAt = null,
                         allCases = emptyList(),
                         latestCases = emptyList(),
-                        changeInNewCasesThisWeek = 0,
-                        currentNewCases = 0,
-                        currentInfectionRate = 0.0,
-                        changeInInfectionRatesThisWeek = 0.0
+                        latestTotalCases = 0,
+                        changeInCases = 0,
+                        weeklyCases = 0,
+                        weeklyInfectionRate = 0.0,
+                        changeInInfectionRate = 0.0
                     )
                 )
             }
@@ -87,8 +88,8 @@ class AreaDetailUseCaseTest {
                     newCases = it,
                     cumulativeCases = totalLabConfirmedCases,
                     date = LocalDate.ofEpochDay(it.toLong()),
-                    infectionRate = 30.0,
-                    baseRate = 0.4
+                    infectionRate = 0.0,
+                    baseRate = 0.0
                 )
             }
 
@@ -102,16 +103,16 @@ class AreaDetailUseCaseTest {
                     date = it.date,
                     rollingAverage = 1.0,
                     cumulativeCases = it.cumulativeCases,
-                    baseRate = 0.4
+                    baseRate = 0.0
                 )
             }
 
             val caseChangeModel = CaseChangeModel(
-                changeInNewCasesThisWeek = 0,
-                currentNewCases = 0,
-                cumulativeCases = 0,
-                currentInfectionRate = 0.0,
-                changeInInfectionRatesThisWeek = 0.0
+                changeInCases = 100,
+                weeklyCases = 10,
+                latestTotalCases = 10300,
+                weeklyInfectionRate = 10.0,
+                changeInInfectionRate = 110.0
             )
             every { caseChangeModelMapper.mapSavedAreaModel(caseModels) } returns caseChangeModel
 
@@ -124,10 +125,11 @@ class AreaDetailUseCaseTest {
                         lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
                         latestCases = caseModels.takeLast(14),
-                        changeInNewCasesThisWeek = caseChangeModel.changeInNewCasesThisWeek,
-                        currentNewCases = caseChangeModel.currentNewCases,
-                        currentInfectionRate = caseChangeModel.currentInfectionRate,
-                        changeInInfectionRatesThisWeek = caseChangeModel.changeInInfectionRatesThisWeek
+                        latestTotalCases = caseChangeModel.latestTotalCases,
+                        changeInCases = caseChangeModel.changeInCases,
+                        weeklyCases = caseChangeModel.weeklyCases,
+                        weeklyInfectionRate = caseChangeModel.weeklyInfectionRate,
+                        changeInInfectionRate = caseChangeModel.changeInInfectionRate
                     )
                 )
             }

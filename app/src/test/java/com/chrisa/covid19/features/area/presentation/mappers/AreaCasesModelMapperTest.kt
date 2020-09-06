@@ -58,10 +58,11 @@ class AreaCasesModelMapperTest {
 
         val now = LocalDateTime.now()
         val areaDetailModel = AreaDetailModel(
-            changeInNewCasesThisWeek = 0,
-            currentNewCases = 0,
-            changeInInfectionRatesThisWeek = 0.0,
-            currentInfectionRate = 0.0,
+            latestTotalCases = 0,
+            changeInCases = 0,
+            weeklyCases = 0,
+            changeInInfectionRate = 0.0,
+            weeklyInfectionRate = 0.0,
             lastUpdatedAt = now.minusDays(1),
             lastSyncedAt = now,
             allCases = caseModels,

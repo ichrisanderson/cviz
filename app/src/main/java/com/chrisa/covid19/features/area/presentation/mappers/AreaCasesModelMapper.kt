@@ -42,10 +42,11 @@ class AreaCasesModelMapper @Inject constructor(
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
-            currentInfectionRate = areaDetailModel.currentInfectionRate,
-            currentNewCases = areaDetailModel.currentNewCases,
-            changeInNewCasesThisWeek = areaDetailModel.changeInNewCasesThisWeek,
-            changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRatesThisWeek,
+            totalCases = areaDetailModel.latestTotalCases,
+            currentInfectionRate = areaDetailModel.weeklyInfectionRate,
+            currentNewCases = areaDetailModel.weeklyCases,
+            changeInNewCasesThisWeek = areaDetailModel.changeInCases,
+            changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRate,
             latestCasesBarChartData = BarChartData(
                 label = context.getString(R.string.latest_cases_chart_label),
                 values = areaDetailModel.latestCases.map(this::mapCaseModelToBarChartItem)

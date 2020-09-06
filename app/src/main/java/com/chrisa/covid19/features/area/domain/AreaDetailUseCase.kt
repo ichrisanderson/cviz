@@ -42,24 +42,26 @@ class AreaDetailUseCase @Inject constructor(
                     lastSyncedAt = null,
                     allCases = emptyList(),
                     latestCases = emptyList(),
-                    changeInNewCasesThisWeek = 0,
-                    currentNewCases = 0,
-                    currentInfectionRate = 0.0,
-                    changeInInfectionRatesThisWeek = 0.0
+                    latestTotalCases = 0,
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    weeklyInfectionRate = 0.0,
+                    changeInInfectionRate = 0.0
                 )
             } else {
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
-                val c = caseChangeModelMapper.mapSavedAreaModel(allCases)
+                val caseChanges = caseChangeModelMapper.mapSavedAreaModel(allCases)
                 AreaDetailModel(
                     lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
                     allCases = allCases,
                     latestCases = allCases.takeLast(14),
-                    currentInfectionRate = c.currentInfectionRate,
-                    changeInInfectionRatesThisWeek = c.changeInInfectionRatesThisWeek,
-                    currentNewCases = c.cumulativeCases,
-                    changeInNewCasesThisWeek = c.changeInNewCasesThisWeek
+                    weeklyInfectionRate = caseChanges.weeklyInfectionRate,
+                    changeInInfectionRate = caseChanges.changeInInfectionRate,
+                    weeklyCases = caseChanges.weeklyCases,
+                    changeInCases = caseChanges.changeInCases,
+                    latestTotalCases = caseChanges.latestTotalCases
                 )
             }
         }
@@ -90,32 +92,32 @@ class CaseChangeModelMapper @Inject() constructor() {
         val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
         val prevCase1 = allCases.getOrNull(allCases.size - (offset + 14))
 
-        val lastTotalLabConfirmedCases = lastCase?.cumulativeCases ?: 0
-        val prevTotalLabConfirmedCases = prevCase?.cumulativeCases ?: 0
-        val prev1TotalLabConfirmedCases = prevCase1?.cumulativeCases ?: 0
+        val cumulativeCases0 = lastCase?.cumulativeCases ?: 0
+        val cumulativeCases1 = prevCase?.cumulativeCases ?: 0
+        val cumulativeCases2 = prevCase1?.cumulativeCases ?: 0
 
         val baseRate = lastCase?.baseRate ?: 0.0
 
-        val casesThisWeek = (lastTotalLabConfirmedCases - prevTotalLabConfirmedCases)
-        val casesLastWeek = (prevTotalLabConfirmedCases - prev1TotalLabConfirmedCases)
+        val casesThisWeek = (cumulativeCases0 - cumulativeCases1)
+        val casesLastWeek = (cumulativeCases1 - cumulativeCases2)
 
         val infectionRateThisWeek = baseRate * casesThisWeek
         val infectionRateLastWeek = baseRate * casesLastWeek
 
         return CaseChangeModel(
-            changeInNewCasesThisWeek = casesThisWeek - casesLastWeek,
-            currentNewCases = lastTotalLabConfirmedCases,
-            cumulativeCases = casesThisWeek,
-            changeInInfectionRatesThisWeek = infectionRateThisWeek - infectionRateLastWeek,
-            currentInfectionRate = infectionRateThisWeek
+            latestTotalCases = allCases.lastOrNull()?.cumulativeCases ?: 0,
+            changeInCases = casesThisWeek - casesLastWeek,
+            weeklyCases = casesThisWeek,
+            changeInInfectionRate = infectionRateThisWeek - infectionRateLastWeek,
+            weeklyInfectionRate = infectionRateThisWeek
         )
     }
 }
 
 data class CaseChangeModel(
-    val changeInNewCasesThisWeek: Int,
-    val currentNewCases: Int,
-    val cumulativeCases: Int,
-    val changeInInfectionRatesThisWeek: Double,
-    val currentInfectionRate: Double
+    val latestTotalCases: Int,
+    val changeInCases: Int,
+    val weeklyCases: Int,
+    val changeInInfectionRate: Double,
+    val weeklyInfectionRate: Double
 )

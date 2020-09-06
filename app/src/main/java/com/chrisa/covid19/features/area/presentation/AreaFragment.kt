@@ -46,6 +46,7 @@ import kotlinx.android.synthetic.main.area_content.currentInfectionRate
 import kotlinx.android.synthetic.main.area_content.currentNewCases
 import kotlinx.android.synthetic.main.area_content.infectionRateChangeThisWeek
 import kotlinx.android.synthetic.main.area_content.latestCasesChart
+import kotlinx.android.synthetic.main.area_content.totalCases
 import kotlinx.android.synthetic.main.area_content.totalCasesSubtitle
 import kotlinx.android.synthetic.main.area_error.areaError
 import kotlinx.android.synthetic.main.area_error.errorAction
@@ -105,6 +106,7 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
 
             bindLastUpdated(areaCasesModel.lastUpdatedAt)
 
+            totalCases.text = formatNumber(areaCasesModel.totalCases)
             currentNewCases.text = formatNumber(areaCasesModel.currentNewCases)
             changeInNewCasesThisWeek.text = getChangeText(areaCasesModel.changeInNewCasesThisWeek)
             changeInNewCasesThisWeek.setTextColor(
