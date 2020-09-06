@@ -17,9 +17,12 @@
 package com.chrisa.covid19.core.data.synchronisation
 
 import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaDao
+import com.chrisa.covid19.core.data.db.AreaEntity
 import com.chrisa.covid19.core.data.db.AreaSummaryEntity
 import com.chrisa.covid19.core.data.db.AreaSummaryEntityDao
 import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
@@ -48,6 +51,7 @@ class AreaSummaryDataSynchroniserTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaSummaryEntityDao = mockk<AreaSummaryEntityDao>()
+    private val areaDao = mockk<AreaDao>()
     private val metadataDao = mockk<MetadataDao>()
     private val networkUtils = mockk<NetworkUtils>()
     private val monthlyDataLoader = mockk<MonthlyDataLoader>()
@@ -65,12 +69,14 @@ class AreaSummaryDataSynchroniserTest {
     @Before
     fun setup() {
         every { networkUtils.hasNetworkConnection() } returns true
+        every { appDatabase.areaDao() } returns areaDao
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.areaSummaryEntityDao() } returns areaSummaryEntityDao
         every { timeProvider.currentDate() } returns syncDate
         every { areaSummaryEntityDao.deleteAll() } just Runs
         every { areaSummaryEntityDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { areaDao.insertAll(any()) } just Runs
         every { areaDataModelStructureMapper.mapAreaTypeToDataModel(any()) } returns areaDataModel
 
         appDatabase.mockTransaction()
@@ -97,7 +103,7 @@ class AreaSummaryDataSynchroniserTest {
         }
 
     @Test
-    fun `GIVEN d for day exists WHEN performSync THEN api is not called`() =
+    fun `GIVEN data for day exists WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaSummaryId(),
@@ -112,7 +118,28 @@ class AreaSummaryDataSynchroniserTest {
                 week3 = Page(length = 1, maxPageLimit = null, data = listOf()),
                 week4 = Page(length = 1, maxPageLimit = null, data = listOf())
             )
-            val areaSummaryEntityList = listOf<AreaSummaryEntity>()
+            val areaSummaryEntity = AreaSummaryEntity(
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW,
+                areaName = "UK",
+                date = syncTime.toLocalDate(),
+                baseInfectionRate = 100.0,
+                cumulativeCasesWeek1 = 100,
+                cumulativeCaseInfectionRateWeek1 = 85.0,
+                newCaseInfectionRateWeek1 = 25.0,
+                newCasesWeek1 = 30,
+                cumulativeCasesWeek2 = 80,
+                cumulativeCaseInfectionRateWeek2 = 80.0,
+                newCaseInfectionRateWeek2 = 22.0,
+                newCasesWeek2 = 22,
+                cumulativeCasesWeek3 = 66,
+                cumulativeCaseInfectionRateWeek3 = 82.0,
+                newCaseInfectionRateWeek3 = 33.0,
+                newCasesWeek3 = 26,
+                cumulativeCasesWeek4 = 50,
+                cumulativeCaseInfectionRateWeek4 = 75.0
+            )
+            val areaSummaryEntityList = listOf(areaSummaryEntity)
             every { metadataDao.metadata(MetaDataIds.areaSummaryId()) } returns metadataEntity
             coEvery { monthlyDataLoader.load(lastDate, AreaType.LTLA) } returns monthlyData
             every { areaEntityListBuilder.build(monthlyData) } returns areaSummaryEntityList
@@ -128,6 +155,15 @@ class AreaSummaryDataSynchroniserTest {
                         lastUpdatedAt = lastDate.atStartOfDay(),
                         lastSyncTime = lastDate.atStartOfDay()
                     )
+                )
+                areaDao.insertAll(
+                    areaSummaryEntityList.map {
+                        AreaEntity(
+                            areaCode = it.areaCode,
+                            areaType = it.areaType,
+                            areaName = it.areaName
+                        )
+                    }
                 )
             }
         }

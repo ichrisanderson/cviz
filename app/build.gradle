@@ -106,6 +106,7 @@ dependencies {
     implementation "androidx.room:room-runtime:${versions.androidxRoom}"
     implementation "androidx.room:room-ktx:${versions.androidxRoom}"
     kapt "androidx.room:room-compiler:${versions.androidxRoom}"
+    implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
 
     /* coil */
     implementation "io.coil-kt:coil:${versions.coil}"

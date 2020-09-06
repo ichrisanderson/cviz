@@ -18,6 +18,7 @@ package com.chrisa.covid19.core.data.synchronisation
 
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
+import com.chrisa.covid19.core.data.db.AreaEntity
 import com.chrisa.covid19.core.data.db.AreaSummaryEntity
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
@@ -66,6 +67,14 @@ class AreaSummaryDataSynchroniser @Inject constructor(
                     lastSyncTime = date.atStartOfDay()
                 )
             )
+
+            appDatabase.areaDao().insertAll(areaEntityList.map {
+                AreaEntity(
+                    areaType = it.areaType,
+                    areaName = it.areaName,
+                    areaCode = it.areaCode
+                )
+            })
         }
     }
 }
