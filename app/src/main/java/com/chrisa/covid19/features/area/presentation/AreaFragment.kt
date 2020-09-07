@@ -17,8 +17,6 @@
 package com.chrisa.covid19.features.area.presentation
 
 import android.os.Bundle
-import android.text.format.DateUtils.MINUTE_IN_MILLIS
-import android.text.format.DateUtils.getRelativeTimeSpanString
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -29,6 +27,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
+import com.chrisa.covid19.core.util.DateFormatter.getLocalRelativeTimeSpanString
+import com.chrisa.covid19.core.util.DateFormatter.mediumLocalizedDate
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,7 +37,6 @@ import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.time.LocalDateTime
-import java.time.ZoneId
 import kotlinx.android.synthetic.main.area_content.allCasesChart
 import kotlinx.android.synthetic.main.area_content.areaContent
 import kotlinx.android.synthetic.main.area_content.changeInNewCasesThisWeek
@@ -51,6 +50,7 @@ import kotlinx.android.synthetic.main.area_error.areaError
 import kotlinx.android.synthetic.main.area_error.errorAction
 import kotlinx.android.synthetic.main.fragment_area.areaProgress
 import kotlinx.android.synthetic.main.fragment_area.areaToolbar
+import kotlinx.android.synthetic.main.widget_latest_uk_data_card.totalCasesCaption
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -106,6 +106,8 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
             bindLastUpdated(areaCasesModel.lastUpdatedAt)
 
             totalCases.text = NumberFormatter.format(areaCasesModel.totalCases)
+            totalCasesCaption.text = getString(R.string.up_to_postfix, getString(R.string.total_cases), mediumLocalizedDate(areaCasesModel.lastUpdatedAt))
+
             currentNewCases.text = NumberFormatter.format(areaCasesModel.currentNewCases)
             changeInNewCasesThisWeek.text =
                 NumberFormatter.getChangeText(areaCasesModel.changeInNewCasesThisWeek)
@@ -142,16 +144,9 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
         if (lastUpdatedAt == null) {
             totalCasesSubtitle.text = ""
         } else {
-            val zoneId = ZoneId.of("GMT")
-            val gmtTime = lastUpdatedAt.atZone(zoneId)
-            val now = LocalDateTime.now().atZone(zoneId)
             totalCasesSubtitle.text = getString(
                 R.string.last_updated_date,
-                getRelativeTimeSpanString(
-                    gmtTime.toInstant().toEpochMilli(),
-                    now.toInstant().toEpochMilli(),
-                    MINUTE_IN_MILLIS
-                )
+                getLocalRelativeTimeSpanString(lastUpdatedAt)
             )
         }
     }

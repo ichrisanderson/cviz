@@ -54,15 +54,14 @@
         android:layout_marginTop="8dp"
         android:textAppearance="?attr/textAppearanceHeadline6"
         app:layout_constraintEnd_toStartOf="@+id/changeInNewCasesThisWeek"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="@id/area_content_guideline_start"
+        app:layout_constraintEnd_toEndOf="@id/area_content_guideline_end"
         app:layout_constraintTop_toBottomOf="@id/totalCasesSubtitle"
         tools:text="1220" />
 
     <TextView
         android:id="@+id/totalCasesCaption"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:fontFamily="@font/roboto_light"
@@ -70,6 +69,7 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
         android:textColor="@color/lightGray"
         app:layout_constraintStart_toStartOf="@id/area_content_guideline_start"
+        app:layout_constraintEnd_toEndOf="@id/area_content_guideline_end"
         app:layout_constraintTop_toBottomOf="@id/totalCases" />
 
     <TextView
