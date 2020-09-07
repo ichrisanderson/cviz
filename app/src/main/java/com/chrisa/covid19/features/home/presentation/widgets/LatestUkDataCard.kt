@@ -21,21 +21,28 @@ import android.text.format.DateUtils
 import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import android.util.AttributeSet
 import androidx.cardview.widget.CardView
+import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
-import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.*
+import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.areaName
+import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.dailyCases
+import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.lastUpdated
+import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.totalCases
 
 @ModelView(defaultLayout = R.layout.widget_latest_uk_data_card)
 class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
 
-    @Override
+    var clickListener: OnClickListener? = null
+        @CallbackProp set
+
     override fun onFinishInflate() {
         super.onFinishInflate()
+        setOnClickListener { clickListener?.onClick(this) }
     }
 
     @ModelProp
@@ -55,11 +62,7 @@ class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context
             )
         )
 
-        totalCases.text = formatNumber(latestUkData.totalLabConfirmedCases)
-        dailyCases.text = formatNumber(latestUkData.dailyLabConfirmedCases)
-    }
-
-    private fun formatNumber(toFormat: Int): String {
-        return NumberFormat.getInstance().format(toFormat)
+        totalCases.text = NumberFormatter.format(latestUkData.totalLabConfirmedCases)
+        dailyCases.text = NumberFormatter.format(latestUkData.dailyLabConfirmedCases)
     }
 }

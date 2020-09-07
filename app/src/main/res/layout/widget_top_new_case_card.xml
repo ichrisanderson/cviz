@@ -71,8 +71,6 @@
             android:layout_marginTop="2dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toStartOf="@+id/changeThisWeek"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintTop_toBottomOf="@id/areaName"
             tools:text="122" />
@@ -97,8 +95,6 @@
             android:layout_marginTop="2dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toStartOf="@+id/guideline_end"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@+id/currentNewCases"
             app:layout_constraintTop_toBottomOf="@id/areaName"
             tools:text="22" />

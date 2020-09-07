@@ -164,6 +164,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             LatestUkDataCardModel_()
                 .id(idPrefix + data.areaName + data.lastUpdated)
                 .latestUkData(data)
+                .clickListener { _ ->
+                    navigateToArea(data.areaCode, data.areaName, data.areaType)
+                }
         }
 
     private fun savedAreaModels(

@@ -55,10 +55,10 @@ class LoadHomeDataUseCaseTest {
     fun `WHEN execute called THEN daily record list is emitted`() =
         runBlockingTest {
 
-            val areaName = "United Kingdom"
-
             val dailyRecordDto = DailyRecordDto(
-                areaName = areaName,
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW.value,
+                areaName = "United Kingdom",
                 totalLabConfirmedCases = 122,
                 dailyLabConfirmedCases = 22,
                 lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
@@ -80,7 +80,9 @@ class LoadHomeDataUseCaseTest {
 
             val expectedItems = dailyRecords.map {
                 LatestUkDataModel(
+                    areaCode = it.areaCode,
                     areaName = it.areaName,
+                    areaType = it.areaType,
                     dailyLabConfirmedCases = it.dailyLabConfirmedCases,
                     totalLabConfirmedCases = it.totalLabConfirmedCases,
                     lastUpdated = it.lastUpdated

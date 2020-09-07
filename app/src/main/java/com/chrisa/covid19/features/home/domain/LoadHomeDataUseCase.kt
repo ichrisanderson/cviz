@@ -92,7 +92,9 @@ class LoadHomeDataUseCase @Inject constructor(
     ): List<LatestUkDataModel> {
         return ukOverview.map { dailyRecord ->
             LatestUkDataModel(
+                areaCode = dailyRecord.areaCode,
                 areaName = dailyRecord.areaName,
+                areaType = dailyRecord.areaType,
                 dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,
                 totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
                 lastUpdated = dailyRecord.lastUpdated

@@ -66,7 +66,9 @@ class HomeDataSourceTest {
 
         val allDailyRecordDtos = allCases.map {
             DailyRecordDto(
+                areaCode = it.areaCode,
                 areaName = it.areaName,
+                areaType = it.areaType.value,
                 dailyLabConfirmedCases = it.newCases,
                 totalLabConfirmedCases = it.cumulativeCases,
                 lastUpdated = it.lastUpdatedAt
@@ -166,31 +168,41 @@ class HomeDataSourceTest {
             assertThat(emittedItems.size).isEqualTo(1)
             assertThat(emittedItems.first()).isEqualTo(listOf(
                 DailyRecordDto(
+                    areaCode = ukData.areaCode,
                     areaName = ukData.areaName,
+                    areaType = ukData.areaType.value,
                     dailyLabConfirmedCases = ukData.newCases,
                     totalLabConfirmedCases = ukData.cumulativeCases,
                     lastUpdated = ukData.lastUpdatedAt
                 ),
                 DailyRecordDto(
+                    areaCode = englandData.areaCode,
                     areaName = englandData.areaName,
+                    areaType = englandData.areaType.value,
                     dailyLabConfirmedCases = englandData.newCases,
                     totalLabConfirmedCases = englandData.cumulativeCases,
                     lastUpdated = englandData.lastUpdatedAt
                 ),
                 DailyRecordDto(
+                    areaCode = scotlandData.areaCode,
                     areaName = scotlandData.areaName,
+                    areaType = scotlandData.areaType.value,
                     dailyLabConfirmedCases = scotlandData.newCases,
                     totalLabConfirmedCases = scotlandData.cumulativeCases,
                     lastUpdated = scotlandData.lastUpdatedAt
                 ),
                 DailyRecordDto(
+                    areaCode = walesData.areaCode,
                     areaName = walesData.areaName,
+                    areaType = walesData.areaType.value,
                     dailyLabConfirmedCases = walesData.newCases,
                     totalLabConfirmedCases = walesData.cumulativeCases,
                     lastUpdated = walesData.lastUpdatedAt
                 ),
                 DailyRecordDto(
+                    areaCode = northernIrelandData.areaCode,
                     areaName = northernIrelandData.areaName,
+                    areaType = northernIrelandData.areaType.value,
                     dailyLabConfirmedCases = northernIrelandData.newCases,
                     totalLabConfirmedCases = northernIrelandData.cumulativeCases,
                     lastUpdated = northernIrelandData.lastUpdatedAt
