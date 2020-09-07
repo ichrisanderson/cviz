@@ -56,7 +56,9 @@ class HomeDataSource @Inject constructor(
                     .flatMap { areaDataGroup ->
                         areaDataGroup.value.take(1).map { areaData ->
                             DailyRecordDto(
+                                areaCode = areaData.areaCode,
                                 areaName = areaData.areaName,
+                                areaType = areaData.areaType.value,
                                 dailyLabConfirmedCases = areaData.newCases,
                                 totalLabConfirmedCases = areaData.cumulativeCases,
                                 lastUpdated = areaData.lastUpdatedAt

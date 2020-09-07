@@ -58,16 +58,18 @@ class HomeViewModelTest {
             pauseDispatcher {
 
                 val savedArea = SavedAreaModel(
-                    areaCode = "UK001",
+                    areaCode = Constants.ENGLAND_AREA_CODE,
                     areaName = "England",
-                    areaType = "utla",
+                    areaType = AreaType.REGION.value,
                     totalLabConfirmedCases = 22,
                     changeInTotalLabConfirmedCases = 11,
                     totalLabConfirmedCasesLastWeek = 11
                 )
 
                 val latestUkData = LatestUkDataModel(
-                    areaName = "England",
+                    areaCode = Constants.UK_AREA_CODE,
+                    areaName = "UK",
+                    areaType = AreaType.OVERVIEW.value,
                     totalLabConfirmedCases = 22,
                     dailyLabConfirmedCases = 33,
                     lastUpdated = LocalDateTime.of(2020, 1, 1, 1, 1)

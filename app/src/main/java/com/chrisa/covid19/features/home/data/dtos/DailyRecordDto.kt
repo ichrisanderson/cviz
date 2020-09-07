@@ -19,7 +19,9 @@ package com.chrisa.covid19.features.home.data.dtos
 import java.time.LocalDateTime
 
 data class DailyRecordDto(
+    val areaCode: String,
     val areaName: String,
+    val areaType: String,
     val dailyLabConfirmedCases: Int,
     val totalLabConfirmedCases: Int,
     val lastUpdated: LocalDateTime

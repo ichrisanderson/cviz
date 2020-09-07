@@ -54,11 +54,11 @@
             android:id="@+id/lastUpdated"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            tools:text="Last updated: 3 Hours ago"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintEnd_toStartOf="@id/guideline_end"
             app:layout_constraintStart_toEndOf="@id/guideline_start"
-            app:layout_constraintTop_toBottomOf="@id/areaName" />
+            app:layout_constraintTop_toBottomOf="@id/areaName"
+            tools:text="Last updated: 3 Hours ago" />
 
         <TextView
             android:id="@+id/totalCases"
@@ -66,11 +66,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toStartOf="@id/dailyCases"
             app:layout_constraintTop_toBottomOf="@id/lastUpdated"
-            tools:text="12,345" />
+            tools:text="12" />
 
         <TextView
             android:id="@+id/totalCasesCaption"
@@ -90,11 +89,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginStart="48dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toEndOf="@+id/totalCases"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
             app:layout_constraintTop_toBottomOf="@id/lastUpdated"
             tools:text="125" />
 

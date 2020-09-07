@@ -19,7 +19,9 @@ package com.chrisa.covid19.features.home.domain.models
 import java.time.LocalDateTime
 
 data class LatestUkDataModel(
+    val areaCode: String,
     val areaName: String,
+    val areaType: String,
     val dailyLabConfirmedCases: Int,
     val totalLabConfirmedCases: Int,
     val lastUpdated: LocalDateTime
