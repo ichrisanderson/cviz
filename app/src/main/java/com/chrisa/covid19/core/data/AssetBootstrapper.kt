@@ -20,9 +20,11 @@ import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -30,9 +32,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 
 class AssetBootstrapper @Inject constructor(
-    private val assetDataSource: AssetDataSource,
     private val appDatabase: AppDatabase,
-    private val coroutineDispatchers: CoroutineDispatchers
+    private val assetDataSource: AssetDataSource,
+    private val coroutineDispatchers: CoroutineDispatchers,
+    private val timeProvider: TimeProvider
 ) : Bootstrapper {
 
     override suspend fun bootstrapData() {
@@ -53,29 +56,31 @@ class AssetBootstrapper @Inject constructor(
                 AreaEntity(
                     areaCode = it.areaCode,
                     areaName = it.areaName,
-                    areaType = it.areaType
+                    areaType = AreaType.from(it.areaType)!!
                 )
             })
             appDatabase.metadataDao().insert(
                 MetadataEntity(
                     id = MetaDataIds.areaListId(),
                     lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
-                    lastSyncTime = LocalDateTime.now()
+                    lastSyncTime = timeProvider.currentTime()
                 )
             )
         }
     }
 
     private suspend fun bootstrapOverview() {
-        val areaCount = appDatabase.areaDataDao().countAllByAreaType("overview")
+        val areaCount = appDatabase.areaDataDao().countAllByAreaType(AreaType.OVERVIEW)
         if (areaCount > 0) return
         val areas = assetDataSource.getOverviewAreaData()
         appDatabase.withTransaction {
+            val metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE)
             appDatabase.areaDataDao().insertAll(areas.map {
                 AreaDataEntity(
+                    metadataId = metadataId,
                     areaCode = it.areaCode,
                     areaName = it.areaName,
-                    areaType = it.areaType,
+                    areaType = AreaType.from(it.areaType)!!,
                     cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
                     newCases = it.newCases ?: 0,
@@ -84,9 +89,9 @@ class AssetBootstrapper @Inject constructor(
             })
             appDatabase.metadataDao().insert(
                 MetadataEntity(
-                    id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+                    id = metadataId,
                     lastUpdatedAt = BOOTSTRAP_DATA_TIMESTAMP,
-                    lastSyncTime = LocalDateTime.now()
+                    lastSyncTime = timeProvider.currentTime()
                 )
             )
         }

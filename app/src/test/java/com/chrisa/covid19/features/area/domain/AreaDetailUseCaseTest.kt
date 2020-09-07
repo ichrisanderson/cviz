@@ -41,18 +41,17 @@ class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
-    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper)
+    private val caseChangeModelMapper = mockk<CaseChangeModelMapper>()
+    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper, caseChangeModelMapper)
 
     @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
         runBlocking {
 
             val areaCode = "1234"
-            val areaType = "utla"
-
             every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
 
-            val areaDetailModelFlow = sut.execute(areaCode, areaType)
+            val areaDetailModelFlow = sut.execute(areaCode)
 
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(
@@ -60,7 +59,12 @@ class AreaDetailUseCaseTest {
                         lastUpdatedAt = null,
                         lastSyncedAt = null,
                         allCases = emptyList(),
-                        latestCases = emptyList()
+                        latestCases = emptyList(),
+                        latestTotalCases = 0,
+                        changeInCases = 0,
+                        weeklyCases = 0,
+                        weeklyInfectionRate = 0.0,
+                        changeInInfectionRate = 0.0
                     )
                 )
             }
@@ -71,8 +75,6 @@ class AreaDetailUseCaseTest {
         runBlocking {
 
             val areaCode = "1234"
-            val areaType = "utla"
-
             val now = LocalDateTime.now()
             val metadataDTO = MetadataDto(
                 lastUpdatedAt = now.minusDays(1),
@@ -83,25 +85,38 @@ class AreaDetailUseCaseTest {
             val caseDTOs = (1 until 100).map {
                 totalLabConfirmedCases += it
                 CaseDto(
+                    newCases = it,
+                    cumulativeCases = totalLabConfirmedCases,
                     date = LocalDate.ofEpochDay(it.toLong()),
-                    dailyLabConfirmedCases = it,
-                    totalLabConfirmedCases = totalLabConfirmedCases
+                    infectionRate = 0.0,
+                    baseRate = 0.0
                 )
             }
 
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
             every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadataDTO).asFlow()
-            coEvery { areaDataSource.loadAreaData(areaCode, areaType) } returns caseDTOs
+            coEvery { areaDataSource.loadAreaData(areaCode) } returns caseDTOs
 
             val caseModels = caseDTOs.map {
                 CaseModel(
-                    dailyLabConfirmedCases = it.dailyLabConfirmedCases,
+                    newCases = it.newCases,
                     date = it.date,
-                    rollingAverage = 1.0
+                    rollingAverage = 1.0,
+                    cumulativeCases = it.cumulativeCases,
+                    baseRate = 0.0
                 )
             }
 
-            val areaDetailModelFlow = sut.execute(areaCode, areaType)
+            val caseChangeModel = CaseChangeModel(
+                changeInCases = 100,
+                weeklyCases = 10,
+                latestTotalCases = 10300,
+                weeklyInfectionRate = 10.0,
+                changeInInfectionRate = 110.0
+            )
+            every { caseChangeModelMapper.mapSavedAreaModel(caseModels) } returns caseChangeModel
+
+            val areaDetailModelFlow = sut.execute(areaCode)
 
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(
@@ -109,7 +124,12 @@ class AreaDetailUseCaseTest {
                         lastUpdatedAt = metadataDTO.lastUpdatedAt,
                         lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
-                        latestCases = caseModels.takeLast(14)
+                        latestCases = caseModels.takeLast(14),
+                        latestTotalCases = caseChangeModel.latestTotalCases,
+                        changeInCases = caseChangeModel.changeInCases,
+                        weeklyCases = caseChangeModel.weeklyCases,
+                        weeklyInfectionRate = caseChangeModel.weeklyInfectionRate,
+                        changeInInfectionRate = caseChangeModel.changeInInfectionRate
                     )
                 )
             }

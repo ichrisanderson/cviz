@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.search.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.features.search.data.dtos.AreaDTO
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -37,7 +38,7 @@ class SearchDataSourceTest {
         val area = AreaEntity(
             areaCode = "1234",
             areaName = "London",
-            areaType = "region"
+            areaType = AreaType.UTLA
         )
 
         val areaNameAsQuery = queryTransformer.transformQuery(area.areaName)
@@ -51,7 +52,7 @@ class SearchDataSourceTest {
             AreaDTO(
                 it.areaCode,
                 it.areaName,
-                it.areaType
+                it.areaType.value
             )
         })
     }

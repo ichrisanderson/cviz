@@ -19,7 +19,9 @@ package com.chrisa.covid19.features.area.domain.models
 import java.time.LocalDate
 
 data class CaseModel(
-    val dailyLabConfirmedCases: Int,
+    val cumulativeCases: Int,
+    val newCases: Int,
     val date: LocalDate,
-    val rollingAverage: Double
+    val rollingAverage: Double,
+    val baseRate: Double
 )

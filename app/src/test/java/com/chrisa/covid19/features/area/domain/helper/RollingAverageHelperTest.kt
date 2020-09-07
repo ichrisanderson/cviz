@@ -32,9 +32,11 @@ class RollingAverageHelperTest {
         for (i in 0 until 7) {
             cases.add(
                 CaseDto(
+                    newCases = 10 * (i + 1),
+                    cumulativeCases = 0,
                     date = startDate.plusDays(i.toLong()),
-                    dailyLabConfirmedCases = 10 * (i + 1),
-                    totalLabConfirmedCases = 0
+                    infectionRate = 30.0,
+                    baseRate = 0.8
                 )
             )
         }

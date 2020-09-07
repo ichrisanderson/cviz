@@ -19,21 +19,31 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
+import com.google.common.util.concurrent.ListenableFuture
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
 class SynchroniseDataWorkManagerTest {
 
     private val workRequestFactory = mockk<WorkRequestFactory>(relaxed = true)
     private val workManager = mockk<WorkManager>(relaxed = true)
-    val sut = SynchroniseDataWorkManager(workManager, workRequestFactory)
+    private val testDispatcher = TestCoroutineDispatcher()
+    private val sut = SynchroniseDataWorkManager(
+        workManager,
+        workRequestFactory,
+        TestCoroutineDispatchersImpl(testDispatcher)
+    )
 
     @Test
-    fun `WHEN syncData THEN immediate sync is enqueued`() {
+    fun `WHEN syncData THEN immediate sync is enqueued`() = testDispatcher.runBlockingTest {
 
         val oneTimeWorkRequest = OneTimeWorkRequestBuilder<SynchroniseDataWorker>()
             .addTag(SynchroniseDataWorkManager.SYNC_DATA_ONE_SHOT)
@@ -47,7 +57,7 @@ class SynchroniseDataWorkManagerTest {
     }
 
     @Test
-    fun `WHEN syncData THEN periodic sync is enqueued`() {
+    fun `GIVEN scheduled jobs WHEN syncData THEN periodic sync is enqueued`() = testDispatcher.runBlockingTest {
 
         val periodicWorkRequestBuilder = PeriodicWorkRequestBuilder<SynchroniseDataWorker>(
             repeatInterval = 7,
@@ -58,7 +68,46 @@ class SynchroniseDataWorkManagerTest {
             .addTag(SynchroniseDataWorkManager.SYNC_DATA)
             .build()
 
+        val workInfo = mockk<WorkInfo>()
+
+        val workInfosByTagRequest = mockk<ListenableFuture<List<WorkInfo>>>() {
+            every { isDone } returns true
+            every { get() } returns listOf(workInfo)
+        }
+
         every { workRequestFactory.periodicWorkRequest() } returns periodicWorkRequestBuilder
+        every { workManager.getWorkInfosByTag(SynchroniseDataWorkManager.SYNC_DATA) } returns workInfosByTagRequest
+
+        sut.syncData()
+
+        verify(exactly = 0) {
+            workManager.enqueueUniquePeriodicWork(
+                SynchroniseDataWorkManager.SYNC_DATA,
+                ExistingPeriodicWorkPolicy.REPLACE,
+                periodicWorkRequestBuilder
+            )
+        }
+    }
+
+    @Test
+    fun `GIVEN no scheduled jobs WHEN syncData THEN periodic sync is enqueued`() = testDispatcher.runBlockingTest {
+
+        val periodicWorkRequestBuilder = PeriodicWorkRequestBuilder<SynchroniseDataWorker>(
+            repeatInterval = 7,
+            repeatIntervalTimeUnit = TimeUnit.HOURS,
+            flexTimeInterval = 30,
+            flexTimeIntervalUnit = TimeUnit.MINUTES
+        )
+            .addTag(SynchroniseDataWorkManager.SYNC_DATA)
+            .build()
+
+        val workInfosByTagRequest = mockk<ListenableFuture<List<WorkInfo>>>() {
+            every { isDone } returns true
+            every { get() } returns emptyList()
+        }
+
+        every { workRequestFactory.periodicWorkRequest() } returns periodicWorkRequestBuilder
+        every { workManager.getWorkInfosByTag(SynchroniseDataWorkManager.SYNC_DATA) } returns workInfosByTagRequest
 
         sut.syncData()
 

@@ -29,10 +29,11 @@ import kotlinx.coroutines.flow.map
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
-    private val rollingAverageHelper: RollingAverageHelper
+    private val rollingAverageHelper: RollingAverageHelper,
+    private val caseChangeModelMapper: CaseChangeModelMapper
 ) {
 
-    fun execute(areaCode: String, areaType: String): Flow<AreaDetailModel> {
+    fun execute(areaCode: String): Flow<AreaDetailModel> {
         val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
@@ -40,16 +41,27 @@ class AreaDetailUseCase @Inject constructor(
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
-                    latestCases = emptyList()
+                    latestCases = emptyList(),
+                    latestTotalCases = 0,
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    weeklyInfectionRate = 0.0,
+                    changeInInfectionRate = 0.0
                 )
             } else {
-                val areaData = areaDataSource.loadAreaData(areaCode, areaType)
+                val areaData = areaDataSource.loadAreaData(areaCode)
                 val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
+                val caseChanges = caseChangeModelMapper.mapSavedAreaModel(allCases)
                 AreaDetailModel(
                     lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
                     allCases = allCases,
-                    latestCases = allCases.takeLast(14)
+                    latestCases = allCases.takeLast(14),
+                    weeklyInfectionRate = caseChanges.weeklyInfectionRate,
+                    changeInInfectionRate = caseChanges.changeInInfectionRate,
+                    weeklyCases = caseChanges.weeklyCases,
+                    changeInCases = caseChanges.changeInCases,
+                    latestTotalCases = caseChanges.latestTotalCases
                 )
             }
         }
@@ -58,10 +70,54 @@ class AreaDetailUseCase @Inject constructor(
     private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
         return cases.mapIndexed { index, case ->
             CaseModel(
-                dailyLabConfirmedCases = case.dailyLabConfirmedCases,
+                baseRate = case.baseRate,
+                cumulativeCases = case.cumulativeCases,
+                newCases = case.newCases,
                 rollingAverage = rollingAverageHelper.average(index, cases),
                 date = case.date
             )
         }
     }
 }
+
+class CaseChangeModelMapper @Inject() constructor() {
+
+    fun mapSavedAreaModel(
+        allCases: List<CaseModel>
+    ): CaseChangeModel {
+
+        val offset = 3
+
+        val lastCase = allCases.getOrNull(allCases.size - offset)
+        val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
+        val prevCase1 = allCases.getOrNull(allCases.size - (offset + 14))
+
+        val cumulativeCases0 = lastCase?.cumulativeCases ?: 0
+        val cumulativeCases1 = prevCase?.cumulativeCases ?: 0
+        val cumulativeCases2 = prevCase1?.cumulativeCases ?: 0
+
+        val baseRate = lastCase?.baseRate ?: 0.0
+
+        val casesThisWeek = (cumulativeCases0 - cumulativeCases1)
+        val casesLastWeek = (cumulativeCases1 - cumulativeCases2)
+
+        val infectionRateThisWeek = baseRate * casesThisWeek
+        val infectionRateLastWeek = baseRate * casesLastWeek
+
+        return CaseChangeModel(
+            latestTotalCases = allCases.lastOrNull()?.cumulativeCases ?: 0,
+            changeInCases = casesThisWeek - casesLastWeek,
+            weeklyCases = casesThisWeek,
+            changeInInfectionRate = infectionRateThisWeek - infectionRateLastWeek,
+            weeklyInfectionRate = infectionRateThisWeek
+        )
+    }
+}
+
+data class CaseChangeModel(
+    val latestTotalCases: Int,
+    val changeInCases: Int,
+    val weeklyCases: Int,
+    val changeInInfectionRate: Double,
+    val weeklyInfectionRate: Double
+)

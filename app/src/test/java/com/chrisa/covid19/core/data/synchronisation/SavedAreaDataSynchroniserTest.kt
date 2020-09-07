@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDao
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -50,16 +51,58 @@ class SavedAreaDataSynchroniserTest {
     }
 
     @Test
-    fun `GIVEN no saved areas WHEN performSync THEN no area data is synced`() =
+    fun `GIVEN no saved areas WHEN performSync THEN overview data is synced`() =
         testDispatcher.runBlockingTest {
 
-            val onError: (error: Throwable) -> Unit = { }
-            coEvery { areaDataSynchroniser.performSync(any(), any(), onError) } just Runs
+            coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
             every { areaDao.allSavedAreas() } returns emptyList()
 
-            sut.performSync(onError)
+            sut.performSync()
 
-            coVerify(exactly = 1) { areaDataSynchroniser.performSync(Constants.UK_AREA_CODE, "overview", onError) }
+            coVerify(exactly = 1) {
+                areaDataSynchroniser.performSync(
+                    Constants.UK_AREA_CODE,
+                    AreaType.OVERVIEW
+                )
+            }
+        }
+
+    @Test
+    fun `GIVEN no saved areas WHEN performSync THEN nation data is synced`() =
+        testDispatcher.runBlockingTest {
+
+            coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
+            every { areaDao.allSavedAreas() } returns emptyList()
+
+            sut.performSync()
+
+            coVerify(exactly = 1) {
+                areaDataSynchroniser.performSync(
+                    Constants.ENGLAND_AREA_CODE,
+                    AreaType.NATION
+                )
+            }
+
+            coVerify(exactly = 1) {
+                areaDataSynchroniser.performSync(
+                    Constants.NORTHERN_IRELAND_AREA_CODE,
+                    AreaType.NATION
+                )
+            }
+
+            coVerify(exactly = 1) {
+                areaDataSynchroniser.performSync(
+                    Constants.SCOTLAND_AREA_CODE,
+                    AreaType.NATION
+                )
+            }
+
+            coVerify(exactly = 1) {
+                areaDataSynchroniser.performSync(
+                    Constants.WALES_AREA_CODE,
+                    AreaType.NATION
+                )
+            }
         }
 
     @Test
@@ -67,33 +110,30 @@ class SavedAreaDataSynchroniserTest {
         testDispatcher.runBlockingTest {
 
             val area1 = AreaEntity(
-                areaName = "UK",
-                areaCode = "1234",
-                areaType = "overview"
+                areaName = "Lambeth",
+                areaCode = "1",
+                areaType = AreaType.LTLA
             )
             val area2 = AreaEntity(
-                areaName = "Scotland",
-                areaCode = "12345",
-                areaType = "nation"
+                areaName = "Southwark",
+                areaCode = "2",
+                areaType = AreaType.LTLA
             )
-            val onError: (error: Throwable) -> Unit = { }
-            coEvery { areaDataSynchroniser.performSync(any(), any(), onError) } just Runs
+            coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
             every { areaDao.allSavedAreas() } returns listOf(area1, area2)
 
-            sut.performSync(onError)
+            sut.performSync()
 
             coVerify(exactly = 1) {
                 areaDataSynchroniser.performSync(
                     area1.areaCode,
-                    area1.areaType,
-                    onError
+                    area1.areaType
                 )
             }
             coVerify(exactly = 1) {
                 areaDataSynchroniser.performSync(
                     area2.areaCode,
-                    area2.areaType,
-                    onError
+                    area2.areaType
                 )
             }
         }

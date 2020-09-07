@@ -24,7 +24,7 @@ import androidx.cardview.widget.CardView
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
-import com.chrisa.covid19.features.home.domain.models.LatestUkData
+import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -39,7 +39,7 @@ class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context
     }
 
     @ModelProp
-    fun latestUkData(latestUkData: LatestUkData) {
+    fun latestUkData(latestUkData: LatestUkDataModel) {
         areaName.text = latestUkData.areaName
 
         val zoneId = ZoneId.of("GMT")

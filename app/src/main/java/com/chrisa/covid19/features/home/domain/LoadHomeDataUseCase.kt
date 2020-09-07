@@ -17,17 +17,14 @@
 package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
+import com.chrisa.covid19.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.MetadataDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.covid19.features.home.domain.helpers.PastTwoWeekCaseBreakdownHelper
-import com.chrisa.covid19.features.home.domain.helpers.WeeklyCaseDifferenceHelper
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
-import com.chrisa.covid19.features.home.domain.models.LatestUkData
+import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
+import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
+import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -38,19 +35,42 @@ import kotlinx.coroutines.flow.combine
 @FlowPreview
 class LoadHomeDataUseCase @Inject constructor(
     private val homeDataSource: HomeDataSource,
-    private val pastTwoWeekCaseBreakdownHelper: PastTwoWeekCaseBreakdownHelper,
-    private val weeklyCaseDifferenceHelper: WeeklyCaseDifferenceHelper
+    private val savedAreaModelMapper: SavedAreaModelMapper
 ) {
     fun execute(): Flow<HomeScreenDataModel> {
 
-        val metadata = homeDataSource.overviewMetadata()
-        val ukOverview = homeDataSource.ukOverview()
-        val savedAreaCases = homeDataSource.savedAreaCases()
+        val ukOverviewFlow = homeDataSource.ukOverview()
+        val areaSummariesAsFlow = homeDataSource.areaSummaries()
+        val savedAreaCasesFlow = homeDataSource.savedAreaCases()
 
-        return combine(metadata, ukOverview, savedAreaCases) { metadata, ukOverview, cases ->
+        return combine(
+            ukOverviewFlow,
+            areaSummariesAsFlow,
+            savedAreaCasesFlow
+        ) { overview, areaSummaries, savedAreas ->
             HomeScreenDataModel(
-                savedAreas = savedAreas(cases),
-                latestUkData = latestUkData(ukOverview, metadata)
+                savedAreas = savedAreas(savedAreas),
+                latestUkData = latestUkData(overview),
+                topInfectionRates = mapInfectionRates(
+                    areaSummaries
+                        .sortedByDescending { it.currentInfectionRate }
+                        .take(10)
+                ),
+                risingInfectionRates = mapInfectionRates(
+                    areaSummaries
+                        .sortedByDescending { it.changeInInfectionRate }
+                        .take(10)
+                ),
+                topNewCases = mapNewCases(
+                    areaSummaries
+                        .sortedByDescending { it.currentNewCases }
+                        .take(10)
+                ),
+                risingNewCases = mapNewCases(
+                    areaSummaries
+                        .sortedByDescending { it.changeInCases }
+                        .take(10)
+                )
             )
         }
     }
@@ -58,49 +78,83 @@ class LoadHomeDataUseCase @Inject constructor(
     private fun savedAreas(cases: List<SavedAreaCaseDto>): List<SavedAreaModel> {
         return cases.groupBy { Pair(it.areaCode, it.areaName) }
             .map { group ->
-
-                val dateNow = LocalDate.from(OffsetDateTime.now(ZoneOffset.UTC))
-                val allCases = group.value
-
-                // TODO: Reported data needs cleaning up on import, will be better
-                // to calculate averages when inputting into DB - the totalLabConfirmedCases
-                // are undereported - we need to calcualte the difference in total figures to get the
-                // real reported numbers.
-                val pastTwoWeekCaseBreakdown =
-                    pastTwoWeekCaseBreakdownHelper.pastTwoWeekCaseBreakdown(
-                        dateNow,
-                        allCases
-                    )
-
-                val weeklyCaseDifference = weeklyCaseDifferenceHelper.weeklyCaseDifference(
-                    pastTwoWeekCaseBreakdown.weekOneData,
-                    pastTwoWeekCaseBreakdown.weekTwoData
+                savedAreaModelMapper.mapSavedAreaModel(
+                    group.key.first,
+                    group.key.second,
+                    group.value
                 )
-
-                SavedAreaModel(
-                    areaCode = group.key.first,
-                    areaName = group.key.second,
-                    areaType = group.value.first().areaType,
-                    changeInTotalLabConfirmedCases = weeklyCaseDifference.changeInWeeklyLabConfirmedCases,
-                    changeInDailyTotalLabConfirmedCasesRate = weeklyCaseDifference.changeInTotalLabConfirmedCasesRate,
-                    dailyTotalLabConfirmedCasesRate = pastTwoWeekCaseBreakdown.weekTwoData.totalLabConfirmedCasesRate,
-                    totalLabConfirmedCases = pastTwoWeekCaseBreakdown.weekTwoData.totalLabConfirmedCases,
-                    totalLabConfirmedCasesLastWeek = pastTwoWeekCaseBreakdown.weekTwoData.casesInWeek
-                )
-            }.sortedBy { it.areaName }
+            }
+            .sortedBy { it.areaName }
     }
 
     private fun latestUkData(
-        ukOverview: List<DailyRecordDto>,
-        metadata: MetadataDto
-    ): LatestUkData {
-        return ukOverview.takeLast(1).map { dailyRecord ->
-            LatestUkData(
+        ukOverview: List<DailyRecordDto>
+    ): List<LatestUkDataModel> {
+        return ukOverview.map { dailyRecord ->
+            LatestUkDataModel(
                 areaName = dailyRecord.areaName,
                 dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,
                 totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
-                lastUpdated = metadata.lastUpdatedAt
+                lastUpdated = dailyRecord.lastUpdated
             )
-        }.first()
+        }
+    }
+
+    private fun mapInfectionRates(areaSummaries: List<AreaSummaryDto>): List<InfectionRateModel> {
+        return areaSummaries.mapIndexed { index, areaSummary ->
+            InfectionRateModel(
+                position = index + 1,
+                areaCode = areaSummary.areaCode,
+                areaName = areaSummary.areaName,
+                areaType = areaSummary.areaType,
+                changeInInfectionRate = areaSummary.changeInInfectionRate,
+                currentInfectionRate = areaSummary.currentInfectionRate
+            )
+        }
+    }
+
+    private fun mapNewCases(areaSummaries: List<AreaSummaryDto>): List<NewCaseModel> {
+        return areaSummaries.mapIndexed { index, areaSummary ->
+            NewCaseModel(
+                position = index + 1,
+                areaCode = areaSummary.areaCode,
+                areaName = areaSummary.areaName,
+                areaType = areaSummary.areaType,
+                changeInCases = areaSummary.changeInCases,
+                currentNewCases = areaSummary.currentNewCases
+            )
+        }
+    }
+}
+
+class SavedAreaModelMapper @Inject() constructor() {
+
+    fun mapSavedAreaModel(
+        areaCode: String,
+        areaName: String,
+        allCases: List<SavedAreaCaseDto>
+    ): SavedAreaModel {
+
+        val offset = 3
+
+        val lastCase = allCases.getOrNull(allCases.size - offset)
+        val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
+        val prevCase1 = allCases.getOrNull(allCases.size - (offset + 14))
+
+        val lastTotalLabConfirmedCases = lastCase?.totalLabConfirmedCases ?: 0
+        val prevTotalLabConfirmedCases = prevCase?.totalLabConfirmedCases ?: 0
+        val prev1TotalLabConfirmedCases = prevCase1?.totalLabConfirmedCases ?: 0
+
+        val casesThisWeek = (lastTotalLabConfirmedCases - prevTotalLabConfirmedCases)
+        val casesLastWeek = (prevTotalLabConfirmedCases - prev1TotalLabConfirmedCases)
+
+        return SavedAreaModel(
+            areaCode = areaCode,
+            areaName = areaName,
+            areaType = allCases.first().areaType,
+            changeInTotalLabConfirmedCases = casesThisWeek - casesLastWeek,
+            totalLabConfirmedCases = lastTotalLabConfirmedCases,
+            totalLabConfirmedCasesLastWeek = casesThisWeek
+        )
     }
 }

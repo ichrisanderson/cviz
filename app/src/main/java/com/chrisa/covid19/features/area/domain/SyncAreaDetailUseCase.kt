@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.features.area.domain
 
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.synchronisation.AreaDataSynchroniser
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,6 +26,6 @@ class SyncAreaDetailUseCase @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser
 ) {
     suspend fun execute(areaCode: String, areaType: String) {
-        return areaDataSynchroniser.performSync(areaCode, areaType) { throw it }
+        return areaDataSynchroniser.performSync(areaCode, AreaType.from(areaType)!!)
     }
 }

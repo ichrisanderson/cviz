@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AREA_DATA_FILTER
@@ -26,6 +27,7 @@ import com.chrisa.covid19.core.data.network.AreaDataModel
 import com.chrisa.covid19.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.core.util.NetworkUtils
@@ -36,33 +38,27 @@ import okhttp3.MediaType
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
-import timber.log.Timber
 
 class AreaDataSynchroniser @Inject constructor(
-    private val networkUtils: NetworkUtils,
+    private val api: CovidApi,
     private val appDatabase: AppDatabase,
     private val areaDataModelStructureMapper: AreaDataModelStructureMapper,
-    private val api: CovidApi
+    private val networkUtils: NetworkUtils,
+    private val timeProvider: TimeProvider
 ) {
 
-    suspend fun performSync(areaCode: String, areaType: String, onError: (error: Throwable) -> Unit) {
-        runCatching {
-            syncArea(areaCode, areaType)
-        }.onFailure { error ->
-            onError(error)
-            Timber.e(error, "Error syncing saved area $areaCode")
-        }
-    }
-
-    private suspend fun syncArea(areaCode: String, areaType: String) {
+    suspend fun performSync(
+        areaCode: String,
+        areaType: AreaType
+    ) {
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
 
         val casesFromNetwork = api.pagedAreaDataResponse(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
-            filters = AREA_DATA_FILTER(areaCode, areaType),
-            areaDataModelStructure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
+            filters = AREA_DATA_FILTER(areaCode, areaType.value),
+            structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
                 areaType
             )
         )
@@ -72,7 +68,7 @@ class AreaDataSynchroniser @Inject constructor(
             cacheAreaData(
                 areaCode,
                 pagedAreaCodeData,
-                lastModified?.toGmtDateTime() ?: LocalDateTime.now()
+                lastModified?.toGmtDateTime() ?: timeProvider.currentTime()
             )
         } else {
             throw HttpException(
@@ -92,12 +88,14 @@ class AreaDataSynchroniser @Inject constructor(
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
+            val metadataId = MetaDataIds.areaCodeId(areaCode)
             appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
             appDatabase.areaDataDao().insertAll(pagedAreaCodeData.data.map {
                 AreaDataEntity(
+                    metadataId = metadataId,
                     areaCode = it.areaCode,
                     areaName = it.areaName,
-                    areaType = it.areaType,
+                    areaType = AreaType.from(it.areaType)!!,
                     cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
                     infectionRate = it.infectionRate ?: 0.0,
@@ -106,9 +104,9 @@ class AreaDataSynchroniser @Inject constructor(
             })
             appDatabase.metadataDao().insert(
                 metadata = MetadataEntity(
-                    id = MetaDataIds.areaCodeId(areaCode),
+                    id = metadataId,
                     lastUpdatedAt = lastModified,
-                    lastSyncTime = LocalDateTime.now()
+                    lastSyncTime = timeProvider.currentTime()
                 )
             )
         }

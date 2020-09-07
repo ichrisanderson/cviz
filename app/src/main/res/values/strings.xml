@@ -4,7 +4,11 @@
     <string name="home_search_hint">Search for locations</string>
 
     <string name="saved_locations_title">Saved locations</string>
-    <string name="daily_records_title">Latest data</string>
+    <string name="uk_overview">UK overview</string>
+    <string name="top_infection_rates">Top infection rates</string>
+    <string name="rising_infection_rates">Rising infection rates</string>
+    <string name="rising_cases">Rising cases</string>
+    <string name="top_new_cases">Top new cases</string>
     <string name="empty_locations_title">You have no saved locations</string>
 
     <string name="empty_locations_body">Search for locations to see latest Covid-19 data</string>
@@ -13,16 +17,17 @@
     <string name="total_cases">Total cases</string>
     <string name="cases_this_week">Cases this week</string>
     <string name="daily_cases">Daily cases</string>
-    <string name="change_cases_this_week">On last week</string>
+    <string name="change_this_week">On last week</string>
+    <string name="current_infection_rate">Current infection rate</string>
 
     <string name="latest_cases_chart_label">Latest cases</string>
     <string name="rolling_average_chart_label">Rolling average</string>
     <string name="all_cases_chart_label">All cases</string>
     <string name="last_updated_date">Last updated: %s</string>
+    <string name="position_format">%d.</string>
 
     <string name="area_menu_delete_item_prompt">Tap to delete location</string>
     <string name="area_menu_save_item_prompt">Tap to save location</string>
-
     <string name="area_data_error_message">Failed to load area data</string>
     <string name="sync_error_message">Failed to load latest data</string>
     <string name="retry">Retry</string>

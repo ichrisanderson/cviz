@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.core.data.synchronisation
 
+import androidx.concurrent.futures.await
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -24,13 +25,20 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 class SynchroniseDataWorkManager @Inject constructor(
     private val workManager: WorkManager,
-    private val workRequestFactory: WorkRequestFactory
+    private val workRequestFactory: WorkRequestFactory,
+    private val coroutineDispatchers: CoroutineDispatchers
 ) {
+
+    private val job = Job()
 
     fun syncData() {
         syncImmediate()
@@ -42,13 +50,19 @@ class SynchroniseDataWorkManager @Inject constructor(
     }
 
     private fun schedulePeriodicSync() {
-        workManager
-            .enqueueUniquePeriodicWork(
-                SYNC_DATA,
-                ExistingPeriodicWorkPolicy.REPLACE,
-                workRequestFactory.periodicWorkRequest()
-            )
+        CoroutineScope(coroutineDispatchers.io + job).launch {
+            val workInfoRequest = workManager.getWorkInfosByTag(SYNC_DATA)
+            val workInfo = workInfoRequest.await()
+            if (workInfo.isEmpty())
+                workManager
+                    .enqueueUniquePeriodicWork(
+                        SYNC_DATA,
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        workRequestFactory.periodicWorkRequest()
+                    )
+        }
     }
+
     companion object {
         const val SYNC_DATA_ONE_SHOT = "SYNC_DATA_ONE_SHOT"
         const val SYNC_DATA = "SYNC_DATA"

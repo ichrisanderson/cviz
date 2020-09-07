@@ -16,6 +16,7 @@
 
 package com.chrisa.covid19.features.area.domain
 
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.synchronisation.AreaDataSynchroniser
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -33,10 +34,10 @@ class SyncAreaDetailUseCaseTest {
     fun `WHEN execute called THEN performSync is called`() =
         runBlocking {
             val areaCode = "1234"
-            val areaType = "overview"
+            val areaType = AreaType.OVERVIEW
 
-            sut.execute(areaCode, areaType)
+            sut.execute(areaCode, areaType.value)
 
-            coVerify { unsafeAreaDataSynchroniser.performSync(areaCode, areaType, any()) }
+            coVerify { unsafeAreaDataSynchroniser.performSync(areaCode, areaType) }
         }
 }

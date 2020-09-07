@@ -18,20 +18,32 @@ package com.chrisa.covid19.core.data.synchronisation
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import javax.inject.Inject
+import timber.log.Timber
 
 class SavedAreaDataSynchroniser @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser,
     private val appDatabase: AppDatabase
 ) {
 
-    suspend fun performSync(onError: (error: Throwable) -> Unit) {
-        val areas = listOf(AreaEntity(Constants.UK_AREA_CODE, "UK", "overview"))
+    suspend fun performSync() {
+        val areas = listOf(
+            AreaEntity(Constants.UK_AREA_CODE, "UK", AreaType.OVERVIEW),
+            AreaEntity(Constants.ENGLAND_AREA_CODE, "England", AreaType.NATION),
+            AreaEntity(Constants.NORTHERN_IRELAND_AREA_CODE, "Northern Ireland", AreaType.NATION),
+            AreaEntity(Constants.SCOTLAND_AREA_CODE, "Scotland", AreaType.NATION),
+            AreaEntity(Constants.WALES_AREA_CODE, "Wales", AreaType.NATION)
+        )
             .plus(appDatabase.areaDao().allSavedAreas())
 
         areas.forEach { area ->
-            areaDataSynchroniser.performSync(area.areaCode, area.areaType, onError)
+            try {
+                areaDataSynchroniser.performSync(area.areaCode, area.areaType)
+            } catch (throwable: Throwable) {
+                Timber.e(throwable)
+            }
         }
     }
 }

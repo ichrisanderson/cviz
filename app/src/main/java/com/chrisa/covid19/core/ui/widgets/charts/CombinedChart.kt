@@ -53,6 +53,7 @@ class CombinedChart(
         chart.setDrawValueAboveBar(true)
         chart.setDrawGridBackground(false)
         chart.setPinchZoom(false)
+        chart.isDoubleTapToZoomEnabled = false
         chart.extraBottomOffset = 16f
     }
 

@@ -48,7 +48,9 @@ class AreaCasesModelMapperTest {
 
         val caseModels = listOf(
             CaseModel(
-                dailyLabConfirmedCases = 123,
+                baseRate = 0.0,
+                cumulativeCases = 0,
+                newCases = 123,
                 date = LocalDate.ofEpochDay(0),
                 rollingAverage = 1.1
             )
@@ -56,6 +58,11 @@ class AreaCasesModelMapperTest {
 
         val now = LocalDateTime.now()
         val areaDetailModel = AreaDetailModel(
+            latestTotalCases = 0,
+            changeInCases = 0,
+            weeklyCases = 0,
+            changeInInfectionRate = 0.0,
+            weeklyInfectionRate = 0.0,
             lastUpdatedAt = now.minusDays(1),
             lastSyncedAt = now,
             allCases = caseModels,
@@ -64,7 +71,7 @@ class AreaCasesModelMapperTest {
 
         val dailyLabConfirmedCasesChartData = caseModels.map {
             BarChartItem(
-                value = it.dailyLabConfirmedCases.toFloat(),
+                value = it.newCases.toFloat(),
                 label = it.date.format(formatter)
             )
         }

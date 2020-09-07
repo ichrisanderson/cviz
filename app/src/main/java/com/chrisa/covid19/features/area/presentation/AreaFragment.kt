@@ -28,6 +28,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.ui.NumberFormatter
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -39,7 +40,12 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.android.synthetic.main.area_content.allCasesChart
 import kotlinx.android.synthetic.main.area_content.areaContent
+import kotlinx.android.synthetic.main.area_content.changeInNewCasesThisWeek
+import kotlinx.android.synthetic.main.area_content.currentInfectionRate
+import kotlinx.android.synthetic.main.area_content.currentNewCases
+import kotlinx.android.synthetic.main.area_content.infectionRateChangeThisWeek
 import kotlinx.android.synthetic.main.area_content.latestCasesChart
+import kotlinx.android.synthetic.main.area_content.totalCases
 import kotlinx.android.synthetic.main.area_content.totalCasesSubtitle
 import kotlinx.android.synthetic.main.area_error.areaError
 import kotlinx.android.synthetic.main.area_error.errorAction
@@ -98,6 +104,27 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
             val areaCasesModel = it ?: return@Observer
 
             bindLastUpdated(areaCasesModel.lastUpdatedAt)
+
+            totalCases.text = NumberFormatter.format(areaCasesModel.totalCases)
+            currentNewCases.text = NumberFormatter.format(areaCasesModel.currentNewCases)
+            changeInNewCasesThisWeek.text =
+                NumberFormatter.getChangeText(areaCasesModel.changeInNewCasesThisWeek)
+            changeInNewCasesThisWeek.setTextColor(
+                ContextCompat.getColor(
+                    changeInNewCasesThisWeek.context,
+                    NumberFormatter.getChangeColour(areaCasesModel.changeInNewCasesThisWeek)
+                )
+            )
+
+            currentInfectionRate.text = NumberFormatter.format(areaCasesModel.currentInfectionRate)
+            infectionRateChangeThisWeek.text =
+                NumberFormatter.getChangeText(areaCasesModel.changeInInfectionRatesThisWeek)
+            infectionRateChangeThisWeek.setTextColor(
+                ContextCompat.getColor(
+                    changeInNewCasesThisWeek.context,
+                    NumberFormatter.getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek)
+                )
+            )
 
             latestCasesChart.setData(
                 areaCasesModel.latestCasesBarChartData,

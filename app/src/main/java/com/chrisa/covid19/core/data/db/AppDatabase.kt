@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.Flow
     entities = [
         AreaEntity::class,
         AreaDataEntity::class,
+        AreaSummaryEntity::class,
         MetadataEntity::class,
         SavedAreaEntity::class
     ],
@@ -46,6 +47,7 @@ import kotlinx.coroutines.flow.Flow
     exportSchema = false
 )
 @TypeConverters(
+    AreTypeConverter::class,
     LocalDateConverter::class,
     LocalDateTimeConverter::class
 )
@@ -53,6 +55,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun areaDao(): AreaDao
     abstract fun areaDataDao(): AreaDataDao
+    abstract fun areaSummaryEntityDao(): AreaSummaryEntityDao
     abstract fun metadataDao(): MetadataDao
     abstract fun savedAreaDao(): SavedAreaDao
 
@@ -90,6 +93,39 @@ class LocalDateTimeConverter {
     }
 }
 
+class AreTypeConverter {
+    @TypeConverter
+    fun areaTypeFromString(value: String?): AreaType? {
+        return value?.let { AreaType.from(value) }
+    }
+
+    @TypeConverter
+    fun areaTypeToString(areaType: AreaType?): String? {
+        return areaType?.value
+    }
+}
+
+enum class AreaType(val value: String) {
+    OVERVIEW("overview"),
+    NATION("nation"),
+    REGION("region"),
+    UTLA("utla"),
+    LTLA("ltla");
+
+    companion object {
+        fun from(type: String): AreaType? {
+            return when (type) {
+                OVERVIEW.value -> OVERVIEW
+                NATION.value -> NATION
+                REGION.value -> REGION
+                UTLA.value -> UTLA
+                LTLA.value -> LTLA
+                else -> null
+            }
+        }
+    }
+}
+
 @Entity(
     tableName = "area",
     primaryKeys = ["areaCode"]
@@ -100,7 +136,7 @@ data class AreaEntity(
     @ColumnInfo(name = "areaName")
     val areaName: String,
     @ColumnInfo(name = "areaType")
-    val areaType: String
+    val areaType: AreaType
 )
 
 @Dao
@@ -124,12 +160,33 @@ interface AreaDao {
     primaryKeys = ["areaCode", "date"]
 )
 data class AreaDataEntity(
+    @ColumnInfo(name = "metadataId")
+    val metadataId: String,
     @ColumnInfo(name = "areaCode")
     val areaCode: String,
     @ColumnInfo(name = "areaName")
     val areaName: String,
     @ColumnInfo(name = "areaType")
-    val areaType: String,
+    val areaType: AreaType,
+    @ColumnInfo(name = "newCases")
+    val newCases: Int,
+    @ColumnInfo(name = "infectionRate")
+    val infectionRate: Double,
+    @ColumnInfo(name = "cumulativeCases")
+    val cumulativeCases: Int,
+    @ColumnInfo(name = "date")
+    val date: LocalDate
+)
+
+data class AreaDataMetadataTuple(
+    @ColumnInfo(name = "lastUpdatedAt")
+    val lastUpdatedAt: LocalDateTime,
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: AreaType,
     @ColumnInfo(name = "newCases")
     val newCases: Int,
     @ColumnInfo(name = "infectionRate")
@@ -153,16 +210,22 @@ interface AreaDataDao {
     fun countAll(): Int
 
     @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
-    fun countAllByAreaType(areaType: String): Int
+    fun countAllByAreaType(areaType: AreaType): Int
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
-    fun allByAreaCodeFlow(areaCode: String): Flow<List<AreaDataEntity>>
+    fun allByAreaCodeAsFlow(areaCode: String): Flow<List<AreaDataEntity>>
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allByAreaCode(areaCode: String): List<AreaDataEntity>
 
+    @Query("SELECT * FROM areaData INNER JOIN metadata on areaData.metadataId = metadata.id WHERE areaCode IN (:areaCodes) ORDER BY date DESC LIMIT :limit")
+    fun latestWithMetadataByAreaCodeAsFlow(
+        areaCodes: List<String>,
+        limit: Int = areaCodes.size
+    ): Flow<List<AreaDataMetadataTuple>>
+
     @Query("SELECT * FROM areaData INNER JOIN savedArea ON areaData.areaCode = savedArea.areaCode ORDER BY date ASC")
-    fun allSavedAreaData(): Flow<List<AreaDataEntity>>
+    fun allSavedAreaDataAsFlow(): Flow<List<AreaDataEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaData: List<AreaDataEntity>)
@@ -224,9 +287,78 @@ interface SavedAreaDao {
 
 object Constants {
     const val UK_AREA_CODE = "K02000001"
+    const val ENGLAND_AREA_CODE = "E92000001"
+    const val NORTHERN_IRELAND_AREA_CODE = "N92000002"
+    const val SCOTLAND_AREA_CODE = "S92000003"
+    const val WALES_AREA_CODE = "W92000004"
 }
 
 object MetaDataIds {
     fun areaListId(): String = "AREA_LIST_METADATA"
+    fun areaSummaryId(): String = "AREA_SUMMARY_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
+}
+
+@Entity(
+    tableName = "areaSummary",
+    primaryKeys = ["areaCode"]
+)
+data class AreaSummaryEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: AreaType,
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "baseInfectionRate")
+    val baseInfectionRate: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek1")
+    val cumulativeCasesWeek1: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek1")
+    val cumulativeCaseInfectionRateWeek1: Double,
+    @ColumnInfo(name = "newCasesWeek1")
+    val newCasesWeek1: Int,
+    @ColumnInfo(name = "newCaseInfectionRateWeek1")
+    val newCaseInfectionRateWeek1: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek2")
+    val cumulativeCasesWeek2: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek2")
+    val cumulativeCaseInfectionRateWeek2: Double,
+    @ColumnInfo(name = "newCasesWeek2")
+    val newCasesWeek2: Int,
+    @ColumnInfo(name = "newCaseInfectionRateWeek2")
+    val newCaseInfectionRateWeek2: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek3")
+    val cumulativeCasesWeek3: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek3")
+    val cumulativeCaseInfectionRateWeek3: Double,
+    @ColumnInfo(name = "newCasesWeek3")
+    val newCasesWeek3: Int,
+    @ColumnInfo(name = "newCaseInfectionRateWeek¬3")
+    val newCaseInfectionRateWeek3: Double,
+    @ColumnInfo(name = "cumulativeCasesWeek4")
+    val cumulativeCasesWeek4: Int,
+    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek4")
+    val cumulativeCaseInfectionRateWeek4: Double
+)
+
+@Dao
+interface AreaSummaryEntityDao {
+
+    @Query("SELECT COUNT(areaCode) FROM areaSummary")
+    fun countAll(): Int
+
+    @Query("DELETE FROM areaSummary")
+    fun deleteAll()
+
+    @Query("SELECT * FROM areaSummary WHERE areaCode = :areaCode")
+    fun byAreaCode(areaCode: String): AreaSummaryEntity
+
+    @Query("SELECT * FROM areaSummary")
+    fun allAsFlow(): Flow<List<AreaSummaryEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(areaSummaries: List<AreaSummaryEntity>)
 }

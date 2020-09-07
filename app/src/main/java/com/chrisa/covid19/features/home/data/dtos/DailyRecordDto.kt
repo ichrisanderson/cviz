@@ -16,11 +16,11 @@
 
 package com.chrisa.covid19.features.home.data.dtos
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class DailyRecordDto(
     val areaName: String,
     val dailyLabConfirmedCases: Int,
     val totalLabConfirmedCases: Int,
-    val date: LocalDate
+    val lastUpdated: LocalDateTime
 )

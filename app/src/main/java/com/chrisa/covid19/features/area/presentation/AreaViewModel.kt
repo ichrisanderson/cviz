@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.covid19.features.area.domain.AreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.DeleteSavedAreaUseCase
@@ -33,7 +34,6 @@ import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import io.plaidapp.core.util.event.Event
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -48,6 +48,7 @@ class AreaViewModel @ViewModelInject constructor(
     private val deleteSavedAreaUseCase: DeleteSavedAreaUseCase,
     private val dispatchers: CoroutineDispatchers,
     private val areaCasesModelMapper: AreaCasesModelMapper,
+    private val timeProvider: TimeProvider,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -75,11 +76,11 @@ class AreaViewModel @ViewModelInject constructor(
 
     init {
         loadAreaSavedState(areaCode)
-        loadAreaDetail(areaCode, areaType)
+        loadAreaDetail(areaCode)
     }
 
     fun refresh() {
-        loadAreaDetail(areaCode, areaType)
+        loadAreaDetail(areaCode)
     }
 
     fun insertSavedArea() {
@@ -101,14 +102,14 @@ class AreaViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun loadAreaDetail(areCode: String, areaType: String) {
+    private fun loadAreaDetail(areCode: String) {
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
             runCatching {
-                areaDetailUseCase.execute(areCode, areaType)
+                areaDetailUseCase.execute(areCode)
             }.onSuccess { areaDetail ->
                 areaDetail.collect { areaDetailModel ->
-                    val now = LocalDateTime.now()
+                    val now = timeProvider.currentTime()
                     if (areaDetailModel.lastSyncedAt == null || areaDetailModel.lastSyncedAt.plusMinutes(
                             5
                         ).isBefore(now)
@@ -127,19 +128,21 @@ class AreaViewModel @ViewModelInject constructor(
     }
 
     private suspend fun syncAreaCases(areaDetailModel: AreaDetailModel) {
-        runCatching {
-            syncAreaDetailUseCase.execute(areaCode, areaType)
-        }.onFailure { error ->
-            if (error is HttpException && error.code() == 304) {
-                _isLoading.postValue(false)
-                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
-            } else if (areaDetailModel.lastSyncedAt == null) {
-                _isLoading.postValue(false)
-                _syncAreaError.postValue(Event(true))
-            } else {
-                _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
-                _isLoading.postValue(false)
-                _syncAreaError.postValue(Event(false))
+        viewModelScope.launch(dispatchers.io) {
+            runCatching {
+                syncAreaDetailUseCase.execute(areaCode, areaType)
+            }.onFailure { error ->
+                if (error is HttpException && error.code() == 304) {
+                    _isLoading.postValue(false)
+                    _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+                } else if (areaDetailModel.lastSyncedAt == null) {
+                    _isLoading.postValue(false)
+                    _syncAreaError.postValue(Event(true))
+                } else {
+                    _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+                    _isLoading.postValue(false)
+                    _syncAreaError.postValue(Event(false))
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.area.presentation
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
@@ -50,6 +51,7 @@ import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import retrofit2.HttpException
@@ -67,7 +69,14 @@ class AreaViewModelTest {
     private val insertSavedAreaUseCase = mockk<InsertSavedAreaUseCase>(relaxed = true)
     private val deleteSavedAreaUseCase = mockk<DeleteSavedAreaUseCase>(relaxed = true)
     private val areaUiModelMapper = mockk<AreaCasesModelMapper>()
+    private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
+    private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
+
+    @Before
+    fun setup() {
+        every { timeProvider.currentTime() } returns syncTime
+    }
 
     @Test
     fun `GIVEN area detail succeeds WHEN viewmodel initialized THEN success state emitted`() =
@@ -81,21 +90,32 @@ class AreaViewModelTest {
 
                 val caseModels = listOf(
                     CaseModel(
-                        dailyLabConfirmedCases = 123,
+                        baseRate = 0.0,
+                        cumulativeCases = 0,
+                        newCases = 123,
                         date = LocalDate.ofEpochDay(0),
                         rollingAverage = 1.0
                     )
                 )
 
-                val now = LocalDateTime.now()
                 val areaDetailModel = AreaDetailModel(
-                    lastUpdatedAt = now.minusDays(1),
-                    lastSyncedAt = now,
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
+                    lastUpdatedAt = syncTime.minusDays(1),
+                    lastSyncedAt = syncTime,
                     allCases = caseModels,
                     latestCases = caseModels.takeLast(7)
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    totalCases = 0,
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
@@ -118,7 +138,7 @@ class AreaViewModelTest {
                     )
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
@@ -148,21 +168,32 @@ class AreaViewModelTest {
 
                 val caseModels = listOf(
                     CaseModel(
-                        dailyLabConfirmedCases = 123,
+                        baseRate = 0.0,
+                        cumulativeCases = 0,
+                        newCases = 123,
                         date = LocalDate.ofEpochDay(0),
                         rollingAverage = 1.0
                     )
                 )
 
-                val now = LocalDateTime.now()
                 val areaDetailModel = AreaDetailModel(
-                    lastUpdatedAt = now.minusDays(1),
-                    lastSyncedAt = now.minusDays(1),
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
+                    lastUpdatedAt = syncTime.minusDays(1),
+                    lastSyncedAt = syncTime.minusDays(1),
                     allCases = caseModels,
                     latestCases = caseModels.takeLast(7)
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    totalCases = 0,
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
@@ -185,7 +216,7 @@ class AreaViewModelTest {
                     )
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
@@ -217,13 +248,18 @@ class AreaViewModelTest {
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val areaDetailModel = AreaDetailModel(
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
                     latestCases = emptyList()
                 )
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
@@ -254,6 +290,11 @@ class AreaViewModelTest {
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
                 val areaDetailModel = AreaDetailModel(
+                    changeInCases = 0,
+                    weeklyCases = 0,
+                    latestTotalCases = 0,
+                    changeInInfectionRate = 0.0,
+                    weeklyInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
                     allCases = emptyList(),
@@ -261,6 +302,11 @@ class AreaViewModelTest {
                 )
 
                 val areaCasesModel = AreaCasesModel(
+                    totalCases = 0,
+                    changeInNewCasesThisWeek = 0,
+                    currentNewCases = 0,
+                    changeInInfectionRatesThisWeek = 0.0,
+                    currentInfectionRate = 0.0,
                     lastUpdatedAt = LocalDateTime.ofInstant(
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
@@ -286,7 +332,7 @@ class AreaViewModelTest {
                 val exception = mockk<HttpException>()
                 every { exception.code() } returns 304
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns listOf(
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
@@ -317,7 +363,7 @@ class AreaViewModelTest {
                 val savedStateHandle =
                     SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
-                coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
+                coEvery { areaDetailUseCase.execute(areaCode) } throws IOException()
 
                 val sut = areaViewModel(savedStateHandle)
 
@@ -343,15 +389,15 @@ class AreaViewModelTest {
             val savedStateHandle =
                 SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
-            coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
+            coEvery { areaDetailUseCase.execute(areaCode) } throws IOException()
 
             val sut = areaViewModel(savedStateHandle)
 
-            verify(exactly = 1) { areaDetailUseCase.execute(areaCode, areaType) }
+            verify(exactly = 1) { areaDetailUseCase.execute(areaCode) }
 
             sut.refresh()
 
-            verify(exactly = 2) { areaDetailUseCase.execute(areaCode, areaType) }
+            verify(exactly = 2) { areaDetailUseCase.execute(areaCode) }
         }
 
     @Test
@@ -436,6 +482,7 @@ class AreaViewModelTest {
             deleteSavedAreaUseCase,
             TestCoroutineDispatchersImpl(testDispatcher),
             areaUiModelMapper,
+            timeProvider,
             savedStateHandle
         )
     }

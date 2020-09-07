@@ -23,16 +23,27 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
+import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
+import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
+import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import com.chrisa.covid19.features.home.presentation.widgets.emptySavedAreasCard
-import com.chrisa.covid19.features.home.presentation.widgets.latestUkDataCard
-import com.chrisa.covid19.features.home.presentation.widgets.savedAreaCard
+import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.TopInfectionRateCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.TopNewCaseCardModel_
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_home.*
+import kotlinx.android.synthetic.main.fragment_home.fakeSearchBar
+import kotlinx.android.synthetic.main.fragment_home.homeProgress
+import kotlinx.android.synthetic.main.fragment_home.homeRecyclerView
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
+@FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -75,47 +86,109 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             homeRecyclerView.withModels {
                 sectionHeader {
                     id("dailyRecordHeader")
-                    title(getString(R.string.daily_records_title))
+                    title(getString(R.string.uk_overview))
                 }
-
-                latestUkDataCard {
-                    id("dailyRecordCard")
-                    latestUkData(homeScreenData.latestUkData)
+                carousel {
+                    id("dailyRecordCarousel")
+                    models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
-
+                sectionHeader {
+                    id("risingCasesHeader")
+                    title(getString(R.string.rising_cases))
+                }
+                carousel {
+                    id("risingCasesCarousel")
+                    models(mapCases("risingCase_", homeScreenData.risingNewCases))
+                }
+                sectionHeader {
+                    id("risingInfectionRatesHeader")
+                    title(getString(R.string.rising_infection_rates))
+                }
+                carousel {
+                    id("risingInfectionRatesCarousel")
+                    models(mapInfectionRateModels("risingInfectionRate_", homeScreenData.risingInfectionRates))
+                }
+                sectionHeader {
+                    id("topNewCasesHeader")
+                    title(getString(R.string.top_new_cases))
+                }
+                carousel {
+                    id("topNewCasesCarousel")
+                    models(mapCases("topCase_", homeScreenData.topNewCases))
+                }
+                sectionHeader {
+                    id("topInfectionRatesHeader")
+                    title(getString(R.string.top_infection_rates))
+                }
+                carousel {
+                    id("topInfectionRatesCarousel")
+                    models(mapInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
+                }
                 sectionHeader {
                     id("savedAreaHeader")
                     title(getString(R.string.saved_locations_title))
                 }
-                if (homeScreenData.savedAreas.isEmpty()) {
-                    emptySavedAreasCard {
-                        id("emptySavedAreas")
-                    }
-                } else {
-                    homeScreenData.savedAreas.forEach { savedAreaModel ->
-                        savedAreaCard {
-                            id(savedAreaModel.areaCode)
-                            savedAreaModel(savedAreaModel)
-                            clickListener { _ ->
-                                navigateToArea(savedAreaModel)
-                            }
-                        }
-                    }
+                carousel {
+                    id("savedAreaCarousel")
+                    models(savedAreaModels("savedArea_", homeScreenData.savedAreas))
                 }
             }
         })
     }
 
+    private fun mapInfectionRateModels(idPrefix: String, topInfectionRates: List<InfectionRateModel>): List<EpoxyModel<*>> =
+        topInfectionRates.map { data ->
+            TopInfectionRateCardModel_()
+                .id(idPrefix + data.areaName)
+                .infectionRateModel(data)
+                .clickListener { _ ->
+                    navigateToArea(data.areaCode, data.areaName, data.areaType)
+                }
+        }
+
+    private fun mapCases(idPrefix: String, cases: List<NewCaseModel>): List<EpoxyModel<*>> =
+        cases.map { data ->
+            TopNewCaseCardModel_()
+                .id(idPrefix + data.areaName)
+                .newCaseModel(data)
+                .clickListener { _ ->
+                    navigateToArea(data.areaCode, data.areaName, data.areaType)
+                }
+        }
+
+    private fun dailyRecordModels(
+        idPrefix: String,
+        latestUkData: List<LatestUkDataModel>
+    ): List<EpoxyModel<*>> =
+        latestUkData.map { data ->
+            LatestUkDataCardModel_()
+                .id(idPrefix + data.areaName + data.lastUpdated)
+                .latestUkData(data)
+        }
+
+    private fun savedAreaModels(
+        idPrefix: String,
+        savedAreas: List<SavedAreaModel>
+    ): List<EpoxyModel<*>> =
+        savedAreas.map { savedAreaModel ->
+            SavedAreaCardModel_()
+                .id(idPrefix + savedAreaModel.areaCode)
+                .savedAreaModel(savedAreaModel)
+                .clickListener { _ ->
+                    navigateToArea(savedAreaModel.areaCode, savedAreaModel.areaName, savedAreaModel.areaType)
+                }
+        }.ifEmpty { listOf(EmptySavedAreasCardModel_().id("emptySavedAreas")) }
+
     private fun navigateToHome() {
         findNavController().navigate(HomeFragmentDirections.homeToSearch())
     }
 
-    private fun navigateToArea(savedAreaModel: SavedAreaModel) {
+    private fun navigateToArea(areaCode: String, areaName: String, areaType: String) {
         val action =
             HomeFragmentDirections.homeToArea(
-                areaCode = savedAreaModel.areaCode,
-                areaName = savedAreaModel.areaName,
-                areaType = savedAreaModel.areaType
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType
             )
         findNavController().navigate(action)
     }

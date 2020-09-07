@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.area.data
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
@@ -137,9 +138,10 @@ class AreaDataSourceTest {
     fun `WHEN loadAreaData called THEN area data is returned`() = runBlocking {
 
         val areaData = AreaDataEntity(
+            metadataId = MetaDataIds.areaCodeId("1234"),
             areaCode = "1234",
             areaName = "London",
-            areaType = "utla",
+            areaType = AreaType.UTLA,
             date = LocalDate.ofEpochDay(0),
             cumulativeCases = 222,
             infectionRate = 122.0,
@@ -149,14 +151,16 @@ class AreaDataSourceTest {
         every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
         every { appDatabase.areaDataDao() } returns areaDataDao
 
-        val cases = sut.loadAreaData(areaData.areaCode, areaData.areaType)
+        val cases = sut.loadAreaData(areaData.areaCode)
 
         assertThat(cases.size).isEqualTo(1)
         assertThat(cases.first()).isEqualTo(
             CaseDto(
+                newCases = areaData.newCases,
+                cumulativeCases = areaData.cumulativeCases,
                 date = areaData.date,
-                dailyLabConfirmedCases = areaData.newCases,
-                totalLabConfirmedCases = areaData.cumulativeCases
+                infectionRate = areaData.infectionRate,
+                baseRate = areaData.infectionRate / areaData.cumulativeCases
             )
         )
     }
