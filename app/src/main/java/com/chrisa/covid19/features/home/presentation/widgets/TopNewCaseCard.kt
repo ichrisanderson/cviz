@@ -19,15 +19,14 @@ package com.chrisa.covid19.features.home.presentation.widgets
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import androidx.annotation.ColorRes
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.features.home.domain.models.NewCaseModel
-import java.text.NumberFormat
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaName
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaPosition
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.changeThisWeek
@@ -50,34 +49,13 @@ class TopNewCaseCard(context: Context, attrs: AttributeSet) : CardView(context, 
         areaPosition.text =
             areaPosition.context.getString(R.string.position_format, newCaseModel.position)
         areaName.text = newCaseModel.areaName
-        currentNewCases.text = formatNumber(newCaseModel.currentNewCases)
-        changeThisWeek.text = getChangeText(newCaseModel.changeInCases)
+        currentNewCases.text = NumberFormatter.format(newCaseModel.currentNewCases)
+        changeThisWeek.text = NumberFormatter.getChangeText(newCaseModel.changeInCases)
         changeThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeThisWeek.context,
-                getChangeColour(newCaseModel.changeInCases)
+                NumberFormatter.getChangeColour(newCaseModel.changeInCases)
             )
         )
-    }
-
-    private fun formatNumber(toFormat: Int): String {
-        return NumberFormat.getInstance().format(toFormat)
-    }
-
-    @ColorRes
-    private fun getChangeColour(change: Int): Int {
-        return when {
-            change > 0 -> R.color.negativeChange
-            else -> R.color.positiveChange
-        }
-    }
-
-    private fun getChangeText(change: Int): String {
-        val number = formatNumber(change)
-        return when {
-            change > 0 -> "+$number"
-            change == 0 -> "-$number"
-            else -> number
-        }
     }
 }

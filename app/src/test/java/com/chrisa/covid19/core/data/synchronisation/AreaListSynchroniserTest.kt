@@ -24,8 +24,8 @@ import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.network.AREA_FILTER
-import com.chrisa.covid19.core.data.network.AREA_MODEL_STRUCTURE
 import com.chrisa.covid19.core.data.network.AreaModel
+import com.chrisa.covid19.core.data.network.AreaModel.Companion.AREA_MODEL_STRUCTURE
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.Page
 import com.chrisa.covid19.core.data.time.TimeProvider

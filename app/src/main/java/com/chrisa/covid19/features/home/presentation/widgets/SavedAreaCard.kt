@@ -18,15 +18,14 @@ package com.chrisa.covid19.features.home.presentation.widgets
 
 import android.content.Context
 import android.util.AttributeSet
-import androidx.annotation.ColorRes
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import java.text.NumberFormat
 import kotlinx.android.synthetic.main.widget_saved_area_card.view.areaName
 import kotlinx.android.synthetic.main.widget_saved_area_card.view.casesThisWeek
 import kotlinx.android.synthetic.main.widget_saved_area_card.view.changeInCasesThisWeek
@@ -45,33 +44,13 @@ class SavedAreaCard(context: Context, attrs: AttributeSet) : CardView(context, a
     @ModelProp
     fun savedAreaModel(savedAreaModel: SavedAreaModel) {
         areaName.text = savedAreaModel.areaName
-        casesThisWeek.text = formatNumber(savedAreaModel.totalLabConfirmedCasesLastWeek)
+        casesThisWeek.text = NumberFormatter.format(savedAreaModel.totalLabConfirmedCasesLastWeek)
         changeInCasesThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeInCasesThisWeek.context,
-                getChangeColour(savedAreaModel.changeInTotalLabConfirmedCases)
+                NumberFormatter.getChangeColour(savedAreaModel.changeInTotalLabConfirmedCases)
             )
         )
-        changeInCasesThisWeek.text = getChangeText(savedAreaModel.changeInTotalLabConfirmedCases)
-    }
-
-    private fun formatNumber(toFormat: Int): String {
-        return NumberFormat.getInstance().format(toFormat)
-    }
-
-    @ColorRes
-    private fun getChangeColour(change: Int): Int {
-        return when {
-            change > 0 -> R.color.negativeChange
-            else -> R.color.positiveChange
-        }
-    }
-
-    private fun getChangeText(change: Int): String {
-        return when {
-            change > 0 -> "+$change"
-            change == 0 -> "-$change"
-            else -> "$change"
-        }
+        changeInCasesThisWeek.text = NumberFormatter.getChangeText(savedAreaModel.changeInTotalLabConfirmedCases)
     }
 }

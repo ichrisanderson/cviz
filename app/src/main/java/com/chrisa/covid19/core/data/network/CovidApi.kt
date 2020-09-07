@@ -54,12 +54,6 @@ val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
 fun DAILY_AREA_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
 
-val AREA_MODEL_STRUCTURE = JSONObject().apply {
-    put("areaCode", "areaCode")
-    put("areaName", "areaName")
-    put("areaType", "areaType")
-}.toString()
-
 @JsonClass(generateAdapter = true)
 data class Page<T>(
     val length: Int?,
@@ -72,7 +66,15 @@ data class AreaModel(
     val areaCode: String,
     val areaName: String,
     val areaType: String
-)
+) {
+    companion object {
+        val AREA_MODEL_STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+        }.toString()
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class AreaDataModel(

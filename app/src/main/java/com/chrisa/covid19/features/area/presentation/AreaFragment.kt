@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import android.text.format.DateUtils.getRelativeTimeSpanString
 import android.view.View
-import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -29,6 +28,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.ui.NumberFormatter
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,7 +36,6 @@ import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlinx.android.synthetic.main.area_content.allCasesChart
@@ -106,22 +105,24 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
 
             bindLastUpdated(areaCasesModel.lastUpdatedAt)
 
-            totalCases.text = formatNumber(areaCasesModel.totalCases)
-            currentNewCases.text = formatNumber(areaCasesModel.currentNewCases)
-            changeInNewCasesThisWeek.text = getChangeText(areaCasesModel.changeInNewCasesThisWeek)
+            totalCases.text = NumberFormatter.format(areaCasesModel.totalCases)
+            currentNewCases.text = NumberFormatter.format(areaCasesModel.currentNewCases)
+            changeInNewCasesThisWeek.text =
+                NumberFormatter.getChangeText(areaCasesModel.changeInNewCasesThisWeek)
             changeInNewCasesThisWeek.setTextColor(
                 ContextCompat.getColor(
                     changeInNewCasesThisWeek.context,
-                    getChangeColour(areaCasesModel.changeInNewCasesThisWeek)
+                    NumberFormatter.getChangeColour(areaCasesModel.changeInNewCasesThisWeek)
                 )
             )
 
-            currentInfectionRate.text = formatNumber(areaCasesModel.currentInfectionRate)
-            infectionRateChangeThisWeek.text = getChangeText(areaCasesModel.changeInInfectionRatesThisWeek)
+            currentInfectionRate.text = NumberFormatter.format(areaCasesModel.currentInfectionRate)
+            infectionRateChangeThisWeek.text =
+                NumberFormatter.getChangeText(areaCasesModel.changeInInfectionRatesThisWeek)
             infectionRateChangeThisWeek.setTextColor(
                 ContextCompat.getColor(
                     changeInNewCasesThisWeek.context,
-                    getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek)
+                    NumberFormatter.getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek)
                 )
             )
 
@@ -135,48 +136,6 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
             )
             areaContent.isVisible = true
         })
-    }
-
-    private fun formatNumber(toFormat: Int): String {
-        return NumberFormat.getInstance().format(toFormat)
-    }
-
-    @ColorRes
-    private fun getChangeColour(change: Int): Int {
-        return when {
-            change > 0 -> R.color.negativeChange
-            else -> R.color.positiveChange
-        }
-    }
-
-    private fun getChangeText(change: Int): String {
-        val number = formatNumber(change)
-        return when {
-            change > 0 -> "+$number"
-            change == 0 -> "-$number"
-            else -> number
-        }
-    }
-
-    private fun formatNumber(toFormat: Double): String {
-        return NumberFormat.getInstance().format(toFormat)
-    }
-
-    @ColorRes
-    private fun getChangeColour(change: Double): Int {
-        return when {
-            change > 0 -> R.color.negativeChange
-            else -> R.color.positiveChange
-        }
-    }
-
-    private fun getChangeText(change: Double): String {
-        val number = formatNumber(change)
-        return when {
-            change > 0 -> "+$number"
-            change == 0.0 -> "-$number"
-            else -> number
-        }
     }
 
     private fun bindLastUpdated(lastUpdatedAt: LocalDateTime?) {
