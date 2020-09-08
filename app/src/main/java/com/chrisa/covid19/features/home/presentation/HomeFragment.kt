@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
@@ -49,6 +50,8 @@ import kotlinx.coroutines.InternalCoroutinesApi
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private val viewModel: HomeViewModel by viewModels()
+    private var controllerState: Bundle? = null
+    private var attachedController: EpoxyController? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -56,6 +59,30 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         initRecyclerView()
         bindIsLoading()
         bindAreaCases()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        attachedController?.onSaveInstanceState(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDestroyView() {
+        detachFromController()
+        super.onDestroyView()
+    }
+
+    private fun attachToController(controller: EpoxyController) {
+        attachedController = controller
+        if (controllerState != null) {
+            controller.onRestoreInstanceState(controllerState)
+            controllerState = null
+        }
+    }
+
+    private fun detachFromController() {
+        controllerState = Bundle()
+            .apply { attachedController?.onSaveInstanceState(this) }
+        attachedController = null
     }
 
     private fun initSearchBar() {
@@ -84,6 +111,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             val homeScreenData = it ?: return@Observer
             homeRecyclerView.isVisible = true
             homeRecyclerView.withModels {
+
+                attachToController(this)
+
                 sectionHeader {
                     id("dailyRecordHeader")
                     title(getString(R.string.uk_overview))
@@ -106,7 +136,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
                 carousel {
                     id("risingInfectionRatesCarousel")
-                    models(mapInfectionRateModels("risingInfectionRate_", homeScreenData.risingInfectionRates))
+                    models(
+                        mapInfectionRateModels(
+                            "risingInfectionRate_",
+                            homeScreenData.risingInfectionRates
+                        )
+                    )
                 }
                 sectionHeader {
                     id("topNewCasesHeader")
@@ -122,7 +157,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
                 carousel {
                     id("topInfectionRatesCarousel")
-                    models(mapInfectionRateModels("topInfectionRate_", homeScreenData.topInfectionRates))
+                    models(
+                        mapInfectionRateModels(
+                            "topInfectionRate_",
+                            homeScreenData.topInfectionRates
+                        )
+                    )
                 }
                 sectionHeader {
                     id("savedAreaHeader")
@@ -136,7 +176,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
     }
 
-    private fun mapInfectionRateModels(idPrefix: String, topInfectionRates: List<InfectionRateModel>): List<EpoxyModel<*>> =
+    private fun mapInfectionRateModels(
+        idPrefix: String,
+        topInfectionRates: List<InfectionRateModel>
+    ): List<EpoxyModel<*>> =
         topInfectionRates.map { data ->
             TopInfectionRateCardModel_()
                 .id(idPrefix + data.areaName)
@@ -178,7 +221,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 .id(idPrefix + savedAreaModel.areaCode)
                 .savedAreaModel(savedAreaModel)
                 .clickListener { _ ->
-                    navigateToArea(savedAreaModel.areaCode, savedAreaModel.areaName, savedAreaModel.areaType)
+                    navigateToArea(
+                        savedAreaModel.areaCode,
+                        savedAreaModel.areaName,
+                        savedAreaModel.areaType
+                    )
                 }
         }.ifEmpty { listOf(EmptySavedAreasCardModel_().id("emptySavedAreas")) }
 

@@ -16,9 +16,8 @@
 
 package com.chrisa.covid19.features.home.presentation.widgets
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.text.format.DateUtils
-import android.text.format.DateUtils.MINUTE_IN_MILLIS
 import android.util.AttributeSet
 import androidx.cardview.widget.CardView
 import com.airbnb.epoxy.CallbackProp
@@ -26,15 +25,15 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
+import com.chrisa.covid19.core.util.DateFormatter.getLocalRelativeTimeSpanString
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import java.time.LocalDateTime
-import java.time.ZoneId
 import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.areaName
 import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.dailyCases
 import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.lastUpdated
 import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.totalCases
 
-@ModelView(defaultLayout = R.layout.widget_latest_uk_data_card)
+@SuppressLint("NonConstantResourceId")
+@ModelView(saveViewState = true, defaultLayout = R.layout.widget_latest_uk_data_card)
 class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
 
     var clickListener: OnClickListener? = null
@@ -49,17 +48,9 @@ class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context
     fun latestUkData(latestUkData: LatestUkDataModel) {
         areaName.text = latestUkData.areaName
 
-        val zoneId = ZoneId.of("GMT")
-        val gmtTime = latestUkData.lastUpdated.atZone(zoneId)
-        val now = LocalDateTime.now().atZone(zoneId)
-
         lastUpdated.text = lastUpdated.context.getString(
             R.string.last_updated_date,
-            DateUtils.getRelativeTimeSpanString(
-                gmtTime.toInstant().toEpochMilli(),
-                now.toInstant().toEpochMilli(),
-                MINUTE_IN_MILLIS
-            )
+            getLocalRelativeTimeSpanString(latestUkData.lastUpdated)
         )
 
         totalCases.text = NumberFormatter.format(latestUkData.totalLabConfirmedCases)
