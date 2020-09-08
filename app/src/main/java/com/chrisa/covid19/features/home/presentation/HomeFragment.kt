@@ -49,9 +49,9 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
-    private var controller: EpoxyController? = null
     private val viewModel: HomeViewModel by viewModels()
     private var controllerState: Bundle? = null
+    private var attachedController: EpoxyController? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,22 +62,27 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        controller?.onSaveInstanceState(outState)
+        attachedController?.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
     }
 
-    private fun EpoxyController.setController() {
-        controller = this
+    override fun onDestroyView() {
+        detachFromController()
+        super.onDestroyView()
+    }
+
+    private fun attachToController(controller: EpoxyController) {
+        attachedController = controller
         if (controllerState != null) {
-            controller?.onRestoreInstanceState(controllerState)
+            controller.onRestoreInstanceState(controllerState)
             controllerState = null
         }
     }
 
-    override fun onDestroyView() {
+    private fun detachFromController() {
         controllerState = Bundle()
-            .apply { controller?.onSaveInstanceState(this) }
-        super.onDestroyView()
+            .apply { attachedController?.onSaveInstanceState(this) }
+        attachedController = null
     }
 
     private fun initSearchBar() {
@@ -107,7 +112,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             homeRecyclerView.isVisible = true
             homeRecyclerView.withModels {
 
-                setController()
+                attachToController(this)
 
                 sectionHeader {
                     id("dailyRecordHeader")
