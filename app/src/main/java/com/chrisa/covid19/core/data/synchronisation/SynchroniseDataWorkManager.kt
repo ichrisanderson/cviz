@@ -18,6 +18,7 @@ package com.chrisa.covid19.core.data.synchronisation
 
 import androidx.concurrent.futures.await
 import androidx.work.Constraints
+import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
@@ -80,6 +81,10 @@ class WorkRequestFactory @Inject constructor() {
 
     fun periodicWorkRequest(): PeriodicWorkRequest {
 
+        val data = Data.Builder()
+            .putBoolean(SynchroniseDataWorker.SHOW_NOTIFICATION_KEY, true)
+            .build()
+
         return PeriodicWorkRequestBuilder<SynchroniseDataWorker>(
             repeatInterval = 7,
             repeatIntervalTimeUnit = TimeUnit.HOURS,
@@ -88,6 +93,7 @@ class WorkRequestFactory @Inject constructor() {
         )
             .addTag(SynchroniseDataWorkManager.SYNC_DATA)
             .setConstraints(workConstraints())
+            .setInputData(data)
             .build()
     }
 

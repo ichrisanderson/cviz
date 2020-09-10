@@ -20,7 +20,9 @@ import android.content.Context
 import androidx.work.WorkerParameters
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -33,6 +35,7 @@ class SynchroniseDataWorkerTest {
     private val areaListSynchroniser: AreaListSynchroniser = mockk(relaxed = true)
     private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser = mockk(relaxed = true)
     private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser = mockk(relaxed = true)
+    private val syncNotification: SyncNotification = mockk(relaxed = true)
     private val params: WorkerParameters = mockk(relaxed = true)
     private val context: Context = mockk()
     private val testDispatcher = TestCoroutineDispatcher()
@@ -44,16 +47,21 @@ class SynchroniseDataWorkerTest {
         TestCoroutineDispatchersImpl(testDispatcher),
         areaListSynchroniser,
         areaSummaryDataSynchroniser,
-        savedAreaDataSynchroniser
+        savedAreaDataSynchroniser,
+        syncNotification
     )
 
     @Test
     fun `WHEN work is run THEN synchronisers are launched`() = testCoroutineScope.runBlockingTest {
+
+        every { params.inputData.getBoolean(SynchroniseDataWorker.SHOW_NOTIFICATION_KEY, false) } returns true
 
         sut.doWork()
 
         coVerify { areaListSynchroniser.performSync() }
         coVerify { areaSummaryDataSynchroniser.performSync() }
         coVerify { savedAreaDataSynchroniser.performSync() }
+
+        verify { syncNotification.showSuccess() }
     }
 }
