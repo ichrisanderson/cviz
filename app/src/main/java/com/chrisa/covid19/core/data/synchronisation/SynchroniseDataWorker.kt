@@ -29,11 +29,12 @@ import timber.log.Timber
 
 class SynchroniseDataWorker @WorkerInject constructor(
     @Assisted context: Context,
-    @Assisted params: WorkerParameters,
+    @Assisted private val params: WorkerParameters,
     private val coroutineDispatchers: CoroutineDispatchers,
     private val areaListSynchroniser: AreaListSynchroniser,
     private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser,
-    private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser
+    private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser,
+    private val syncNotification: SyncNotification
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result = withContext(coroutineDispatchers.io) {
@@ -44,7 +45,14 @@ class SynchroniseDataWorker @WorkerInject constructor(
         )
         // awaitAll will throw an exception if a download fails, which CoroutineWorker will treat as a failure
         jobs.awaitAll()
+        if (showNotification()) {
+            syncNotification.showSuccess()
+        }
         return@withContext Result.success()
+    }
+
+    private fun showNotification(): Boolean {
+        return params.inputData.getBoolean(SHOW_NOTIFICATION_KEY, false)
     }
 
     private suspend fun syncAreaList() {
@@ -69,5 +77,9 @@ class SynchroniseDataWorker @WorkerInject constructor(
         } catch (throwable: Throwable) {
             Timber.e(throwable)
         }
+    }
+
+    companion object {
+        const val SHOW_NOTIFICATION_KEY = "ShowNotification"
     }
 }

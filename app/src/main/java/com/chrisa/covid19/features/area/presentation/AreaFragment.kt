@@ -137,6 +137,7 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
                 areaCasesModel.allCasesRollingAverageLineChartData
             )
             areaContent.isVisible = true
+            areaError.isVisible = false
         })
     }
 

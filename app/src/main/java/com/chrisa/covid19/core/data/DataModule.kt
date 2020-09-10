@@ -23,6 +23,8 @@ import com.chrisa.covid19.core.data.db.MetadataDao
 import com.chrisa.covid19.core.data.network.CommonHeaderInterceptor
 import com.chrisa.covid19.core.data.network.CovidApi
 import com.chrisa.covid19.core.data.network.UrlDecodeInterceptor
+import com.chrisa.covid19.core.data.synchronisation.SyncNotification
+import com.chrisa.covid19.core.data.synchronisation.SyncNotificationImpl
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.ToJson
@@ -77,7 +79,7 @@ internal object DataModule {
         return Retrofit.Builder()
             .baseUrl("https://api.coronavirus-staging.data.gov.uk/")
             .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
             .build()
     }
 
@@ -114,6 +116,13 @@ internal object DatabaseModule {
 abstract class BootstrapperModule {
     @Binds
     internal abstract fun bindAssetBootstrapper(assetBootstrapper: AssetBootstrapper): Bootstrapper
+}
+
+@InstallIn(ApplicationComponent::class)
+@Module
+abstract class SyncModule {
+    @Binds
+    internal abstract fun bindSyncNotification(syncNotificationImpl: SyncNotificationImpl): SyncNotification
 }
 
 class LocalDateJsonAdapter {
