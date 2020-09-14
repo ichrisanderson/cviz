@@ -44,8 +44,8 @@ class SynchroniseDataWorker @WorkerInject constructor(
             async { syncAreaList() }
         )
         // awaitAll will throw an exception if a download fails, which CoroutineWorker will treat as a failure
-        jobs.awaitAll()
-        if (showNotification()) {
+        val results = jobs.awaitAll()
+        if (results.all { true } && showNotification()) {
             syncNotification.showSuccess()
         }
         return@withContext Result.success()
@@ -55,28 +55,37 @@ class SynchroniseDataWorker @WorkerInject constructor(
         return params.inputData.getBoolean(SHOW_NOTIFICATION_KEY, false)
     }
 
-    private suspend fun syncAreaList() {
+    private suspend fun syncAreaList(): Boolean {
+        var result = true
         try {
             areaListSynchroniser.performSync()
         } catch (throwable: Throwable) {
             Timber.e(throwable)
+            result = false
         }
+        return result
     }
 
-    private suspend fun syncSavedAreas() {
+    private suspend fun syncSavedAreas(): Boolean {
+        var result = true
         try {
             savedAreaDataSynchroniser.performSync()
         } catch (throwable: Throwable) {
             Timber.e(throwable)
+            result = false
         }
+        return result
     }
 
-    private suspend fun syncAreaSummaries() {
+    private suspend fun syncAreaSummaries(): Boolean {
+        var result = true
         try {
             areaSummaryDataSynchroniser.performSync()
         } catch (throwable: Throwable) {
             Timber.e(throwable)
+            result = false
         }
+        return result
     }
 
     companion object {

@@ -53,7 +53,7 @@ class SyncNotificationImpl @Inject constructor(
             .setContentTitle(context.getString(R.string.sync_notification_success_content_title))
             .setContentText(context.getString(R.string.sync_notification_success_content_text))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(false)
+            .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .build()
 

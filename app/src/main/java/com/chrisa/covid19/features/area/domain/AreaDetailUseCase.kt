@@ -21,10 +21,10 @@ import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
@@ -37,17 +37,7 @@ class AreaDetailUseCase @Inject constructor(
         val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
-                AreaDetailModel(
-                    lastUpdatedAt = null,
-                    lastSyncedAt = null,
-                    allCases = emptyList(),
-                    latestCases = emptyList(),
-                    latestTotalCases = 0,
-                    changeInCases = 0,
-                    weeklyCases = 0,
-                    weeklyInfectionRate = 0.0,
-                    changeInInfectionRate = 0.0
-                )
+                emptyAreaDetailModel()
             } else {
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
@@ -66,6 +56,18 @@ class AreaDetailUseCase @Inject constructor(
             }
         }
     }
+
+    private fun emptyAreaDetailModel(): AreaDetailModel = AreaDetailModel(
+        lastUpdatedAt = null,
+        lastSyncedAt = null,
+        allCases = emptyList(),
+        latestCases = emptyList(),
+        latestTotalCases = 0,
+        changeInCases = 0,
+        weeklyCases = 0,
+        weeklyInfectionRate = 0.0,
+        changeInInfectionRate = 0.0
+    )
 
     private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
         return cases.mapIndexed { index, case ->

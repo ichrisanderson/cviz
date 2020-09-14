@@ -25,11 +25,11 @@ import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 @FlowPreview
@@ -126,37 +126,5 @@ class LoadHomeDataUseCase @Inject constructor(
                 currentNewCases = areaSummary.currentNewCases
             )
         }
-    }
-}
-
-class SavedAreaModelMapper @Inject() constructor() {
-
-    fun mapSavedAreaModel(
-        areaCode: String,
-        areaName: String,
-        allCases: List<SavedAreaCaseDto>
-    ): SavedAreaModel {
-
-        val offset = 3
-
-        val lastCase = allCases.getOrNull(allCases.size - offset)
-        val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
-        val prevCase1 = allCases.getOrNull(allCases.size - (offset + 14))
-
-        val lastTotalLabConfirmedCases = lastCase?.totalLabConfirmedCases ?: 0
-        val prevTotalLabConfirmedCases = prevCase?.totalLabConfirmedCases ?: 0
-        val prev1TotalLabConfirmedCases = prevCase1?.totalLabConfirmedCases ?: 0
-
-        val casesThisWeek = (lastTotalLabConfirmedCases - prevTotalLabConfirmedCases)
-        val casesLastWeek = (prevTotalLabConfirmedCases - prev1TotalLabConfirmedCases)
-
-        return SavedAreaModel(
-            areaCode = areaCode,
-            areaName = areaName,
-            areaType = allCases.first().areaType,
-            changeInTotalLabConfirmedCases = casesThisWeek - casesLastWeek,
-            totalLabConfirmedCases = lastTotalLabConfirmedCases,
-            totalLabConfirmedCasesLastWeek = casesThisWeek
-        )
     }
 }

@@ -28,7 +28,7 @@ class SavedAreaDataSynchroniser @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
-    suspend fun performSync() {
+    suspend fun performSync(): Boolean {
         val areas = listOf(
             AreaEntity(Constants.UK_AREA_CODE, "UK", AreaType.OVERVIEW),
             AreaEntity(Constants.ENGLAND_AREA_CODE, "England", AreaType.NATION),
@@ -38,12 +38,15 @@ class SavedAreaDataSynchroniser @Inject constructor(
         )
             .plus(appDatabase.areaDao().allSavedAreas())
 
+        var result = true
         areas.forEach { area ->
             try {
                 areaDataSynchroniser.performSync(area.areaCode, area.areaType)
             } catch (throwable: Throwable) {
                 Timber.e(throwable)
+                result = false
             }
         }
+        return result
     }
 }
