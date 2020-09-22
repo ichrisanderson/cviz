@@ -26,7 +26,7 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
-import com.chrisa.covid19.features.home.domain.models.NewCaseModel
+import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaName
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.areaPosition
 import kotlinx.android.synthetic.main.widget_top_new_case_card.view.changeThisWeek
@@ -45,16 +45,16 @@ class TopNewCaseCard(context: Context, attrs: AttributeSet) : CardView(context, 
     }
 
     @ModelProp
-    fun newCaseModel(newCaseModel: NewCaseModel) {
+    fun summary(summary: SummaryModel) {
         areaPosition.text =
-            areaPosition.context.getString(R.string.position_format, newCaseModel.position)
-        areaName.text = newCaseModel.areaName
-        currentNewCases.text = NumberFormatter.format(newCaseModel.currentNewCases)
-        changeThisWeek.text = NumberFormatter.getChangeText(newCaseModel.changeInCases)
+            areaPosition.context.getString(R.string.position_format, summary.position)
+        areaName.text = summary.areaName
+        currentNewCases.text = NumberFormatter.format(summary.currentNewCases)
+        changeThisWeek.text = NumberFormatter.getChangeText(summary.changeInCases)
         changeThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeThisWeek.context,
-                NumberFormatter.getChangeColour(newCaseModel.changeInCases)
+                NumberFormatter.getChangeColour(summary.changeInCases)
             )
         )
     }

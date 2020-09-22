@@ -19,8 +19,8 @@ package com.chrisa.covid19.features.home.domain.models
 data class HomeScreenDataModel(
     val savedAreas: List<SavedAreaModel>,
     val latestUkData: List<LatestUkDataModel>,
-    val topInfectionRates: List<InfectionRateModel>,
-    val risingInfectionRates: List<InfectionRateModel>,
-    val topNewCases: List<NewCaseModel>,
-    val risingNewCases: List<NewCaseModel>
+    val topInfectionRates: List<SummaryModel>,
+    val risingInfectionRates: List<SummaryModel>,
+    val topNewCases: List<SummaryModel>,
+    val risingNewCases: List<SummaryModel>
 )

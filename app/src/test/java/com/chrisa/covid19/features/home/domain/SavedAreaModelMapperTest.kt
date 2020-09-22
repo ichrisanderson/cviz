@@ -35,27 +35,27 @@ class SavedAreaModelMapperTest {
             areaName = "Woking",
             areaType = AreaType.LTLA.value,
             date = LocalDate.of(2020, 5, 6),
-            dailyLabConfirmedCases = 0,
-            totalLabConfirmedCases = 0,
-            dailyTotalLabConfirmedCasesRate = 0.0
+            newCases = 0,
+            cumulativeCases = 0,
+            infectionRate = 0.0
         )
 
         val day3 = day0.copy(
-            dailyLabConfirmedCases = 30,
-            totalLabConfirmedCases = 30,
-            dailyTotalLabConfirmedCasesRate = 28.0
+            newCases = 30,
+            cumulativeCases = 30,
+            infectionRate = 28.0
         )
 
         val day10 = day0.copy(
-            dailyLabConfirmedCases = 30,
-            totalLabConfirmedCases = 60,
-            dailyTotalLabConfirmedCasesRate = 28.0
+            newCases = 30,
+            cumulativeCases = 60,
+            infectionRate = 28.0
         )
 
         val day17 = day0.copy(
-            dailyLabConfirmedCases = 30,
-            totalLabConfirmedCases = 100,
-            dailyTotalLabConfirmedCasesRate = 30.0
+            newCases = 30,
+            cumulativeCases = 100,
+            infectionRate = 30.0
         )
 
         val cases = (0 until 20).map {
@@ -78,9 +78,9 @@ class SavedAreaModelMapperTest {
                 areaCode = day0.areaCode,
                 areaName = day0.areaName,
                 areaType = day0.areaType,
-                totalLabConfirmedCases = day17.totalLabConfirmedCases,
-                totalLabConfirmedCasesLastWeek = day17.totalLabConfirmedCases - day10.totalLabConfirmedCases,
-                changeInTotalLabConfirmedCases = (day17.totalLabConfirmedCases - day10.totalLabConfirmedCases) - (day10.totalLabConfirmedCases - day3.totalLabConfirmedCases)
+                totalLabConfirmedCases = day17.cumulativeCases,
+                totalLabConfirmedCasesLastWeek = day17.cumulativeCases - day10.cumulativeCases,
+                changeInTotalLabConfirmedCases = (day17.cumulativeCases - day10.cumulativeCases) - (day10.cumulativeCases - day3.cumulativeCases)
             )
         )
     }

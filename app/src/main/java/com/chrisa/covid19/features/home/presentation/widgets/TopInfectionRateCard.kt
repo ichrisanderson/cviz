@@ -26,7 +26,7 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
-import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
+import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.areaName
 import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.areaPosition
 import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.changeThisWeek
@@ -45,16 +45,16 @@ class TopInfectionRateCard(context: Context, attrs: AttributeSet) : CardView(con
     }
 
     @ModelProp
-    fun infectionRateModel(infectionRateModel: InfectionRateModel) {
+    fun summary(summary: SummaryModel) {
         areaPosition.text =
-            areaPosition.context.getString(R.string.position_format, infectionRateModel.position)
-        areaName.text = infectionRateModel.areaName
-        currentInfectionRate.text = NumberFormatter.format(infectionRateModel.currentInfectionRate)
-        changeThisWeek.text = NumberFormatter.getChangeText(infectionRateModel.changeInInfectionRate)
+            areaPosition.context.getString(R.string.position_format, summary.position)
+        areaName.text = summary.areaName
+        currentInfectionRate.text = NumberFormatter.format(summary.currentInfectionRate)
+        changeThisWeek.text = NumberFormatter.getChangeText(summary.changeInInfectionRate)
         changeThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeThisWeek.context,
-                NumberFormatter.getChangeColour(infectionRateModel.changeInInfectionRate)
+                NumberFormatter.getChangeColour(summary.changeInInfectionRate)
             )
         )
     }

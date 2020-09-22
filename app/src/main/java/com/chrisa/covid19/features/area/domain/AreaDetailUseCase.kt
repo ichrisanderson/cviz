@@ -21,10 +21,10 @@ import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(

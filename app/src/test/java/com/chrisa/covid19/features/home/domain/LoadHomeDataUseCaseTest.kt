@@ -25,8 +25,8 @@ import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -59,8 +59,8 @@ class LoadHomeDataUseCaseTest {
                 areaCode = Constants.UK_AREA_CODE,
                 areaType = AreaType.OVERVIEW.value,
                 areaName = "United Kingdom",
-                totalLabConfirmedCases = 122,
-                dailyLabConfirmedCases = 22,
+                cumulativeCases = 122,
+                newCases = 22,
                 lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
             )
 
@@ -83,8 +83,8 @@ class LoadHomeDataUseCaseTest {
                     areaCode = it.areaCode,
                     areaName = it.areaName,
                     areaType = it.areaType,
-                    dailyLabConfirmedCases = it.dailyLabConfirmedCases,
-                    totalLabConfirmedCases = it.totalLabConfirmedCases,
+                    newCases = it.newCases,
+                    cumulativeCases = it.cumulativeCases,
                     lastUpdated = it.lastUpdated
                 )
             }
@@ -121,13 +121,15 @@ class LoadHomeDataUseCaseTest {
             sut.execute().collect { emittedItems.add(it) }
 
             assertThat(homeScreenDataModel.topNewCases).isEqualTo(newCases.mapIndexed { index, areaSummary ->
-                NewCaseModel(
+                SummaryModel(
                     position = index + 1,
                     areaCode = areaSummary.areaCode,
                     areaName = areaSummary.areaName,
                     areaType = areaSummary.areaType,
                     changeInCases = areaSummary.changeInCases,
-                    currentNewCases = areaSummary.currentNewCases
+                    currentNewCases = areaSummary.currentNewCases,
+                    changeInInfectionRate = areaSummary.changeInInfectionRate,
+                    currentInfectionRate = areaSummary.currentInfectionRate
                 )
             })
         }
@@ -246,9 +248,9 @@ class LoadHomeDataUseCaseTest {
                 areaName = areaName,
                 areaType = areaType,
                 date = startDate.plusDays(it.toLong()),
-                dailyLabConfirmedCases = dailyLabConfirmedCases,
-                totalLabConfirmedCases = cumulativeTotal,
-                dailyTotalLabConfirmedCasesRate = cumulativeTotal.toDouble() / caseNumber++
+                newCases = dailyLabConfirmedCases,
+                cumulativeCases = cumulativeTotal,
+                infectionRate = cumulativeTotal.toDouble() / caseNumber++
             )
         }
 

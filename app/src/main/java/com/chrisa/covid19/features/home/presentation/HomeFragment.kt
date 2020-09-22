@@ -28,10 +28,9 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
-import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
@@ -178,22 +177,22 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun mapInfectionRateModels(
         idPrefix: String,
-        topInfectionRates: List<InfectionRateModel>
+        topInfectionRates: List<SummaryModel>
     ): List<EpoxyModel<*>> =
         topInfectionRates.map { data ->
             TopInfectionRateCardModel_()
                 .id(idPrefix + data.areaName)
-                .infectionRateModel(data)
+                .summary(data)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
         }
 
-    private fun mapCases(idPrefix: String, cases: List<NewCaseModel>): List<EpoxyModel<*>> =
+    private fun mapCases(idPrefix: String, cases: List<SummaryModel>): List<EpoxyModel<*>> =
         cases.map { data ->
             TopNewCaseCardModel_()
                 .id(idPrefix + data.areaName)
-                .newCaseModel(data)
+                .summary(data)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
