@@ -24,18 +24,25 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/home_to_search"
+            app:destination="@id/search"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
-            app:popExitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_left"
-            app:destination="@id/search" />
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/home_to_area"
+            app:destination="@id/area"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
-            app:popExitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_left"
-            app:destination="@id/area" />
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/home_to_summary_list"
+            app:destination="@id/summaryListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -44,9 +51,23 @@
         tools:layout="@layout/fragment_search">
         <action
             android:id="@+id/search_to_area"
+            app:destination="@id/area"
             app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:destination="@id/area" />
+            app:exitAnim="@anim/slide_out_left" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/summaryListFragment"
+        android:name="com.chrisa.covid19.features.home.presentation.summarylist.SummaryListFragment"
+        tools:layout="@layout/fragment_summary_list">
+        <argument
+            android:name="sortOption"
+            app:argType="com.chrisa.covid19.features.home.domain.models.SortOption" />
+        <action
+            android:id="@+id/summary_list_to_area"
+            app:destination="@id/area"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
     </fragment>
 
     <fragment

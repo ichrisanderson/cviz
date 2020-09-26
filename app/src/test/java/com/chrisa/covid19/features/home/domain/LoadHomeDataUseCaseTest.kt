@@ -48,7 +48,6 @@ class LoadHomeDataUseCaseTest {
 
     private val savedAreaModelMapper = mockk<SavedAreaModelMapper>()
     private val homeDataSource = mockk<HomeDataSource>()
-
     private val sut = LoadHomeDataUseCase(homeDataSource, savedAreaModelMapper)
 
     @Test
@@ -75,9 +74,6 @@ class LoadHomeDataUseCaseTest {
             sut.execute().collect { emittedItems.add(it) }
 
             val homeScreenDataModel = emittedItems.first()
-
-            sut.execute().collect { emittedItems.add(it) }
-
             val expectedItems = dailyRecords.map {
                 LatestUkDataModel(
                     areaCode = it.areaCode,
@@ -117,8 +113,6 @@ class LoadHomeDataUseCaseTest {
             sut.execute().collect { emittedItems.add(it) }
 
             val homeScreenDataModel = emittedItems.first()
-
-            sut.execute().collect { emittedItems.add(it) }
 
             assertThat(homeScreenDataModel.topNewCases).isEqualTo(newCases.mapIndexed { index, areaSummary ->
                 SummaryModel(

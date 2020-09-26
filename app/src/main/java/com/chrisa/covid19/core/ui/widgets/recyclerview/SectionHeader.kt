@@ -20,16 +20,33 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
+import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
+import kotlinx.android.synthetic.main.widget_section_header.view.moreButton
 import kotlinx.android.synthetic.main.widget_section_header.view.textView
 
 @SuppressLint("NonConstantResourceId")
 @ModelView(defaultLayout = R.layout.widget_section_header)
 class SectionHeader(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
+
+    var clickListener: OnClickListener? = null
+        @CallbackProp set
+
+    override fun onFinishInflate() {
+        super.onFinishInflate()
+        moreButton.setOnClickListener { clickListener?.onClick(this) }
+    }
+
     @ModelProp
     fun title(title: String) {
         textView.text = title
+    }
+
+    @ModelProp
+    fun isMoreButtonVisible(isVisible: Boolean) {
+        moreButton.isVisible = isVisible
     }
 }

@@ -30,12 +30,12 @@ import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.features.home.domain.models.SortOption
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
-import com.chrisa.covid19.features.home.presentation.widgets.TopInfectionRateCardModel_
-import com.chrisa.covid19.features.home.presentation.widgets.TopNewCaseCardModel_
+import com.chrisa.covid19.features.home.presentation.widgets.SummaryCardModel_
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.fakeSearchBar
 import kotlinx.android.synthetic.main.fragment_home.homeProgress
@@ -116,6 +116,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sectionHeader {
                     id("dailyRecordHeader")
                     title(getString(R.string.uk_overview))
+                    isMoreButtonVisible(false)
                 }
                 carousel {
                     id("dailyRecordCarousel")
@@ -124,6 +125,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sectionHeader {
                     id("risingCasesHeader")
                     title(getString(R.string.rising_cases))
+                    isMoreButtonVisible(true)
+                    clickListener { _ -> navigateToSummaryList(SortOption.RisingCases) }
                 }
                 carousel {
                     id("risingCasesCarousel")
@@ -132,6 +135,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sectionHeader {
                     id("risingInfectionRatesHeader")
                     title(getString(R.string.rising_infection_rates))
+                    isMoreButtonVisible(true)
+                    clickListener { _ -> navigateToSummaryList(SortOption.RisingInfectionRate) }
                 }
                 carousel {
                     id("risingInfectionRatesCarousel")
@@ -145,6 +150,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sectionHeader {
                     id("topNewCasesHeader")
                     title(getString(R.string.top_new_cases))
+                    isMoreButtonVisible(true)
+                    clickListener { _ -> navigateToSummaryList(SortOption.NewCases) }
                 }
                 carousel {
                     id("topNewCasesCarousel")
@@ -153,6 +160,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sectionHeader {
                     id("topInfectionRatesHeader")
                     title(getString(R.string.top_infection_rates))
+                    isMoreButtonVisible(true)
+                    clickListener { _ -> navigateToSummaryList(SortOption.InfectionRate) }
                 }
                 carousel {
                     id("topInfectionRatesCarousel")
@@ -180,9 +189,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         topInfectionRates: List<SummaryModel>
     ): List<EpoxyModel<*>> =
         topInfectionRates.map { data ->
-            TopInfectionRateCardModel_()
+            SummaryCardModel_()
                 .id(idPrefix + data.areaName)
                 .summary(data)
+                .showInfectionRates(true)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
@@ -190,9 +200,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun mapCases(idPrefix: String, cases: List<SummaryModel>): List<EpoxyModel<*>> =
         cases.map { data ->
-            TopNewCaseCardModel_()
+            SummaryCardModel_()
                 .id(idPrefix + data.areaName)
                 .summary(data)
+                .showCases(true)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
@@ -230,6 +241,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun navigateToHome() {
         findNavController().navigate(HomeFragmentDirections.homeToSearch())
+    }
+
+    private fun navigateToSummaryList(sortOption: SortOption) {
+        findNavController().navigate(HomeFragmentDirections.homeToSummaryList(sortOption))
     }
 
     private fun navigateToArea(areaCode: String, areaName: String, areaType: String) {

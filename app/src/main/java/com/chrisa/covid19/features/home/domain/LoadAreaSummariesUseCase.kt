@@ -17,6 +17,8 @@
 package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.features.home.data.HomeDataSource
+import com.chrisa.covid19.features.home.data.dtos.AreaSummaryDto
+import com.chrisa.covid19.features.home.domain.models.SortOption
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,22 +29,34 @@ import kotlinx.coroutines.flow.map
 @ExperimentalCoroutinesApi
 @FlowPreview
 class LoadAreaSummariesUseCase @Inject constructor(
-    private val homeDataSource: HomeDataSource
+    private val homeDataSource: HomeDataSource,
+    private val areaSummaryListSorter: AreaSummaryListSorter
 ) {
-    fun execute(): Flow<List<SummaryModel>> {
+    fun execute(sortOption: SortOption): Flow<List<SummaryModel>> {
         return homeDataSource.areaSummaries().map { areaSummaries ->
-            areaSummaries.mapIndexed { index, areaSummary ->
-                SummaryModel(
-                    position = index + 1,
-                    areaCode = areaSummary.areaCode,
-                    areaName = areaSummary.areaName,
-                    areaType = areaSummary.areaType,
-                    changeInCases = areaSummary.changeInCases,
-                    currentNewCases = areaSummary.currentNewCases,
-                    changeInInfectionRate = areaSummary.changeInInfectionRate,
-                    currentInfectionRate = areaSummary.currentInfectionRate
-                )
-            }
+            areaSummaryListSorter.sort(areaSummaries, sortOption)
+                .mapIndexed { index, areaSummary ->
+                    SummaryModel(
+                        position = index + 1,
+                        areaCode = areaSummary.areaCode,
+                        areaName = areaSummary.areaName,
+                        areaType = areaSummary.areaType,
+                        changeInCases = areaSummary.changeInCases,
+                        currentNewCases = areaSummary.currentNewCases,
+                        changeInInfectionRate = areaSummary.changeInInfectionRate,
+                        currentInfectionRate = areaSummary.currentInfectionRate
+                    )
+                }
         }
     }
+}
+
+class AreaSummaryListSorter @Inject constructor() {
+    fun sort(list: List<AreaSummaryDto>, sortOption: SortOption): List<AreaSummaryDto> =
+        when (sortOption) {
+            SortOption.RisingCases -> list.sortedByDescending { it.changeInCases }
+            SortOption.RisingInfectionRate -> list.sortedByDescending { it.changeInInfectionRate }
+            SortOption.InfectionRate -> list.sortedByDescending { it.currentInfectionRate }
+            SortOption.NewCases -> list.sortedByDescending { it.currentNewCases }
+        }
 }

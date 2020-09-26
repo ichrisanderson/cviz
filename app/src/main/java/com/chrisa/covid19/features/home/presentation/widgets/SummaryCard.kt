@@ -21,20 +21,25 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
-import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.areaName
-import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.areaPosition
-import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.changeThisWeek
-import kotlinx.android.synthetic.main.widget_top_infection_rate_card.view.currentInfectionRate
+import kotlinx.android.synthetic.main.widget_summary_card.view.areaName
+import kotlinx.android.synthetic.main.widget_summary_card.view.areaPosition
+import kotlinx.android.synthetic.main.widget_summary_card.view.casesGroup
+import kotlinx.android.synthetic.main.widget_summary_card.view.changeInCasesThisWeek
+import kotlinx.android.synthetic.main.widget_summary_card.view.changeInInfectionRateThisWeek
+import kotlinx.android.synthetic.main.widget_summary_card.view.currentInfectionRate
+import kotlinx.android.synthetic.main.widget_summary_card.view.currentNewCases
+import kotlinx.android.synthetic.main.widget_summary_card.view.infectionRateGroup
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.widget_top_infection_rate_card)
-class TopInfectionRateCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
+@ModelView(defaultLayout = R.layout.widget_summary_card)
+class SummaryCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
 
     var clickListener: OnClickListener? = null
         @CallbackProp set
@@ -49,13 +54,32 @@ class TopInfectionRateCard(context: Context, attrs: AttributeSet) : CardView(con
         areaPosition.text =
             areaPosition.context.getString(R.string.position_format, summary.position)
         areaName.text = summary.areaName
-        currentInfectionRate.text = NumberFormatter.format(summary.currentInfectionRate)
-        changeThisWeek.text = NumberFormatter.getChangeText(summary.changeInInfectionRate)
-        changeThisWeek.setTextColor(
+        currentNewCases.text = NumberFormatter.format(summary.currentNewCases)
+        changeInCasesThisWeek.text = NumberFormatter.getChangeText(summary.changeInCases)
+        changeInCasesThisWeek.setTextColor(
             ContextCompat.getColor(
-                changeThisWeek.context,
+                changeInCasesThisWeek.context,
+                NumberFormatter.getChangeColour(summary.changeInCases)
+            )
+        )
+        currentInfectionRate.text = NumberFormatter.format(summary.currentInfectionRate)
+        changeInInfectionRateThisWeek.text =
+            NumberFormatter.getChangeText(summary.changeInInfectionRate)
+        changeInInfectionRateThisWeek.setTextColor(
+            ContextCompat.getColor(
+                changeInInfectionRateThisWeek.context,
                 NumberFormatter.getChangeColour(summary.changeInInfectionRate)
             )
         )
+    }
+
+    @ModelProp
+    fun showCases(showCases: Boolean) {
+        casesGroup.isVisible = showCases
+    }
+
+    @ModelProp
+    fun showInfectionRates(showInfectionRates: Boolean) {
+        infectionRateGroup.isVisible = showInfectionRates
     }
 }

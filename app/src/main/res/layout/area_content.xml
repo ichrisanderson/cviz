@@ -67,7 +67,6 @@
         android:fontFamily="@font/roboto_light"
         android:text="@string/total_cases"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        android:textColor="@color/lightGray"
         app:layout_constraintStart_toStartOf="@id/area_content_guideline_start"
         app:layout_constraintEnd_toEndOf="@id/area_content_guideline_end"
         app:layout_constraintTop_toBottomOf="@id/totalCases" />
@@ -93,7 +92,6 @@
         android:fontFamily="@font/roboto_light"
         android:text="@string/cases_this_week"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        android:textColor="@color/lightGray"
         app:layout_constraintStart_toStartOf="@id/area_content_guideline_start"
         app:layout_constraintTop_toBottomOf="@id/currentNewCases" />
 
@@ -118,7 +116,6 @@
         android:fontFamily="@font/roboto_light"
         android:text="@string/change_this_week"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        android:textColor="@color/lightGray"
         app:layout_constraintStart_toStartOf="@id/changeInNewCasesThisWeek"
         app:layout_constraintTop_toBottomOf="@id/currentNewCases" />
 
@@ -143,7 +140,6 @@
         android:fontFamily="@font/roboto_light"
         android:text="@string/current_infection_rate"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        android:textColor="@color/lightGray"
         app:layout_constraintStart_toStartOf="@id/area_content_guideline_start"
         app:layout_constraintTop_toBottomOf="@id/currentInfectionRate" />
 
@@ -168,7 +164,6 @@
         android:fontFamily="@font/roboto_light"
         android:text="@string/change_this_week"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        android:textColor="@color/lightGray"
         app:layout_constraintStart_toStartOf="@id/infectionRateChangeThisWeek"
         app:layout_constraintTop_toBottomOf="@id/currentInfectionRate" />
 
