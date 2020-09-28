@@ -8,15 +8,10 @@
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/fakeSearchTextInputEditText"
+        style="@style/SearchBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_margin="12dp"
-        android:background="#FFF"
-        android:drawableStart="@drawable/ic_search"
-        android:drawablePadding="12dp"
-        android:hint="@string/home_search_hint"
-        android:padding="12dp"
         app:layout_collapseMode="pin" />
 
 </merge>

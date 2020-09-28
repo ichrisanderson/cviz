@@ -21,10 +21,9 @@ import com.chrisa.covid19.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
-import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -51,22 +50,22 @@ class LoadHomeDataUseCase @Inject constructor(
             HomeScreenDataModel(
                 savedAreas = savedAreas(savedAreas),
                 latestUkData = latestUkData(overview),
-                topInfectionRates = mapInfectionRates(
+                topInfectionRates = mapSummaryModel(
                     areaSummaries
                         .sortedByDescending { it.currentInfectionRate }
                         .take(10)
                 ),
-                risingInfectionRates = mapInfectionRates(
+                risingInfectionRates = mapSummaryModel(
                     areaSummaries
                         .sortedByDescending { it.changeInInfectionRate }
                         .take(10)
                 ),
-                topNewCases = mapNewCases(
+                topNewCases = mapSummaryModel(
                     areaSummaries
                         .sortedByDescending { it.currentNewCases }
                         .take(10)
                 ),
-                risingNewCases = mapNewCases(
+                risingNewCases = mapSummaryModel(
                     areaSummaries
                         .sortedByDescending { it.changeInCases }
                         .take(10)
@@ -95,68 +94,25 @@ class LoadHomeDataUseCase @Inject constructor(
                 areaCode = dailyRecord.areaCode,
                 areaName = dailyRecord.areaName,
                 areaType = dailyRecord.areaType,
-                dailyLabConfirmedCases = dailyRecord.dailyLabConfirmedCases,
-                totalLabConfirmedCases = dailyRecord.totalLabConfirmedCases,
+                newCases = dailyRecord.newCases,
+                cumulativeCases = dailyRecord.cumulativeCases,
                 lastUpdated = dailyRecord.lastUpdated
             )
         }
     }
 
-    private fun mapInfectionRates(areaSummaries: List<AreaSummaryDto>): List<InfectionRateModel> {
+    private fun mapSummaryModel(areaSummaries: List<AreaSummaryDto>): List<SummaryModel> {
         return areaSummaries.mapIndexed { index, areaSummary ->
-            InfectionRateModel(
-                position = index + 1,
-                areaCode = areaSummary.areaCode,
-                areaName = areaSummary.areaName,
-                areaType = areaSummary.areaType,
-                changeInInfectionRate = areaSummary.changeInInfectionRate,
-                currentInfectionRate = areaSummary.currentInfectionRate
-            )
-        }
-    }
-
-    private fun mapNewCases(areaSummaries: List<AreaSummaryDto>): List<NewCaseModel> {
-        return areaSummaries.mapIndexed { index, areaSummary ->
-            NewCaseModel(
+            SummaryModel(
                 position = index + 1,
                 areaCode = areaSummary.areaCode,
                 areaName = areaSummary.areaName,
                 areaType = areaSummary.areaType,
                 changeInCases = areaSummary.changeInCases,
-                currentNewCases = areaSummary.currentNewCases
+                currentNewCases = areaSummary.currentNewCases,
+                changeInInfectionRate = areaSummary.changeInInfectionRate,
+                currentInfectionRate = areaSummary.currentInfectionRate
             )
         }
-    }
-}
-
-class SavedAreaModelMapper @Inject() constructor() {
-
-    fun mapSavedAreaModel(
-        areaCode: String,
-        areaName: String,
-        allCases: List<SavedAreaCaseDto>
-    ): SavedAreaModel {
-
-        val offset = 3
-
-        val lastCase = allCases.getOrNull(allCases.size - offset)
-        val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
-        val prevCase1 = allCases.getOrNull(allCases.size - (offset + 14))
-
-        val lastTotalLabConfirmedCases = lastCase?.totalLabConfirmedCases ?: 0
-        val prevTotalLabConfirmedCases = prevCase?.totalLabConfirmedCases ?: 0
-        val prev1TotalLabConfirmedCases = prevCase1?.totalLabConfirmedCases ?: 0
-
-        val casesThisWeek = (lastTotalLabConfirmedCases - prevTotalLabConfirmedCases)
-        val casesLastWeek = (prevTotalLabConfirmedCases - prev1TotalLabConfirmedCases)
-
-        return SavedAreaModel(
-            areaCode = areaCode,
-            areaName = areaName,
-            areaType = allCases.first().areaType,
-            changeInTotalLabConfirmedCases = casesThisWeek - casesLastWeek,
-            totalLabConfirmedCases = lastTotalLabConfirmedCases,
-            totalLabConfirmedCasesLastWeek = casesThisWeek
-        )
     }
 }

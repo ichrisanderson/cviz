@@ -22,7 +22,7 @@ data class DailyRecordDto(
     val areaCode: String,
     val areaName: String,
     val areaType: String,
-    val dailyLabConfirmedCases: Int,
-    val totalLabConfirmedCases: Int,
+    val newCases: Int,
+    val cumulativeCases: Int,
     val lastUpdated: LocalDateTime
 )

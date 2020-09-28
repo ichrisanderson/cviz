@@ -79,7 +79,6 @@
             android:fontFamily="@font/roboto_light"
             android:text="@string/total_cases"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="@color/lightGray"
             app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintTop_toBottomOf="@id/totalCases" />
@@ -103,7 +102,6 @@
             android:fontFamily="@font/roboto_light"
             android:text="@string/daily_cases"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="@color/lightGray"
             app:layout_constraintStart_toStartOf="@id/dailyCases"
             app:layout_constraintTop_toBottomOf="@id/totalCases" />
 

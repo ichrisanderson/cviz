@@ -53,7 +53,7 @@ class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context
             getLocalRelativeTimeSpanString(latestUkData.lastUpdated)
         )
 
-        totalCases.text = NumberFormatter.format(latestUkData.totalLabConfirmedCases)
-        dailyCases.text = NumberFormatter.format(latestUkData.dailyLabConfirmedCases)
+        totalCases.text = NumberFormatter.format(latestUkData.cumulativeCases)
+        dailyCases.text = NumberFormatter.format(latestUkData.newCases)
     }
 }

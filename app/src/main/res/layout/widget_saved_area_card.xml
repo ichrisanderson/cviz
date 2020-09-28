@@ -69,7 +69,6 @@
             android:fontFamily="@font/roboto_light"
             android:text="@string/cases_this_week"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="@color/lightGray"
             app:layout_constraintStart_toStartOf="@id/casesThisWeek"
             app:layout_constraintTop_toBottomOf="@id/casesThisWeek"
             app:layout_constraintBottom_toTopOf="@id/guideline_bottom"/>
@@ -93,7 +92,6 @@
             android:fontFamily="@font/roboto_light"
             android:text="@string/change_this_week"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            android:textColor="@color/lightGray"
             app:layout_constraintStart_toStartOf="@id/changeInCasesThisWeek"
             app:layout_constraintTop_toBottomOf="@id/changeInCasesThisWeek"
             app:layout_constraintBottom_toTopOf="@id/guideline_bottom"/>

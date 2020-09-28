@@ -32,10 +32,9 @@
     <string name="area_data_error_message">Failed to load area data</string>
     <string name="sync_error_message">Failed to load latest data</string>
     <string name="retry">Retry</string>
-
-    <string name="sync_notification_name">Covid 19 UK Sync Notification</string>
+    <string name="sync_notification_name">Data Alerts</string>
     <string name="sync_notification_success_description">Success Notification</string>
     <string name="sync_notification_success_content_title">New data</string>
     <string name="sync_notification_success_content_text">New data available</string>
-
+    <string name="view_all">View all</string>
 </resources>

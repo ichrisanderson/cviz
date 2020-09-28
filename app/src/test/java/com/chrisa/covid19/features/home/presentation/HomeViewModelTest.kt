@@ -23,10 +23,9 @@ import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
 import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
 import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
-import com.chrisa.covid19.features.home.domain.models.InfectionRateModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import com.chrisa.covid19.features.home.domain.models.NewCaseModel
 import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -70,25 +69,18 @@ class HomeViewModelTest {
                     areaCode = Constants.UK_AREA_CODE,
                     areaName = "UK",
                     areaType = AreaType.OVERVIEW.value,
-                    totalLabConfirmedCases = 22,
-                    dailyLabConfirmedCases = 33,
+                    cumulativeCases = 22,
+                    newCases = 33,
                     lastUpdated = LocalDateTime.of(2020, 1, 1, 1, 1)
                 )
 
-                val newCaseModel = NewCaseModel(
+                val summaryModel = SummaryModel(
                     position = 1,
                     areaCode = "1234",
                     areaName = "Lambeth",
                     areaType = "ltla",
                     changeInCases = 22,
-                    currentNewCases = 33
-                )
-
-                val infectionRateModel = InfectionRateModel(
-                    position = 1,
-                    areaName = "UK",
-                    areaCode = Constants.UK_AREA_CODE,
-                    areaType = AreaType.OVERVIEW.value,
+                    currentNewCases = 33,
                     changeInInfectionRate = 100.0,
                     currentInfectionRate = 10.0
                 )
@@ -96,10 +88,10 @@ class HomeViewModelTest {
                 val homeScreenDataModel = HomeScreenDataModel(
                     savedAreas = listOf(savedArea),
                     latestUkData = listOf(latestUkData),
-                    topInfectionRates = listOf(infectionRateModel),
-                    risingInfectionRates = listOf(infectionRateModel),
-                    risingNewCases = listOf(newCaseModel),
-                    topNewCases = listOf(newCaseModel)
+                    topInfectionRates = listOf(summaryModel),
+                    risingInfectionRates = listOf(summaryModel),
+                    risingNewCases = listOf(summaryModel),
+                    topNewCases = listOf(summaryModel)
                 )
 
                 every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()

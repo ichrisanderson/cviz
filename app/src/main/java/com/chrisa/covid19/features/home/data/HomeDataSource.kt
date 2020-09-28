@@ -59,8 +59,8 @@ class HomeDataSource @Inject constructor(
                                 areaCode = areaData.areaCode,
                                 areaName = areaData.areaName,
                                 areaType = areaData.areaType.value,
-                                dailyLabConfirmedCases = areaData.newCases,
-                                totalLabConfirmedCases = areaData.cumulativeCases,
+                                newCases = areaData.newCases,
+                                cumulativeCases = areaData.cumulativeCases,
                                 lastUpdated = areaData.lastUpdatedAt
                             )
                         }
@@ -78,9 +78,9 @@ class HomeDataSource @Inject constructor(
                         areaName = it.areaName,
                         areaType = it.areaType.value,
                         date = it.date,
-                        dailyLabConfirmedCases = it.newCases,
-                        totalLabConfirmedCases = it.cumulativeCases,
-                        dailyTotalLabConfirmedCasesRate = it.infectionRate
+                        newCases = it.newCases,
+                        cumulativeCases = it.cumulativeCases,
+                        infectionRate = it.infectionRate
                     )
                 }
             }

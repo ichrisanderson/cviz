@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.data.dtos
+package com.chrisa.covid19.features.home.domain.models
 
-import java.time.LocalDateTime
-
-data class MetadataDto(
-    val lastUpdatedAt: LocalDateTime
-)
+enum class SortOption {
+    RisingCases,
+    RisingInfectionRate,
+    NewCases,
+    InfectionRate
+}
