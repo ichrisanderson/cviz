@@ -22,8 +22,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
-import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
-import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
+import com.chrisa.covid19.features.home.domain.LoadDashboardDataUseCase
+import com.chrisa.covid19.features.home.domain.models.DashboardDataModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -32,12 +32,12 @@ import kotlinx.coroutines.launch
 @InternalCoroutinesApi
 @FlowPreview
 class HomeViewModel @ViewModelInject constructor(
-    private val loadHomeDataUseCase: LoadHomeDataUseCase,
+    private val loadDashboardDataUseCase: LoadDashboardDataUseCase,
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _homeScreenData = MutableLiveData<HomeScreenDataModel>()
-    val homeScreenData: LiveData<HomeScreenDataModel>
+    private val _homeScreenData = MutableLiveData<DashboardDataModel>()
+    val dashboardData: LiveData<DashboardDataModel>
         get() = _homeScreenData
 
     private val _isLoading = MutableLiveData<Boolean>()
@@ -52,7 +52,7 @@ class HomeViewModel @ViewModelInject constructor(
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
 
-            val homeScreenData = loadHomeDataUseCase.execute()
+            val homeScreenData = loadDashboardDataUseCase.execute()
 
             homeScreenData.collect {
                 _homeScreenData.postValue(it)

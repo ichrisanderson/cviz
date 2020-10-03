@@ -21,10 +21,9 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
-import com.chrisa.covid19.features.home.domain.LoadHomeDataUseCase
-import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
+import com.chrisa.covid19.features.home.domain.LoadDashboardDataUseCase
+import com.chrisa.covid19.features.home.domain.models.DashboardDataModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -48,23 +47,13 @@ class HomeViewModelTest {
     @JvmField
     val liveDataJunitRule = InstantTaskExecutorRule()
 
-    private val loadHomeDataUseCase = mockk<LoadHomeDataUseCase>()
+    private val loadHomeDataUseCase = mockk<LoadDashboardDataUseCase>()
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Test
     fun `GIVEN load home data cases succeeds WHEN viewmodel initialized THEN home screen data is emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
-
-                val savedArea = SavedAreaModel(
-                    areaCode = Constants.ENGLAND_AREA_CODE,
-                    areaName = "England",
-                    areaType = AreaType.REGION.value,
-                    changeInCases = 22,
-                    currentNewCases = 33,
-                    changeInInfectionRate = 100.0,
-                    currentInfectionRate = 10.0
-                )
 
                 val latestUkData = LatestUkDataModel(
                     areaCode = Constants.UK_AREA_CODE,
@@ -86,8 +75,7 @@ class HomeViewModelTest {
                     currentInfectionRate = 10.0
                 )
 
-                val homeScreenDataModel = HomeScreenDataModel(
-                    savedAreas = listOf(savedArea),
+                val homeScreenDataModel = DashboardDataModel(
                     latestUkData = listOf(latestUkData),
                     topInfectionRates = listOf(summaryModel),
                     risingInfectionRates = listOf(summaryModel),
@@ -102,7 +90,7 @@ class HomeViewModelTest {
                     TestCoroutineDispatchersImpl(testDispatcher)
                 )
 
-                val homeScreenDataObserver = sut.homeScreenData.test()
+                val homeScreenDataObserver = sut.dashboardData.test()
                 val isLoadingObserver = sut.isLoading.test()
 
                 runCurrent()

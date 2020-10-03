@@ -74,11 +74,6 @@ class SummaryCard(context: Context, attrs: AttributeSet) : CardView(context, att
     }
 
     @ModelProp
-    fun showAreaPosition(isVisible: Boolean) {
-        areaPosition.isVisible = isVisible
-    }
-
-    @ModelProp
     fun showCases(isVisible: Boolean) {
         casesGroup.isVisible = isVisible
     }

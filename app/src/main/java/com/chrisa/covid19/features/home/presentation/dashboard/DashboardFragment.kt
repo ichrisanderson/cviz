@@ -101,7 +101,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun bindAreaCases() {
-        viewModel.homeScreenData.observe(viewLifecycleOwner, Observer {
+        viewModel.dashboardData.observe(viewLifecycleOwner, Observer {
             val homeScreenData = it ?: return@Observer
             homeRecyclerView.isVisible = true
             homeRecyclerView.withModels {
@@ -179,7 +179,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             SummaryCardModel_()
                 .id(idPrefix + data.areaName)
                 .summary(data)
-                .showAreaPosition(true)
                 .showInfectionRates(true)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
@@ -191,7 +190,6 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             SummaryCardModel_()
                 .id(idPrefix + data.areaName)
                 .summary(data)
-                .showAreaPosition(true)
                 .showCases(true)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
