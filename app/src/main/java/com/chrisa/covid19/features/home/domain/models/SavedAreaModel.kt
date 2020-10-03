@@ -20,7 +20,8 @@ data class SavedAreaModel(
     val areaCode: String,
     val areaName: String,
     val areaType: String,
-    val totalLabConfirmedCasesLastWeek: Int,
-    val changeInTotalLabConfirmedCases: Int,
-    val totalLabConfirmedCases: Int
+    val currentNewCases: Int,
+    val changeInCases: Int,
+    val currentInfectionRate: Double,
+    val changeInInfectionRate: Double
 )

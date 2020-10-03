@@ -73,14 +73,23 @@ class SavedAreaModelMapperTest {
             cases
         )
 
+        val baseRate = day17.infectionRate / day17.cumulativeCases
+
+        val casesThisWeek = (day17.cumulativeCases - day10.cumulativeCases)
+        val casesLastWeek = (day10.cumulativeCases - day3.cumulativeCases)
+
+        val currentInfectionRate = casesThisWeek * baseRate
+        val previousInfectionRate = casesLastWeek * baseRate
+
         assertThat(result).isEqualTo(
             SavedAreaModel(
                 areaCode = day0.areaCode,
                 areaName = day0.areaName,
                 areaType = day0.areaType,
-                totalLabConfirmedCases = day17.cumulativeCases,
-                totalLabConfirmedCasesLastWeek = day17.cumulativeCases - day10.cumulativeCases,
-                changeInTotalLabConfirmedCases = (day17.cumulativeCases - day10.cumulativeCases) - (day10.cumulativeCases - day3.cumulativeCases)
+                currentNewCases = casesThisWeek,
+                changeInCases = casesThisWeek - casesLastWeek,
+                currentInfectionRate = currentInfectionRate,
+                changeInInfectionRate = currentInfectionRate - previousInfectionRate
             )
         )
     }

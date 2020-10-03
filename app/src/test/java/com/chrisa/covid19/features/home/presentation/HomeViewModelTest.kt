@@ -60,9 +60,10 @@ class HomeViewModelTest {
                     areaCode = Constants.ENGLAND_AREA_CODE,
                     areaName = "England",
                     areaType = AreaType.REGION.value,
-                    totalLabConfirmedCases = 22,
-                    changeInTotalLabConfirmedCases = 11,
-                    totalLabConfirmedCasesLastWeek = 11
+                    changeInCases = 22,
+                    currentNewCases = 33,
+                    changeInInfectionRate = 100.0,
+                    currentInfectionRate = 10.0
                 )
 
                 val latestUkData = LatestUkDataModel(

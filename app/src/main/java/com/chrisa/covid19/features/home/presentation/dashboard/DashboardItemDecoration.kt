@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.presentation
+package com.chrisa.covid19.features.home.presentation.dashboard
 
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
-class HomeItemDecoration(private val horizontalMargin: Int, private val verticalMargin: Int) : RecyclerView.ItemDecoration() {
+class DashboardItemDecoration(private val horizontalMargin: Int, private val verticalMargin: Int) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
         outRect: Rect,

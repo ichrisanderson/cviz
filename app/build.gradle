@@ -76,9 +76,11 @@ kapt {
 dependencies {
     /* desugaring */
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:${versions.desugarJdk}"
+
     /* kotlin */
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}"
+
     /* android */
     implementation "androidx.arch.core:core-runtime:${versions.archRuntime}"
     implementation "androidx.lifecycle:lifecycle-extensions:${versions.lifecycleExtensions}"
@@ -91,6 +93,7 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:${versions.recyclerview}"
     implementation "com.google.android.material:material:${versions.material}"
     implementation "androidx.work:work-runtime-ktx:${versions.androidxWork}"
+    implementation "androidx.viewpager2:viewpager2:${versions.androidxViewpager2}"
 
     /* rx */
     implementation "io.reactivex.rxjava3:rxjava:${versions.rxjava}"

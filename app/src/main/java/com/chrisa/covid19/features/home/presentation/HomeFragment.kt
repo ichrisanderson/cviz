@@ -18,28 +18,14 @@ package com.chrisa.covid19.features.home.presentation
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.airbnb.epoxy.EpoxyController
-import com.airbnb.epoxy.EpoxyModel
-import com.airbnb.epoxy.carousel
 import com.chrisa.covid19.R
-import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
-import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
-import com.chrisa.covid19.features.home.domain.models.SortOption
-import com.chrisa.covid19.features.home.domain.models.SummaryModel
-import com.chrisa.covid19.features.home.presentation.widgets.EmptySavedAreasCardModel_
-import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
-import com.chrisa.covid19.features.home.presentation.widgets.SavedAreaCardModel_
-import com.chrisa.covid19.features.home.presentation.widgets.SummaryCardModel_
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_home.fakeSearchBar
-import kotlinx.android.synthetic.main.fragment_home.homeProgress
-import kotlinx.android.synthetic.main.fragment_home.homeRecyclerView
+import kotlinx.android.synthetic.main.fragment_home.homeNavigation
+import kotlinx.android.synthetic.main.fragment_home.homePager
+import kotlinx.android.synthetic.main.fragment_home.homeToolbar
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
@@ -48,212 +34,31 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
-    private val viewModel: HomeViewModel by viewModels()
-    private var controllerState: Bundle? = null
-    private var attachedController: EpoxyController? = null
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initSearchBar()
-        initRecyclerView()
-        bindIsLoading()
-        bindAreaCases()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        attachedController?.onSaveInstanceState(outState)
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onDestroyView() {
-        detachFromController()
-        super.onDestroyView()
-    }
-
-    private fun attachToController(controller: EpoxyController) {
-        attachedController = controller
-        if (controllerState != null) {
-            controller.onRestoreInstanceState(controllerState)
-            controllerState = null
-        }
-    }
-
-    private fun detachFromController() {
-        controllerState = Bundle()
-            .apply { attachedController?.onSaveInstanceState(this) }
-        attachedController = null
-    }
-
-    private fun initSearchBar() {
-        fakeSearchBar.setOnClickListener { navigateToHome() }
-    }
-
-    private fun initRecyclerView() {
-        homeRecyclerView.addItemDecoration(
-            HomeItemDecoration(
-                homeRecyclerView.context.resources.getDimensionPixelSize(
-                    R.dimen.card_margin
-                )
-            )
-        )
-    }
-
-    private fun bindIsLoading() {
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            val isLoading = it ?: return@Observer
-            homeProgress.isVisible = isLoading
-        })
-    }
-
-    private fun bindAreaCases() {
-        viewModel.homeScreenData.observe(viewLifecycleOwner, Observer {
-            val homeScreenData = it ?: return@Observer
-            homeRecyclerView.isVisible = true
-            homeRecyclerView.withModels {
-
-                attachToController(this)
-
-                sectionHeader {
-                    id("dailyRecordHeader")
-                    title(getString(R.string.uk_overview))
-                    isMoreButtonVisible(false)
+        homeToolbar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.search -> {
+                    navigateToSearch()
+                    true
                 }
-                carousel {
-                    id("dailyRecordCarousel")
-                    models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
-                }
-                sectionHeader {
-                    id("risingCasesHeader")
-                    title(getString(R.string.rising_cases))
-                    isMoreButtonVisible(true)
-                    clickListener { _ -> navigateToSummaryList(SortOption.RisingCases) }
-                }
-                carousel {
-                    id("risingCasesCarousel")
-                    models(mapCases("risingCase_", homeScreenData.risingNewCases))
-                }
-                sectionHeader {
-                    id("risingInfectionRatesHeader")
-                    title(getString(R.string.rising_infection_rates))
-                    isMoreButtonVisible(true)
-                    clickListener { _ -> navigateToSummaryList(SortOption.RisingInfectionRate) }
-                }
-                carousel {
-                    id("risingInfectionRatesCarousel")
-                    models(
-                        mapInfectionRateModels(
-                            "risingInfectionRate_",
-                            homeScreenData.risingInfectionRates
-                        )
-                    )
-                }
-                sectionHeader {
-                    id("topNewCasesHeader")
-                    title(getString(R.string.top_new_cases))
-                    isMoreButtonVisible(true)
-                    clickListener { _ -> navigateToSummaryList(SortOption.NewCases) }
-                }
-                carousel {
-                    id("topNewCasesCarousel")
-                    models(mapCases("topCase_", homeScreenData.topNewCases))
-                }
-                sectionHeader {
-                    id("topInfectionRatesHeader")
-                    title(getString(R.string.top_infection_rates))
-                    isMoreButtonVisible(true)
-                    clickListener { _ -> navigateToSummaryList(SortOption.InfectionRate) }
-                }
-                carousel {
-                    id("topInfectionRatesCarousel")
-                    models(
-                        mapInfectionRateModels(
-                            "topInfectionRate_",
-                            homeScreenData.topInfectionRates
-                        )
-                    )
-                }
-                sectionHeader {
-                    id("savedAreaHeader")
-                    title(getString(R.string.saved_locations_title))
-                }
-                carousel {
-                    id("savedAreaCarousel")
-                    models(savedAreaModels("savedArea_", homeScreenData.savedAreas))
-                }
+                else -> false
             }
-        })
+        }
+        homePager.isUserInputEnabled = false
+        homePager.offscreenPageLimit = 3
+        homePager.adapter = HomeAdapter(childFragmentManager, lifecycle)
+        homeNavigation.setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.dashboard -> homePager.setCurrentItem(0, true)
+                R.id.saved -> homePager.setCurrentItem(1, true)
+            }
+            true
+        }
     }
 
-    private fun mapInfectionRateModels(
-        idPrefix: String,
-        topInfectionRates: List<SummaryModel>
-    ): List<EpoxyModel<*>> =
-        topInfectionRates.map { data ->
-            SummaryCardModel_()
-                .id(idPrefix + data.areaName)
-                .summary(data)
-                .showInfectionRates(true)
-                .clickListener { _ ->
-                    navigateToArea(data.areaCode, data.areaName, data.areaType)
-                }
-        }
-
-    private fun mapCases(idPrefix: String, cases: List<SummaryModel>): List<EpoxyModel<*>> =
-        cases.map { data ->
-            SummaryCardModel_()
-                .id(idPrefix + data.areaName)
-                .summary(data)
-                .showCases(true)
-                .clickListener { _ ->
-                    navigateToArea(data.areaCode, data.areaName, data.areaType)
-                }
-        }
-
-    private fun dailyRecordModels(
-        idPrefix: String,
-        latestUkData: List<LatestUkDataModel>
-    ): List<EpoxyModel<*>> =
-        latestUkData.map { data ->
-            LatestUkDataCardModel_()
-                .id(idPrefix + data.areaName + data.lastUpdated)
-                .latestUkData(data)
-                .clickListener { _ ->
-                    navigateToArea(data.areaCode, data.areaName, data.areaType)
-                }
-        }
-
-    private fun savedAreaModels(
-        idPrefix: String,
-        savedAreas: List<SavedAreaModel>
-    ): List<EpoxyModel<*>> =
-        savedAreas.map { savedAreaModel ->
-            SavedAreaCardModel_()
-                .id(idPrefix + savedAreaModel.areaCode)
-                .savedAreaModel(savedAreaModel)
-                .clickListener { _ ->
-                    navigateToArea(
-                        savedAreaModel.areaCode,
-                        savedAreaModel.areaName,
-                        savedAreaModel.areaType
-                    )
-                }
-        }.ifEmpty { listOf(EmptySavedAreasCardModel_().id("emptySavedAreas")) }
-
-    private fun navigateToHome() {
-        findNavController().navigate(HomeFragmentDirections.homeToSearch())
-    }
-
-    private fun navigateToSummaryList(sortOption: SortOption) {
-        findNavController().navigate(HomeFragmentDirections.homeToSummaryList(sortOption))
-    }
-
-    private fun navigateToArea(areaCode: String, areaName: String, areaType: String) {
-        val action =
-            HomeFragmentDirections.homeToArea(
-                areaCode = areaCode,
-                areaName = areaName,
-                areaType = areaType
-            )
-        findNavController().navigate(action)
+    private fun navigateToSearch() {
+        findNavController()
+            .navigate(HomeFragmentDirections.homeToSearch())
     }
 }

@@ -157,9 +157,10 @@ class LoadHomeDataUseCaseTest {
                 areaCode = wokingArea.areaCode,
                 areaName = wokingArea.areaName,
                 areaType = wokingArea.areaType.value,
-                totalLabConfirmedCases = 100,
-                changeInTotalLabConfirmedCases = 1000,
-                totalLabConfirmedCasesLastWeek = 100
+                changeInCases = 1000,
+                currentNewCases = 100,
+                changeInInfectionRate = 10.0,
+                currentInfectionRate = 100.0
             )
 
             val aldershotArea = AreaEntity(
@@ -181,9 +182,10 @@ class LoadHomeDataUseCaseTest {
                 areaCode = aldershotArea.areaCode,
                 areaName = aldershotArea.areaName,
                 areaType = aldershotArea.areaType.value,
-                totalLabConfirmedCases = 100,
-                changeInTotalLabConfirmedCases = 1000,
-                totalLabConfirmedCasesLastWeek = 100
+                changeInCases = 1000,
+                currentNewCases = 100,
+                changeInInfectionRate = 10.0,
+                currentInfectionRate = 100.0
             )
 
             val allCases = wokingCases + aldershotCases

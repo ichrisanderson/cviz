@@ -118,13 +118,13 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
                 )
             )
 
-            currentInfectionRate.text = NumberFormatter.format(areaCasesModel.currentInfectionRate)
+            currentInfectionRate.text = NumberFormatter.format(areaCasesModel.currentInfectionRate.toInt())
             infectionRateChangeThisWeek.text =
-                NumberFormatter.getChangeText(areaCasesModel.changeInInfectionRatesThisWeek)
+                NumberFormatter.getChangeText(areaCasesModel.changeInInfectionRatesThisWeek.toInt())
             infectionRateChangeThisWeek.setTextColor(
                 ContextCompat.getColor(
                     changeInNewCasesThisWeek.context,
-                    NumberFormatter.getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek)
+                    NumberFormatter.getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek.toInt())
                 )
             )
 

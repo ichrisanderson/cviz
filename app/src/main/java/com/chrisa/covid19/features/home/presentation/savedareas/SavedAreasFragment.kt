@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.presentation.summarylist
+package com.chrisa.covid19.features.home.presentation.savedareas
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,14 +25,13 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyController
 import com.chrisa.covid19.R
-import com.chrisa.covid19.core.util.KeyboardUtils
-import com.chrisa.covid19.features.home.domain.models.SortOption
+import com.chrisa.covid19.features.home.presentation.HomeFragmentDirections
 import com.chrisa.covid19.features.home.presentation.HomeItemDecoration
-import com.chrisa.covid19.features.home.presentation.widgets.summaryCard
+import com.chrisa.covid19.features.home.presentation.widgets.areaDetailCard
+import com.chrisa.covid19.features.home.presentation.widgets.emptySavedAreasCard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_summary_list.summaryListProgress
-import kotlinx.android.synthetic.main.fragment_summary_list.summaryListRecyclerView
-import kotlinx.android.synthetic.main.fragment_summary_list.summaryListToolbar
+import kotlinx.android.synthetic.main.fragment_saved_areas.savedAreasProgress
+import kotlinx.android.synthetic.main.fragment_saved_areas.savedAreasRecyclerView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -42,15 +40,14 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
-class SummaryListFragment : Fragment(R.layout.fragment_summary_list) {
+class SavedAreasFragment : Fragment(R.layout.fragment_saved_areas) {
 
-    private val viewModel: SummaryListViewModel by viewModels()
+    private val viewModel: SavedAreasViewModel by viewModels()
     private var controllerState: Bundle? = null
     private var attachedController: EpoxyController? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initToolbar()
         initRecyclerView()
         bindIsLoading()
         bindSummaries()
@@ -80,30 +77,13 @@ class SummaryListFragment : Fragment(R.layout.fragment_summary_list) {
         attachedController = null
     }
 
-    private fun initToolbar() {
-        summaryListToolbar.navigationIcon =
-            ContextCompat.getDrawable(summaryListToolbar.context, R.drawable.ic_arrow_back)
-        summaryListToolbar.title = "Rising Cases"
-
-        summaryListToolbar.title = when (viewModel.sortOption) {
-            SortOption.InfectionRate -> getString(R.string.top_infection_rates)
-            SortOption.NewCases -> getString(R.string.top_cases)
-            SortOption.RisingInfectionRate -> getString(R.string.rising_infection_rates)
-            SortOption.RisingCases -> getString(R.string.rising_cases)
-        }
-        summaryListToolbar.setNavigationOnClickListener {
-            KeyboardUtils.hideSoftKeyboard(it)
-            navigateUp()
-        }
-    }
-
     private fun initRecyclerView() {
-        summaryListRecyclerView.addItemDecoration(
+        savedAreasRecyclerView.addItemDecoration(
             HomeItemDecoration(
-                summaryListRecyclerView.context.resources.getDimensionPixelSize(
+                savedAreasRecyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin_large
                 ),
-                summaryListRecyclerView.context.resources.getDimensionPixelSize(
+                savedAreasRecyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin_large
                 )
             )
@@ -113,28 +93,32 @@ class SummaryListFragment : Fragment(R.layout.fragment_summary_list) {
     private fun bindIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer {
             val isLoading = it ?: return@Observer
-            summaryListProgress.isVisible = isLoading
+            savedAreasProgress.isVisible = isLoading
         })
     }
 
     private fun bindSummaries() {
-        viewModel.summaries.observe(viewLifecycleOwner, Observer {
-            val summaries = it ?: return@Observer
-            summaryListRecyclerView.isVisible = true
-            summaryListRecyclerView.withModels {
+        viewModel.savedAreas.observe(viewLifecycleOwner, Observer {
+            val savedAreas = it ?: return@Observer
+            savedAreasRecyclerView.isVisible = true
+            savedAreasRecyclerView.withModels {
                 attachToController(this)
-                summaries.forEach { summary ->
-                    summaryCard {
-                        id("summary" + summary.areaName)
-                        summary(summary)
-                        showCases(viewModel.sortOption.showCases())
-                        showInfectionRates(viewModel.sortOption.showInfectionRate())
-                        clickListener { _ ->
-                            navigateToArea(
-                                summary.areaCode,
-                                summary.areaName,
-                                summary.areaType
-                            )
+                if (savedAreas.isEmpty()) {
+                    emptySavedAreasCard {
+                        id("emptySavedAreas")
+                    }
+                } else {
+                    savedAreas.forEach { summary ->
+                        areaDetailCard {
+                            id(summary.areaCode)
+                            summary(summary)
+                            clickListener { _ ->
+                                navigateToArea(
+                                    summary.areaCode,
+                                    summary.areaName,
+                                    summary.areaType
+                                )
+                            }
                         }
                     }
                 }
@@ -142,19 +126,9 @@ class SummaryListFragment : Fragment(R.layout.fragment_summary_list) {
         })
     }
 
-    private fun SortOption.showCases(): Boolean =
-        setOf(SortOption.RisingCases, SortOption.NewCases).contains(this)
-
-    private fun SortOption.showInfectionRate(): Boolean =
-        setOf(SortOption.RisingInfectionRate, SortOption.InfectionRate).contains(this)
-
-    private fun navigateUp() {
-        findNavController().navigateUp()
-    }
-
     private fun navigateToArea(areaCode: String, areaName: String, areaType: String) {
         val action =
-            SummaryListFragmentDirections.summaryListToArea(
+            HomeFragmentDirections.homeToArea(
                 areaCode = areaCode,
                 areaName = areaName,
                 areaType = areaType
