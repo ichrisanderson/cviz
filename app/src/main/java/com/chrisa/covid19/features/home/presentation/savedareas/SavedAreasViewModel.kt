@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.presentation
+package com.chrisa.covid19.features.home.presentation.savedareas
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
@@ -22,23 +22,25 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
-import com.chrisa.covid19.features.home.domain.LoadDashboardDataUseCase
-import com.chrisa.covid19.features.home.domain.models.DashboardDataModel
+import com.chrisa.covid19.features.home.domain.LoadSavedAreasUseCase
+import com.chrisa.covid19.features.home.domain.models.SummaryModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 @InternalCoroutinesApi
 @FlowPreview
-class HomeViewModel @ViewModelInject constructor(
-    private val loadDashboardDataUseCase: LoadDashboardDataUseCase,
+class SavedAreasViewModel @ViewModelInject constructor(
+    private val loadSavedAreasUseCase: LoadSavedAreasUseCase,
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _homeScreenData = MutableLiveData<DashboardDataModel>()
-    val dashboardData: LiveData<DashboardDataModel>
-        get() = _homeScreenData
+    private val _savedAreas = MutableLiveData<List<SummaryModel>>()
+    val savedAreas: LiveData<List<SummaryModel>>
+        get() = _savedAreas
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
@@ -51,11 +53,9 @@ class HomeViewModel @ViewModelInject constructor(
     private fun loadSavedAreaCases() {
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
-
-            val homeScreenData = loadDashboardDataUseCase.execute()
-
-            homeScreenData.collect {
-                _homeScreenData.postValue(it)
+            val savedAreas = loadSavedAreasUseCase.execute()
+            savedAreas.collect {
+                _savedAreas.postValue(it)
                 _isLoading.postValue(false)
             }
         }

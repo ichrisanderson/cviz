@@ -19,10 +19,8 @@ package com.chrisa.covid19.features.home.domain
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.covid19.features.home.data.dtos.DailyRecordDto
-import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.covid19.features.home.domain.models.HomeScreenDataModel
+import com.chrisa.covid19.features.home.domain.models.DashboardDataModel
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,23 +30,19 @@ import kotlinx.coroutines.flow.combine
 
 @ExperimentalCoroutinesApi
 @FlowPreview
-class LoadHomeDataUseCase @Inject constructor(
-    private val homeDataSource: HomeDataSource,
-    private val savedAreaModelMapper: SavedAreaModelMapper
+class LoadDashboardDataUseCase @Inject constructor(
+    private val homeDataSource: HomeDataSource
 ) {
-    fun execute(): Flow<HomeScreenDataModel> {
+    fun execute(): Flow<DashboardDataModel> {
 
         val ukOverviewFlow = homeDataSource.ukOverview()
         val areaSummariesAsFlow = homeDataSource.areaSummaries()
-        val savedAreaCasesFlow = homeDataSource.savedAreaCases()
 
         return combine(
             ukOverviewFlow,
-            areaSummariesAsFlow,
-            savedAreaCasesFlow
-        ) { overview, areaSummaries, savedAreas ->
-            HomeScreenDataModel(
-                savedAreas = savedAreas(savedAreas),
+            areaSummariesAsFlow
+        ) { overview, areaSummaries ->
+            DashboardDataModel(
                 latestUkData = latestUkData(overview),
                 topInfectionRates = mapSummaryModel(
                     areaSummaries
@@ -72,18 +66,6 @@ class LoadHomeDataUseCase @Inject constructor(
                 )
             )
         }
-    }
-
-    private fun savedAreas(cases: List<SavedAreaCaseDto>): List<SavedAreaModel> {
-        return cases.groupBy { Pair(it.areaCode, it.areaName) }
-            .map { group ->
-                savedAreaModelMapper.mapSavedAreaModel(
-                    group.key.first,
-                    group.key.second,
-                    group.value
-                )
-            }
-            .sortedBy { it.areaName }
     }
 
     private fun latestUkData(

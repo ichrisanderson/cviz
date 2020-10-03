@@ -19,6 +19,7 @@ package com.chrisa.covid19.core.ui
 import androidx.annotation.ColorRes
 import com.chrisa.covid19.R
 import java.text.NumberFormat
+import kotlin.math.abs
 
 object NumberFormatter {
 
@@ -35,32 +36,10 @@ object NumberFormatter {
     }
 
     fun getChangeText(change: Int): String {
-        val number = format(change)
+        val number = format(abs(change))
         return when {
             change > 0 -> "+$number"
-            change == 0 -> "-$number"
-            else -> number
-        }
-    }
-
-    fun format(toFormat: Double): String {
-        return NumberFormat.getInstance().format(toFormat)
-    }
-
-    @ColorRes
-    fun getChangeColour(change: Double): Int {
-        return when {
-            change > 0 -> R.color.negativeChange
-            else -> R.color.positiveChange
-        }
-    }
-
-    fun getChangeText(change: Double): String {
-        val number = format(change)
-        return when {
-            change > 0 -> "+$number"
-            change == 0.0 -> "-$number"
-            else -> number
+            else -> "-$number"
         }
     }
 }

@@ -21,25 +21,23 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
+import androidx.core.text.buildSpannedString
+import androidx.core.text.scale
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
-import kotlinx.android.synthetic.main.widget_summary_card.view.areaName
-import kotlinx.android.synthetic.main.widget_summary_card.view.areaPosition
-import kotlinx.android.synthetic.main.widget_summary_card.view.casesGroup
-import kotlinx.android.synthetic.main.widget_summary_card.view.changeInCasesThisWeek
-import kotlinx.android.synthetic.main.widget_summary_card.view.changeInInfectionRateThisWeek
-import kotlinx.android.synthetic.main.widget_summary_card.view.currentInfectionRate
-import kotlinx.android.synthetic.main.widget_summary_card.view.currentNewCases
-import kotlinx.android.synthetic.main.widget_summary_card.view.infectionRateGroup
+import kotlinx.android.synthetic.main.widget_area_detail_card.view.areaName
+import kotlinx.android.synthetic.main.widget_area_detail_card.view.changeInCasesThisWeek
+import kotlinx.android.synthetic.main.widget_area_detail_card.view.changeInInfectionRateThisWeek
+import kotlinx.android.synthetic.main.widget_area_detail_card.view.currentInfectionRate
+import kotlinx.android.synthetic.main.widget_area_detail_card.view.currentNewCases
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.widget_summary_card)
-class SummaryCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
+@ModelView(defaultLayout = R.layout.widget_area_detail_card)
+class AreaDetailCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
 
     var clickListener: OnClickListener? = null
         @CallbackProp set
@@ -51,35 +49,31 @@ class SummaryCard(context: Context, attrs: AttributeSet) : CardView(context, att
 
     @ModelProp
     fun summary(summary: SummaryModel) {
-        areaPosition.text =
-            areaPosition.context.getString(R.string.position_format, summary.position)
         areaName.text = summary.areaName
         currentNewCases.text = NumberFormatter.format(summary.currentNewCases)
-        changeInCasesThisWeek.text = NumberFormatter.getChangeText(summary.changeInCases)
+        changeInCasesThisWeek.text = buildSpannedString {
+            scale(0.7f) {
+                append(NumberFormatter.getChangeText(summary.changeInCases))
+            }
+        }
         changeInCasesThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeInCasesThisWeek.context,
                 NumberFormatter.getChangeColour(summary.changeInCases)
             )
         )
+
         currentInfectionRate.text = NumberFormatter.format(summary.currentInfectionRate.toInt())
-        changeInInfectionRateThisWeek.text =
-            NumberFormatter.getChangeText(summary.changeInInfectionRate.toInt())
+        changeInInfectionRateThisWeek.text = buildSpannedString {
+            scale(0.7f) {
+                append(NumberFormatter.getChangeText(summary.changeInInfectionRate.toInt()))
+            }
+        }
         changeInInfectionRateThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeInInfectionRateThisWeek.context,
                 NumberFormatter.getChangeColour(summary.changeInInfectionRate.toInt())
             )
         )
-    }
-
-    @ModelProp
-    fun showCases(isVisible: Boolean) {
-        casesGroup.isVisible = isVisible
-    }
-
-    @ModelProp
-    fun showInfectionRates(isVisible: Boolean) {
-        infectionRateGroup.isVisible = isVisible
     }
 }

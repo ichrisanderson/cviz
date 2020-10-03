@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarContainer"
@@ -10,40 +11,30 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
-        <TextView
-            android:id="@+id/title"
-            style="@style/Widget.Covid19.Toolbar.Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:drawableStart="@drawable/ic_covid_19"
-            android:drawablePadding="8dp"
-            android:fontFamily="sans-serif-black"
-            android:gravity="center"
-            android:includeFontPadding="true"
-            android:text="@string/app_name"
-            app:layout_scrollFlags="scroll" />
-
-        <com.chrisa.covid19.core.ui.widgets.search.FakeSearchBar
-            android:id="@+id/fakeSearchBar"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/homeToolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStartWithNavigation="16dp"
+            app:menu="@menu/home_menu"
+            app:navigationIcon="@drawable/ic_covid_19"
+            app:title="@string/app_name" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <com.airbnb.epoxy.EpoxyRecyclerView
-        android:id="@+id/homeRecyclerView"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/homePager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/appBarContainer"
-        android:visibility="gone"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-    <ProgressBar
-        android:id="@+id/homeProgress"
-        android:layout_width="wrap_content"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/homeNavigation"
+        style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+        android:layout_gravity="bottom"
+        app:menu="@menu/main_menu" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
+

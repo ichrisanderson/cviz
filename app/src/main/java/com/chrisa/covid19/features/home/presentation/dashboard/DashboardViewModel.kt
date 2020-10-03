@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.presentation
+package com.chrisa.covid19.features.home.presentation.dashboard
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
@@ -31,14 +31,14 @@ import kotlinx.coroutines.launch
 
 @InternalCoroutinesApi
 @FlowPreview
-class HomeViewModel @ViewModelInject constructor(
+class DashboardViewModel @ViewModelInject constructor(
     private val loadDashboardDataUseCase: LoadDashboardDataUseCase,
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _homeScreenData = MutableLiveData<DashboardDataModel>()
+    private val _dashboardData = MutableLiveData<DashboardDataModel>()
     val dashboardData: LiveData<DashboardDataModel>
-        get() = _homeScreenData
+        get() = _dashboardData
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
@@ -55,7 +55,7 @@ class HomeViewModel @ViewModelInject constructor(
             val homeScreenData = loadDashboardDataUseCase.execute()
 
             homeScreenData.collect {
-                _homeScreenData.postValue(it)
+                _dashboardData.postValue(it)
                 _isLoading.postValue(false)
             }
         }

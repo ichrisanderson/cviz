@@ -2,13 +2,13 @@
     <string name="app_name">COVID-19 UK</string>
 
     <string name="home_search_hint">Search for locations</string>
-
+    <string name="dashboard_title">Dashboard</string>
     <string name="saved_locations_title">Saved locations</string>
     <string name="uk_overview">UK overview</string>
     <string name="top_infection_rates">Top infection rates</string>
     <string name="rising_infection_rates">Rising infection rates</string>
     <string name="rising_cases">Rising cases</string>
-    <string name="top_new_cases">Top new cases</string>
+    <string name="top_cases">Top cases</string>
     <string name="empty_locations_title">You have no saved locations</string>
 
     <string name="empty_locations_body">Search for locations to see latest Covid-19 data</string>

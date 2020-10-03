@@ -38,16 +38,21 @@ class SavedAreaModelMapper @Inject() constructor() {
         val prevTotalLabConfirmedCases = prevCase?.cumulativeCases ?: 0
         val prev1TotalLabConfirmedCases = prevCase1?.cumulativeCases ?: 0
 
+        val baseRate = lastCase!!.infectionRate / lastCase!!.cumulativeCases
         val casesThisWeek = (lastTotalLabConfirmedCases - prevTotalLabConfirmedCases)
         val casesLastWeek = (prevTotalLabConfirmedCases - prev1TotalLabConfirmedCases)
+
+        val currentInfectionRate = casesThisWeek * baseRate
+        val previousInfectionRate = casesLastWeek * baseRate
 
         return SavedAreaModel(
             areaCode = areaCode,
             areaName = areaName,
             areaType = allCases.first().areaType,
-            changeInTotalLabConfirmedCases = casesThisWeek - casesLastWeek,
-            totalLabConfirmedCases = lastTotalLabConfirmedCases,
-            totalLabConfirmedCasesLastWeek = casesThisWeek
+            currentNewCases = casesThisWeek,
+            changeInCases = casesThisWeek - casesLastWeek,
+            currentInfectionRate = currentInfectionRate,
+            changeInInfectionRate = currentInfectionRate - previousInfectionRate
         )
     }
 }
