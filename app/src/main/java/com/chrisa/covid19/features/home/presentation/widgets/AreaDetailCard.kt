@@ -22,7 +22,6 @@ import android.util.AttributeSet
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
-import androidx.core.text.scale
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
@@ -52,9 +51,7 @@ class AreaDetailCard(context: Context, attrs: AttributeSet) : CardView(context, 
         areaName.text = summary.areaName
         currentNewCases.text = NumberFormatter.format(summary.currentNewCases)
         changeInCasesThisWeek.text = buildSpannedString {
-            scale(0.7f) {
-                append(NumberFormatter.getChangeText(summary.changeInCases))
-            }
+            append(NumberFormatter.getChangeText(summary.changeInCases))
         }
         changeInCasesThisWeek.setTextColor(
             ContextCompat.getColor(
@@ -65,9 +62,7 @@ class AreaDetailCard(context: Context, attrs: AttributeSet) : CardView(context, 
 
         currentInfectionRate.text = NumberFormatter.format(summary.currentInfectionRate.toInt())
         changeInInfectionRateThisWeek.text = buildSpannedString {
-            scale(0.7f) {
-                append(NumberFormatter.getChangeText(summary.changeInInfectionRate.toInt()))
-            }
+            append(NumberFormatter.getChangeText(summary.changeInInfectionRate.toInt()))
         }
         changeInInfectionRateThisWeek.setTextColor(
             ContextCompat.getColor(

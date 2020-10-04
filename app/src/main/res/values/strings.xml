@@ -18,6 +18,7 @@
     <string name="cases_this_week">Cases this week</string>
     <string name="daily_cases">Daily cases</string>
     <string name="change_this_week">On last week</string>
+    <string name="change_this_week_condensed">on last week</string>
     <string name="current_infection_rate">Current infection rate</string>
     <string name="up_to_postfix">%s up to %s</string>
 
