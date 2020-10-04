@@ -18,9 +18,11 @@ package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
+import com.chrisa.covid19.core.data.synchronisation.AreaData
+import com.chrisa.covid19.core.data.synchronisation.AreaSummary
+import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -37,26 +39,31 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class LoadSavedAreasUseCaseTest {
 
-    private val savedAreaModelMapper = mockk<SavedAreaModelMapper>()
+    private val areaSummaryMapper = mockk<AreaSummaryMapper>()
     private val homeDataSource = mockk<HomeDataSource>()
-    private val sut = LoadSavedAreasUseCase(homeDataSource, savedAreaModelMapper)
+    private val sut = LoadSavedAreasUseCase(homeDataSource, areaSummaryMapper)
 
     @Test
     fun `WHEN execute called THEN daily record list is emitted`() =
         runBlockingTest {
+
+            val areaName = "UK"
+            val areaCode = Constants.UK_AREA_CODE
+            val areaType = AreaType.OVERVIEW
+
             val savedAreaCaseDto = SavedAreaCaseDto(
-                areaName = "UK",
-                areaCode = Constants.UK_AREA_CODE,
-                areaType = AreaType.OVERVIEW.value,
+                areaName = areaName,
+                areaCode = areaCode,
+                areaType = areaType,
                 newCases = 10,
                 cumulativeCases = 100,
                 infectionRate = 10.0,
                 date = LocalDate.now()
             )
-            val savedAreaModel = SavedAreaModel(
-                areaName = "UK",
-                areaCode = Constants.UK_AREA_CODE,
-                areaType = AreaType.OVERVIEW.value,
+            val areaSummary = AreaSummary(
+                areaName = areaName,
+                areaCode = areaCode,
+                areaType = areaType.value,
                 currentNewCases = 100,
                 changeInCases = 10,
                 currentInfectionRate = 40.0,
@@ -64,12 +71,20 @@ class LoadSavedAreasUseCaseTest {
             )
             val newCases = listOf(savedAreaCaseDto)
             every {
-                savedAreaModelMapper.mapSavedAreaModel(
+                areaSummaryMapper.mapAreaDataToAreaSummary(
                     any(),
                     any(),
-                    any()
+                    any(),
+                    allCases = newCases.map {
+                        AreaData(
+                            newCases = savedAreaCaseDto.newCases,
+                            cumulativeCases = savedAreaCaseDto.cumulativeCases,
+                            infectionRate = savedAreaCaseDto.infectionRate,
+                            date = savedAreaCaseDto.date
+                        )
+                    }
                 )
-            } returns savedAreaModel
+            } returns areaSummary
             every { homeDataSource.savedAreaCases() } returns listOf(newCases).asFlow()
 
             val emittedItems = mutableListOf<List<SummaryModel>>()
@@ -78,17 +93,19 @@ class LoadSavedAreasUseCaseTest {
             val summaryModels = emittedItems.first()
 
             assertThat(summaryModels)
-                .isEqualTo(newCases.mapIndexed { index, areaSummary ->
-                    SummaryModel(
-                        position = index + 1,
-                        areaCode = areaSummary.areaCode,
-                        areaName = areaSummary.areaName,
-                        areaType = areaSummary.areaType,
-                        changeInCases = savedAreaModel.changeInCases,
-                        currentNewCases = savedAreaModel.currentNewCases,
-                        currentInfectionRate = savedAreaModel.currentInfectionRate,
-                        changeInInfectionRate = savedAreaModel.changeInInfectionRate
+                .isEqualTo(
+                    listOf(
+                        SummaryModel(
+                            position = 1,
+                            areaCode = areaSummary.areaCode,
+                            areaName = areaSummary.areaName,
+                            areaType = areaSummary.areaType,
+                            changeInCases = areaSummary.changeInCases,
+                            currentNewCases = areaSummary.currentNewCases,
+                            currentInfectionRate = areaSummary.currentInfectionRate,
+                            changeInInfectionRate = areaSummary.changeInInfectionRate
+                        )
                     )
-                })
+                )
         }
 }

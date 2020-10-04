@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.area.data
 
 import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.MetaDataIds
+import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
@@ -42,17 +43,26 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadAreaData(areaCode: String): List<CaseDto> {
-        return appDatabase.areaDataDao().allByAreaCode(areaCode)
-            .map {
+    fun loadAreaData(areaCode: String): AreaCaseDto {
+        val allData = appDatabase.areaDataDao().allByAreaCode(areaCode)
+        val lastCase = allData.last()
+        return AreaCaseDto(
+            areaName = lastCase.areaName,
+            areaCode = lastCase.areaCode,
+            areaType = lastCase.areaType.value,
+            cumulativeCases = lastCase.cumulativeCases,
+            newCases = lastCase.newCases,
+            date = lastCase.date,
+            cases = allData.map { areaData ->
                 CaseDto(
-                    baseRate = it.infectionRate / it.cumulativeCases,
-                    infectionRate = it.infectionRate,
-                    newCases = it.newCases,
-                    cumulativeCases = it.cumulativeCases,
-                    date = it.date
+                    baseRate = areaData.infectionRate / areaData.cumulativeCases,
+                    infectionRate = areaData.infectionRate,
+                    newCases = areaData.newCases,
+                    cumulativeCases = areaData.cumulativeCases,
+                    date = areaData.date
                 )
             }
+        )
     }
 
     fun loadAreaMetadata(areaCode: String): Flow<MetadataDto?> {

@@ -16,7 +16,11 @@
 
 package com.chrisa.covid19.features.area.domain
 
+import com.chrisa.covid19.core.data.synchronisation.AreaData
+import com.chrisa.covid19.core.data.synchronisation.AreaSummary
+import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
 import com.chrisa.covid19.features.area.data.AreaDataSource
+import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
@@ -30,7 +34,7 @@ import kotlinx.coroutines.flow.map
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
     private val rollingAverageHelper: RollingAverageHelper,
-    private val caseChangeModelMapper: CaseChangeModelMapper
+    private val areaSummaryMapper: AreaSummaryMapper
 ) {
 
     fun execute(areaCode: String): Flow<AreaDetailModel> {
@@ -40,21 +44,37 @@ class AreaDetailUseCase @Inject constructor(
                 emptyAreaDetailModel()
             } else {
                 val areaData = areaDataSource.loadAreaData(areaCode)
-                val allCases = mapAllCases(areaData.distinct().sortedBy { it.date })
-                val caseChanges = caseChangeModelMapper.mapSavedAreaModel(allCases)
+                val caseModels = mapAllCases(areaData.cases.sortedBy { it.date })
+                val areaSummary = areaSummary(areaData)
                 AreaDetailModel(
                     lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
-                    allCases = allCases,
-                    latestCases = allCases.takeLast(14),
-                    weeklyInfectionRate = caseChanges.weeklyInfectionRate,
-                    changeInInfectionRate = caseChanges.changeInInfectionRate,
-                    weeklyCases = caseChanges.weeklyCases,
-                    changeInCases = caseChanges.changeInCases,
-                    latestTotalCases = caseChanges.latestTotalCases
+                    allCases = caseModels,
+                    latestCases = caseModels.takeLast(14),
+                    weeklyInfectionRate = areaSummary.currentInfectionRate,
+                    changeInInfectionRate = areaSummary.changeInInfectionRate,
+                    weeklyCases = areaSummary.currentNewCases,
+                    changeInCases = areaSummary.changeInCases,
+                    latestTotalCases = areaData.cumulativeCases
                 )
             }
         }
+    }
+
+    private fun areaSummary(areaData: AreaCaseDto): AreaSummary {
+        return areaSummaryMapper.mapAreaDataToAreaSummary(
+            areaData.areaCode,
+            areaData.areaName,
+            areaData.areaType,
+            areaData.cases.map {
+                AreaData(
+                    newCases = it.newCases,
+                    cumulativeCases = it.cumulativeCases,
+                    infectionRate = it.infectionRate,
+                    date = it.date
+                )
+            }
+        )
     }
 
     private fun emptyAreaDetailModel(): AreaDetailModel = AreaDetailModel(
@@ -81,45 +101,3 @@ class AreaDetailUseCase @Inject constructor(
         }
     }
 }
-
-class CaseChangeModelMapper @Inject() constructor() {
-
-    fun mapSavedAreaModel(
-        allCases: List<CaseModel>
-    ): CaseChangeModel {
-
-        val offset = 3
-
-        val lastCase = allCases.getOrNull(allCases.size - offset)
-        val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
-        val prevCase1 = allCases.getOrNull(allCases.size - (offset + 14))
-
-        val cumulativeCases0 = lastCase?.cumulativeCases ?: 0
-        val cumulativeCases1 = prevCase?.cumulativeCases ?: 0
-        val cumulativeCases2 = prevCase1?.cumulativeCases ?: 0
-
-        val baseRate = lastCase?.baseRate ?: 0.0
-
-        val casesThisWeek = (cumulativeCases0 - cumulativeCases1)
-        val casesLastWeek = (cumulativeCases1 - cumulativeCases2)
-
-        val infectionRateThisWeek = baseRate * casesThisWeek
-        val infectionRateLastWeek = baseRate * casesLastWeek
-
-        return CaseChangeModel(
-            latestTotalCases = allCases.lastOrNull()?.cumulativeCases ?: 0,
-            changeInCases = casesThisWeek - casesLastWeek,
-            weeklyCases = casesThisWeek,
-            changeInInfectionRate = infectionRateThisWeek - infectionRateLastWeek,
-            weeklyInfectionRate = infectionRateThisWeek
-        )
-    }
-}
-
-data class CaseChangeModel(
-    val latestTotalCases: Int,
-    val changeInCases: Int,
-    val weeklyCases: Int,
-    val changeInInfectionRate: Double,
-    val weeklyInfectionRate: Double
-)

@@ -16,7 +16,12 @@
 
 package com.chrisa.covid19.features.area.domain
 
+import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.synchronisation.AreaData
+import com.chrisa.covid19.core.data.synchronisation.AreaSummary
+import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
 import com.chrisa.covid19.features.area.data.AreaDataSource
+import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
@@ -41,8 +46,8 @@ class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
-    private val caseChangeModelMapper = mockk<CaseChangeModelMapper>()
-    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper, caseChangeModelMapper)
+    private val areaSummaryMapper = mockk<AreaSummaryMapper>()
+    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper, areaSummaryMapper)
 
     @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
@@ -74,7 +79,10 @@ class AreaDetailUseCaseTest {
     fun `WHEN execute called THEN area detail contains the latest cases for the area`() =
         runBlocking {
 
+            val areaName = "Woking"
+            val areaType = AreaType.LTLA.value
             val areaCode = "1234"
+
             val now = LocalDateTime.now()
             val metadataDTO = MetadataDto(
                 lastUpdatedAt = now.minusDays(1),
@@ -92,10 +100,20 @@ class AreaDetailUseCaseTest {
                     baseRate = 0.0
                 )
             }
+            val lastCase = caseDTOs.last()
+            val areaCaseDto = AreaCaseDto(
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType,
+                date = lastCase.date,
+                cumulativeCases = lastCase.cumulativeCases,
+                newCases = lastCase.newCases,
+                cases = caseDTOs
+            )
 
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
             every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadataDTO).asFlow()
-            coEvery { areaDataSource.loadAreaData(areaCode) } returns caseDTOs
+            coEvery { areaDataSource.loadAreaData(areaCode) } returns areaCaseDto
 
             val caseModels = caseDTOs.map {
                 CaseModel(
@@ -107,14 +125,28 @@ class AreaDetailUseCaseTest {
                 )
             }
 
-            val caseChangeModel = CaseChangeModel(
+            val caseChangeModel = AreaSummary(
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType,
                 changeInCases = 100,
-                weeklyCases = 10,
-                latestTotalCases = 10300,
-                weeklyInfectionRate = 10.0,
+                currentNewCases = 10,
+                currentInfectionRate = 10.0,
                 changeInInfectionRate = 110.0
             )
-            every { caseChangeModelMapper.mapSavedAreaModel(caseModels) } returns caseChangeModel
+            every { areaSummaryMapper.mapAreaDataToAreaSummary(
+                areaCode,
+                areaName,
+                areaType,
+                caseDTOs.map {
+                    AreaData(
+                        newCases = it.newCases,
+                        cumulativeCases = it.cumulativeCases,
+                        infectionRate = it.infectionRate,
+                        date = it.date
+                    )
+                }
+            ) } returns caseChangeModel
 
             val areaDetailModelFlow = sut.execute(areaCode)
 
@@ -125,10 +157,10 @@ class AreaDetailUseCaseTest {
                         lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
                         latestCases = caseModels.takeLast(14),
-                        latestTotalCases = caseChangeModel.latestTotalCases,
+                        latestTotalCases = areaCaseDto.cumulativeCases,
                         changeInCases = caseChangeModel.changeInCases,
-                        weeklyCases = caseChangeModel.weeklyCases,
-                        weeklyInfectionRate = caseChangeModel.weeklyInfectionRate,
+                        weeklyCases = caseChangeModel.currentNewCases,
+                        weeklyInfectionRate = caseChangeModel.currentInfectionRate,
                         changeInInfectionRate = caseChangeModel.changeInInfectionRate
                     )
                 )

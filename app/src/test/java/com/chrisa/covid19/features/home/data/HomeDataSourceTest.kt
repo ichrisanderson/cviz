@@ -235,7 +235,7 @@ class HomeDataSourceTest {
                 SavedAreaCaseDto(
                     areaCode = it.areaCode,
                     areaName = it.areaName,
-                    areaType = it.areaType.value,
+                    areaType = it.areaType,
                     newCases = it.newCases,
                     cumulativeCases = it.cumulativeCases,
                     infectionRate = it.infectionRate,

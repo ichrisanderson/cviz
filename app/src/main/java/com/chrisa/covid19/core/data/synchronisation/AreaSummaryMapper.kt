@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.domain
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.core.data.time.TimeProvider
+import java.time.LocalDate
 import javax.inject.Inject
 
-class SavedAreaModelMapper @Inject() constructor() {
+class AreaSummaryMapper @Inject constructor(
+    val timeProvider: TimeProvider
+) {
 
-    fun mapSavedAreaModel(
+    fun mapAreaDataToAreaSummary(
         areaCode: String,
         areaName: String,
-        allCases: List<SavedAreaCaseDto>
-    ): SavedAreaModel {
+        areaType: String,
+        allCases: List<AreaData>
+    ): AreaSummary {
 
-        val offset = 3
+        val offset = findOffset(allCases)
 
         val lastCase = allCases.getOrNull(allCases.size - offset)
         val prevCase = allCases.getOrNull(allCases.size - (offset + 7))
@@ -38,21 +41,51 @@ class SavedAreaModelMapper @Inject() constructor() {
         val prevTotalLabConfirmedCases = prevCase?.cumulativeCases ?: 0
         val prev1TotalLabConfirmedCases = prevCase1?.cumulativeCases ?: 0
 
-        val baseRate = lastCase!!.infectionRate / lastCase!!.cumulativeCases
+        val baseRate = lastCase!!.infectionRate / lastCase.cumulativeCases
         val casesThisWeek = (lastTotalLabConfirmedCases - prevTotalLabConfirmedCases)
         val casesLastWeek = (prevTotalLabConfirmedCases - prev1TotalLabConfirmedCases)
 
         val currentInfectionRate = casesThisWeek * baseRate
         val previousInfectionRate = casesLastWeek * baseRate
 
-        return SavedAreaModel(
+        return AreaSummary(
             areaCode = areaCode,
             areaName = areaName,
-            areaType = allCases.first().areaType,
+            areaType = areaType,
             currentNewCases = casesThisWeek,
             changeInCases = casesThisWeek - casesLastWeek,
             currentInfectionRate = currentInfectionRate,
             changeInInfectionRate = currentInfectionRate - previousInfectionRate
         )
     }
+
+    private fun findOffset(allCases: List<AreaData>): Int {
+        var offset = 3
+        val offsetDate = timeProvider.currentDate().minusDays(offset.toLong())
+        for (i in 0..offset) {
+            val case = allCases.getOrNull(allCases.size - i)
+            if (case?.date == offsetDate) {
+                offset = i
+                break
+            }
+        }
+        return offset
+    }
 }
+
+data class AreaData(
+    val newCases: Int,
+    val cumulativeCases: Int,
+    val infectionRate: Double,
+    val date: LocalDate
+)
+
+data class AreaSummary(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val currentNewCases: Int,
+    val changeInCases: Int,
+    val currentInfectionRate: Double,
+    val changeInInfectionRate: Double
+)
