@@ -16,6 +16,8 @@
 
 package com.chrisa.covid19.features.home.domain
 
+import com.chrisa.covid19.core.data.synchronisation.AreaData
+import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import javax.inject.Inject
@@ -28,16 +30,24 @@ import kotlinx.coroutines.flow.map
 @FlowPreview
 class LoadSavedAreasUseCase @Inject constructor(
     private val homeDataSource: HomeDataSource,
-    private val savedAreaModelMapper: SavedAreaModelMapper
+    private val areaSummaryMapper: AreaSummaryMapper
 ) {
     fun execute(): Flow<List<SummaryModel>> {
         return homeDataSource.savedAreaCases().map { savedAreaCases ->
-            savedAreaCases.groupBy { Pair(it.areaCode, it.areaName) }
+            savedAreaCases.groupBy { Triple(it.areaCode, it.areaName, it.areaType) }
                 .map { group ->
-                    savedAreaModelMapper.mapSavedAreaModel(
+                    areaSummaryMapper.mapAreaDataToAreaSummary(
                         group.key.first,
                         group.key.second,
-                        group.value
+                        group.key.third.value,
+                        group.value.map {
+                            AreaData(
+                                newCases = it.newCases,
+                                cumulativeCases = it.cumulativeCases,
+                                infectionRate = it.infectionRate,
+                                date = it.date
+                            )
+                        }
                     )
                 }
                 .sortedBy { it.areaName }

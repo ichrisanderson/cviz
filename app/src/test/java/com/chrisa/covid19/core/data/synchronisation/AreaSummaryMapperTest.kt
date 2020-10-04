@@ -14,26 +14,32 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.home.domain
+package com.chrisa.covid19.core.data.synchronisation
 
 import com.chrisa.covid19.core.data.db.AreaType
-import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.covid19.features.home.domain.models.SavedAreaModel
+import com.chrisa.covid19.core.data.time.TimeProvider
 import com.google.common.truth.Truth.assertThat
+import io.mockk.every
+import io.mockk.mockk
 import java.time.LocalDate
 import org.junit.Test
 
-class SavedAreaModelMapperTest {
+class AreaSummaryMapperTest {
 
-    val sut = SavedAreaModelMapper()
+    private val timeProvider = mockk<TimeProvider>()
+    private val sut = AreaSummaryMapper(timeProvider)
 
     @Test
     fun `GIVEN data exists WHEN mapSavedAreaModel called THEN correct calculations are applied`() {
 
-        val day0 = SavedAreaCaseDto(
-            areaCode = "A002",
-            areaName = "Woking",
-            areaType = AreaType.LTLA.value,
+        val date = LocalDate.of(2020, 5, 6)
+        every { timeProvider.currentDate() } returns date.plusDays(20)
+
+        val areaCode = "A002"
+        val areaName = "Woking"
+        val areaType = AreaType.LTLA.value
+
+        val day0 = AreaData(
             date = LocalDate.of(2020, 5, 6),
             newCases = 0,
             cumulativeCases = 0,
@@ -67,9 +73,10 @@ class SavedAreaModelMapperTest {
             }
         }
 
-        val result = sut.mapSavedAreaModel(
-            day0.areaCode,
-            day0.areaName,
+        val result = sut.mapAreaDataToAreaSummary(
+            areaCode,
+            areaName,
+            areaType,
             cases
         )
 
@@ -82,10 +89,10 @@ class SavedAreaModelMapperTest {
         val previousInfectionRate = casesLastWeek * baseRate
 
         assertThat(result).isEqualTo(
-            SavedAreaModel(
-                areaCode = day0.areaCode,
-                areaName = day0.areaName,
-                areaType = day0.areaType,
+            AreaSummary(
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType,
                 currentNewCases = casesThisWeek,
                 changeInCases = casesThisWeek - casesLastWeek,
                 currentInfectionRate = currentInfectionRate,

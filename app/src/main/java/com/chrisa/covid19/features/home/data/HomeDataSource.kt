@@ -76,7 +76,7 @@ class HomeDataSource @Inject constructor(
                     SavedAreaCaseDto(
                         areaCode = it.areaCode,
                         areaName = it.areaName,
-                        areaType = it.areaType.value,
+                        areaType = it.areaType,
                         date = it.date,
                         newCases = it.newCases,
                         cumulativeCases = it.cumulativeCases,

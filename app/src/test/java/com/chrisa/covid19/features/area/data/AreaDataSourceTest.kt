@@ -22,6 +22,7 @@ import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
@@ -137,11 +138,15 @@ class AreaDataSourceTest {
     @Test
     fun `WHEN loadAreaData called THEN area data is returned`() = runBlocking {
 
+        val areaCode = "1234"
+        val areaName = "London"
+        val areaType = AreaType.UTLA
+
         val areaData = AreaDataEntity(
+            areaCode = areaCode,
+            areaName = areaName,
+            areaType = areaType,
             metadataId = MetaDataIds.areaCodeId("1234"),
-            areaCode = "1234",
-            areaName = "London",
-            areaType = AreaType.UTLA,
             date = LocalDate.ofEpochDay(0),
             cumulativeCases = 222,
             infectionRate = 122.0,
@@ -151,16 +156,25 @@ class AreaDataSourceTest {
         every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
         every { appDatabase.areaDataDao() } returns areaDataDao
 
-        val cases = sut.loadAreaData(areaData.areaCode)
+        val areaCase = sut.loadAreaData(areaData.areaCode)
 
-        assertThat(cases.size).isEqualTo(1)
-        assertThat(cases.first()).isEqualTo(
-            CaseDto(
-                newCases = areaData.newCases,
+        assertThat(areaCase).isEqualTo(
+            AreaCaseDto(
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType.value,
                 cumulativeCases = areaData.cumulativeCases,
                 date = areaData.date,
-                infectionRate = areaData.infectionRate,
-                baseRate = areaData.infectionRate / areaData.cumulativeCases
+                newCases = areaData.newCases,
+                cases = listOf(
+                    CaseDto(
+                        newCases = areaData.newCases,
+                        cumulativeCases = areaData.cumulativeCases,
+                        date = areaData.date,
+                        infectionRate = areaData.infectionRate,
+                        baseRate = areaData.infectionRate / areaData.cumulativeCases
+                    )
+                )
             )
         )
     }
