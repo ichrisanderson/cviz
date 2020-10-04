@@ -67,12 +67,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintBottom_toBottomOf="@id/currentNewCases"
+            android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@+id/currentNewCases"
             app:layout_constraintTop_toTopOf="@id/currentNewCases"
             tools:text="+22"
             tools:textColor="@color/negativeChange" />
+
+        <TextView
+            android:id="@+id/changeInCasesThisWeekCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="@font/roboto_thin"
+            android:text="@string/change_this_week_condensed"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toEndOf="@id/changeInCasesThisWeek"
+            app:layout_constraintTop_toTopOf="@id/changeInCasesThisWeek" />
 
         <TextView
             android:id="@+id/currentNewCasesCaption"
@@ -89,22 +101,32 @@
             android:id="@+id/casesGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="currentNewCases,currentNewCasesCaption,changeInCasesThisWeek" />
+            app:constraint_referenced_ids="currentNewCases,currentNewCasesCaption,changeInCasesThisWeek,changeInCasesThisWeekCaption" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/casesBarrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="end"
-            app:constraint_referenced_ids="currentNewCases,currentNewCasesCaption,changeInCasesThisWeek" />
+            app:constraint_referenced_ids="currentNewCases,currentNewCasesCaption,changeInCasesThisWeek,changeInCasesThisWeekCaption" />
+
+        <View
+            android:id="@+id/casesDivider"
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="6dp"
+            app:layout_constraintTop_toTopOf="@id/currentNewCases"
+            app:layout_constraintBottom_toBottomOf="@id/currentNewCasesCaption"
+            app:layout_constraintStart_toEndOf="@id/casesBarrier"
+            android:background="?android:listDivider"/>
 
         <TextView
             android:id="@+id/currentInfectionRate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
+            android:layout_marginStart="6dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintStart_toEndOf="@id/casesBarrier"
+            app:layout_constraintStart_toEndOf="@id/casesDivider"
             app:layout_constraintTop_toTopOf="@id/currentNewCases"
             app:layout_goneMarginTop="2dp"
             tools:text="12,345" />
@@ -114,12 +136,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintBottom_toBottomOf="@id/currentInfectionRate"
+            android:textSize="12sp"
             app:layout_constraintStart_toEndOf="@+id/currentInfectionRate"
             app:layout_constraintTop_toTopOf="@id/currentInfectionRate"
             tools:text="+125"
             tools:textColor="@color/negativeChange" />
+
+        <TextView
+            android:id="@+id/changeInInfectionRateThisWeekCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:fontFamily="@font/roboto_thin"
+            android:text="@string/change_this_week_condensed"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toEndOf="@id/changeInInfectionRateThisWeek"
+            app:layout_constraintTop_toTopOf="@id/changeInInfectionRateThisWeek" />
 
         <TextView
             android:id="@+id/currentInfectionRateCaption"
@@ -138,7 +172,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="visible"
-            app:constraint_referenced_ids="changeInInfectionRateThisWeek,currentInfectionRate,currentInfectionRateCaption" />
+            app:constraint_referenced_ids="changeInInfectionRateThisWeek,currentInfectionRate,currentInfectionRateCaption,changeInInfectionRateThisWeekCaption" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
