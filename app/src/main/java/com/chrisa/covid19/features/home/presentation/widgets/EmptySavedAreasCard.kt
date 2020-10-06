@@ -16,11 +16,13 @@
 
 package com.chrisa.covid19.features.home.presentation.widgets
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import androidx.cardview.widget.CardView
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 
-@ModelView(defaultLayout = R.layout.widget_empty_saved_areas_card)
+@SuppressLint("NonConstantResourceId")
+@ModelView(defaultLayout = R.layout.home_widget_empty_saved_areas_card)
 class EmptySavedAreasCard(context: Context, attrs: AttributeSet) : CardView(context, attrs)

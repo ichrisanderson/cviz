@@ -24,8 +24,7 @@ data class AreaDetailModel(
     val changeInInfectionRate: Double,
     val weeklyCases: Int,
     val changeInCases: Int,
-    val latestTotalCases: Int,
+    val cumulativeCases: Int,
     val lastSyncedAt: LocalDateTime?,
-    val allCases: List<CaseModel>,
-    val latestCases: List<CaseModel>
+    val allCases: List<CaseModel>
 )

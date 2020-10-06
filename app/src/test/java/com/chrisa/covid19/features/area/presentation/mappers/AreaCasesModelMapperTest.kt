@@ -45,7 +45,6 @@ class AreaCasesModelMapperTest {
 
     @Test
     fun `WHEN mapAreaDetailModel called THEN ui model is mapped correctly`() {
-
         val caseModels = listOf(
             CaseModel(
                 baseRate = 0.0,
@@ -55,34 +54,29 @@ class AreaCasesModelMapperTest {
                 rollingAverage = 1.1
             )
         )
-
         val now = LocalDateTime.now()
         val areaDetailModel = AreaDetailModel(
-            latestTotalCases = 0,
+            cumulativeCases = 0,
             changeInCases = 0,
             weeklyCases = 0,
             changeInInfectionRate = 0.0,
             weeklyInfectionRate = 0.0,
             lastUpdatedAt = now.minusDays(1),
             lastSyncedAt = now,
-            allCases = caseModels,
-            latestCases = caseModels.takeLast(7)
+            allCases = caseModels
         )
-
         val dailyLabConfirmedCasesChartData = caseModels.map {
             BarChartItem(
                 value = it.newCases.toFloat(),
                 label = it.date.format(formatter)
             )
         }
-
         val rollingAverageChartData = caseModels.map {
             LineChartItem(
                 value = it.rollingAverage.toFloat(),
                 label = it.date.format(formatter)
             )
         }
-
         val allCasesLabel = "All cases"
         val latestCasesLabel = "Latest cases"
         val rollingAverageLabel = "Rolling average"

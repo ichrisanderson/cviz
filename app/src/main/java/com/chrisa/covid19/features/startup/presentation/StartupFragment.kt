@@ -26,7 +26,7 @@ import com.chrisa.covid19.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class StartupFragment : Fragment(R.layout.fragment_startup) {
+class StartupFragment : Fragment(R.layout.startup_fragment) {
 
     private val viewModel: StartupViewModel by viewModels()
 

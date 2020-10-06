@@ -16,14 +16,10 @@
 
 package com.chrisa.covid19.features.area.data.dtos
 
-import java.time.LocalDate
-
 data class AreaCaseDto(
     val areaCode: String,
     val areaName: String,
     val areaType: String,
     val cumulativeCases: Int,
-    val newCases: Int,
-    val date: LocalDate,
     val cases: List<CaseDto>
 )

@@ -26,7 +26,7 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import kotlinx.android.synthetic.main.widget_bar_chart.view.chart
+import kotlinx.android.synthetic.main.core_widget_bar_chart.view.chart
 
 class BarChart(
     context: Context,
@@ -34,7 +34,7 @@ class BarChart(
 ) : ConstraintLayout(context, attrs) {
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.widget_bar_chart, this, true)
+        LayoutInflater.from(context).inflate(R.layout.core_widget_bar_chart, this, true)
         initChart()
         initXAxis()
         initYAxis()

@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/startup"
         android:name="com.chrisa.covid19.features.startup.presentation.StartupFragment"
-        tools:layout="@layout/fragment_startup">
+        tools:layout="@layout/startup_fragment">
         <action
             android:id="@+id/startup_to_home"
             app:destination="@id/home"
@@ -21,7 +21,7 @@
     <fragment
         android:id="@+id/home"
         android:name="com.chrisa.covid19.features.home.presentation.HomeFragment"
-        tools:layout="@layout/fragment_home">
+        tools:layout="@layout/home_fragment">
         <action
             android:id="@+id/home_to_search"
             app:destination="@id/search"
@@ -48,7 +48,7 @@
     <fragment
         android:id="@+id/search"
         android:name="com.chrisa.covid19.features.search.presentation.SearchFragment"
-        tools:layout="@layout/fragment_search">
+        tools:layout="@layout/search_fragment">
         <action
             android:id="@+id/search_to_area"
             app:destination="@id/area"
@@ -59,7 +59,7 @@
     <fragment
         android:id="@+id/summaryListFragment"
         android:name="com.chrisa.covid19.features.home.presentation.summarylist.SummaryListFragment"
-        tools:layout="@layout/fragment_summary_list">
+        tools:layout="@layout/summary_list_fragment">
         <argument
             android:name="sortOption"
             app:argType="com.chrisa.covid19.features.home.domain.models.SortOption" />
@@ -73,7 +73,7 @@
     <fragment
         android:id="@+id/area"
         android:name="com.chrisa.covid19.features.area.presentation.AreaFragment"
-        tools:layout="@layout/fragment_area">
+        tools:layout="@layout/area_fragment">
         <argument
             android:name="areaCode"
             app:argType="string" />

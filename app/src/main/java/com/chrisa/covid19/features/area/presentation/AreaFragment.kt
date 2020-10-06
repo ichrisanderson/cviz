@@ -26,9 +26,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
-import com.chrisa.covid19.core.ui.NumberFormatter
-import com.chrisa.covid19.core.util.DateFormatter.getLocalRelativeTimeSpanString
-import com.chrisa.covid19.core.util.DateFormatter.mediumLocalizedDate
+import com.chrisa.covid19.features.area.presentation.widgets.areaDetailCard
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,26 +34,16 @@ import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import java.time.LocalDateTime
-import kotlinx.android.synthetic.main.area_content.allCasesChart
-import kotlinx.android.synthetic.main.area_content.areaContent
-import kotlinx.android.synthetic.main.area_content.changeInNewCasesThisWeek
-import kotlinx.android.synthetic.main.area_content.currentInfectionRate
-import kotlinx.android.synthetic.main.area_content.currentNewCases
-import kotlinx.android.synthetic.main.area_content.infectionRateChangeThisWeek
-import kotlinx.android.synthetic.main.area_content.latestCasesChart
-import kotlinx.android.synthetic.main.area_content.totalCases
-import kotlinx.android.synthetic.main.area_content.totalCasesSubtitle
 import kotlinx.android.synthetic.main.area_error.areaError
 import kotlinx.android.synthetic.main.area_error.errorAction
-import kotlinx.android.synthetic.main.fragment_area.areaProgress
-import kotlinx.android.synthetic.main.fragment_area.areaToolbar
-import kotlinx.android.synthetic.main.widget_latest_uk_data_card.totalCasesCaption
+import kotlinx.android.synthetic.main.area_fragment.areaProgress
+import kotlinx.android.synthetic.main.area_fragment.areaRecyclerView
+import kotlinx.android.synthetic.main.area_fragment.areaToolbar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class AreaFragment : Fragment(R.layout.fragment_area) {
+class AreaFragment : Fragment(R.layout.area_fragment) {
 
     private val viewModel: AreaViewModel by viewModels()
     private val args by navArgs<AreaFragmentArgs>()
@@ -102,54 +90,14 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
     private fun observeCases() {
         viewModel.areaCases.observe(viewLifecycleOwner, Observer {
             val areaCasesModel = it ?: return@Observer
-
-            bindLastUpdated(areaCasesModel.lastUpdatedAt)
-
-            totalCases.text = NumberFormatter.format(areaCasesModel.totalCases)
-            totalCasesCaption.text = getString(R.string.up_to_postfix, getString(R.string.total_cases), mediumLocalizedDate(areaCasesModel.lastUpdatedAt))
-
-            currentNewCases.text = NumberFormatter.format(areaCasesModel.currentNewCases)
-            changeInNewCasesThisWeek.text =
-                NumberFormatter.getChangeText(areaCasesModel.changeInNewCasesThisWeek)
-            changeInNewCasesThisWeek.setTextColor(
-                ContextCompat.getColor(
-                    changeInNewCasesThisWeek.context,
-                    NumberFormatter.getChangeColour(areaCasesModel.changeInNewCasesThisWeek)
-                )
-            )
-
-            currentInfectionRate.text = NumberFormatter.format(areaCasesModel.currentInfectionRate.toInt())
-            infectionRateChangeThisWeek.text =
-                NumberFormatter.getChangeText(areaCasesModel.changeInInfectionRatesThisWeek.toInt())
-            infectionRateChangeThisWeek.setTextColor(
-                ContextCompat.getColor(
-                    changeInNewCasesThisWeek.context,
-                    NumberFormatter.getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek.toInt())
-                )
-            )
-
-            latestCasesChart.setData(
-                areaCasesModel.latestCasesBarChartData,
-                areaCasesModel.latestCasesRollingAverageLineChartData
-            )
-            allCasesChart.setData(
-                areaCasesModel.allCasesChartData,
-                areaCasesModel.allCasesRollingAverageLineChartData
-            )
-            areaContent.isVisible = true
+            areaRecyclerView.withModels {
+                areaDetailCard {
+                    id("areaDetail")
+                    areaCasesModel(areaCasesModel)
+                }
+            }
             areaError.isVisible = false
         })
-    }
-
-    private fun bindLastUpdated(lastUpdatedAt: LocalDateTime?) {
-        if (lastUpdatedAt == null) {
-            totalCasesSubtitle.text = ""
-        } else {
-            totalCasesSubtitle.text = getString(
-                R.string.last_updated_date,
-                getLocalRelativeTimeSpanString(lastUpdatedAt)
-            )
-        }
     }
 
     private fun observeIsSaved() {
@@ -176,13 +124,13 @@ class AreaFragment : Fragment(R.layout.fragment_area) {
                 errorAction.setOnClickListener { viewModel.refresh() }
                 areaError.isVisible = true
                 Snackbar.make(
-                    areaContent,
+                    areaRecyclerView,
                     getString(R.string.sync_error_message),
                     Snackbar.LENGTH_SHORT
                 ).show()
             } else {
                 Snackbar.make(
-                    areaContent,
+                    areaRecyclerView,
                     getString(R.string.sync_error_message),
                     Snackbar.LENGTH_SHORT
                 )

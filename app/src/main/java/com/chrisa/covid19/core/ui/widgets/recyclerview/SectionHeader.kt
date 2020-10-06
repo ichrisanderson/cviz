@@ -25,11 +25,11 @@ import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
-import kotlinx.android.synthetic.main.widget_section_header.view.moreButton
-import kotlinx.android.synthetic.main.widget_section_header.view.textView
+import kotlinx.android.synthetic.main.core_widget_section_header.view.moreButton
+import kotlinx.android.synthetic.main.core_widget_section_header.view.textView
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.widget_section_header)
+@ModelView(defaultLayout = R.layout.core_widget_section_header)
 class SectionHeader(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
 
     var clickListener: OnClickListener? = null

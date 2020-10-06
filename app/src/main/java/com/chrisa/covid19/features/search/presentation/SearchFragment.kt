@@ -32,11 +32,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.android.synthetic.main.search_fragment.searchRecyclerView
+import kotlinx.android.synthetic.main.search_fragment.searchToolbar
+import kotlinx.android.synthetic.main.search_fragment.searchView
 import java.util.concurrent.TimeUnit
-import kotlinx.android.synthetic.main.fragment_search.*
 
 @AndroidEntryPoint
-class SearchFragment : Fragment(R.layout.fragment_search) {
+class SearchFragment : Fragment(R.layout.search_fragment) {
 
     private val disposables = CompositeDisposable()
     private val viewModel: SearchViewModel by viewModels()

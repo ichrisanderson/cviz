@@ -31,7 +31,7 @@ import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import kotlinx.android.synthetic.main.widget_combined_chart.view.chart
+import kotlinx.android.synthetic.main.core_widget_combined_chart.view.chart
 
 class CombinedChart(
     context: Context,
@@ -39,7 +39,7 @@ class CombinedChart(
 ) : ConstraintLayout(context, attrs) {
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.widget_combined_chart, this, true)
+        LayoutInflater.from(context).inflate(R.layout.core_widget_combined_chart, this, true)
         initChart()
         initXAxis()
         initYAxis()

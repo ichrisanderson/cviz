@@ -27,13 +27,13 @@ import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.core.util.DateFormatter.getLocalRelativeTimeSpanString
 import com.chrisa.covid19.features.home.domain.models.LatestUkDataModel
-import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.areaName
-import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.dailyCases
-import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.lastUpdated
-import kotlinx.android.synthetic.main.widget_latest_uk_data_card.view.totalCases
+import kotlinx.android.synthetic.main.home_widget_latest_uk_data_card.view.areaName
+import kotlinx.android.synthetic.main.home_widget_latest_uk_data_card.view.dailyCases
+import kotlinx.android.synthetic.main.home_widget_latest_uk_data_card.view.lastUpdated
+import kotlinx.android.synthetic.main.home_widget_latest_uk_data_card.view.totalCases
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(saveViewState = true, defaultLayout = R.layout.widget_latest_uk_data_card)
+@ModelView(saveViewState = true, defaultLayout = R.layout.home_widget_latest_uk_data_card)
 class LatestUkDataCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
 
     var clickListener: OnClickListener? = null
