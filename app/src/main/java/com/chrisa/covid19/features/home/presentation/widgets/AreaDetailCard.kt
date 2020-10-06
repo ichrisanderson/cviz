@@ -19,7 +19,6 @@ package com.chrisa.covid19.features.home.presentation.widgets
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import com.airbnb.epoxy.CallbackProp

@@ -26,6 +26,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
+import com.chrisa.covid19.features.area.presentation.widgets.areaCaseGraphCard
 import com.chrisa.covid19.features.area.presentation.widgets.areaDetailCard
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
@@ -52,6 +53,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initToolbar()
+        initRecyclerView()
         observeCases()
         observeIsSaved()
         observeIsLoading()
@@ -69,6 +71,19 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         areaToolbar.title = args.areaName
         areaToolbar.setNavigationOnClickListener { navigateUp() }
         disposables.addAll(subscribeMenuClicks())
+    }
+
+    private fun initRecyclerView() {
+        areaRecyclerView.addItemDecoration(
+            AreaItemDecoration(
+                areaRecyclerView.context.resources.getDimensionPixelSize(
+                    R.dimen.card_margin_large
+                ),
+                areaRecyclerView.context.resources.getDimensionPixelSize(
+                    R.dimen.card_margin_large
+                )
+            )
+        )
     }
 
     private fun subscribeMenuClicks(): @NonNull Disposable {
@@ -93,6 +108,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
             areaRecyclerView.withModels {
                 areaDetailCard {
                     id("areaDetail")
+                    areaCasesModel(areaCasesModel)
+                }
+                areaCaseGraphCard {
+                    id("areaCaseGraph")
                     areaCasesModel(areaCasesModel)
                 }
             }

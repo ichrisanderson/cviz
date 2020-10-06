@@ -26,13 +26,13 @@ import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
-import java.time.LocalDate
 
 @FlowPreview
 @ExperimentalCoroutinesApi
