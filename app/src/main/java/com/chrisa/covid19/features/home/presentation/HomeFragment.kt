@@ -19,20 +19,19 @@ package com.chrisa.covid19.features.home.presentation
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.chrisa.covid19.R
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_home.homeNavigation
-import kotlinx.android.synthetic.main.fragment_home.homePager
-import kotlinx.android.synthetic.main.fragment_home.homeToolbar
+import kotlinx.android.synthetic.main.home_fragment.homeNavigation
+import kotlinx.android.synthetic.main.home_fragment.homePager
+import kotlinx.android.synthetic.main.home_fragment.homeToolbar
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
-class HomeFragment : Fragment(R.layout.fragment_home) {
+class HomeFragment : Fragment(R.layout.home_fragment) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

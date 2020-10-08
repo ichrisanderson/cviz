@@ -19,7 +19,6 @@ package com.chrisa.covid19.features.home.presentation.widgets
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import com.airbnb.epoxy.CallbackProp
@@ -28,15 +27,16 @@ import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
-import kotlinx.android.synthetic.main.widget_area_detail_card.view.areaName
-import kotlinx.android.synthetic.main.widget_area_detail_card.view.changeInCasesThisWeek
-import kotlinx.android.synthetic.main.widget_area_detail_card.view.changeInInfectionRateThisWeek
-import kotlinx.android.synthetic.main.widget_area_detail_card.view.currentInfectionRate
-import kotlinx.android.synthetic.main.widget_area_detail_card.view.currentNewCases
+import com.google.android.material.card.MaterialCardView
+import kotlinx.android.synthetic.main.home_widget_area_detail_card.view.areaName
+import kotlinx.android.synthetic.main.home_widget_area_detail_card.view.changeInCasesThisWeek
+import kotlinx.android.synthetic.main.home_widget_area_detail_card.view.changeInInfectionRateThisWeek
+import kotlinx.android.synthetic.main.home_widget_area_detail_card.view.currentInfectionRate
+import kotlinx.android.synthetic.main.home_widget_area_detail_card.view.currentNewCases
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.widget_area_detail_card)
-class AreaDetailCard(context: Context, attrs: AttributeSet) : CardView(context, attrs) {
+@ModelView(defaultLayout = R.layout.home_widget_area_detail_card)
+class AreaDetailCard(context: Context, attrs: AttributeSet) : MaterialCardView(context, attrs) {
 
     var clickListener: OnClickListener? = null
         @CallbackProp set

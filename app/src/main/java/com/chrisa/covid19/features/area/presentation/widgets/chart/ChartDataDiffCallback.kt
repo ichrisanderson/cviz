@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain.models
+package com.chrisa.covid19.features.area.presentation.widgets.chart
 
-import java.time.LocalDateTime
+import androidx.recyclerview.widget.DiffUtil
 
-data class AreaDetailModel(
-    val lastUpdatedAt: LocalDateTime?,
-    val weeklyInfectionRate: Double,
-    val changeInInfectionRate: Double,
-    val weeklyCases: Int,
-    val changeInCases: Int,
-    val cumulativeCases: Int,
-    val lastSyncedAt: LocalDateTime?,
-    val allCases: List<CaseModel>
-)
+class ChartDataDiffCallback : DiffUtil.ItemCallback<ChartData>() {
+
+    override fun areItemsTheSame(oldItem: ChartData, newItem: ChartData): Boolean {
+        return oldItem.title == newItem.title
+    }
+
+    override fun areContentsTheSame(oldItem: ChartData, newItem: ChartData): Boolean {
+        return oldItem == newItem
+    }
+}

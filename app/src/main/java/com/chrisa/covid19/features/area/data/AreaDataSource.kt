@@ -51,8 +51,6 @@ class AreaDataSource @Inject constructor(
             areaCode = lastCase.areaCode,
             areaType = lastCase.areaType.value,
             cumulativeCases = lastCase.cumulativeCases,
-            newCases = lastCase.newCases,
-            date = lastCase.date,
             cases = allData.map { areaData ->
                 CaseDto(
                     baseRate = areaData.infectionRate / areaData.cumulativeCases,

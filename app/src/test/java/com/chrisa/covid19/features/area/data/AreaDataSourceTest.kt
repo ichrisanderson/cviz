@@ -164,8 +164,6 @@ class AreaDataSourceTest {
                 areaName = areaName,
                 areaType = areaType.value,
                 cumulativeCases = areaData.cumulativeCases,
-                date = areaData.date,
-                newCases = areaData.newCases,
                 cases = listOf(
                     CaseDto(
                         newCases = areaData.newCases,

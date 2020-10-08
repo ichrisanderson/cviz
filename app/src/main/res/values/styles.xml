@@ -39,14 +39,4 @@
         <item name="android:minWidth">48dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
-
-    <style name="SearchBar">
-        <item name="android:background">?attr/colorOnPrimary</item>
-        <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:layout_margin">12dp</item>
-        <item name="android:drawableStart">@drawable/ic_search</item>
-        <item name="android:drawablePadding">12dp</item>
-        <item name="android:hint">@string/home_search_hint</item>
-        <item name="android:padding">12dp</item>
-    </style>
 </resources>

@@ -30,8 +30,8 @@ import com.chrisa.covid19.features.home.presentation.HomeItemDecoration
 import com.chrisa.covid19.features.home.presentation.widgets.areaDetailCard
 import com.chrisa.covid19.features.home.presentation.widgets.emptySavedAreasCard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_saved_areas.savedAreasProgress
-import kotlinx.android.synthetic.main.fragment_saved_areas.savedAreasRecyclerView
+import kotlinx.android.synthetic.main.saved_areas_fragment.savedAreasProgress
+import kotlinx.android.synthetic.main.saved_areas_fragment.savedAreasRecyclerView
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -40,7 +40,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
-class SavedAreasFragment : Fragment(R.layout.fragment_saved_areas) {
+class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
 
     private val viewModel: SavedAreasViewModel by viewModels()
     private var controllerState: Bundle? = null

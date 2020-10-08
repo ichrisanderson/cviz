@@ -31,9 +31,9 @@ import com.chrisa.covid19.features.home.domain.models.SortOption
 import com.chrisa.covid19.features.home.presentation.HomeItemDecoration
 import com.chrisa.covid19.features.home.presentation.widgets.summaryCard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_summary_list.summaryListProgress
-import kotlinx.android.synthetic.main.fragment_summary_list.summaryListRecyclerView
-import kotlinx.android.synthetic.main.fragment_summary_list.summaryListToolbar
+import kotlinx.android.synthetic.main.summary_list_fragment.summaryListProgress
+import kotlinx.android.synthetic.main.summary_list_fragment.summaryListRecyclerView
+import kotlinx.android.synthetic.main.summary_list_fragment.summaryListToolbar
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -42,7 +42,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
-class SummaryListFragment : Fragment(R.layout.fragment_summary_list) {
+class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
 
     private val viewModel: SummaryListViewModel by viewModels()
     private var controllerState: Bundle? = null

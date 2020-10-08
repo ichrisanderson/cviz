@@ -101,13 +101,12 @@ class AreaViewModelTest {
                 val areaDetailModel = AreaDetailModel(
                     changeInCases = 0,
                     weeklyCases = 0,
-                    latestTotalCases = 0,
+                    cumulativeCases = 0,
                     changeInInfectionRate = 0.0,
                     weeklyInfectionRate = 0.0,
                     lastUpdatedAt = syncTime.minusDays(1),
                     lastSyncedAt = syncTime,
-                    allCases = caseModels,
-                    latestCases = caseModels.takeLast(7)
+                    allCases = caseModels
                 )
 
                 val areaCasesModel = AreaCasesModel(
@@ -179,13 +178,12 @@ class AreaViewModelTest {
                 val areaDetailModel = AreaDetailModel(
                     changeInCases = 0,
                     weeklyCases = 0,
-                    latestTotalCases = 0,
+                    cumulativeCases = 0,
                     changeInInfectionRate = 0.0,
                     weeklyInfectionRate = 0.0,
                     lastUpdatedAt = syncTime.minusDays(1),
                     lastSyncedAt = syncTime.minusDays(1),
-                    allCases = caseModels,
-                    latestCases = caseModels.takeLast(7)
+                    allCases = caseModels
                 )
 
                 val areaCasesModel = AreaCasesModel(
@@ -250,13 +248,12 @@ class AreaViewModelTest {
                 val areaDetailModel = AreaDetailModel(
                     changeInCases = 0,
                     weeklyCases = 0,
-                    latestTotalCases = 0,
+                    cumulativeCases = 0,
                     changeInInfectionRate = 0.0,
                     weeklyInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
-                    allCases = emptyList(),
-                    latestCases = emptyList()
+                    allCases = emptyList()
                 )
 
                 coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
@@ -292,13 +289,12 @@ class AreaViewModelTest {
                 val areaDetailModel = AreaDetailModel(
                     changeInCases = 0,
                     weeklyCases = 0,
-                    latestTotalCases = 0,
+                    cumulativeCases = 0,
                     changeInInfectionRate = 0.0,
                     weeklyInfectionRate = 0.0,
                     lastUpdatedAt = null,
                     lastSyncedAt = null,
-                    allCases = emptyList(),
-                    latestCases = emptyList()
+                    allCases = emptyList()
                 )
 
                 val areaCasesModel = AreaCasesModel(

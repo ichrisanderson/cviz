@@ -43,7 +43,7 @@ class AreaAdapter : ListAdapter<AreaModel, AreaAdapter.ViewHolder>(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_area, parent, false)
+            .inflate(R.layout.search_item_area, parent, false)
         return ViewHolder(view)
     }
 

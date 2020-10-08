@@ -35,15 +35,15 @@ import com.chrisa.covid19.features.home.presentation.HomeFragmentDirections
 import com.chrisa.covid19.features.home.presentation.widgets.LatestUkDataCardModel_
 import com.chrisa.covid19.features.home.presentation.widgets.SummaryCardModel_
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_dashboard.homeProgress
-import kotlinx.android.synthetic.main.fragment_dashboard.homeRecyclerView
+import kotlinx.android.synthetic.main.dashboard_fragment.homeProgress
+import kotlinx.android.synthetic.main.dashboard_fragment.homeRecyclerView
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
 @FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
-class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
+class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
 
     private val viewModel: DashboardViewModel by viewModels()
     private var controllerState: Bundle? = null

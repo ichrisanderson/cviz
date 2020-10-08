@@ -50,12 +50,11 @@ class AreaDetailUseCase @Inject constructor(
                     lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
                     allCases = caseModels,
-                    latestCases = caseModels.takeLast(14),
                     weeklyInfectionRate = areaSummary.currentInfectionRate,
                     changeInInfectionRate = areaSummary.changeInInfectionRate,
                     weeklyCases = areaSummary.currentNewCases,
                     changeInCases = areaSummary.changeInCases,
-                    latestTotalCases = areaData.cumulativeCases
+                    cumulativeCases = areaData.cumulativeCases
                 )
             }
         }
@@ -81,8 +80,7 @@ class AreaDetailUseCase @Inject constructor(
         lastUpdatedAt = null,
         lastSyncedAt = null,
         allCases = emptyList(),
-        latestCases = emptyList(),
-        latestTotalCases = 0,
+        cumulativeCases = 0,
         changeInCases = 0,
         weeklyCases = 0,
         weeklyInfectionRate = 0.0,

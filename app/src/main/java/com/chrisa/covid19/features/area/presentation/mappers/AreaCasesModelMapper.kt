@@ -40,20 +40,21 @@ class AreaCasesModelMapper @Inject constructor(
         .withZone(ZoneId.of("GMT"))
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
+        val latestCases = areaDetailModel.allCases.takeLast(14)
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
-            totalCases = areaDetailModel.latestTotalCases,
+            totalCases = areaDetailModel.cumulativeCases,
             currentInfectionRate = areaDetailModel.weeklyInfectionRate,
             currentNewCases = areaDetailModel.weeklyCases,
             changeInNewCasesThisWeek = areaDetailModel.changeInCases,
             changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRate,
             latestCasesBarChartData = BarChartData(
                 label = context.getString(R.string.latest_cases_chart_label),
-                values = areaDetailModel.latestCases.map(this::mapCaseModelToBarChartItem)
+                values = latestCases.map(this::mapCaseModelToBarChartItem)
             ),
             latestCasesRollingAverageLineChartData = LineChartData(
                 label = context.getString(R.string.rolling_average_chart_label),
-                values = areaDetailModel.latestCases.map(this::mapCaseModelToLineChartItem)
+                values = latestCases.map(this::mapCaseModelToLineChartItem)
             ),
             allCasesChartData = BarChartData(
                 label = context.getString(R.string.all_cases_chart_label),

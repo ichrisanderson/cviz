@@ -18,7 +18,6 @@ package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
-import com.chrisa.covid19.core.data.synchronisation.AreaData
 import com.chrisa.covid19.core.data.synchronisation.AreaSummary
 import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
 import com.chrisa.covid19.features.home.data.HomeDataSource
@@ -46,24 +45,19 @@ class LoadSavedAreasUseCaseTest {
     @Test
     fun `WHEN execute called THEN daily record list is emitted`() =
         runBlockingTest {
-
-            val areaName = "UK"
-            val areaCode = Constants.UK_AREA_CODE
-            val areaType = AreaType.OVERVIEW
-
             val savedAreaCaseDto = SavedAreaCaseDto(
-                areaName = areaName,
-                areaCode = areaCode,
-                areaType = areaType,
+                areaName = "UK",
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW,
                 newCases = 10,
                 cumulativeCases = 100,
                 infectionRate = 10.0,
                 date = LocalDate.now()
             )
             val areaSummary = AreaSummary(
-                areaName = areaName,
-                areaCode = areaCode,
-                areaType = areaType.value,
+                areaName = savedAreaCaseDto.areaName,
+                areaCode = savedAreaCaseDto.areaCode,
+                areaType = savedAreaCaseDto.areaType.value,
                 currentNewCases = 100,
                 changeInCases = 10,
                 currentInfectionRate = 40.0,
@@ -75,14 +69,7 @@ class LoadSavedAreasUseCaseTest {
                     any(),
                     any(),
                     any(),
-                    allCases = newCases.map {
-                        AreaData(
-                            newCases = savedAreaCaseDto.newCases,
-                            cumulativeCases = savedAreaCaseDto.cumulativeCases,
-                            infectionRate = savedAreaCaseDto.infectionRate,
-                            date = savedAreaCaseDto.date
-                        )
-                    }
+                    any()
                 )
             } returns areaSummary
             every { homeDataSource.savedAreaCases() } returns listOf(newCases).asFlow()
