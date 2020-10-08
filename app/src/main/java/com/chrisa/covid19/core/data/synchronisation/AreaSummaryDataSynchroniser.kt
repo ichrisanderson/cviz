@@ -126,7 +126,9 @@ class MonthlyDataLoader @Inject constructor(
 class AreaEntityListBuilder @Inject constructor() {
     fun build(monthlyData: MonthlyData): List<AreaSummaryEntity> {
         val areaSummaryMap = mutableMapOf<String, AreaSummaryEntity>()
-        monthlyData.week1.data.forEach {
+        monthlyData.week1.data
+            .filter { it.infectionRate != null }
+            .forEach {
             val data = AreaSummaryEntity(
                 areaCode = it.areaCode,
                 areaType = AreaType.from(it.areaType)!!,
