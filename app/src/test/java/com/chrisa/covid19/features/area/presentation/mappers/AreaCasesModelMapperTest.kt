@@ -24,15 +24,16 @@ import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
+import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import org.junit.Test
 
 class AreaCasesModelMapperTest {
 
@@ -88,28 +89,32 @@ class AreaCasesModelMapperTest {
         val mappedModel = sut.mapAreaDetailModel(areaDetailModel)
 
         assertThat(mappedModel.lastUpdatedAt).isEqualTo(areaDetailModel.lastUpdatedAt)
-        assertThat(mappedModel.latestCasesBarChartData).isEqualTo(
-            BarChartData(
-                label = latestCasesLabel,
-                values = dailyLabConfirmedCasesChartData
-            )
-        )
-        assertThat(mappedModel.latestCasesRollingAverageLineChartData).isEqualTo(
-            LineChartData(
-                label = rollingAverageLabel,
-                values = rollingAverageChartData
-            )
-        )
-        assertThat(mappedModel.allCasesChartData).isEqualTo(
-            BarChartData(
-                label = allCasesLabel,
-                values = dailyLabConfirmedCasesChartData
-            )
-        )
-        assertThat(mappedModel.allCasesRollingAverageLineChartData).isEqualTo(
-            LineChartData(
-                label = rollingAverageLabel,
-                values = rollingAverageChartData
+        assertThat(mappedModel.caseChartData).isEqualTo(
+            listOf(
+                ChartData(
+                    title = allCasesLabel,
+                    barChartData = BarChartData(
+                        label = allCasesLabel,
+                        values = dailyLabConfirmedCasesChartData
+
+                    ),
+                    lineChartData = LineChartData(
+                        label = rollingAverageLabel,
+                        values = rollingAverageChartData
+                    )
+                ),
+                ChartData(
+                    title = latestCasesLabel,
+                    barChartData = BarChartData(
+                        label = latestCasesLabel,
+                        values = dailyLabConfirmedCasesChartData
+
+                    ),
+                    lineChartData = LineChartData(
+                        label = rollingAverageLabel,
+                        values = rollingAverageChartData
+                    )
+                )
             )
         )
     }

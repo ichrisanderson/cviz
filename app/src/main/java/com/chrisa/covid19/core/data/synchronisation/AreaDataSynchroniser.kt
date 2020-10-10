@@ -31,13 +31,13 @@ import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.DateUtils.formatAsGmt
 import com.chrisa.covid19.core.util.DateUtils.toGmtDateTime
 import com.chrisa.covid19.core.util.NetworkUtils
-import java.io.IOException
-import java.time.LocalDateTime
-import javax.inject.Inject
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
+import java.io.IOException
+import java.time.LocalDateTime
+import javax.inject.Inject
 
 class AreaDataSynchroniser @Inject constructor(
     private val api: CovidApi,
@@ -89,8 +89,9 @@ class AreaDataSynchroniser @Inject constructor(
     ) {
         appDatabase.withTransaction {
             val metadataId = MetaDataIds.areaCodeId(areaCode)
+            val dataToInsert = pagedAreaCodeData.data.filter { it.cumulativeCases != null }
             appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
-            appDatabase.areaDataDao().insertAll(pagedAreaCodeData.data.map {
+            appDatabase.areaDataDao().insertAll(dataToInsert.map {
                 AreaDataEntity(
                     metadataId = metadataId,
                     areaCode = it.areaCode,
@@ -99,7 +100,17 @@ class AreaDataSynchroniser @Inject constructor(
                     cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
                     infectionRate = it.infectionRate ?: 0.0,
-                    newCases = it.newCases ?: 0
+                    newCases = it.newCases ?: 0,
+                    newDeathsByPublishedDate = it.newDeathsByPublishedDate ?: 0,
+                    cumulativeDeathsByPublishedDate = it.cumulativeDeathsByPublishedDate ?: 0,
+                    cumulativeDeathsByPublishedDateRate = it.cumulativeDeathsByPublishedDateRate
+                        ?: 0.0,
+                    newDeathsByDeathDate = it.newDeathsByDeathDate ?: 0,
+                    cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate ?: 0,
+                    cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate ?: 0.0,
+                    newAdmissions = it.newAdmissions ?: 0,
+                    cumulativeAdmissions = it.cumulativeAdmissions ?: 0,
+                    occupiedBeds = it.occupiedBeds ?: 0
                 )
             })
             appDatabase.metadataDao().insert(

@@ -150,7 +150,16 @@ class AreaDataSourceTest {
             date = LocalDate.ofEpochDay(0),
             cumulativeCases = 222,
             infectionRate = 122.0,
-            newCases = 122
+            newCases = 122,
+            newDeathsByPublishedDate = 15,
+            cumulativeDeathsByPublishedDate = 20,
+            cumulativeDeathsByPublishedDateRate = 30.0,
+            newDeathsByDeathDate = 40,
+            cumulativeDeathsByDeathDate = 50,
+            cumulativeDeathsByDeathDateRate = 60.0,
+            newAdmissions = 70,
+            cumulativeAdmissions = 80,
+            occupiedBeds = 90
         )
 
         every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
@@ -163,7 +172,6 @@ class AreaDataSourceTest {
                 areaCode = areaCode,
                 areaName = areaName,
                 areaType = areaType.value,
-                cumulativeCases = areaData.cumulativeCases,
                 cases = listOf(
                     CaseDto(
                         newCases = areaData.newCases,

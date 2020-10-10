@@ -18,13 +18,13 @@ package com.chrisa.covid19.core.data.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDate
-import java.time.LocalDateTime
 import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 interface CovidApi {
 
@@ -82,11 +82,30 @@ data class AreaDataModel(
     val areaName: String,
     val areaType: String,
     val date: LocalDate,
+    @Json(name = "newCases")
     val newCases: Int?,
-    @Json(name = "cmlCases")
+    @Json(name = "cumulativeCases")
     val cumulativeCases: Int?,
-    @Json(name = "infRate")
-    val infectionRate: Double?
+    @Json(name = "infectionRate")
+    val infectionRate: Double?,
+    @Json(name = "newDeathsByPublishedDate")
+    val newDeathsByPublishedDate: Int?,
+    @Json(name = "cumulativeDeathsByPublishedDate")
+    val cumulativeDeathsByPublishedDate: Int?,
+    @Json(name = "cumulativeDeathsByPublishedDateRate")
+    val cumulativeDeathsByPublishedDateRate: Double?,
+    @Json(name = "newDeathsByDeathDate")
+    val newDeathsByDeathDate: Int?,
+    @Json(name = "cumulativeDeathsByDeathDate")
+    val cumulativeDeathsByDeathDate: Int?,
+    @Json(name = "cumulativeDeathsByDeathDateRate")
+    val cumulativeDeathsByDeathDateRate: Double?,
+    @Json(name = "newAdmissions")
+    val newAdmissions: Int?,
+    @Json(name = "cumulativeAdmissions")
+    val cumulativeAdmissions: Int?,
+    @Json(name = "occupiedBeds")
+    val occupiedBeds: Int?
 ) {
     companion object {
 
@@ -96,8 +115,17 @@ data class AreaDataModel(
             put("areaType", "areaType")
             put("date", "date")
             put("newCases", "newCasesByPublishDate")
-            put("cmlCases", "cumCasesByPublishDate")
-            put("infRate", "cumCasesByPublishDateRate")
+            put("cumulativeCases", "cumCasesByPublishDate")
+            put("infectionRate", "cumCasesByPublishDateRate")
+            put("newDeathsByPublishedDate", "newDeaths28DaysByPublishDate")
+            put("cumulativeDeathsByPublishedDate", "cumDeaths28DaysByPublishDate")
+            put("cumulativeDeathsByPublishedDateRate", "cumDeaths28DaysByPublishDateRate")
+            put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
+            put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
+            put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
+            put("newAdmissions", "newAdmissions")
+            put("cumulativeAdmissions", "cumAdmissions")
+            put("occupiedBeds", "covidOccupiedMVBeds")
         }.toString()
 
         val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
@@ -106,8 +134,17 @@ data class AreaDataModel(
             put("areaType", "areaType")
             put("date", "date")
             put("newCases", "newCasesBySpecimenDate")
-            put("cmlCases", "cumCasesBySpecimenDate")
-            put("infRate", "cumCasesBySpecimenDateRate")
+            put("cumulativeCases", "cumCasesBySpecimenDate")
+            put("infectionRate", "cumCasesBySpecimenDateRate")
+            put("newDeathsByPublishedDate", "newDeaths28DaysByPublishDate")
+            put("cumulativeDeathsByPublishedDate", "cumDeaths28DaysByPublishDate")
+            put("cumulativeDeathsByPublishedDateRate", "cumDeaths28DaysByPublishDateRate")
+            put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
+            put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
+            put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
+            put("newAdmissions", "newAdmissions")
+            put("cumulativeAdmissions", "cumAdmissions")
+            put("occupiedBeds", "covidOccupiedMVBeds")
         }.toString()
     }
 }

@@ -86,7 +86,16 @@ class AssetDataSourceTest {
                 cumulativeCases = 100,
                 date = LocalDate.now(),
                 newCases = 10,
-                infectionRate = 100.0
+                infectionRate = 100.0,
+                newDeathsByPublishedDate = 15,
+                cumulativeDeathsByPublishedDate = 20,
+                cumulativeDeathsByPublishedDateRate = 30.0,
+                newDeathsByDeathDate = 40,
+                cumulativeDeathsByDeathDate = 50,
+                cumulativeDeathsByDeathDateRate = 60.0,
+                newAdmissions = 70,
+                cumulativeAdmissions = 80,
+                occupiedBeds = 90
             )
 
             val page = Page(

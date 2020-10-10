@@ -24,7 +24,6 @@ import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
 import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartAdapter
-import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.area_widget_case_graph_card.view.pager
@@ -56,19 +55,6 @@ class AreaCaseGraphCard(context: Context, attrs: AttributeSet) : MaterialCardVie
 
     @ModelProp
     fun areaCasesModel(areaCasesModel: AreaCasesModel) {
-        adapter.submitList(
-            listOf(
-                ChartData(
-                    title = context.getString(R.string.all_cases_chart_label),
-                    barChartData = areaCasesModel.allCasesChartData,
-                    lineChartData = areaCasesModel.allCasesRollingAverageLineChartData
-                ),
-                ChartData(
-                    title = context.getString(R.string.latest_cases_chart_label),
-                    barChartData = areaCasesModel.latestCasesBarChartData,
-                    lineChartData = areaCasesModel.latestCasesRollingAverageLineChartData
-                )
-            )
-        )
+        adapter.submitList(areaCasesModel.caseChartData)
     }
 }

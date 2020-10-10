@@ -32,6 +32,7 @@ import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
+import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -40,11 +41,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import io.plaidapp.core.util.event.Event
-import java.io.IOException
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.channels.sendBlocking
@@ -55,6 +51,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import retrofit2.HttpException
+import java.io.IOException
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @ExperimentalCoroutinesApi
 class AreaViewModelTest {
@@ -119,21 +120,31 @@ class AreaViewModelTest {
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
                     ),
-                    allCasesChartData = BarChartData(
-                        label = "All cases",
-                        values = emptyList()
-                    ),
-                    allCasesRollingAverageLineChartData = LineChartData(
-                        label = "Rolling average",
-                        values = emptyList()
-                    ),
-                    latestCasesBarChartData = BarChartData(
-                        label = "Latest cases",
-                        values = emptyList()
-                    ),
-                    latestCasesRollingAverageLineChartData = LineChartData(
-                        label = "Rolling average",
-                        values = emptyList()
+                    caseChartData = listOf(
+                        ChartData(
+                            title = "All cases",
+                            barChartData = BarChartData(
+                                label = "All cases",
+                                values = emptyList()
+
+                            ),
+                            lineChartData = LineChartData(
+                                label = "Rolling average",
+                                values = emptyList()
+                            )
+                        ),
+                        ChartData(
+                            title = "Latest cases",
+                            barChartData = BarChartData(
+                                label = "Latest cases",
+                                values = emptyList()
+
+                            ),
+                            lineChartData = LineChartData(
+                                label = "Rolling average",
+                                values = emptyList()
+                            )
+                        )
                     )
                 )
 
@@ -196,21 +207,31 @@ class AreaViewModelTest {
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
                     ),
-                    allCasesChartData = BarChartData(
-                        label = "All cases",
-                        values = emptyList()
-                    ),
-                    allCasesRollingAverageLineChartData = LineChartData(
-                        label = "Rolling average",
-                        values = emptyList()
-                    ),
-                    latestCasesBarChartData = BarChartData(
-                        label = "Latest cases",
-                        values = emptyList()
-                    ),
-                    latestCasesRollingAverageLineChartData = LineChartData(
-                        label = "Rolling average",
-                        values = emptyList()
+                    caseChartData = listOf(
+                        ChartData(
+                            title = "All cases",
+                            barChartData = BarChartData(
+                                label = "All cases",
+                                values = emptyList()
+
+                            ),
+                            lineChartData = LineChartData(
+                                label = "Rolling average",
+                                values = emptyList()
+                            )
+                        ),
+                        ChartData(
+                            title = "Latest cases",
+                            barChartData = BarChartData(
+                                label = "Latest cases",
+                                values = emptyList()
+
+                            ),
+                            lineChartData = LineChartData(
+                                label = "Rolling average",
+                                values = emptyList()
+                            )
+                        )
                     )
                 )
 
@@ -307,21 +328,31 @@ class AreaViewModelTest {
                         Instant.ofEpochMilli(0),
                         ZoneOffset.UTC
                     ),
-                    allCasesChartData = BarChartData(
-                        label = "All cases",
-                        values = emptyList()
-                    ),
-                    allCasesRollingAverageLineChartData = LineChartData(
-                        label = "Rolling average",
-                        values = emptyList()
-                    ),
-                    latestCasesBarChartData = BarChartData(
-                        label = "Latest cases",
-                        values = emptyList()
-                    ),
-                    latestCasesRollingAverageLineChartData = LineChartData(
-                        label = "Rolling average",
-                        values = emptyList()
+                    caseChartData = listOf(
+                        ChartData(
+                            title = "All cases",
+                            barChartData = BarChartData(
+                                label = "All cases",
+                                values = emptyList()
+
+                            ),
+                            lineChartData = LineChartData(
+                                label = "Rolling average",
+                                values = emptyList()
+                            )
+                        ),
+                        ChartData(
+                            title = "Latest cases",
+                            barChartData = BarChartData(
+                                label = "Latest cases",
+                                values = emptyList()
+
+                            ),
+                            lineChartData = LineChartData(
+                                label = "Rolling average",
+                                values = emptyList()
+                            )
+                        )
                     )
                 )
 

@@ -25,6 +25,7 @@ import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
+import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -41,6 +42,10 @@ class AreaCasesModelMapper @Inject constructor(
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
         val latestCases = areaDetailModel.allCases.takeLast(14)
+        val allCasesChartLabel = context.getString(R.string.all_cases_chart_label)
+        val latestCasesChartLabel = context.getString(R.string.latest_cases_chart_label)
+        val rollingAverageChartLabel = context.getString(R.string.rolling_average_chart_label)
+
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
             totalCases = areaDetailModel.cumulativeCases,
@@ -48,21 +53,29 @@ class AreaCasesModelMapper @Inject constructor(
             currentNewCases = areaDetailModel.weeklyCases,
             changeInNewCasesThisWeek = areaDetailModel.changeInCases,
             changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRate,
-            latestCasesBarChartData = BarChartData(
-                label = context.getString(R.string.latest_cases_chart_label),
-                values = latestCases.map(this::mapCaseModelToBarChartItem)
-            ),
-            latestCasesRollingAverageLineChartData = LineChartData(
-                label = context.getString(R.string.rolling_average_chart_label),
-                values = latestCases.map(this::mapCaseModelToLineChartItem)
-            ),
-            allCasesChartData = BarChartData(
-                label = context.getString(R.string.all_cases_chart_label),
-                values = areaDetailModel.allCases.map(this::mapCaseModelToBarChartItem)
-            ),
-            allCasesRollingAverageLineChartData = LineChartData(
-                label = context.getString(R.string.rolling_average_chart_label),
-                values = areaDetailModel.allCases.map(this::mapCaseModelToLineChartItem)
+            caseChartData = listOf(
+                ChartData(
+                    title = allCasesChartLabel,
+                    barChartData = BarChartData(
+                        label = allCasesChartLabel,
+                        values = areaDetailModel.allCases.map(this::mapCaseModelToBarChartItem)
+                    ),
+                    lineChartData = LineChartData(
+                        label = rollingAverageChartLabel,
+                        values = areaDetailModel.allCases.map(this::mapCaseModelToLineChartItem)
+                    )
+                ),
+                ChartData(
+                    title = latestCasesChartLabel,
+                    barChartData = BarChartData(
+                        label = latestCasesChartLabel,
+                        values = latestCases.map(this::mapCaseModelToBarChartItem)
+                    ),
+                    lineChartData = LineChartData(
+                        label = rollingAverageChartLabel,
+                        values = latestCases.map(this::mapCaseModelToLineChartItem)
+                    )
+                )
             )
         )
     }

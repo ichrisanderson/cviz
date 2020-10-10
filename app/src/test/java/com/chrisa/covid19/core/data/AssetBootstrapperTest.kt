@@ -35,14 +35,14 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class AssetBootstrapperTest {
@@ -152,7 +152,16 @@ class AssetBootstrapperTest {
                 cumulativeCases = 100,
                 date = LocalDate.now(),
                 infectionRate = 100.0,
-                newCases = 10
+                newCases = 10,
+                newDeathsByPublishedDate = 15,
+                cumulativeDeathsByPublishedDate = 20,
+                cumulativeDeathsByPublishedDateRate = 30.0,
+                newDeathsByDeathDate = 40,
+                cumulativeDeathsByDeathDate = 50,
+                cumulativeDeathsByDeathDateRate = 60.0,
+                newAdmissions = 70,
+                cumulativeAdmissions = 80,
+                occupiedBeds = 90
             )
             val areas = listOf(area)
 
@@ -182,7 +191,16 @@ class AssetBootstrapperTest {
                         cumulativeCases = it.cumulativeCases!!,
                         date = it.date,
                         newCases = it.newCases!!,
-                        infectionRate = it.infectionRate!!
+                        infectionRate = it.infectionRate!!,
+                        newDeathsByPublishedDate = it.newDeathsByPublishedDate!!,
+                        cumulativeDeathsByPublishedDate = it.cumulativeDeathsByPublishedDate!!,
+                        cumulativeDeathsByPublishedDateRate = it.cumulativeDeathsByPublishedDateRate!!,
+                        newDeathsByDeathDate = it.newDeathsByDeathDate!!,
+                        cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate!!,
+                        cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate!!,
+                        newAdmissions = it.newAdmissions!!,
+                        cumulativeAdmissions = it.cumulativeAdmissions!!,
+                        occupiedBeds = it.occupiedBeds!!
                     )
                 })
             }

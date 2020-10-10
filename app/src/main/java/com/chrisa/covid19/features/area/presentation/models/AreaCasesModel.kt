@@ -16,8 +16,7 @@
 
 package com.chrisa.covid19.features.area.presentation.models
 
-import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
-import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
+import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
 import java.time.LocalDateTime
 
 data class AreaCasesModel(
@@ -27,8 +26,5 @@ data class AreaCasesModel(
     val totalCases: Int,
     val currentNewCases: Int,
     val changeInNewCasesThisWeek: Int,
-    val latestCasesBarChartData: BarChartData,
-    val latestCasesRollingAverageLineChartData: LineChartData,
-    val allCasesChartData: BarChartData,
-    val allCasesRollingAverageLineChartData: LineChartData
+    val caseChartData: List<ChartData>
 )

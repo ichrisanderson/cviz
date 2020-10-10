@@ -20,6 +20,5 @@ data class AreaCaseDto(
     val areaCode: String,
     val areaName: String,
     val areaType: String,
-    val cumulativeCases: Int,
     val cases: List<CaseDto>
 )

@@ -156,7 +156,16 @@ class AreaDataSynchroniserTest {
                 cumulativeCases = 100,
                 date = LocalDate.now(),
                 newCases = 10,
-                infectionRate = 100.0
+                infectionRate = 100.0,
+                newDeathsByPublishedDate = 15,
+                cumulativeDeathsByPublishedDate = 20,
+                cumulativeDeathsByPublishedDateRate = 30.0,
+                newDeathsByDeathDate = 40,
+                cumulativeDeathsByDeathDate = 50,
+                cumulativeDeathsByDeathDateRate = 60.0,
+                newAdmissions = 70,
+                cumulativeAdmissions = 80,
+                occupiedBeds = 90
             )
             val pageModel = Page(
                 length = 1,
@@ -188,7 +197,16 @@ class AreaDataSynchroniserTest {
                             cumulativeCases = areaModel.cumulativeCases!!,
                             date = areaModel.date,
                             newCases = areaModel.newCases!!,
-                            infectionRate = areaModel.infectionRate!!
+                            infectionRate = areaModel.infectionRate!!,
+                            newDeathsByPublishedDate = areaModel.newDeathsByPublishedDate!!,
+                            cumulativeDeathsByPublishedDate = areaModel.cumulativeDeathsByPublishedDate!!,
+                            cumulativeDeathsByPublishedDateRate = areaModel.cumulativeDeathsByPublishedDateRate!!,
+                            newDeathsByDeathDate = areaModel.newDeathsByDeathDate!!,
+                            cumulativeDeathsByDeathDate = areaModel.cumulativeDeathsByDeathDate!!,
+                            cumulativeDeathsByDeathDateRate = areaModel.cumulativeDeathsByDeathDateRate!!,
+                            newAdmissions = areaModel.newAdmissions!!,
+                            cumulativeAdmissions = areaModel.cumulativeAdmissions!!,
+                            occupiedBeds = areaModel.occupiedBeds!!
                         )
                     )
                 )

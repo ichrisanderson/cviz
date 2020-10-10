@@ -84,7 +84,6 @@ class AreaDetailUseCaseTest {
                 areaCode = "1234",
                 areaName = "Woking",
                 areaType = AreaType.LTLA.value,
-                cumulativeCases = lastCase.cumulativeCases,
                 cases = caseDTOs
             )
             val caseModels = caseModels(caseDTOs)
@@ -118,7 +117,7 @@ class AreaDetailUseCaseTest {
                         lastUpdatedAt = metadataDTO.lastUpdatedAt,
                         lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
-                        cumulativeCases = areaCaseDto.cumulativeCases,
+                        cumulativeCases = lastCase.cumulativeCases,
                         changeInCases = areaSummary.changeInCases,
                         weeklyCases = areaSummary.currentNewCases,
                         weeklyInfectionRate = areaSummary.currentInfectionRate,

@@ -46,6 +46,7 @@ class AreaDetailUseCase @Inject constructor(
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val caseModels = mapAllCases(areaData.cases.sortedBy { it.date })
                 val areaSummary = areaSummary(areaData)
+                val cumulativeCases = areaData.cases.last { it.cumulativeCases != 0 }.cumulativeCases
                 AreaDetailModel(
                     lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
@@ -54,7 +55,7 @@ class AreaDetailUseCase @Inject constructor(
                     changeInInfectionRate = areaSummary.changeInInfectionRate,
                     weeklyCases = areaSummary.currentNewCases,
                     changeInCases = areaSummary.changeInCases,
-                    cumulativeCases = areaData.cumulativeCases
+                    cumulativeCases = cumulativeCases
                 )
             }
         }
