@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.models
+package com.chrisa.covid19.features.area.domain.models
 
-import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.ChartData
-import java.time.LocalDateTime
+import java.time.LocalDate
 
-data class AreaCasesModel(
-    val lastUpdatedAt: LocalDateTime?,
-    val currentInfectionRate: Double,
-    val changeInInfectionRatesThisWeek: Double,
-    val totalCases: Int,
-    val currentNewCases: Int,
-    val changeInNewCasesThisWeek: Int,
-    val caseChartData: List<ChartData>,
-    val deathsByPublishedDateChartData: List<ChartData>
+data class DeathModel(
+    val cumulativeDeaths: Int,
+    val newDeaths: Int,
+    val date: LocalDate,
+    val rollingAverage: Double,
+    val baseRate: Double
 )

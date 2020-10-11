@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.widgets.chart
+package com.chrisa.covid19.core.ui.widgets.recyclerview.chart
 
 import android.view.LayoutInflater
 import android.view.View

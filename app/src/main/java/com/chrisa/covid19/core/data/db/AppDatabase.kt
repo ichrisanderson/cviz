@@ -29,11 +29,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
-import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [
@@ -177,23 +177,23 @@ data class AreaDataEntity(
     @ColumnInfo(name = "date")
     val date: LocalDate,
     @ColumnInfo(name = "newDeathsByPublishedDate")
-    val newDeathsByPublishedDate: Int,
+    val newDeathsByPublishedDate: Int?,
     @ColumnInfo(name = "cumulativeDeathsByPublishedDate")
-    val cumulativeDeathsByPublishedDate: Int,
+    val cumulativeDeathsByPublishedDate: Int?,
     @ColumnInfo(name = "cumulativeDeathsByPublishedDateRate")
-    val cumulativeDeathsByPublishedDateRate: Double,
+    val cumulativeDeathsByPublishedDateRate: Double?,
     @ColumnInfo(name = "newDeathsByDeathDate")
-    val newDeathsByDeathDate: Int,
+    val newDeathsByDeathDate: Int?,
     @ColumnInfo(name = "cumulativeDeathsByDeathDate")
-    val cumulativeDeathsByDeathDate: Int,
+    val cumulativeDeathsByDeathDate: Int?,
     @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
-    val cumulativeDeathsByDeathDateRate: Double,
+    val cumulativeDeathsByDeathDateRate: Double?,
     @ColumnInfo(name = "newAdmissions")
-    val newAdmissions: Int,
+    val newAdmissions: Int?,
     @ColumnInfo(name = "cumulativeAdmissions")
-    val cumulativeAdmissions: Int,
+    val cumulativeAdmissions: Int?,
     @ColumnInfo(name = "occupiedBeds")
-    val occupiedBeds: Int
+    val occupiedBeds: Int?
 )
 
 data class AreaDataMetadataTuple(

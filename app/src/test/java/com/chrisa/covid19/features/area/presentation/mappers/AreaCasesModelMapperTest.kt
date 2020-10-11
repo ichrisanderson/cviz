@@ -22,31 +22,74 @@ import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
+import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.ChartData
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
-import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
+import com.chrisa.covid19.features.area.domain.models.DeathModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import org.junit.Before
+import org.junit.Test
 
 class AreaCasesModelMapperTest {
 
     private val context = mockk<Context>()
     private val sut = AreaCasesModelMapper(context)
+    private val allCasesLabel = "All cases"
+    private val latestCasesLabel = "Latest cases"
+    private val allDeathsLabel = "All deaths"
+    private val latestDeathsLabel = "Latest deaths"
+    private val rollingAverageLabel = "Rolling average"
     private val formatter = DateTimeFormatter
         .ofPattern("dd-MMM")
         .withLocale(Locale.UK)
         .withZone(ZoneId.of("GMT"))
 
+    @Before
+    fun setup() {
+        every { context.getString(R.string.all_cases_chart_label) } returns allCasesLabel
+        every { context.getString(R.string.latest_cases_chart_label) } returns latestCasesLabel
+        every { context.getString(R.string.all_deaths_chart_label) } returns allDeathsLabel
+        every { context.getString(R.string.latest_deaths_chart_label) } returns latestDeathsLabel
+        every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
+    }
+
     @Test
     fun `WHEN mapAreaDetailModel called THEN ui model is mapped correctly`() {
-        val caseModels = listOf(
+        val areaDetailModel = areaDetailModel()
+
+        val mappedModel = sut.mapAreaDetailModel(areaDetailModel)
+
+        assertThat(mappedModel.lastUpdatedAt).isEqualTo(areaDetailModel.lastUpdatedAt)
+        assertThat(mappedModel.caseChartData).isEqualTo(caseChartData(areaDetailModel))
+        assertThat(mappedModel.deathsByPublishedDateChartData).isEqualTo(
+            deathsByPublishedDateChartData(areaDetailModel)
+        )
+    }
+
+    private fun areaDetailModel(): AreaDetailModel {
+        val now = LocalDateTime.now()
+        return AreaDetailModel(
+            lastUpdatedAt = now.minusDays(1),
+            weeklyInfectionRate = 0.0,
+            changeInInfectionRate = 0.0,
+            weeklyCases = 0,
+            changeInCases = 0,
+            cumulativeCases = 0,
+            lastSyncedAt = now,
+            allCases = caseModels(),
+            deathsByPublishedDate = deathModels()
+        )
+    }
+
+    private fun caseModels(): List<CaseModel> {
+        return listOf(
             CaseModel(
                 baseRate = 0.0,
                 cumulativeCases = 0,
@@ -55,65 +98,111 @@ class AreaCasesModelMapperTest {
                 rollingAverage = 1.1
             )
         )
-        val now = LocalDateTime.now()
-        val areaDetailModel = AreaDetailModel(
-            cumulativeCases = 0,
-            changeInCases = 0,
-            weeklyCases = 0,
-            changeInInfectionRate = 0.0,
-            weeklyInfectionRate = 0.0,
-            lastUpdatedAt = now.minusDays(1),
-            lastSyncedAt = now,
-            allCases = caseModels
+    }
+
+    private fun deathModels(): List<DeathModel> {
+        return listOf(
+            DeathModel(
+                baseRate = 0.0,
+                cumulativeDeaths = 0,
+                newDeaths = 123,
+                date = LocalDate.ofEpochDay(0),
+                rollingAverage = 1.1
+            )
         )
-        val dailyLabConfirmedCasesChartData = caseModels.map {
-            BarChartItem(
-                value = it.newCases.toFloat(),
-                label = it.date.format(formatter)
-            )
-        }
-        val rollingAverageChartData = caseModels.map {
-            LineChartItem(
-                value = it.rollingAverage.toFloat(),
-                label = it.date.format(formatter)
-            )
-        }
-        val allCasesLabel = "All cases"
-        val latestCasesLabel = "Latest cases"
-        val rollingAverageLabel = "Rolling average"
+    }
 
-        every { context.getString(R.string.latest_cases_chart_label) } returns latestCasesLabel
-        every { context.getString(R.string.all_cases_chart_label) } returns allCasesLabel
-        every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
-
-        val mappedModel = sut.mapAreaDetailModel(areaDetailModel)
-
-        assertThat(mappedModel.lastUpdatedAt).isEqualTo(areaDetailModel.lastUpdatedAt)
-        assertThat(mappedModel.caseChartData).isEqualTo(
-            listOf(
-                ChartData(
-                    title = allCasesLabel,
-                    barChartData = BarChartData(
-                        label = allCasesLabel,
-                        values = dailyLabConfirmedCasesChartData
-
-                    ),
-                    lineChartData = LineChartData(
-                        label = rollingAverageLabel,
-                        values = rollingAverageChartData
-                    )
+    private fun caseChartData(areaDetailModel: AreaDetailModel): List<ChartData> {
+        return listOf(
+            ChartData(
+                title = allCasesLabel,
+                barChartData = BarChartData(
+                    label = allCasesLabel,
+                    values = areaDetailModel.allCases.map {
+                        BarChartItem(
+                            value = it.newCases.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
                 ),
-                ChartData(
-                    title = latestCasesLabel,
-                    barChartData = BarChartData(
-                        label = latestCasesLabel,
-                        values = dailyLabConfirmedCasesChartData
+                lineChartData = LineChartData(
+                    label = rollingAverageLabel,
+                    values = areaDetailModel.allCases.map {
+                        LineChartItem(
+                            value = it.rollingAverage.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+                )
+            ),
+            ChartData(
+                title = latestCasesLabel,
+                barChartData = BarChartData(
+                    label = latestCasesLabel,
+                    values = areaDetailModel.allCases.map {
+                        BarChartItem(
+                            value = it.newCases.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
 
-                    ),
-                    lineChartData = LineChartData(
-                        label = rollingAverageLabel,
-                        values = rollingAverageChartData
-                    )
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageLabel,
+                    values = areaDetailModel.allCases.map {
+                        LineChartItem(
+                            value = it.rollingAverage.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+                )
+            )
+        )
+    }
+
+    private fun deathsByPublishedDateChartData(areaDetailModel: AreaDetailModel): List<ChartData> {
+        return listOf(
+            ChartData(
+                title = allDeathsLabel,
+                barChartData = BarChartData(
+                    label = allDeathsLabel,
+                    values = areaDetailModel.deathsByPublishedDate.map {
+                        BarChartItem(
+                            value = it.newDeaths.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageLabel,
+                    values = areaDetailModel.deathsByPublishedDate.map {
+                        LineChartItem(
+                            value = it.rollingAverage.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+                )
+            ),
+            ChartData(
+                title = latestDeathsLabel,
+                barChartData = BarChartData(
+                    label = latestDeathsLabel,
+                    values = areaDetailModel.deathsByPublishedDate.map {
+                        BarChartItem(
+                            value = it.newDeaths.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageLabel,
+                    values = areaDetailModel.deathsByPublishedDate.map {
+                        LineChartItem(
+                            value = it.rollingAverage.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
                 )
             )
         )

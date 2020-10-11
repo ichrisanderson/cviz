@@ -26,7 +26,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
-import com.chrisa.covid19.features.area.presentation.widgets.areaCaseGraphCard
+import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.chartTabCard
 import com.chrisa.covid19.features.area.presentation.widgets.areaDetailCard
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
@@ -110,9 +110,13 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     id("areaDetail")
                     areaCasesModel(areaCasesModel)
                 }
-                areaCaseGraphCard {
-                    id("areaCaseGraph")
-                    areaCasesModel(areaCasesModel)
+                chartTabCard {
+                    id("caseGraphs")
+                    chartData(areaCasesModel.caseChartData)
+                }
+                chartTabCard {
+                    id("deathsByPublishedDateGraphs")
+                    chartData(areaCasesModel.deathsByPublishedDateChartData)
                 }
             }
             areaError.isVisible = false

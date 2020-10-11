@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.models
+package com.chrisa.covid19.core.ui.widgets.recyclerview.chart
 
-import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.ChartData
-import java.time.LocalDateTime
+import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 
-data class AreaCasesModel(
-    val lastUpdatedAt: LocalDateTime?,
-    val currentInfectionRate: Double,
-    val changeInInfectionRatesThisWeek: Double,
-    val totalCases: Int,
-    val currentNewCases: Int,
-    val changeInNewCasesThisWeek: Int,
-    val caseChartData: List<ChartData>,
-    val deathsByPublishedDateChartData: List<ChartData>
+data class ChartData(
+    val title: String,
+    val barChartData: BarChartData,
+    val lineChartData: LineChartData
 )

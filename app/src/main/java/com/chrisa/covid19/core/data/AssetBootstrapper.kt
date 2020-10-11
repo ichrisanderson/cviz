@@ -26,10 +26,10 @@ import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
 import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.CoroutineDispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 import javax.inject.Inject
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 
 class AssetBootstrapper @Inject constructor(
     private val appDatabase: AppDatabase,
@@ -85,16 +85,15 @@ class AssetBootstrapper @Inject constructor(
                     date = it.date,
                     newCases = it.newCases ?: 0,
                     infectionRate = it.infectionRate ?: 0.0,
-                    newDeathsByPublishedDate = it.newDeathsByPublishedDate ?: 0,
-                    cumulativeDeathsByPublishedDate = it.cumulativeDeathsByPublishedDate ?: 0,
-                    cumulativeDeathsByPublishedDateRate = it.cumulativeDeathsByPublishedDateRate
-                        ?: 0.0,
-                    newDeathsByDeathDate = it.newDeathsByDeathDate ?: 0,
-                    cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate ?: 0,
-                    cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate ?: 0.0,
-                    newAdmissions = it.newAdmissions ?: 0,
-                    cumulativeAdmissions = it.cumulativeAdmissions ?: 0,
-                    occupiedBeds = it.occupiedBeds ?: 0
+                    newDeathsByPublishedDate = it.newDeathsByPublishedDate,
+                    cumulativeDeathsByPublishedDate = it.cumulativeDeathsByPublishedDate,
+                    cumulativeDeathsByPublishedDateRate = it.cumulativeDeathsByPublishedDateRate,
+                    newDeathsByDeathDate = it.newDeathsByDeathDate,
+                    cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate,
+                    cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate,
+                    newAdmissions = it.newAdmissions,
+                    cumulativeAdmissions = it.cumulativeAdmissions,
+                    occupiedBeds = it.occupiedBeds
                 )
             })
             appDatabase.metadataDao().insert(

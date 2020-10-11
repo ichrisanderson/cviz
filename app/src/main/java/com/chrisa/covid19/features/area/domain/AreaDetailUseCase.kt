@@ -22,9 +22,11 @@ import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
 import com.chrisa.covid19.features.area.data.AreaDataSource
 import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
+import com.chrisa.covid19.features.area.domain.models.DeathModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -45,12 +47,14 @@ class AreaDetailUseCase @Inject constructor(
             } else {
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val caseModels = mapAllCases(areaData.cases.sortedBy { it.date })
+                val deathsByPublishedDate = mapAllDeaths(areaData.deathsByPublishedDate.sortedBy { it.date })
                 val areaSummary = areaSummary(areaData)
-                val cumulativeCases = areaData.cases.last { it.cumulativeCases != 0 }.cumulativeCases
+                val cumulativeCases = areaData.cases.map { it.cumulativeCases }.lastOrNull() ?: 0
                 AreaDetailModel(
                     lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
                     allCases = caseModels,
+                    deathsByPublishedDate = deathsByPublishedDate,
                     weeklyInfectionRate = areaSummary.currentInfectionRate,
                     changeInInfectionRate = areaSummary.changeInInfectionRate,
                     weeklyCases = areaSummary.currentNewCases,
@@ -79,22 +83,37 @@ class AreaDetailUseCase @Inject constructor(
 
     private fun emptyAreaDetailModel(): AreaDetailModel = AreaDetailModel(
         lastUpdatedAt = null,
+        weeklyInfectionRate = 0.0,
+        changeInInfectionRate = 0.0,
+        weeklyCases = 0,
+        changeInCases = 0,
+        cumulativeCases = 0,
         lastSyncedAt = null,
         allCases = emptyList(),
-        cumulativeCases = 0,
-        changeInCases = 0,
-        weeklyCases = 0,
-        weeklyInfectionRate = 0.0,
-        changeInInfectionRate = 0.0
+        deathsByPublishedDate = emptyList()
     )
 
     private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
+        val caseValues = cases.map { it.newCases }
         return cases.mapIndexed { index, case ->
             CaseModel(
                 baseRate = case.baseRate,
                 cumulativeCases = case.cumulativeCases,
                 newCases = case.newCases,
-                rollingAverage = rollingAverageHelper.average(index, cases),
+                rollingAverage = rollingAverageHelper.average(index, caseValues),
+                date = case.date
+            )
+        }
+    }
+
+    private fun mapAllDeaths(deaths: List<DeathDto>): List<DeathModel> {
+        val deathValues = deaths.map { it.newDeaths }
+        return deaths.mapIndexed { index, case ->
+            DeathModel(
+                baseRate = case.baseRate,
+                cumulativeDeaths = case.cumulativeDeaths,
+                newDeaths = case.newDeaths,
+                rollingAverage = rollingAverageHelper.average(index, deathValues),
                 date = case.date
             )
         }

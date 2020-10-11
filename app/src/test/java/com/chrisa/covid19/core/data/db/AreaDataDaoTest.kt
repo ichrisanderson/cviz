@@ -21,6 +21,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import com.squareup.sqldelight.runtime.coroutines.test
+import java.io.IOException
+import java.time.LocalDate
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -29,8 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import java.io.IOException
-import java.time.LocalDate
 
 @InternalCoroutinesApi
 @RunWith(RobolectricTestRunner::class)
@@ -281,7 +281,6 @@ class AreaDataDaoTest {
     @Test
     fun `GIVEN area data exists WHEN latestWithMetadataByAreaCodeAsFlow called THEN area data metadata is emitted`() =
         runBlocking {
-
 
             val ukOverviewArea = ukOverviewArea()
             val syncTime = ukOverviewArea.date.atStartOfDay()

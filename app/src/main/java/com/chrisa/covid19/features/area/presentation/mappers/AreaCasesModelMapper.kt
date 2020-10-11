@@ -22,10 +22,11 @@ import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
+import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.ChartData
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
+import com.chrisa.covid19.features.area.domain.models.DeathModel
 import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
-import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -41,11 +42,9 @@ class AreaCasesModelMapper @Inject constructor(
         .withZone(ZoneId.of("GMT"))
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
-        val latestCases = areaDetailModel.allCases.takeLast(14)
-        val allCasesChartLabel = context.getString(R.string.all_cases_chart_label)
-        val latestCasesChartLabel = context.getString(R.string.latest_cases_chart_label)
-        val rollingAverageChartLabel = context.getString(R.string.rolling_average_chart_label)
-
+        val caseChartData = caseChartData(areaDetailModel.allCases)
+        val deathsByPublishedDateChartData =
+            deathsByPublishedDateChartData(areaDetailModel.deathsByPublishedDate)
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
             totalCases = areaDetailModel.cumulativeCases,
@@ -53,28 +52,72 @@ class AreaCasesModelMapper @Inject constructor(
             currentNewCases = areaDetailModel.weeklyCases,
             changeInNewCasesThisWeek = areaDetailModel.changeInCases,
             changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRate,
-            caseChartData = listOf(
-                ChartData(
-                    title = allCasesChartLabel,
-                    barChartData = BarChartData(
-                        label = allCasesChartLabel,
-                        values = areaDetailModel.allCases.map(this::mapCaseModelToBarChartItem)
-                    ),
-                    lineChartData = LineChartData(
-                        label = rollingAverageChartLabel,
-                        values = areaDetailModel.allCases.map(this::mapCaseModelToLineChartItem)
-                    )
+            caseChartData = caseChartData,
+            deathsByPublishedDateChartData = deathsByPublishedDateChartData
+        )
+    }
+
+    private fun caseChartData(
+        allCases: List<CaseModel>
+    ): List<ChartData> {
+        val latestCases = allCases.takeLast(14)
+        val allCasesChartLabel = context.getString(R.string.all_cases_chart_label)
+        val latestCasesChartLabel = context.getString(R.string.latest_cases_chart_label)
+        val rollingAverageChartLabel = context.getString(R.string.rolling_average_chart_label)
+        return listOf(
+            ChartData(
+                title = allCasesChartLabel,
+                barChartData = BarChartData(
+                    label = allCasesChartLabel,
+                    values = allCases.map(this::mapCaseModelToBarChartItem)
                 ),
-                ChartData(
-                    title = latestCasesChartLabel,
-                    barChartData = BarChartData(
-                        label = latestCasesChartLabel,
-                        values = latestCases.map(this::mapCaseModelToBarChartItem)
-                    ),
-                    lineChartData = LineChartData(
-                        label = rollingAverageChartLabel,
-                        values = latestCases.map(this::mapCaseModelToLineChartItem)
-                    )
+                lineChartData = LineChartData(
+                    label = rollingAverageChartLabel,
+                    values = allCases.map(this::mapCaseModelToLineChartItem)
+                )
+            ),
+            ChartData(
+                title = latestCasesChartLabel,
+                barChartData = BarChartData(
+                    label = latestCasesChartLabel,
+                    values = latestCases.map(this::mapCaseModelToBarChartItem)
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageChartLabel,
+                    values = latestCases.map(this::mapCaseModelToLineChartItem)
+                )
+            )
+        )
+    }
+
+    private fun deathsByPublishedDateChartData(
+        allDeaths: List<DeathModel>
+    ): List<ChartData> {
+        val latestDeaths = allDeaths.takeLast(14)
+        val allDeathsChartLabel = context.getString(R.string.all_deaths_chart_label)
+        val latestDeathsChartLabel = context.getString(R.string.latest_deaths_chart_label)
+        val rollingAverageChartLabel = context.getString(R.string.rolling_average_chart_label)
+        return listOf(
+            ChartData(
+                title = allDeathsChartLabel,
+                barChartData = BarChartData(
+                    label = allDeathsChartLabel,
+                    values = allDeaths.map(this::mapDeathModelToBarChartItem)
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageChartLabel,
+                    values = allDeaths.map(this::mapDeathModelToLineChartItem)
+                )
+            ),
+            ChartData(
+                title = latestDeathsChartLabel,
+                barChartData = BarChartData(
+                    label = latestDeathsChartLabel,
+                    values = latestDeaths.map(this::mapDeathModelToBarChartItem)
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageChartLabel,
+                    values = latestDeaths.map(this::mapDeathModelToLineChartItem)
                 )
             )
         )
@@ -91,6 +134,20 @@ class AreaCasesModelMapper @Inject constructor(
         return LineChartItem(
             caseModel.rollingAverage.toFloat(),
             caseModel.date.format(formatter)
+        )
+    }
+
+    private fun mapDeathModelToBarChartItem(deathModel: DeathModel): BarChartItem {
+        return BarChartItem(
+            deathModel.newDeaths.toFloat(),
+            deathModel.date.format(formatter)
+        )
+    }
+
+    private fun mapDeathModelToLineChartItem(deathModel: DeathModel): LineChartItem {
+        return LineChartItem(
+            deathModel.rollingAverage.toFloat(),
+            deathModel.date.format(formatter)
         )
     }
 }

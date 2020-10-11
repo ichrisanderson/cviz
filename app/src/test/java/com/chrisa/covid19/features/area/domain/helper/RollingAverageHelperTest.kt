@@ -16,34 +16,21 @@
 
 package com.chrisa.covid19.features.area.domain.helper
 
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.google.common.truth.Truth.assertThat
-import java.time.LocalDate
 import org.junit.Test
 
 class RollingAverageHelperTest {
+    private val sut = RollingAverageHelper()
 
     @Test
-    fun `WHEN previous case is seven days previous THEN average is calculated`() {
-        val sut = RollingAverageHelper()
-
-        val startDate = LocalDate.of(2020, 1, 1)
-        val cases = mutableListOf<CaseDto>()
-        for (i in 0 until 7) {
-            cases.add(
-                CaseDto(
-                    newCases = 10 * (i + 1),
-                    cumulativeCases = 0,
-                    date = startDate.plusDays(i.toLong()),
-                    infectionRate = 30.0,
-                    baseRate = 0.8
-                )
-            )
-        }
+    fun `GIVEN a daily increase of 10 WHEN average called for week THEN average of 40 is returned`() {
+        // 10, 20, 30, 40, 50, 60, 70
+        val values = (0 until 7).map { 10 * (it + 1) }
 
         // 10, 20, 30, 40, 50, 60, 70 = 280
-        val result = sut.average(cases.lastIndex, cases)
+        val result = sut.average(values.lastIndex, values)
 
-        assertThat(result).isEqualTo(280 / 7.0)
+        // 280 / 7.0 = 40
+        assertThat(result).isEqualTo(40)
     }
 }

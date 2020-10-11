@@ -16,14 +16,13 @@
 
 package com.chrisa.covid19.features.area.domain.helper
 
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import javax.inject.Inject
 
 class RollingAverageHelper @Inject constructor() {
-    fun average(index: Int, cases: List<CaseDto>): Double {
+    fun average(index: Int, caseValues: List<Int>): Double {
         var average = 0
         for (i in 0 until 7) {
-            average += cases.getOrNull(index - i)?.newCases ?: 0
+            average += caseValues.getOrNull(index - i) ?: 0
         }
         return when {
             (average == 0) -> 0.0

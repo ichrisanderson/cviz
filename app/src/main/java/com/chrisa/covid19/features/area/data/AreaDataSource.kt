@@ -20,6 +20,7 @@ import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
+import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
@@ -58,7 +59,17 @@ class AreaDataSource @Inject constructor(
                     cumulativeCases = areaData.cumulativeCases,
                     date = areaData.date
                 )
-            }
+            },
+            deathsByPublishedDate = allData.filter { it.cumulativeDeathsByPublishedDate != null }
+                .map { areaData ->
+                    DeathDto(
+                        baseRate = areaData.cumulativeDeathsByPublishedDateRate!! / areaData.cumulativeDeathsByPublishedDate!!,
+                        deathRate = areaData.cumulativeDeathsByPublishedDateRate,
+                        newDeaths = areaData.newDeathsByPublishedDate!!,
+                        cumulativeDeaths = areaData.cumulativeDeathsByPublishedDate,
+                        date = areaData.date
+                    )
+                }
         )
     }
 
