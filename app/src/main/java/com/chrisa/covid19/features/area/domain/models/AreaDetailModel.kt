@@ -27,5 +27,6 @@ data class AreaDetailModel(
     val cumulativeCases: Int,
     val lastSyncedAt: LocalDateTime?,
     val allCases: List<CaseModel>,
-    val deathsByPublishedDate: List<DeathModel>
+    val deathsByPublishedDate: List<DeathModel>,
+    val deathsByDeathDate: List<DeathModel>
 )

@@ -167,7 +167,6 @@ class AreaViewModelTest {
             pauseDispatcher {
                 val areaDetailModel = areaDetailModel()
                 val areaCasesModel = areaCasesModel()
-
                 val exception = mockk<HttpException>()
                 every { exception.code() } returns 304
 
@@ -202,7 +201,8 @@ class AreaViewModelTest {
             cumulativeCases = 0,
             lastSyncedAt = null,
             allCases = emptyList(),
-            deathsByPublishedDate = emptyList()
+            deathsByPublishedDate = emptyList(),
+            deathsByDeathDate = emptyList()
         )
     }
 
@@ -215,7 +215,8 @@ class AreaViewModelTest {
             currentInfectionRate = 0.0,
             lastUpdatedAt = LocalDateTime.now(),
             caseChartData = emptyList(),
-            deathsByPublishedDateChartData = emptyList()
+            deathsByPublishedDateChartData = emptyList(),
+            deathsByDeathDateChartData = emptyList()
         )
     }
 

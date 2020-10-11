@@ -53,37 +53,49 @@ class AreaDataSourceTest {
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
     private val sut = AreaDataSource(appDatabase)
+    private val areaData = AreaDataEntity(
+        areaCode = "1234",
+        areaName = "London",
+        areaType = AreaType.UTLA,
+        metadataId = MetaDataIds.areaCodeId("1234"),
+        date = LocalDate.ofEpochDay(0),
+        cumulativeCases = 222,
+        infectionRate = 122.0,
+        newCases = 122,
+        newDeathsByPublishedDate = 15,
+        cumulativeDeathsByPublishedDate = 20,
+        cumulativeDeathsByPublishedDateRate = 30.0,
+        newDeathsByDeathDate = 40,
+        cumulativeDeathsByDeathDate = 50,
+        cumulativeDeathsByDeathDateRate = 60.0,
+        newAdmissions = 70,
+        cumulativeAdmissions = 80,
+        occupiedBeds = 90
+    )
 
     @Test
     fun `GIVEN area is not saved WHEN isSaved called THEN savedState is false`() = runBlockingTest {
-
-        val areaCode = "A01"
         val publisher = ConflatedBroadcastChannel(false)
+        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns publisher.asFlow()
 
-        every { appDatabase.savedAreaDao().isSaved(areaCode) } returns publisher.asFlow()
-
-        val savedState = sut.isSaved(areaCode).first()
+        val savedState = sut.isSaved(areaData.areaCode).first()
 
         assertThat(savedState).isEqualTo(false)
     }
 
     @Test
     fun `GIVEN area is saved WHEN isSaved called THEN savedState is true`() = runBlockingTest {
-
-        val areaCode = "A01"
         val publisher = ConflatedBroadcastChannel(false)
+        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns publisher.asFlow()
 
-        every { appDatabase.savedAreaDao().isSaved(areaCode) } returns publisher.asFlow()
-
-        val savedState = sut.isSaved(areaCode).first()
+        val savedState = sut.isSaved(areaData.areaCode).first()
 
         assertThat(savedState).isEqualTo(false)
     }
 
     @Test
     fun `WHEN insertSavedArea called THEN entity is inserted into the database`() {
-
-        val dto = SavedAreaDto("A01")
+        val dto = SavedAreaDto(areaData.areaCode)
         val entity = dto.toSavedAreaEntity()
 
         every { appDatabase.savedAreaDao().insert(entity) } just Runs
@@ -95,8 +107,7 @@ class AreaDataSourceTest {
 
     @Test
     fun `WHEN deleteSavedArea called THEN entity is deleted from the database`() {
-
-        val dto = SavedAreaDto("A01")
+        val dto = SavedAreaDto(areaData.areaCode)
         val entity = dto.toSavedAreaEntity()
 
         every { appDatabase.savedAreaDao().delete(entity) } returns 1
@@ -108,12 +119,9 @@ class AreaDataSourceTest {
 
     @Test
     fun `WHEN loadAreaMetadata called THEN area metadata is returned`() = runBlocking {
-
-        val areaCode = "1234"
-
         val now = LocalDateTime.now()
         val metadataDTO = MetadataEntity(
-            id = MetaDataIds.areaCodeId(areaCode),
+            id = MetaDataIds.areaCodeId(areaData.areaCode),
             lastUpdatedAt = now.minusDays(1),
             lastSyncTime = now
         )
@@ -121,10 +129,10 @@ class AreaDataSourceTest {
         val allMetadata = listOf(metadataDTO)
 
         every {
-            appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
+            appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(areaData.areaCode))
         } returns allMetadata.asFlow()
 
-        val metadataFlow = sut.loadAreaMetadata(areaCode)
+        val metadataFlow = sut.loadAreaMetadata(areaData.areaCode)
 
         metadataFlow.collect { metadata ->
             assertThat(metadata).isEqualTo(
@@ -138,31 +146,6 @@ class AreaDataSourceTest {
 
     @Test
     fun `WHEN loadAreaData called THEN area data is returned`() = runBlocking {
-
-        val areaCode = "1234"
-        val areaName = "London"
-        val areaType = AreaType.UTLA
-
-        val areaData = AreaDataEntity(
-            areaCode = areaCode,
-            areaName = areaName,
-            areaType = areaType,
-            metadataId = MetaDataIds.areaCodeId("1234"),
-            date = LocalDate.ofEpochDay(0),
-            cumulativeCases = 222,
-            infectionRate = 122.0,
-            newCases = 122,
-            newDeathsByPublishedDate = 15,
-            cumulativeDeathsByPublishedDate = 20,
-            cumulativeDeathsByPublishedDateRate = 30.0,
-            newDeathsByDeathDate = 40,
-            cumulativeDeathsByDeathDate = 50,
-            cumulativeDeathsByDeathDateRate = 60.0,
-            newAdmissions = 70,
-            cumulativeAdmissions = 80,
-            occupiedBeds = 90
-        )
-
         every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
         every { appDatabase.areaDataDao() } returns areaDataDao
 
@@ -170,9 +153,9 @@ class AreaDataSourceTest {
 
         assertThat(areaCase).isEqualTo(
             AreaCaseDto(
-                areaCode = areaCode,
-                areaName = areaName,
-                areaType = areaType.value,
+                areaCode = areaData.areaCode,
+                areaName = areaData.areaName,
+                areaType = areaData.areaType.value,
                 cases = listOf(
                     CaseDto(
                         newCases = areaData.newCases,
@@ -189,6 +172,15 @@ class AreaDataSourceTest {
                         date = areaData.date,
                         deathRate = areaData.cumulativeDeathsByPublishedDateRate!!,
                         baseRate = areaData.cumulativeDeathsByPublishedDateRate!! / areaData.cumulativeDeathsByPublishedDate!!
+                    )
+                ),
+                deathsByDeathDate = listOf(
+                    DeathDto(
+                        newDeaths = areaData.newDeathsByDeathDate!!,
+                        cumulativeDeaths = areaData.cumulativeDeathsByDeathDate!!,
+                        date = areaData.date,
+                        deathRate = areaData.cumulativeDeathsByDeathDateRate!!,
+                        baseRate = areaData.cumulativeDeathsByDeathDateRate!! / areaData.cumulativeDeathsByDeathDate!!
                     )
                 )
             )

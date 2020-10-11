@@ -35,6 +35,7 @@ import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -64,7 +65,7 @@ class AreaDataSynchroniser @Inject constructor(
         )
         if (casesFromNetwork.isSuccessful) {
             val pagedAreaCodeData = casesFromNetwork.body()!!
-            val lastModified = casesFromNetwork.headers().get("Last-Modified")
+            val lastModified = casesFromNetwork.headers()["Last-Modified"]
             cacheAreaData(
                 areaCode,
                 pagedAreaCodeData,
@@ -74,7 +75,7 @@ class AreaDataSynchroniser @Inject constructor(
             throw HttpException(
                 Response.error<Page<AreaDataModel>>(
                     casesFromNetwork.errorBody() ?: ResponseBody.create(
-                        MediaType.get("application/json"), ""
+                        "application/json".toMediaType(), ""
                     ),
                     casesFromNetwork.raw()
                 )

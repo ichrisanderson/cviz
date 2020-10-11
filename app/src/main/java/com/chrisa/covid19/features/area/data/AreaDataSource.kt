@@ -24,9 +24,9 @@ import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 class AreaDataSource @Inject constructor(
     private val appDatabase: AppDatabase
@@ -60,13 +60,31 @@ class AreaDataSource @Inject constructor(
                     date = areaData.date
                 )
             },
-            deathsByPublishedDate = allData.filter { it.cumulativeDeathsByPublishedDate != null }
+            deathsByPublishedDate = allData.filter {
+                it.cumulativeDeathsByPublishedDate != null
+                    && it.newDeathsByPublishedDate != null
+                    && it.cumulativeDeathsByPublishedDateRate != null
+            }
                 .map { areaData ->
                     DeathDto(
                         baseRate = areaData.cumulativeDeathsByPublishedDateRate!! / areaData.cumulativeDeathsByPublishedDate!!,
                         deathRate = areaData.cumulativeDeathsByPublishedDateRate,
                         newDeaths = areaData.newDeathsByPublishedDate!!,
                         cumulativeDeaths = areaData.cumulativeDeathsByPublishedDate,
+                        date = areaData.date
+                    )
+                },
+            deathsByDeathDate = allData.filter {
+                it.cumulativeDeathsByDeathDate != null
+                    && it.newDeathsByDeathDate != null
+                    && it.cumulativeDeathsByDeathDateRate != null
+            }
+                .map { areaData ->
+                    DeathDto(
+                        baseRate = areaData.cumulativeDeathsByDeathDateRate!! / areaData.cumulativeDeathsByDeathDate!!,
+                        deathRate = areaData.cumulativeDeathsByDeathDateRate,
+                        newDeaths = areaData.newDeathsByDeathDate!!,
+                        cumulativeDeaths = areaData.cumulativeDeathsByDeathDate,
                         date = areaData.date
                     )
                 }

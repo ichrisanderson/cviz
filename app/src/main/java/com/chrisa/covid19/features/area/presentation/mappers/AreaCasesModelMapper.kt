@@ -43,8 +43,8 @@ class AreaCasesModelMapper @Inject constructor(
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
         val caseChartData = caseChartData(areaDetailModel.allCases)
-        val deathsByPublishedDateChartData =
-            deathsByPublishedDateChartData(areaDetailModel.deathsByPublishedDate)
+        val deathsByPublishedDateChartData = deathsChartData(areaDetailModel.deathsByPublishedDate)
+        val deathsByDeathDateChartData = deathsChartData(areaDetailModel.deathsByDeathDate)
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
             totalCases = areaDetailModel.cumulativeCases,
@@ -53,7 +53,8 @@ class AreaCasesModelMapper @Inject constructor(
             changeInNewCasesThisWeek = areaDetailModel.changeInCases,
             changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRate,
             caseChartData = caseChartData,
-            deathsByPublishedDateChartData = deathsByPublishedDateChartData
+            deathsByPublishedDateChartData = deathsByPublishedDateChartData,
+            deathsByDeathDateChartData = deathsByDeathDateChartData
         )
     }
 
@@ -90,7 +91,7 @@ class AreaCasesModelMapper @Inject constructor(
         )
     }
 
-    private fun deathsByPublishedDateChartData(
+    private fun deathsChartData(
         allDeaths: List<DeathModel>
     ): List<ChartData> {
         val latestDeaths = allDeaths.takeLast(14)

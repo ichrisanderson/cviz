@@ -34,6 +34,7 @@ import com.chrisa.covid19.core.util.NetworkUtils
 import java.io.IOException
 import javax.inject.Inject
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
@@ -87,7 +88,7 @@ class AreaListSynchroniser @Inject constructor(
             throw HttpException(
                 Response.error<Page<AreaDataModel>>(
                     areasResponse.errorBody() ?: ResponseBody.create(
-                        MediaType.get("application/json"), ""
+                        "application/json".toMediaType(), ""
                     ),
                     areasResponse.raw()
                 )

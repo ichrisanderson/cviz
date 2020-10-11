@@ -21,6 +21,9 @@
     <string name="current_infection_rate">Current infection rate</string>
     <string name="up_to_postfix">%s up to %s</string>
 
+    <string name="cases_title">Number of lab-confirmed cases</string>
+    <string name="deaths_by_date_of_death_title">Deaths within 28 days of positive test by date of death</string>
+    <string name="deaths_by_date_reported_title">Deaths within 28 days of positive test by date reported</string>
     <string name="all_cases_chart_label">All cases</string>
     <string name="latest_cases_chart_label">Latest cases</string>
     <string name="all_deaths_chart_label">All deaths</string>

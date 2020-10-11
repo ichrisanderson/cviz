@@ -21,5 +21,6 @@ data class AreaCaseDto(
     val areaName: String,
     val areaType: String,
     val cases: List<CaseDto>,
-    val deathsByPublishedDate: List<DeathDto>
+    val deathsByPublishedDate: List<DeathDto>,
+    val deathsByDeathDate: List<DeathDto>
 )

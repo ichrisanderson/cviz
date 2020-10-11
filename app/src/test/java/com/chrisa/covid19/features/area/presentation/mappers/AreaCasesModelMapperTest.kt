@@ -71,6 +71,9 @@ class AreaCasesModelMapperTest {
         assertThat(mappedModel.deathsByPublishedDateChartData).isEqualTo(
             deathsByPublishedDateChartData(areaDetailModel)
         )
+        assertThat(mappedModel.deathsByDeathDateChartData).isEqualTo(
+            deathsByDeathDateChartData(areaDetailModel)
+        )
     }
 
     private fun areaDetailModel(): AreaDetailModel {
@@ -84,7 +87,8 @@ class AreaCasesModelMapperTest {
             cumulativeCases = 0,
             lastSyncedAt = now,
             allCases = caseModels(),
-            deathsByPublishedDate = deathModels()
+            deathsByPublishedDate = deathModels(),
+            deathsByDeathDate = deathModels()
         )
     }
 
@@ -198,6 +202,54 @@ class AreaCasesModelMapperTest {
                 lineChartData = LineChartData(
                     label = rollingAverageLabel,
                     values = areaDetailModel.deathsByPublishedDate.map {
+                        LineChartItem(
+                            value = it.rollingAverage.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+                )
+            )
+        )
+    }
+
+    private fun deathsByDeathDateChartData(areaDetailModel: AreaDetailModel): List<ChartData> {
+        return listOf(
+            ChartData(
+                title = allDeathsLabel,
+                barChartData = BarChartData(
+                    label = allDeathsLabel,
+                    values = areaDetailModel.deathsByDeathDate.map {
+                        BarChartItem(
+                            value = it.newDeaths.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageLabel,
+                    values = areaDetailModel.deathsByDeathDate.map {
+                        LineChartItem(
+                            value = it.rollingAverage.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+                )
+            ),
+            ChartData(
+                title = latestDeathsLabel,
+                barChartData = BarChartData(
+                    label = latestDeathsLabel,
+                    values = areaDetailModel.deathsByDeathDate.map {
+                        BarChartItem(
+                            value = it.newDeaths.toFloat(),
+                            label = it.date.format(formatter)
+                        )
+                    }
+
+                ),
+                lineChartData = LineChartData(
+                    label = rollingAverageLabel,
+                    values = areaDetailModel.deathsByDeathDate.map {
                         LineChartItem(
                             value = it.rollingAverage.toFloat(),
                             label = it.date.format(formatter)

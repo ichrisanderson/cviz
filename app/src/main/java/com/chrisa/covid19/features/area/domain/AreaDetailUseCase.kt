@@ -46,8 +46,9 @@ class AreaDetailUseCase @Inject constructor(
                 emptyAreaDetailModel()
             } else {
                 val areaData = areaDataSource.loadAreaData(areaCode)
-                val caseModels = mapAllCases(areaData.cases.sortedBy { it.date })
-                val deathsByPublishedDate = mapAllDeaths(areaData.deathsByPublishedDate.sortedBy { it.date })
+                val caseModels = mapAllCases(areaData.cases)
+                val deathsByPublishedDate = mapAllDeaths(areaData.deathsByPublishedDate)
+                val deathsByDeathDate = mapAllDeaths(areaData.deathsByDeathDate)
                 val areaSummary = areaSummary(areaData)
                 val cumulativeCases = areaData.cases.map { it.cumulativeCases }.lastOrNull() ?: 0
                 AreaDetailModel(
@@ -55,6 +56,7 @@ class AreaDetailUseCase @Inject constructor(
                     lastSyncedAt = metadata.lastSyncTime,
                     allCases = caseModels,
                     deathsByPublishedDate = deathsByPublishedDate,
+                    deathsByDeathDate = deathsByDeathDate,
                     weeklyInfectionRate = areaSummary.currentInfectionRate,
                     changeInInfectionRate = areaSummary.changeInInfectionRate,
                     weeklyCases = areaSummary.currentNewCases,
@@ -90,7 +92,8 @@ class AreaDetailUseCase @Inject constructor(
         cumulativeCases = 0,
         lastSyncedAt = null,
         allCases = emptyList(),
-        deathsByPublishedDate = emptyList()
+        deathsByPublishedDate = emptyList(),
+        deathsByDeathDate = emptyList()
     )
 
     private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
