@@ -120,23 +120,16 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     id("caseGraphs")
                     chartData(areaCasesModel.caseChartData)
                 }
-                sectionHeader {
-                    id("deathsByPublishedDateGraphsTitle")
-                    title(getString(R.string.deaths_by_date_reported_title))
-                    isMoreButtonVisible(false)
-                }
-                chartTabCard {
-                    id("deathsByPublishedDateGraphs")
-                    chartData(areaCasesModel.deathsByPublishedDateChartData)
-                }
-                sectionHeader {
-                    id("deathsByDeathDateGraphsTitle")
-                    title(getString(R.string.deaths_by_date_of_death_title))
-                    isMoreButtonVisible(false)
-                }
-                chartTabCard {
-                    id("deathsByDeathDateGraphs")
-                    chartData(areaCasesModel.deathsByDeathDateChartData)
+                if (areaCasesModel.showDeathsByPublishedDateChartData) {
+                    sectionHeader {
+                        id("deathsByPublishedDateGraphsTitle")
+                        title(getString(R.string.deaths_by_date_reported_title))
+                        isMoreButtonVisible(false)
+                    }
+                    chartTabCard {
+                        id("deathsByPublishedDateGraphs")
+                        chartData(areaCasesModel.deathsByPublishedDateChartData)
+                    }
                 }
             }
             areaError.isVisible = false

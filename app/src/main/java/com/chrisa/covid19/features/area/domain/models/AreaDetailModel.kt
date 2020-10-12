@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.area.domain.models
 import java.time.LocalDateTime
 
 data class AreaDetailModel(
+    val areaType: String?,
     val lastUpdatedAt: LocalDateTime?,
     val weeklyInfectionRate: Double,
     val changeInInfectionRate: Double,
@@ -27,6 +28,5 @@ data class AreaDetailModel(
     val cumulativeCases: Int,
     val lastSyncedAt: LocalDateTime?,
     val allCases: List<CaseModel>,
-    val deathsByPublishedDate: List<DeathModel>,
-    val deathsByDeathDate: List<DeathModel>
+    val deathsByPublishedDate: List<DeathModel>
 )

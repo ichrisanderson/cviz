@@ -27,6 +27,6 @@ data class AreaCasesModel(
     val currentNewCases: Int,
     val changeInNewCasesThisWeek: Int,
     val caseChartData: List<ChartData>,
-    val deathsByPublishedDateChartData: List<ChartData>,
-    val deathsByDeathDateChartData: List<ChartData>
+    val showDeathsByPublishedDateChartData: Boolean,
+    val deathsByPublishedDateChartData: List<ChartData>
 )

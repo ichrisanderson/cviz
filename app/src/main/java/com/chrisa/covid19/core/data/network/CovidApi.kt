@@ -146,6 +146,16 @@ data class AreaDataModel(
             put("cumulativeAdmissions", "cumAdmissions")
             put("occupiedBeds", "covidOccupiedMVBeds")
         }.toString()
+
+        val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE_NO_DEATHS = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+            put("date", "date")
+            put("newCases", "newCasesBySpecimenDate")
+            put("cumulativeCases", "cumCasesBySpecimenDate")
+            put("infectionRate", "cumCasesBySpecimenDateRate")
+        }.toString()
     }
 }
 

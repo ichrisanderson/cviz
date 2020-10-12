@@ -70,6 +70,7 @@ class AreaDetailUseCaseTest {
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(
                     AreaDetailModel(
+                        areaType = null,
                         lastUpdatedAt = null,
                         weeklyInfectionRate = 0.0,
                         changeInInfectionRate = 0.0,
@@ -78,8 +79,7 @@ class AreaDetailUseCaseTest {
                         cumulativeCases = 0,
                         lastSyncedAt = null,
                         allCases = emptyList(),
-                        deathsByPublishedDate = emptyList(),
-                        deathsByDeathDate = emptyList()
+                        deathsByPublishedDate = emptyList()
                     )
                 )
             }
@@ -109,6 +109,7 @@ class AreaDetailUseCaseTest {
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(
                     AreaDetailModel(
+                        areaType = areaCaseDto.areaType,
                         lastUpdatedAt = metadataDTO.lastUpdatedAt,
                         weeklyInfectionRate = areaSummary.currentInfectionRate,
                         changeInInfectionRate = areaSummary.changeInInfectionRate,
@@ -117,8 +118,7 @@ class AreaDetailUseCaseTest {
                         cumulativeCases = lastCase.cumulativeCases,
                         lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = caseModels,
-                        deathsByPublishedDate = emptyList(),
-                        deathsByDeathDate = emptyList()
+                        deathsByPublishedDate = emptyList()
                     )
                 )
             }
@@ -130,8 +130,7 @@ class AreaDetailUseCaseTest {
             val deaths = deathDtos()
             val deathModels = deathModels(deaths)
             val areaCaseDto = areaCaseDto().copy(
-                deathsByPublishedDate = deaths,
-                deathsByDeathDate = deaths
+                deathsByPublishedDate = deaths
             )
             val areaSummary = areaSummary(areaCaseDto)
 
@@ -151,6 +150,7 @@ class AreaDetailUseCaseTest {
             areaDetailModelFlow.collect { areaDetailModel ->
                 assertThat(areaDetailModel).isEqualTo(
                     AreaDetailModel(
+                        areaType = areaCaseDto.areaType,
                         lastUpdatedAt = metadataDTO.lastUpdatedAt,
                         weeklyInfectionRate = areaSummary.currentInfectionRate,
                         changeInInfectionRate = areaSummary.changeInInfectionRate,
@@ -159,8 +159,7 @@ class AreaDetailUseCaseTest {
                         cumulativeCases = 0,
                         lastSyncedAt = metadataDTO.lastSyncTime,
                         allCases = emptyList(),
-                        deathsByPublishedDate = deathModels,
-                        deathsByDeathDate = deathModels
+                        deathsByPublishedDate = deathModels
                     )
                 )
             }
@@ -184,8 +183,7 @@ class AreaDetailUseCaseTest {
             areaName = "Woking",
             areaType = AreaType.LTLA.value,
             cases = emptyList(),
-            deathsByPublishedDate = emptyList(),
-            deathsByDeathDate = emptyList()
+            deathsByPublishedDate = emptyList()
         )
     }
 

@@ -18,6 +18,7 @@ package com.chrisa.covid19.features.area.presentation.mappers
 
 import android.content.Context
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
@@ -40,11 +41,14 @@ class AreaCasesModelMapper @Inject constructor(
         .ofPattern("dd-MMM")
         .withLocale(Locale.UK)
         .withZone(ZoneId.of("GMT"))
+    private val supportedAreaTypesForDeaths =
+        setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaCasesModel {
         val caseChartData = caseChartData(areaDetailModel.allCases)
         val deathsByPublishedDateChartData = deathsChartData(areaDetailModel.deathsByPublishedDate)
-        val deathsByDeathDateChartData = deathsChartData(areaDetailModel.deathsByDeathDate)
+        val canDisplayDeaths =
+            canDisplayDeaths(areaDetailModel.areaType) && deathsByPublishedDateChartData.isNotEmpty()
         return AreaCasesModel(
             lastUpdatedAt = areaDetailModel.lastUpdatedAt,
             totalCases = areaDetailModel.cumulativeCases,
@@ -53,10 +57,13 @@ class AreaCasesModelMapper @Inject constructor(
             changeInNewCasesThisWeek = areaDetailModel.changeInCases,
             changeInInfectionRatesThisWeek = areaDetailModel.changeInInfectionRate,
             caseChartData = caseChartData,
-            deathsByPublishedDateChartData = deathsByPublishedDateChartData,
-            deathsByDeathDateChartData = deathsByDeathDateChartData
+            showDeathsByPublishedDateChartData = canDisplayDeaths,
+            deathsByPublishedDateChartData = deathsByPublishedDateChartData
         )
     }
+
+    private fun canDisplayDeaths(areaType: String?): Boolean =
+        supportedAreaTypesForDeaths.contains(areaType)
 
     private fun caseChartData(
         allCases: List<CaseModel>
@@ -94,6 +101,7 @@ class AreaCasesModelMapper @Inject constructor(
     private fun deathsChartData(
         allDeaths: List<DeathModel>
     ): List<ChartData> {
+        if (allDeaths.isEmpty()) return emptyList()
         val latestDeaths = allDeaths.takeLast(14)
         val allDeathsChartLabel = context.getString(R.string.all_deaths_chart_label)
         val latestDeathsChartLabel = context.getString(R.string.latest_deaths_chart_label)

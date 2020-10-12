@@ -34,7 +34,6 @@ import com.chrisa.covid19.core.util.NetworkUtils
 import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
 import retrofit2.HttpException

@@ -193,6 +193,7 @@ class AreaViewModelTest {
 
     private fun areaDetailModel(): AreaDetailModel {
         return AreaDetailModel(
+            areaType = null,
             lastUpdatedAt = null,
             weeklyInfectionRate = 0.0,
             changeInInfectionRate = 0.0,
@@ -201,8 +202,7 @@ class AreaViewModelTest {
             cumulativeCases = 0,
             lastSyncedAt = null,
             allCases = emptyList(),
-            deathsByPublishedDate = emptyList(),
-            deathsByDeathDate = emptyList()
+            deathsByPublishedDate = emptyList()
         )
     }
 
@@ -216,7 +216,7 @@ class AreaViewModelTest {
             lastUpdatedAt = LocalDateTime.now(),
             caseChartData = emptyList(),
             deathsByPublishedDateChartData = emptyList(),
-            deathsByDeathDateChartData = emptyList()
+            showDeathsByPublishedDateChartData = false
         )
     }
 

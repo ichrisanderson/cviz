@@ -173,15 +173,6 @@ class AreaDataSourceTest {
                         deathRate = areaData.cumulativeDeathsByPublishedDateRate!!,
                         baseRate = areaData.cumulativeDeathsByPublishedDateRate!! / areaData.cumulativeDeathsByPublishedDate!!
                     )
-                ),
-                deathsByDeathDate = listOf(
-                    DeathDto(
-                        newDeaths = areaData.newDeathsByDeathDate!!,
-                        cumulativeDeaths = areaData.cumulativeDeathsByDeathDate!!,
-                        date = areaData.date,
-                        deathRate = areaData.cumulativeDeathsByDeathDateRate!!,
-                        baseRate = areaData.cumulativeDeathsByDeathDateRate!! / areaData.cumulativeDeathsByDeathDate!!
-                    )
                 )
             )
         )
