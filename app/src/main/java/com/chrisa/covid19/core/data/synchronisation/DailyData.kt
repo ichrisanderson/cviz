@@ -14,4 +14,13 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.mappers
+package com.chrisa.covid19.core.data.synchronisation
+
+import java.time.LocalDate
+
+data class DailyData(
+    val newValue: Int,
+    val cumulativeValue: Int,
+    val rate: Double,
+    val date: LocalDate
+)

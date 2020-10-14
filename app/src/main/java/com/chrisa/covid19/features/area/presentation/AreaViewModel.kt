@@ -31,8 +31,8 @@ import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaCasesModelMapper
-import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
+import com.chrisa.covid19.features.area.presentation.mappers.AreaViewModelDataMapper
+import com.chrisa.covid19.features.area.presentation.models.AreaViewModelData
 import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -47,7 +47,7 @@ class AreaViewModel @ViewModelInject constructor(
     private val insertSavedAreaUseCase: InsertSavedAreaUseCase,
     private val deleteSavedAreaUseCase: DeleteSavedAreaUseCase,
     private val dispatchers: CoroutineDispatchers,
-    private val areaCasesModelMapper: AreaCasesModelMapper,
+    private val areaViewModelDataMapper: AreaViewModelDataMapper,
     private val timeProvider: TimeProvider,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -56,9 +56,9 @@ class AreaViewModel @ViewModelInject constructor(
     val isSaved: LiveData<Boolean>
         get() = _isSaved
 
-    private val _areaCases = MutableLiveData<AreaCasesModel>()
-    val areaCases: LiveData<AreaCasesModel>
-        get() = _areaCases
+    private val _areaData = MutableLiveData<AreaViewModelData>()
+    val areaData: LiveData<AreaViewModelData>
+        get() = _areaData
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
@@ -117,7 +117,7 @@ class AreaViewModel @ViewModelInject constructor(
                         syncAreaCases(areaDetailModel)
                     } else {
                         _isLoading.postValue(false)
-                        _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+                        _areaData.postValue(areaViewModelDataMapper.mapAreaDetailModel(areaDetailModel))
                     }
                 }
             }.onFailure {
@@ -134,13 +134,13 @@ class AreaViewModel @ViewModelInject constructor(
             }.onFailure { error ->
                 if (error is HttpException && error.code() == 304) {
                     _isLoading.postValue(false)
-                    _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
+                    _areaData.postValue(areaViewModelDataMapper.mapAreaDetailModel(areaDetailModel))
                 } else if (areaDetailModel.lastSyncedAt == null) {
                     _isLoading.postValue(false)
                     _syncAreaError.postValue(Event(true))
                 } else {
-                    _areaCases.postValue(areaCasesModelMapper.mapAreaDetailModel(areaDetailModel))
                     _isLoading.postValue(false)
+                    _areaData.postValue(areaViewModelDataMapper.mapAreaDetailModel(areaDetailModel))
                     _syncAreaError.postValue(Event(false))
                 }
             }

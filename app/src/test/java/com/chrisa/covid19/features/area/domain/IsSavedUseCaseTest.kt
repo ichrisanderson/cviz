@@ -36,11 +36,8 @@ class IsSavedUseCaseTest {
     @Test
     fun `GIVEN area is not saved WHEN savedState called THEN savedState is false`() =
         runBlockingTest {
-
             val areaCode = "A01"
-            val publisher = ConflatedBroadcastChannel(false)
-
-            every { areaDataSource.isSaved(areaCode) } returns publisher.asFlow()
+            every { areaDataSource.isSaved(areaCode) } returns ConflatedBroadcastChannel(false).asFlow()
 
             val savedState = sut.execute(areaCode).first()
 

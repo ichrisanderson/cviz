@@ -214,29 +214,9 @@ class HomeDataSourceTest {
     fun `WHEN savedAreaCases called THEN all saved areas from database are returned`() =
         runBlockingTest {
 
-            val caseEntity = AreaDataEntity(
-                metadataId = MetaDataIds.areaCodeId("1234"),
-                areaCode = "1234",
-                areaName = "London",
-                areaType = AreaType.UTLA,
-                date = LocalDate.ofEpochDay(0),
-                cumulativeCases = 222,
-                infectionRate = 122.0,
-                newCases = 122,
-                newDeathsByPublishedDate = 15,
-                cumulativeDeathsByPublishedDate = 20,
-                cumulativeDeathsByPublishedDateRate = 30.0,
-                newDeathsByDeathDate = 40,
-                cumulativeDeathsByDeathDate = 50,
-                cumulativeDeathsByDeathDateRate = 60.0,
-                newAdmissions = 70,
-                cumulativeAdmissions = 80,
-                occupiedBeds = 90
-            )
-
             val allCases = listOf(
-                caseEntity,
-                caseEntity.copy(areaCode = "1111", areaName = "England")
+                areaData,
+                areaData.copy(areaCode = "1111", areaName = "England")
             )
             val allCasesFlow = flow { emit(allCases) }
 
@@ -314,5 +294,29 @@ class HomeDataSourceTest {
 
         assertThat(emittedItems.size).isEqualTo(1)
         assertThat(emittedItems.first()).isEqualTo(allInfectionRates)
+    }
+
+    companion object {
+        private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
+
+        private val areaData = AreaDataEntity(
+            areaCode = Constants.UK_AREA_CODE,
+            areaName = "United Kingdom",
+            areaType = AreaType.OVERVIEW,
+            metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+            date = syncDate.toLocalDate(),
+            cumulativeCases = 222,
+            infectionRate = 122.0,
+            newCases = 122,
+            newDeathsByPublishedDate = 15,
+            cumulativeDeathsByPublishedDate = 20,
+            cumulativeDeathsByPublishedDateRate = 30.0,
+            newDeathsByDeathDate = 40,
+            cumulativeDeathsByDeathDate = 50,
+            cumulativeDeathsByDeathDateRate = 60.0,
+            newAdmissions = 70,
+            cumulativeAdmissions = 80,
+            occupiedBeds = 90
+        )
     }
 }

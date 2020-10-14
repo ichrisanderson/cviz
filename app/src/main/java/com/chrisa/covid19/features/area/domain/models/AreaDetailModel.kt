@@ -16,17 +16,17 @@
 
 package com.chrisa.covid19.features.area.domain.models
 
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
 import java.time.LocalDateTime
 
 data class AreaDetailModel(
     val areaType: String?,
     val lastUpdatedAt: LocalDateTime?,
-    val weeklyInfectionRate: Double,
-    val changeInInfectionRate: Double,
-    val weeklyCases: Int,
-    val changeInCases: Int,
     val cumulativeCases: Int,
+    val newCases: Int,
+    val weeklyCaseSummary: WeeklySummary,
     val lastSyncedAt: LocalDateTime?,
     val allCases: List<CaseModel>,
-    val deathsByPublishedDate: List<DeathModel>
+    val deathsByPublishedDate: List<DeathModel>,
+    val weeklyDeathSummary: WeeklySummary
 )

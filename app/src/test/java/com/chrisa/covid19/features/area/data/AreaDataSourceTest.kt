@@ -20,9 +20,10 @@ import com.chrisa.covid19.core.data.db.AppDatabase
 import com.chrisa.covid19.core.data.db.AreaDataDao
 import com.chrisa.covid19.core.data.db.AreaDataEntity
 import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
-import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
+import com.chrisa.covid19.features.area.data.dtos.AreaDetailDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
@@ -34,7 +35,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -53,30 +53,10 @@ class AreaDataSourceTest {
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
     private val sut = AreaDataSource(appDatabase)
-    private val areaData = AreaDataEntity(
-        areaCode = "1234",
-        areaName = "London",
-        areaType = AreaType.UTLA,
-        metadataId = MetaDataIds.areaCodeId("1234"),
-        date = LocalDate.ofEpochDay(0),
-        cumulativeCases = 222,
-        infectionRate = 122.0,
-        newCases = 122,
-        newDeathsByPublishedDate = 15,
-        cumulativeDeathsByPublishedDate = 20,
-        cumulativeDeathsByPublishedDateRate = 30.0,
-        newDeathsByDeathDate = 40,
-        cumulativeDeathsByDeathDate = 50,
-        cumulativeDeathsByDeathDateRate = 60.0,
-        newAdmissions = 70,
-        cumulativeAdmissions = 80,
-        occupiedBeds = 90
-    )
 
     @Test
     fun `GIVEN area is not saved WHEN isSaved called THEN savedState is false`() = runBlockingTest {
-        val publisher = ConflatedBroadcastChannel(false)
-        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns publisher.asFlow()
+        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns ConflatedBroadcastChannel(false).asFlow()
 
         val savedState = sut.isSaved(areaData.areaCode).first()
 
@@ -85,8 +65,7 @@ class AreaDataSourceTest {
 
     @Test
     fun `GIVEN area is saved WHEN isSaved called THEN savedState is true`() = runBlockingTest {
-        val publisher = ConflatedBroadcastChannel(false)
-        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns publisher.asFlow()
+        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns ConflatedBroadcastChannel(false).asFlow()
 
         val savedState = sut.isSaved(areaData.areaCode).first()
 
@@ -108,9 +87,7 @@ class AreaDataSourceTest {
     @Test
     fun `WHEN deleteSavedArea called THEN entity is deleted from the database`() {
         val dto = SavedAreaDto(areaData.areaCode)
-        val entity = dto.toSavedAreaEntity()
-
-        every { appDatabase.savedAreaDao().delete(entity) } returns 1
+        every { appDatabase.savedAreaDao().delete(dto.toSavedAreaEntity()) } returns 1
 
         val deletedRows = sut.deleteSavedArea(dto)
 
@@ -119,26 +96,17 @@ class AreaDataSourceTest {
 
     @Test
     fun `WHEN loadAreaMetadata called THEN area metadata is returned`() = runBlocking {
-        val now = LocalDateTime.now()
-        val metadataDTO = MetadataEntity(
-            id = MetaDataIds.areaCodeId(areaData.areaCode),
-            lastUpdatedAt = now.minusDays(1),
-            lastSyncTime = now
-        )
-
-        val allMetadata = listOf(metadataDTO)
-
         every {
             appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(areaData.areaCode))
-        } returns allMetadata.asFlow()
+        } returns listOf(metadata).asFlow()
 
         val metadataFlow = sut.loadAreaMetadata(areaData.areaCode)
 
-        metadataFlow.collect { metadata ->
-            assertThat(metadata).isEqualTo(
+        metadataFlow.collect { metadataDto ->
+            assertThat(metadataDto).isEqualTo(
                 MetadataDto(
-                    lastUpdatedAt = metadataDTO.lastUpdatedAt,
-                    lastSyncTime = metadataDTO.lastSyncTime
+                    lastUpdatedAt = metadata.lastUpdatedAt,
+                    lastSyncTime = metadata.lastSyncTime
                 )
             )
         }
@@ -152,7 +120,7 @@ class AreaDataSourceTest {
         val areaCase = sut.loadAreaData(areaData.areaCode)
 
         assertThat(areaCase).isEqualTo(
-            AreaCaseDto(
+            AreaDetailDto(
                 areaCode = areaData.areaCode,
                 areaName = areaData.areaName,
                 areaType = areaData.areaType.value,
@@ -175,6 +143,36 @@ class AreaDataSourceTest {
                     )
                 )
             )
+        )
+    }
+
+    companion object {
+        private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
+
+        private val metadata = MetadataEntity(
+            id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+            lastUpdatedAt = syncDate.minusDays(1),
+            lastSyncTime = syncDate
+        )
+
+        private val areaData = AreaDataEntity(
+            areaCode = Constants.UK_AREA_CODE,
+            areaName = "United Kingdom",
+            areaType = AreaType.OVERVIEW,
+            metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+            date = syncDate.toLocalDate(),
+            cumulativeCases = 222,
+            infectionRate = 122.0,
+            newCases = 122,
+            newDeathsByPublishedDate = 15,
+            cumulativeDeathsByPublishedDate = 20,
+            cumulativeDeathsByPublishedDateRate = 30.0,
+            newDeathsByDeathDate = 40,
+            cumulativeDeathsByDeathDate = 50,
+            cumulativeDeathsByDeathDateRate = 60.0,
+            newAdmissions = 70,
+            cumulativeAdmissions = 80,
+            occupiedBeds = 90
         )
     }
 }

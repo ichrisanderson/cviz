@@ -26,16 +26,12 @@ import org.junit.Test
 class DeleteSavedAreaUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
+    private val sut = DeleteSavedAreaUseCase(areaDataSource)
 
     @Test
     fun `WHEN execute called THEN saved area is deleted`() {
-
         val areCode = "1234"
-        val sut = DeleteSavedAreaUseCase(areaDataSource)
-
-        val dto = SavedAreaDto(areCode)
-
-        every { areaDataSource.deleteSavedArea(dto) } returns 1
+        every { areaDataSource.deleteSavedArea(SavedAreaDto(areCode)) } returns 1
 
         val deletedRows = sut.execute(areCode)
 

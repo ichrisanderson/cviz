@@ -104,7 +104,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     }
 
     private fun observeCases() {
-        viewModel.areaCases.observe(viewLifecycleOwner, Observer {
+        viewModel.areaData.observe(viewLifecycleOwner, Observer {
             val areaCasesModel = it ?: return@Observer
             areaRecyclerView.withModels {
                 areaDetailCard {

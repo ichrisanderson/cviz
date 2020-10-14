@@ -18,8 +18,8 @@ package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
-import com.chrisa.covid19.core.data.synchronisation.AreaSummary
-import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
@@ -38,7 +38,7 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class LoadSavedAreasUseCaseTest {
 
-    private val areaSummaryMapper = mockk<AreaSummaryMapper>()
+    private val areaSummaryMapper = mockk<WeeklySummaryBuilder>()
     private val homeDataSource = mockk<HomeDataSource>()
     private val sut = LoadSavedAreasUseCase(homeDataSource, areaSummaryMapper)
 
@@ -54,27 +54,17 @@ class LoadSavedAreasUseCaseTest {
                 infectionRate = 10.0,
                 date = LocalDate.now()
             )
-            val areaSummary = AreaSummary(
-                areaName = savedAreaCaseDto.areaName,
-                areaCode = savedAreaCaseDto.areaCode,
-                areaType = savedAreaCaseDto.areaType.value,
-                currentNewCases = 100,
-                changeInCases = 10,
-                currentInfectionRate = 40.0,
-                changeInInfectionRate = 10.0
+            val weeklySummary = WeeklySummary(
+                weeklyTotal = 100,
+                changeInTotal = 10,
+                weeklyRate = 40.0,
+                changeInRate = 10.0
             )
             val newCases = listOf(savedAreaCaseDto)
-            every {
-                areaSummaryMapper.mapAreaDataToAreaSummary(
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns areaSummary
+            every { areaSummaryMapper.buildWeeklySummary(any()) } returns weeklySummary
             every { homeDataSource.savedAreaCases() } returns listOf(newCases).asFlow()
-
             val emittedItems = mutableListOf<List<SummaryModel>>()
+
             sut.execute().collect { emittedItems.add(it) }
 
             val summaryModels = emittedItems.first()
@@ -84,13 +74,13 @@ class LoadSavedAreasUseCaseTest {
                     listOf(
                         SummaryModel(
                             position = 1,
-                            areaCode = areaSummary.areaCode,
-                            areaName = areaSummary.areaName,
-                            areaType = areaSummary.areaType,
-                            changeInCases = areaSummary.changeInCases,
-                            currentNewCases = areaSummary.currentNewCases,
-                            currentInfectionRate = areaSummary.currentInfectionRate,
-                            changeInInfectionRate = areaSummary.changeInInfectionRate
+                            areaCode = savedAreaCaseDto.areaCode,
+                            areaName = savedAreaCaseDto.areaName,
+                            areaType = savedAreaCaseDto.areaType.value,
+                            changeInCases = weeklySummary.changeInTotal,
+                            currentNewCases = weeklySummary.weeklyTotal,
+                            currentInfectionRate = weeklySummary.weeklyRate,
+                            changeInInfectionRate = weeklySummary.changeInRate
                         )
                     )
                 )

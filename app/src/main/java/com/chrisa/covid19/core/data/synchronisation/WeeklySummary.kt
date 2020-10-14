@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain.mappers
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
-import com.chrisa.covid19.features.area.domain.mappers.SavedAreaDtoMapper.mapToSavedAreaDto
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-
-class SavedAreaDtoMapperTest {
-    @Test
-    fun `WHEN mapToSavedAreaDto called THEN dto is created with correct details`() {
-        val areaCode = "12234"
-
-        assertThat(mapToSavedAreaDto(areaCode)).isEqualTo(
-            SavedAreaDto(
-                areaCode = areaCode
-            )
-        )
-    }
-}
+data class WeeklySummary(
+    val weeklyTotal: Int,
+    val changeInTotal: Int,
+    val weeklyRate: Double,
+    val changeInRate: Double
+)

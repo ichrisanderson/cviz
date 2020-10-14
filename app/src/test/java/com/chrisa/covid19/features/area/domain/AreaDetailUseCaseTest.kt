@@ -17,17 +17,15 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.core.data.db.AreaType
-import com.chrisa.covid19.core.data.synchronisation.AreaSummary
-import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
+import com.chrisa.covid19.core.data.db.Constants
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
 import com.chrisa.covid19.features.area.data.dtos.CaseDto
 import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import com.chrisa.covid19.features.area.domain.models.CaseModel
-import com.chrisa.covid19.features.area.domain.models.DeathModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
@@ -39,7 +37,6 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
-import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
@@ -48,194 +45,130 @@ class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
-    private val areaSummaryMapper = mockk<AreaSummaryMapper>()
-    private val areaCode = "1234"
+    private val areaSummaryMapper = mockk<WeeklySummaryBuilder>()
     private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper, areaSummaryMapper)
-    private val now = LocalDateTime.now()
-    private val metadataDTO = MetadataDto(lastUpdatedAt = now.minusDays(1), lastSyncTime = now)
-
-    @Before
-    fun setup() {
-        every { rollingAverageHelper.average(any(), any()) } returns 1.0
-        every { areaDataSource.loadAreaMetadata(any()) } returns listOf(metadataDTO).asFlow()
-    }
 
     @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
+            every { rollingAverageHelper.average(any(), any()) } returns 1.0
+            every { areaDataSource.loadAreaMetadata(area.areaCode) } returns listOf(null).asFlow()
 
-            val areaDetailModelFlow = sut.execute(areaCode)
+            val areaDetailModelFlow = sut.execute(area.areaCode)
 
-            areaDetailModelFlow.collect { areaDetailModel ->
-                assertThat(areaDetailModel).isEqualTo(
-                    AreaDetailModel(
-                        areaType = null,
-                        lastUpdatedAt = null,
-                        weeklyInfectionRate = 0.0,
-                        changeInInfectionRate = 0.0,
-                        weeklyCases = 0,
-                        changeInCases = 0,
-                        cumulativeCases = 0,
-                        lastSyncedAt = null,
-                        allCases = emptyList(),
-                        deathsByPublishedDate = emptyList()
-                    )
-                )
+            areaDetailModelFlow.collect { emittedAreaDetailModel ->
+                assertThat(emittedAreaDetailModel).isEqualTo(emptyAreaDetailModel)
             }
         }
 
     @Test
     fun `WHEN execute called THEN area detail contains the latest cases for the area`() =
         runBlocking {
-            val caseDTOs = caseDtos()
-            val caseModels = caseModels(caseDTOs)
-            val lastCase = caseDTOs.last()
-            val areaCaseDto = areaCaseDto().copy(cases = caseDTOs)
-            val areaSummary = areaSummary(areaCaseDto)
+            with(areaWithCases) {
+                every { rollingAverageHelper.average(any(), any()) } returns 1.0
+                every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadata).asFlow()
+                coEvery { areaDataSource.loadAreaData(areaCode) } returns areaDetail
+                every { areaSummaryMapper.buildWeeklySummary(any()) } returns weeklySummary
 
-            coEvery { areaDataSource.loadAreaData(any()) } returns areaCaseDto
-            every {
-                areaSummaryMapper.mapAreaDataToAreaSummary(
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns areaSummary
+                val areaDetailModelFlow = sut.execute(areaCode)
 
-            val areaDetailModelFlow = sut.execute(areaSummary.areaCode)
-
-            areaDetailModelFlow.collect { areaDetailModel ->
-                assertThat(areaDetailModel).isEqualTo(
-                    AreaDetailModel(
-                        areaType = areaCaseDto.areaType,
-                        lastUpdatedAt = metadataDTO.lastUpdatedAt,
-                        weeklyInfectionRate = areaSummary.currentInfectionRate,
-                        changeInInfectionRate = areaSummary.changeInInfectionRate,
-                        weeklyCases = areaSummary.currentNewCases,
-                        changeInCases = areaSummary.changeInCases,
-                        cumulativeCases = lastCase.cumulativeCases,
-                        lastSyncedAt = metadataDTO.lastSyncTime,
-                        allCases = caseModels,
-                        deathsByPublishedDate = emptyList()
-                    )
-                )
+                areaDetailModelFlow.collect { emittedAreaDetailModel ->
+                    assertThat(emittedAreaDetailModel).isEqualTo(areaDetailModel)
+                }
             }
         }
 
     @Test
     fun `WHEN execute called THEN area detail contains the latest deaths for the area`() =
         runBlocking {
-            val deaths = deathDtos()
-            val deathModels = deathModels(deaths)
-            val areaCaseDto = areaCaseDto().copy(
-                deathsByPublishedDate = deaths
+            with(areaWithDeaths) {
+                every { rollingAverageHelper.average(any(), any()) } returns 1.0
+                every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadata).asFlow()
+                coEvery { areaDataSource.loadAreaData(areaCode) } returns areaDetail
+                every { areaSummaryMapper.buildWeeklySummary(any()) } returns weeklySummary
+
+                val areaDetailModelFlow = sut.execute(areaCode)
+
+                areaDetailModelFlow.collect { emittedAreaDetailModel ->
+                    assertThat(emittedAreaDetailModel).isEqualTo(areaDetailModel)
+                }
+            }
+        }
+
+    companion object {
+
+        private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
+
+        private val emptyWeeklySummary =
+            WeeklySummary(
+                weeklyTotal = 0,
+                changeInTotal = 0,
+                weeklyRate = 0.0,
+                changeInRate = 0.0
             )
-            val areaSummary = areaSummary(areaCaseDto)
 
-            every { areaDataSource.loadAreaMetadata(any()) } returns listOf(metadataDTO).asFlow()
-            coEvery { areaDataSource.loadAreaData(any()) } returns areaCaseDto
-            every {
-                areaSummaryMapper.mapAreaDataToAreaSummary(
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns areaSummary
+        private val emptyAreaDetailModel =
+            AreaDetailModel(
+                areaType = null,
+                lastUpdatedAt = null,
+                lastSyncedAt = null,
+                cumulativeCases = 0,
+                newCases = 0,
+                allCases = emptyList(),
+                weeklyCaseSummary = emptyWeeklySummary,
+                deathsByPublishedDate = emptyList(),
+                weeklyDeathSummary = emptyWeeklySummary
+            )
 
-            val areaDetailModelFlow = sut.execute(areaSummary.areaCode)
+        private val area = AreaDetailTestData(
+            metadata = MetadataDto(lastUpdatedAt = syncDate.minusDays(1), lastSyncTime = syncDate),
+            areaName = "United Kingdom",
+            areaCode = Constants.UK_AREA_CODE,
+            areaType = AreaType.OVERVIEW,
+            cases = emptyList(),
+            weeklySummary = WeeklySummary(
+                weeklyTotal = 1000,
+                changeInTotal = 10,
+                weeklyRate = 100.0,
+                changeInRate = 20.0
+            ),
+            deaths = emptyList()
+        )
 
-            areaDetailModelFlow.collect { areaDetailModel ->
-                assertThat(areaDetailModel).isEqualTo(
-                    AreaDetailModel(
-                        areaType = areaCaseDto.areaType,
-                        lastUpdatedAt = metadataDTO.lastUpdatedAt,
-                        weeklyInfectionRate = areaSummary.currentInfectionRate,
-                        changeInInfectionRate = areaSummary.changeInInfectionRate,
-                        weeklyCases = areaSummary.currentNewCases,
-                        changeInCases = areaSummary.changeInCases,
-                        cumulativeCases = 0,
-                        lastSyncedAt = metadataDTO.lastSyncTime,
-                        allCases = emptyList(),
-                        deathsByPublishedDate = deathModels
-                    )
+        private val areaWithCases = area.copy(
+            cases = caseDtos()
+        )
+
+        private val areaWithDeaths = area.copy(
+            deaths = deathDtos()
+        )
+
+        private fun caseDtos(): List<CaseDto> {
+            var cumulativeCases = 0
+            return (1 until 100).map {
+                cumulativeCases += it
+                CaseDto(
+                    newCases = it,
+                    cumulativeCases = cumulativeCases,
+                    date = LocalDate.ofEpochDay(it.toLong()),
+                    infectionRate = 0.0,
+                    baseRate = 0.0
                 )
             }
         }
 
-    private fun areaSummary(areaCaseDto: AreaCaseDto): AreaSummary {
-        return AreaSummary(
-            areaCode = areaCaseDto.areaCode,
-            areaName = areaCaseDto.areaName,
-            areaType = areaCaseDto.areaType,
-            changeInCases = 100,
-            currentNewCases = 10,
-            currentInfectionRate = 10.0,
-            changeInInfectionRate = 110.0
-        )
-    }
-
-    private fun areaCaseDto(): AreaCaseDto {
-        return AreaCaseDto(
-            areaCode = "1234",
-            areaName = "Woking",
-            areaType = AreaType.LTLA.value,
-            cases = emptyList(),
-            deathsByPublishedDate = emptyList()
-        )
-    }
-
-    private fun caseDtos(): List<CaseDto> {
-        var cumulativeCases = 0
-        return (1 until 100).map {
-            cumulativeCases += it
-            CaseDto(
-                newCases = it,
-                cumulativeCases = cumulativeCases,
-                date = LocalDate.ofEpochDay(it.toLong()),
-                infectionRate = 0.0,
-                baseRate = 0.0
-            )
-        }
-    }
-
-    private fun caseModels(caseDTOs: List<CaseDto>): List<CaseModel> {
-        return caseDTOs.map {
-            CaseModel(
-                newCases = it.newCases,
-                date = it.date,
-                rollingAverage = 1.0,
-                cumulativeCases = it.cumulativeCases,
-                baseRate = 0.0
-            )
-        }
-    }
-
-    private fun deathDtos(): List<DeathDto> {
-        var cumulativeDeaths = 0
-        return (1 until 100).map {
-            cumulativeDeaths += it
-            DeathDto(
-                newDeaths = it,
-                cumulativeDeaths = cumulativeDeaths,
-                date = LocalDate.ofEpochDay(it.toLong()),
-                deathRate = 0.0,
-                baseRate = 0.0
-            )
-        }
-    }
-
-    private fun deathModels(caseDTOs: List<DeathDto>): List<DeathModel> {
-        return caseDTOs.map {
-            DeathModel(
-                newDeaths = it.newDeaths,
-                date = it.date,
-                rollingAverage = 1.0,
-                cumulativeDeaths = it.cumulativeDeaths,
-                baseRate = 0.0
-            )
+        private fun deathDtos(): List<DeathDto> {
+            var cumulativeDeaths = 0
+            return (1 until 100).map {
+                cumulativeDeaths += it
+                DeathDto(
+                    newDeaths = it,
+                    cumulativeDeaths = cumulativeDeaths,
+                    date = LocalDate.ofEpochDay(it.toLong()),
+                    deathRate = 0.0,
+                    baseRate = 0.0
+                )
+            }
         }
     }
 }

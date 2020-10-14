@@ -25,15 +25,8 @@ import org.junit.Test
 class SavedAreaDtoMapperTest {
     @Test
     fun `WHEN toSavedAreaEntity called THEN entity is created with correct details`() {
+        val dto = SavedAreaDto(areaCode = "1234")
 
-        val dto = SavedAreaDto(
-            areaCode = "12234"
-        )
-
-        assertThat(dto.toSavedAreaEntity()).isEqualTo(
-            SavedAreaEntity(
-                areaCode = dto.areaCode
-            )
-        )
+        assertThat(dto.toSavedAreaEntity()).isEqualTo(SavedAreaEntity(areaCode = dto.areaCode))
     }
 }

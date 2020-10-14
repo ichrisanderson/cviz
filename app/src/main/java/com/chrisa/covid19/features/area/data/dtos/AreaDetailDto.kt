@@ -16,7 +16,7 @@
 
 package com.chrisa.covid19.features.area.data.dtos
 
-data class AreaCaseDto(
+data class AreaDetailDto(
     val areaCode: String,
     val areaName: String,
     val areaType: String,

@@ -27,7 +27,7 @@ import com.chrisa.covid19.core.ui.NumberFormatter
 import com.chrisa.covid19.core.ui.NumberFormatter.getChangeColour
 import com.chrisa.covid19.core.util.DateFormatter
 import com.chrisa.covid19.core.util.DateFormatter.mediumLocalizedDate
-import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
+import com.chrisa.covid19.features.area.presentation.models.AreaViewModelData
 import com.google.android.material.card.MaterialCardView
 import java.time.LocalDateTime
 import kotlinx.android.synthetic.main.area_widget_detail_card.view.changeInNewCasesThisWeek
@@ -43,7 +43,9 @@ import kotlinx.android.synthetic.main.area_widget_detail_card.view.totalCasesCap
 class AreaDetailCard(context: Context, attrs: AttributeSet) : MaterialCardView(context, attrs) {
 
     @ModelProp
-    fun areaCasesModel(areaCasesModel: AreaCasesModel) {
+    fun areaCasesModel(areaCasesModel: AreaViewModelData) {
+        val weeklyCaseSummary = areaCasesModel.weeklyCaseSummary
+
         bindLastUpdated(areaCasesModel.lastUpdatedAt)
 
         totalCases.text = NumberFormatter.format(areaCasesModel.totalCases)
@@ -53,24 +55,24 @@ class AreaDetailCard(context: Context, attrs: AttributeSet) : MaterialCardView(c
             mediumLocalizedDate(areaCasesModel.lastUpdatedAt)
         )
 
-        currentNewCases.text = NumberFormatter.format(areaCasesModel.currentNewCases)
+        currentNewCases.text = NumberFormatter.format(weeklyCaseSummary.weeklyTotal)
         changeInNewCasesThisWeek.text =
-            NumberFormatter.getChangeText(areaCasesModel.changeInNewCasesThisWeek)
+            NumberFormatter.getChangeText(weeklyCaseSummary.changeInTotal)
         changeInNewCasesThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeInNewCasesThisWeek.context,
-                getChangeColour(areaCasesModel.changeInNewCasesThisWeek)
+                getChangeColour(weeklyCaseSummary.changeInTotal)
             )
         )
 
         currentInfectionRate.text =
-            NumberFormatter.format(areaCasesModel.currentInfectionRate.toInt())
+            NumberFormatter.format(weeklyCaseSummary.weeklyRate.toInt())
         infectionRateChangeThisWeek.text =
-            NumberFormatter.getChangeText(areaCasesModel.changeInInfectionRatesThisWeek.toInt())
+            NumberFormatter.getChangeText(weeklyCaseSummary.changeInRate.toInt())
         infectionRateChangeThisWeek.setTextColor(
             ContextCompat.getColor(
                 changeInNewCasesThisWeek.context,
-                getChangeColour(areaCasesModel.changeInInfectionRatesThisWeek.toInt())
+                getChangeColour(weeklyCaseSummary.changeInRate.toInt())
             )
         )
     }
