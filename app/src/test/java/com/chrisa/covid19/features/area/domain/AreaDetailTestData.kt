@@ -31,9 +31,10 @@ data class AreaDetailTestData(
     val areaCode: String,
     val areaName: String,
     val areaType: AreaType,
-    val weeklySummary: WeeklySummary,
     val cases: List<CaseDto>,
-    val deaths: List<DeathDto>
+    val caseSummary: WeeklySummary,
+    val deaths: List<DeathDto>,
+    val deathSummary: WeeklySummary
 ) {
     private val lastCase = cases.lastOrNull()
 
@@ -50,7 +51,8 @@ data class AreaDetailTestData(
         get() = lastCase?.cumulativeCases ?: 0
     val newCases: Int
         get() = lastCase?.newCases ?: 0
-    val caseModels: List<CaseModel>
+
+    private val caseModels: List<CaseModel>
         get() = cases.map {
             CaseModel(
                 newCases = it.newCases,
@@ -61,7 +63,7 @@ data class AreaDetailTestData(
             )
         }
 
-    val deathModels: List<DeathModel>
+    private val deathModels: List<DeathModel>
         get() = deaths.map {
             DeathModel(
                 newDeaths = it.newDeaths,
@@ -75,13 +77,10 @@ data class AreaDetailTestData(
     val areaDetailModel: AreaDetailModel
         get() = AreaDetailModel(
             areaType = areaType.value,
-            lastUpdatedAt = metadata.lastUpdatedAt,
             lastSyncedAt = metadata.lastSyncTime,
-            cumulativeCases = cumulativeCases,
-            newCases = newCases,
             allCases = caseModels,
-            weeklyCaseSummary = weeklySummary,
-            deathsByPublishedDate = deathModels,
-            weeklyDeathSummary = weeklySummary
+            caseSummary = caseSummary,
+            allDeaths = deathModels,
+            deathSummary = deathSummary
         )
 }

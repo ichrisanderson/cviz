@@ -26,7 +26,7 @@ import com.chrisa.covid19.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
@@ -45,6 +45,7 @@ class LoadSavedAreasUseCaseTest {
     @Test
     fun `WHEN execute called THEN daily record list is emitted`() =
         runBlockingTest {
+            val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
             val savedAreaCaseDto = SavedAreaCaseDto(
                 areaName = "UK",
                 areaCode = Constants.UK_AREA_CODE,
@@ -52,9 +53,12 @@ class LoadSavedAreasUseCaseTest {
                 newCases = 10,
                 cumulativeCases = 100,
                 infectionRate = 10.0,
-                date = LocalDate.now()
+                date = syncDate.toLocalDate()
             )
             val weeklySummary = WeeklySummary(
+                lastDate = syncDate.toLocalDate(),
+                currentTotal = 12220,
+                dailyTotal = 320,
                 weeklyTotal = 100,
                 changeInTotal = 10,
                 weeklyRate = 40.0,

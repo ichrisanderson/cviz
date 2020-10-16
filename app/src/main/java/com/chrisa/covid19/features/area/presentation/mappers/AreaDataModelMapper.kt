@@ -27,36 +27,36 @@ import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.ChartData
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.domain.models.CaseModel
 import com.chrisa.covid19.features.area.domain.models.DeathModel
-import com.chrisa.covid19.features.area.presentation.models.AreaViewModelData
+import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
 
-class AreaViewModelDataMapper @Inject constructor(
+class AreaDataModelMapper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private val formatter = DateTimeFormatter
         .ofPattern("dd-MMM")
         .withLocale(Locale.UK)
         .withZone(ZoneId.of("GMT"))
+
     private val supportedAreaTypesForDeaths =
         setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
 
-    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaViewModelData {
+    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
         val caseChartData = caseChartData(areaDetailModel.allCases)
-        val deathsByPublishedDateChartData = deathsChartData(areaDetailModel.deathsByPublishedDate)
-        val canDisplayDeaths =
-            canDisplayDeaths(areaDetailModel.areaType) && deathsByPublishedDateChartData.isNotEmpty()
-        return AreaViewModelData(
-            lastUpdatedAt = areaDetailModel.lastUpdatedAt,
-            totalCases = areaDetailModel.cumulativeCases,
-            weeklyCaseSummary = areaDetailModel.weeklyCaseSummary,
+        val deathChartData = deathsChartData(areaDetailModel.allDeaths)
+        val canDisplayDeaths = canDisplayDeaths(areaDetailModel.areaType) &&
+            deathChartData.isNotEmpty()
+
+        return AreaDataModel(
+            caseSummary = areaDetailModel.caseSummary,
             caseChartData = caseChartData,
-            showDeathsByPublishedDateChartData = canDisplayDeaths,
-            deathsByPublishedDateChartData = deathsByPublishedDateChartData,
-            weeklyDeathSummary = areaDetailModel.weeklyDeathSummary
+            showDeaths = canDisplayDeaths,
+            deathSummary = areaDetailModel.deathSummary,
+            deathsChartData = deathChartData
         )
     }
 

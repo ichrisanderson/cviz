@@ -16,7 +16,12 @@
 
 package com.chrisa.covid19.core.data.synchronisation
 
+import java.time.LocalDate
+
 data class WeeklySummary(
+    val lastDate: LocalDate?,
+    val currentTotal: Int,
+    val dailyTotal: Int,
     val weeklyTotal: Int,
     val changeInTotal: Int,
     val weeklyRate: Double,

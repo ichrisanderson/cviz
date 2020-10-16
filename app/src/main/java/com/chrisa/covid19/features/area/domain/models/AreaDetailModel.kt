@@ -21,12 +21,9 @@ import java.time.LocalDateTime
 
 data class AreaDetailModel(
     val areaType: String?,
-    val lastUpdatedAt: LocalDateTime?,
-    val cumulativeCases: Int,
-    val newCases: Int,
-    val weeklyCaseSummary: WeeklySummary,
     val lastSyncedAt: LocalDateTime?,
     val allCases: List<CaseModel>,
-    val deathsByPublishedDate: List<DeathModel>,
-    val weeklyDeathSummary: WeeklySummary
+    val caseSummary: WeeklySummary,
+    val allDeaths: List<DeathModel>,
+    val deathSummary: WeeklySummary
 )

@@ -37,9 +37,9 @@ data class AreaDetailTestData(
     val areaName: String,
     val areaType: AreaType,
     val cases: List<CaseModel>,
-    val weeklyCaseSummary: WeeklySummary,
+    val caseSummary: WeeklySummary,
     val deaths: List<DeathModel>,
-    val weeklyDeathSummary: WeeklySummary
+    val deathSummary: WeeklySummary
 ) {
     private val lastCase = cases.lastOrNull()
 
@@ -56,14 +56,11 @@ data class AreaDetailTestData(
     val areaDetailModel: AreaDetailModel
         get() = AreaDetailModel(
             areaType = areaType.value,
-            lastUpdatedAt = metadata.lastUpdatedAt,
             lastSyncedAt = metadata.lastSyncTime,
-            cumulativeCases = cumulativeCases,
-            newCases = newCases,
             allCases = cases,
-            weeklyCaseSummary = weeklyCaseSummary,
-            deathsByPublishedDate = deaths,
-            weeklyDeathSummary = weeklyDeathSummary
+            caseSummary = caseSummary,
+            allDeaths = deaths,
+            deathSummary = deathSummary
         )
 
     val caseChartData: List<ChartData>

@@ -29,8 +29,8 @@ import com.chrisa.covid19.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.covid19.features.area.domain.IsSavedUseCase
 import com.chrisa.covid19.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaViewModelDataMapper
-import com.chrisa.covid19.features.area.presentation.models.AreaViewModelData
+import com.chrisa.covid19.features.area.presentation.mappers.AreaDataModelMapper
+import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -64,7 +64,7 @@ class AreaViewModelTest {
     private val isSavedUseCase = mockk<IsSavedUseCase>(relaxed = true)
     private val insertSavedAreaUseCase = mockk<InsertSavedAreaUseCase>(relaxed = true)
     private val deleteSavedAreaUseCase = mockk<DeleteSavedAreaUseCase>(relaxed = true)
-    private val areaUiModelMapper = mockk<AreaViewModelDataMapper>()
+    private val areaUiModelMapper = mockk<AreaDataModelMapper>()
     private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
 
@@ -78,10 +78,9 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
             pauseDispatcher {
                 val areaDetailModel = areaDetailModel().copy(
-                    lastUpdatedAt = syncTime,
                     lastSyncedAt = syncTime
                 )
-                val areaCasesModel = areaCasesModel()
+                val areaCasesModel = areaData()
 
                 coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
@@ -90,7 +89,7 @@ class AreaViewModelTest {
 
                 val sut = areaViewModel()
 
-                val statesObserver = sut.areaData.test()
+                val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
 
                 runCurrent()
@@ -106,11 +105,10 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
             pauseDispatcher {
                 val areaDetailModel = areaDetailModel().copy(
-                    lastUpdatedAt = syncTime.minusDays(1),
                     lastSyncedAt = syncTime.minusDays(1)
                 )
 
-                val areaCasesModel = areaCasesModel()
+                val areaCasesModel = areaData()
 
                 coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
@@ -120,7 +118,7 @@ class AreaViewModelTest {
 
                 val sut = areaViewModel()
 
-                val statesObserver = sut.areaData.test()
+                val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
 
@@ -146,7 +144,7 @@ class AreaViewModelTest {
 
                 val sut = areaViewModel()
 
-                val statesObserver = sut.areaData.test()
+                val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
 
@@ -164,7 +162,7 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
             pauseDispatcher {
                 val areaDetailModel = areaDetailModel()
-                val areaCasesModel = areaCasesModel()
+                val areaCasesModel = areaData()
                 val exception = mockk<HttpException>()
                 every { exception.code() } returns 304
 
@@ -176,7 +174,7 @@ class AreaViewModelTest {
 
                 val sut = areaViewModel()
 
-                val statesObserver = sut.areaData.test()
+                val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
 
@@ -197,7 +195,7 @@ class AreaViewModelTest {
 
                 val sut = areaViewModel()
 
-                val statesObserver = sut.areaData.test()
+                val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
 
@@ -295,13 +293,16 @@ class AreaViewModelTest {
 
     companion object {
         private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
-        private val areaCode = "AC-001"
-        private val areaType = "utla"
+        private const val areaCode = "AC-001"
+        private const val areaType = "utla"
         private val savedStateHandle =
             SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
         private val emptyWeeklySummary =
             WeeklySummary(
+                lastDate = null,
+                currentTotal = 0,
+                dailyTotal = 0,
                 weeklyTotal = 0,
                 changeInTotal = 0,
                 weeklyRate = 0.0,
@@ -311,26 +312,21 @@ class AreaViewModelTest {
         private fun areaDetailModel(): AreaDetailModel {
             return AreaDetailModel(
                 areaType = AreaType.OVERVIEW.value,
-                lastUpdatedAt = null,
-                newCases = 0,
-                cumulativeCases = 0,
                 lastSyncedAt = null,
                 allCases = emptyList(),
-                weeklyCaseSummary = emptyWeeklySummary,
-                deathsByPublishedDate = emptyList(),
-                weeklyDeathSummary = emptyWeeklySummary
+                caseSummary = emptyWeeklySummary,
+                allDeaths = emptyList(),
+                deathSummary = emptyWeeklySummary
             )
         }
 
-        private fun areaCasesModel(): AreaViewModelData {
-            return AreaViewModelData(
-                lastUpdatedAt = syncTime,
-                totalCases = 0,
+        private fun areaData(): AreaDataModel {
+            return AreaDataModel(
                 caseChartData = emptyList(),
-                weeklyCaseSummary = emptyWeeklySummary,
-                deathsByPublishedDateChartData = emptyList(),
-                showDeathsByPublishedDateChartData = false,
-                weeklyDeathSummary = emptyWeeklySummary
+                caseSummary = emptyWeeklySummary,
+                deathsChartData = emptyList(),
+                showDeaths = false,
+                deathSummary = emptyWeeklySummary
             )
         }
     }

@@ -78,8 +78,13 @@ class WeeklySummaryBuilderTest {
         val currentRate = valueThisWeek * baseRate
         val previousRate = valueLastWeek * baseRate
 
+        val lastData = values.last()
+
         assertThat(result).isEqualTo(
             WeeklySummary(
+                lastDate = lastData.date,
+                currentTotal = lastData.cumulativeValue,
+                dailyTotal = lastData.newValue,
                 weeklyTotal = valueThisWeek,
                 changeInTotal = valueThisWeek - valueLastWeek,
                 weeklyRate = currentRate,

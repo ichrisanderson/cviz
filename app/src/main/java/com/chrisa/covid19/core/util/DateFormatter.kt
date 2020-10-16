@@ -17,6 +17,7 @@
 package com.chrisa.covid19.core.util
 
 import android.text.format.DateUtils
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -35,7 +36,7 @@ object DateFormatter {
         )
     }
 
-    fun mediumLocalizedDate(date: LocalDateTime?): String {
+    fun mediumLocalizedDate(date: LocalDate?): String {
         return date?.format(
             DateTimeFormatter.ofLocalizedDate(
                 FormatStyle.MEDIUM

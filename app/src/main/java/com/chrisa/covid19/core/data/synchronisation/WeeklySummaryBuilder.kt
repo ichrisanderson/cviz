@@ -27,6 +27,8 @@ class WeeklySummaryBuilder @Inject constructor(
 
         val offset = findOffset(dailyData)
 
+        val lastData = dailyData.lastOrNull()
+
         val week1 = dailyData.getOrNull(dailyData.size - offset)
         val week2 = dailyData.getOrNull(dailyData.size - (offset + 7))
         val week3 = dailyData.getOrNull(dailyData.size - (offset + 14))
@@ -45,6 +47,9 @@ class WeeklySummaryBuilder @Inject constructor(
         val rateLastWeek = totalLastWeek * baseRate
 
         return WeeklySummary(
+            lastDate = lastData?.date ?: timeProvider.currentDate(),
+            currentTotal = lastData?.cumulativeValue ?: 0,
+            dailyTotal = lastData?.newValue ?: 0,
             weeklyTotal = totalThisWeek,
             changeInTotal = totalThisWeek - totalLastWeek,
             weeklyRate = rateThisWeek,

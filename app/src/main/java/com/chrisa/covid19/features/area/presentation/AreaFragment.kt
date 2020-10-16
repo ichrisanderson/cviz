@@ -28,7 +28,8 @@ import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.chartTabCard
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
-import com.chrisa.covid19.features.area.presentation.widgets.areaDetailCard
+import com.chrisa.covid19.features.area.presentation.widgets.areaCaseSummaryCard
+import com.chrisa.covid19.features.area.presentation.widgets.areaDeathSummaryCard
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -81,7 +82,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     R.dimen.card_margin_large
                 ),
                 areaRecyclerView.context.resources.getDimensionPixelSize(
-                    R.dimen.card_margin_large
+                    R.dimen.card_margin
                 )
             )
         )
@@ -104,12 +105,23 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     }
 
     private fun observeCases() {
-        viewModel.areaData.observe(viewLifecycleOwner, Observer {
-            val areaCasesModel = it ?: return@Observer
+        viewModel.areaDataModel.observe(viewLifecycleOwner, Observer {
+            val areaDataModel = it ?: return@Observer
             areaRecyclerView.withModels {
-                areaDetailCard {
-                    id("areaDetail")
-                    areaCasesModel(areaCasesModel)
+                sectionHeader {
+                    id("summaryTitle")
+                    title(areaRecyclerView.context.getString(R.string.summary))
+                    isMoreButtonVisible(false)
+                }
+                areaCaseSummaryCard {
+                    id("areaCaseSummary")
+                    summary(areaDataModel.caseSummary)
+                }
+                if (areaDataModel.showDeaths) {
+                    areaDeathSummaryCard {
+                        id("areaDeathSummary")
+                        summary(areaDataModel.deathSummary)
+                    }
                 }
                 sectionHeader {
                     id("caseGraphsTitle")
@@ -118,9 +130,9 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                 }
                 chartTabCard {
                     id("caseGraphs")
-                    chartData(areaCasesModel.caseChartData)
+                    chartData(areaDataModel.caseChartData)
                 }
-                if (areaCasesModel.showDeathsByPublishedDateChartData) {
+                if (areaDataModel.showDeaths) {
                     sectionHeader {
                         id("deathsByPublishedDateGraphsTitle")
                         title(getString(R.string.deaths_by_date_reported_title))
@@ -128,7 +140,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("deathsByPublishedDateGraphs")
-                        chartData(areaCasesModel.deathsByPublishedDateChartData)
+                        chartData(areaDataModel.deathsChartData)
                     }
                 }
             }

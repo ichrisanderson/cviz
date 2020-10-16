@@ -48,27 +48,26 @@ class AreaDetailUseCase @Inject constructor(
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val cases = mapAllCases(areaData.cases)
                 val deathsByPublishedDate = mapAllDeaths(areaData.deathsByPublishedDate)
-                val weeklyCaseSummary = areaCaseWeeklySummary(areaData.cases.map(::toDailyData))
-                val weeklyDeathSummary =
-                    areaCaseWeeklySummary(areaData.deathsByPublishedDate.map(::toDailyData))
-                val lastCase = areaData.cases.lastOrNull()
+                val areaCaseSummary = areaCaseSummary(areaData.cases.map(::toDailyData))
+                val areaDeathSummaryModel =
+                    areaDeathSummaryModel(areaData.deathsByPublishedDate.map(::toDailyData))
 
                 AreaDetailModel(
                     areaType = areaData.areaType,
-                    lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
-                    cumulativeCases = lastCase?.cumulativeCases ?: 0,
-                    newCases = lastCase?.newCases ?: 0,
                     allCases = cases,
-                    weeklyCaseSummary = weeklyCaseSummary,
-                    deathsByPublishedDate = deathsByPublishedDate,
-                    weeklyDeathSummary = weeklyDeathSummary
+                    caseSummary = areaCaseSummary,
+                    allDeaths = deathsByPublishedDate,
+                    deathSummary = areaDeathSummaryModel
                 )
             }
         }
     }
 
-    private fun areaCaseWeeklySummary(dailyData: List<DailyData>): WeeklySummary =
+    private fun areaCaseSummary(dailyData: List<DailyData>): WeeklySummary =
+        weeklySummaryBuilder.buildWeeklySummary(dailyData)
+
+    private fun areaDeathSummaryModel(dailyData: List<DailyData>): WeeklySummary =
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
 
     private fun toDailyData(caseDto: CaseDto): DailyData {
@@ -92,21 +91,21 @@ class AreaDetailUseCase @Inject constructor(
     private fun emptyAreaDetailModel(): AreaDetailModel =
         AreaDetailModel(
             areaType = null,
-            lastUpdatedAt = null,
             lastSyncedAt = null,
-            cumulativeCases = 0,
-            newCases = 0,
             allCases = emptyList(),
-            weeklyCaseSummary = emptySummary(),
-            deathsByPublishedDate = emptyList(),
-            weeklyDeathSummary = emptySummary()
+            caseSummary = emptyWeeklySummary,
+            allDeaths = emptyList(),
+            deathSummary = emptyWeeklySummary
         )
 
-    private fun emptySummary(): WeeklySummary =
+    private val emptyWeeklySummary =
         WeeklySummary(
+            lastDate = null,
+            currentTotal = 0,
+            dailyTotal = 0,
             weeklyTotal = 0,
-            weeklyRate = 0.0,
             changeInTotal = 0,
+            weeklyRate = 0.0,
             changeInRate = 0.0
         )
 

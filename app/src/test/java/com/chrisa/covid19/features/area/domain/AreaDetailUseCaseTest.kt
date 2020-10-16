@@ -101,23 +101,34 @@ class AreaDetailUseCaseTest {
 
         private val emptyWeeklySummary =
             WeeklySummary(
+                lastDate = null,
+                currentTotal = 0,
+                dailyTotal = 0,
                 weeklyTotal = 0,
                 changeInTotal = 0,
                 weeklyRate = 0.0,
                 changeInRate = 0.0
             )
 
+        private val weeklySummary =
+            WeeklySummary(
+                lastDate = syncDate.toLocalDate(),
+                currentTotal = 12220,
+                dailyTotal = 320,
+                weeklyTotal = 1000,
+                changeInTotal = 10,
+                weeklyRate = 100.0,
+                changeInRate = 20.0
+            )
+
         private val emptyAreaDetailModel =
             AreaDetailModel(
                 areaType = null,
-                lastUpdatedAt = null,
                 lastSyncedAt = null,
-                cumulativeCases = 0,
-                newCases = 0,
                 allCases = emptyList(),
-                weeklyCaseSummary = emptyWeeklySummary,
-                deathsByPublishedDate = emptyList(),
-                weeklyDeathSummary = emptyWeeklySummary
+                caseSummary = emptyWeeklySummary,
+                allDeaths = emptyList(),
+                deathSummary = emptyWeeklySummary
             )
 
         private val area = AreaDetailTestData(
@@ -126,13 +137,9 @@ class AreaDetailUseCaseTest {
             areaCode = Constants.UK_AREA_CODE,
             areaType = AreaType.OVERVIEW,
             cases = emptyList(),
-            weeklySummary = WeeklySummary(
-                weeklyTotal = 1000,
-                changeInTotal = 10,
-                weeklyRate = 100.0,
-                changeInRate = 20.0
-            ),
-            deaths = emptyList()
+            caseSummary = weeklySummary,
+            deaths = emptyList(),
+            deathSummary = weeklySummary
         )
 
         private val areaWithCases = area.copy(

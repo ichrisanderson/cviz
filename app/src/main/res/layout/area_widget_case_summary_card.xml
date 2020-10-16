@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chrisa.covid19.features.area.presentation.widgets.AreaDetailCard xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chrisa.covid19.features.area.presentation.widgets.AreaCaseSummaryCard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,25 +11,13 @@
         android:layout_margin="10dp">
 
         <TextView
-            android:id="@+id/lastUpdated"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Last updated: 2 hours ago" />
-
-        <TextView
             android:id="@+id/totalCases"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:textAppearance="?attr/textAppearanceHeadline6"
             app:layout_constraintEnd_toStartOf="@+id/changeInNewCasesThisWeek"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/lastUpdated"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="1220" />
 
         <TextView
@@ -40,9 +28,32 @@
             android:fontFamily="@font/roboto_light"
             android:text="@string/total_cases"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/dailyCasesCaption"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/totalCases" />
+
+        <TextView
+            android:id="@+id/dailyCases"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/currentNewCases"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="22" />
+
+        <TextView
+            android:id="@+id/dailyCasesCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/roboto_light"
+            android:text="@string/daily_cases"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintStart_toStartOf="@id/changeInNewCasesThisWeek"
+            app:layout_constraintTop_toBottomOf="@id/dailyCases" />
 
         <TextView
             android:id="@+id/currentNewCases"
@@ -141,4 +152,4 @@
             app:layout_constraintTop_toBottomOf="@id/currentInfectionRate" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</com.chrisa.covid19.features.area.presentation.widgets.AreaDetailCard>
+</com.chrisa.covid19.features.area.presentation.widgets.AreaCaseSummaryCard>

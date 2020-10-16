@@ -29,7 +29,7 @@ import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.
 import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.latestCasesLabel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.latestDeathsLabel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.rollingAverageLabel
-import com.chrisa.covid19.features.area.presentation.models.AreaViewModelData
+import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -38,10 +38,10 @@ import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
 
-class AreaViewModelDataMapperTest {
+class AreaDataModelMapperTest {
 
     private val context = mockk<Context>()
-    private val sut = AreaViewModelDataMapper(context)
+    private val sut = AreaDataModelMapper(context)
 
     @Before
     fun setup() {
@@ -58,14 +58,12 @@ class AreaViewModelDataMapperTest {
             val mappedModel = sut.mapAreaDetailModel(areaDetailModel)
 
             assertThat(mappedModel).isEqualTo(
-                AreaViewModelData(
-                    totalCases = areaDetailModel.cumulativeCases,
-                    lastUpdatedAt = areaDetailModel.lastUpdatedAt,
+                AreaDataModel(
                     caseChartData = caseChartData,
-                    weeklyCaseSummary = areaDetailModel.weeklyCaseSummary,
-                    showDeathsByPublishedDateChartData = true,
-                    deathsByPublishedDateChartData = deathChartData,
-                    weeklyDeathSummary = areaDetailModel.weeklyDeathSummary
+                    caseSummary = areaDetailModel.caseSummary,
+                    showDeaths = true,
+                    deathsChartData = deathChartData,
+                    deathSummary = areaDetailModel.deathSummary
                 )
             )
         }
@@ -85,14 +83,20 @@ class AreaViewModelDataMapperTest {
                 areaName = "United Kingdom",
                 areaType = AreaType.OVERVIEW,
                 cases = cases(),
-                weeklyCaseSummary = WeeklySummary(
+                caseSummary = WeeklySummary(
+                    lastDate = syncDate.toLocalDate(),
+                    currentTotal = 12220,
+                    dailyTotal = 320,
                     weeklyTotal = 1000,
                     changeInTotal = 100,
                     weeklyRate = 120.0,
                     changeInRate = 20.0
                 ),
                 deaths = deaths(),
-                weeklyDeathSummary = WeeklySummary(
+                deathSummary = WeeklySummary(
+                    lastDate = syncDate.toLocalDate(),
+                    currentTotal = 12220,
+                    dailyTotal = 320,
                     weeklyTotal = 2321,
                     changeInTotal = 212,
                     weeklyRate = 32.0,

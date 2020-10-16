@@ -18,14 +18,11 @@ package com.chrisa.covid19.features.area.presentation.models
 
 import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
 import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.ChartData
-import java.time.LocalDateTime
 
-data class AreaViewModelData(
-    val lastUpdatedAt: LocalDateTime?,
-    val totalCases: Int,
-    val weeklyCaseSummary: WeeklySummary,
-    val weeklyDeathSummary: WeeklySummary,
+data class AreaDataModel(
+    val caseSummary: WeeklySummary,
+    val deathSummary: WeeklySummary,
     val caseChartData: List<ChartData>,
-    val showDeathsByPublishedDateChartData: Boolean,
-    val deathsByPublishedDateChartData: List<ChartData>
+    val showDeaths: Boolean,
+    val deathsChartData: List<ChartData>
 )
