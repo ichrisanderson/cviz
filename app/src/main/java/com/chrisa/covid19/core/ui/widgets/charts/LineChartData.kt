@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.dtos
+package com.chrisa.covid19.core.ui.widgets.charts
 
-import java.time.LocalDate
+data class LineChartData(
+    val label: String,
+    val values: List<LineChartItem>
+)
 
-data class DeathDto(
-    val newDeaths: Int,
-    val cumulativeDeaths: Int,
-    val date: LocalDate,
-    val deathRate: Double,
-    val baseRate: Double
+data class LineChartItem(
+    val value: Float,
+    val label: String
 )

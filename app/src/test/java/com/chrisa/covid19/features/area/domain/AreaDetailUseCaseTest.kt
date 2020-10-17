@@ -18,19 +18,16 @@ package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
-import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
+import com.chrisa.covid19.core.data.synchronisation.RollingAverageHelper
+import com.chrisa.covid19.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
-import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
-import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -46,7 +43,7 @@ class AreaDetailUseCaseTest {
     private val areaDataSource = mockk<AreaDataSource>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
     private val areaSummaryMapper = mockk<WeeklySummaryBuilder>()
-    private val sut = AreaDetailUseCase(areaDataSource, rollingAverageHelper, areaSummaryMapper)
+    private val sut = AreaDetailUseCase(areaDataSource, areaSummaryMapper)
 
     @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
@@ -98,37 +95,16 @@ class AreaDetailUseCaseTest {
     companion object {
 
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
-
-        private val emptyWeeklySummary =
-            WeeklySummary(
-                lastDate = null,
-                currentTotal = 0,
-                dailyTotal = 0,
-                weeklyTotal = 0,
-                changeInTotal = 0,
-                weeklyRate = 0.0,
-                changeInRate = 0.0
-            )
-
-        private val weeklySummary =
-            WeeklySummary(
-                lastDate = syncDate.toLocalDate(),
-                currentTotal = 12220,
-                dailyTotal = 320,
-                weeklyTotal = 1000,
-                changeInTotal = 10,
-                weeklyRate = 100.0,
-                changeInRate = 20.0
-            )
+        private val weeklySummary = SynchronisationTestData.bigWeeklySummary
 
         private val emptyAreaDetailModel =
             AreaDetailModel(
                 areaType = null,
                 lastSyncedAt = null,
                 allCases = emptyList(),
-                caseSummary = emptyWeeklySummary,
+                caseSummary = SynchronisationTestData.emptyWeeklySummary,
                 allDeaths = emptyList(),
-                deathSummary = emptyWeeklySummary
+                deathSummary = SynchronisationTestData.emptyWeeklySummary
             )
 
         private val area = AreaDetailTestData(
@@ -143,39 +119,11 @@ class AreaDetailUseCaseTest {
         )
 
         private val areaWithCases = area.copy(
-            cases = caseDtos()
+            cases = SynchronisationTestData.dailyData()
         )
 
         private val areaWithDeaths = area.copy(
-            deaths = deathDtos()
+            deaths = SynchronisationTestData.dailyData()
         )
-
-        private fun caseDtos(): List<CaseDto> {
-            var cumulativeCases = 0
-            return (1 until 100).map {
-                cumulativeCases += it
-                CaseDto(
-                    newCases = it,
-                    cumulativeCases = cumulativeCases,
-                    date = LocalDate.ofEpochDay(it.toLong()),
-                    infectionRate = 0.0,
-                    baseRate = 0.0
-                )
-            }
-        }
-
-        private fun deathDtos(): List<DeathDto> {
-            var cumulativeDeaths = 0
-            return (1 until 100).map {
-                cumulativeDeaths += it
-                DeathDto(
-                    newDeaths = it,
-                    cumulativeDeaths = cumulativeDeaths,
-                    date = LocalDate.ofEpochDay(it.toLong()),
-                    deathRate = 0.0,
-                    baseRate = 0.0
-                )
-            }
-        }
     }
 }

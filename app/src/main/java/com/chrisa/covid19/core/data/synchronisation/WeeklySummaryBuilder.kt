@@ -47,7 +47,7 @@ class WeeklySummaryBuilder @Inject constructor(
         val rateLastWeek = totalLastWeek * baseRate
 
         return WeeklySummary(
-            lastDate = lastData?.date ?: timeProvider.currentDate(),
+            lastDate = lastData?.date,
             currentTotal = lastData?.cumulativeValue ?: 0,
             dailyTotal = lastData?.newValue ?: 0,
             weeklyTotal = totalThisWeek,

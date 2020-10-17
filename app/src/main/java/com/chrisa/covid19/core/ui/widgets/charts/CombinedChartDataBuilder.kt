@@ -16,12 +16,26 @@
 
 package com.chrisa.covid19.core.ui.widgets.charts
 
-data class BarChartData(
-    val label: String,
-    val values: List<BarChartItem>
-)
+import javax.inject.Inject
 
-data class BarChartItem(
-    val value: Float,
-    val label: String
-)
+class CombinedChartDataBuilder @Inject constructor() {
+
+    fun combinedChartData(
+        barChartLabel: String,
+        barChartValues: List<BarChartItem>,
+        lineChartLabel: String,
+        lineChartValues: List<LineChartItem>
+    ): CombinedChartData {
+        return CombinedChartData(
+            title = barChartLabel,
+            barChartData = BarChartData(
+                label = barChartLabel,
+                values = barChartValues
+            ),
+            lineChartData = LineChartData(
+                label = lineChartLabel,
+                values = lineChartValues
+            )
+        )
+    }
+}

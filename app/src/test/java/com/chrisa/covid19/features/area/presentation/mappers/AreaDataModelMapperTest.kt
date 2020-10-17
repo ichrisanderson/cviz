@@ -19,16 +19,15 @@ package com.chrisa.covid19.features.area.presentation.mappers
 import android.content.Context
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.data.db.AreaType
-import com.chrisa.covid19.core.data.db.Constants
-import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
-import com.chrisa.covid19.features.area.data.dtos.MetadataDto
-import com.chrisa.covid19.features.area.domain.models.CaseModel
-import com.chrisa.covid19.features.area.domain.models.DeathModel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.allCasesLabel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.allDeathsLabel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.latestCasesLabel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.latestDeathsLabel
-import com.chrisa.covid19.features.area.presentation.mappers.AreaDetailTestData.Companion.rollingAverageLabel
+import com.chrisa.covid19.core.data.synchronisation.DailyDataWithRollingAverage
+import com.chrisa.covid19.core.data.synchronisation.DailyDataWithRollingAverageBuilder
+import com.chrisa.covid19.core.data.synchronisation.SynchronisationTestData
+import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
+import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
+import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
+import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
+import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -41,7 +40,13 @@ import org.junit.Test
 class AreaDataModelMapperTest {
 
     private val context = mockk<Context>()
-    private val sut = AreaDataModelMapper(context)
+    private val dailyDataWithRollingAverageBuilder = mockk<DailyDataWithRollingAverageBuilder>()
+    private val chartBuilder = mockk<ChartBuilder>()
+    private val sut = AreaDataModelMapper(
+        context,
+        dailyDataWithRollingAverageBuilder,
+        chartBuilder
+    )
 
     @Before
     fun setup() {
@@ -50,86 +55,118 @@ class AreaDataModelMapperTest {
         every { context.getString(R.string.all_deaths_chart_label) } returns allDeathsLabel
         every { context.getString(R.string.latest_deaths_chart_label) } returns latestDeathsLabel
         every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
+
+        every { dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(any()) } returns
+            listOf(dailyDataWithRollingAverage)
+
+        every {
+            chartBuilder.allChartData(
+                allCasesLabel,
+                latestCasesLabel,
+                rollingAverageLabel,
+                listOf(dailyDataWithRollingAverage)
+            )
+        } returns listOf(combinedChartData)
     }
 
     @Test
-    fun `WHEN mapAreaDetailModel called THEN ui model is mapped correctly`() {
-        with(areaDetail) {
-            val mappedModel = sut.mapAreaDetailModel(areaDetailModel)
-
-            assertThat(mappedModel).isEqualTo(
-                AreaDataModel(
-                    caseChartData = caseChartData,
-                    caseSummary = areaDetailModel.caseSummary,
-                    showDeaths = true,
-                    deathsChartData = deathChartData,
-                    deathSummary = areaDetailModel.deathSummary
-                )
+    fun `WHEN mapAreaDetailModel called without death data THEN deaths are hidden`() {
+        every {
+            chartBuilder.allChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                rollingAverageLabel,
+                listOf(dailyDataWithRollingAverage)
             )
-        }
+        } returns emptyList()
+
+        val mappedModel = sut.mapAreaDetailModel(areaDetail)
+
+        assertThat(mappedModel).isEqualTo(
+            AreaDataModel(
+                caseChartData = listOf(combinedChartData),
+                caseSummary = areaDetail.caseSummary,
+                showDeaths = false,
+                deathsChartData = emptyList(),
+                deathSummary = areaDetail.deathSummary
+            )
+        )
+    }
+
+    @Test
+    fun `WHEN mapAreaDetailModel called with death data THEN deaths are shown`() {
+        every {
+            chartBuilder.allChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                rollingAverageLabel,
+                any()
+            )
+        } returns
+            listOf(combinedChartData)
+
+        val mappedModel = sut.mapAreaDetailModel(areaDetail)
+
+        assertThat(mappedModel).isEqualTo(
+            AreaDataModel(
+                caseChartData = listOf(combinedChartData),
+                caseSummary = areaDetail.caseSummary,
+                showDeaths = true,
+                deathsChartData = listOf(combinedChartData),
+                deathSummary = areaDetail.deathSummary
+            )
+        )
     }
 
     companion object {
+        private val syncDateTime = LocalDateTime.of(2020, 1, 1, 0, 0)
 
-        private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
+        private const val allCasesLabel = "All cases"
+        private const val latestCasesLabel = "Latest cases"
+        private const val allDeathsLabel = "All deaths"
+        private const val latestDeathsLabel = "Latest deaths"
+        private const val rollingAverageLabel = "Rolling average"
+        private const val barChartLabel = "bar chart"
+        private const val lineChartLabel = "line chart"
 
-        private val areaDetail =
-            AreaDetailTestData(
-                metadata = MetadataDto(
-                    lastUpdatedAt = syncDate.minusDays(1),
-                    lastSyncTime = syncDate
+        private val areaDetail = AreaDetailModel(
+            areaType = AreaType.OVERVIEW.value,
+            lastSyncedAt = syncDateTime,
+            allCases = SynchronisationTestData.dailyData(),
+            caseSummary = SynchronisationTestData.bigWeeklySummary,
+            allDeaths = SynchronisationTestData.dailyData(),
+            deathSummary = SynchronisationTestData.smallWeeklySummary
+        )
+
+        private val dailyDataWithRollingAverage = DailyDataWithRollingAverage(
+            newValue = 1,
+            cumulativeValue = 101,
+            rollingAverage = 1.0,
+            rate = 100.0,
+            date = LocalDate.of(2020, 1, 1)
+        )
+
+        private val combinedChartData =
+            CombinedChartData(
+                title = barChartLabel,
+                barChartData = BarChartData(
+                    label = barChartLabel,
+                    values = listOf(
+                        BarChartItem(
+                            value = 10.0f,
+                            label = "Foo"
+                        )
+                    )
                 ),
-                areaCode = Constants.UK_AREA_CODE,
-                areaName = "United Kingdom",
-                areaType = AreaType.OVERVIEW,
-                cases = cases(),
-                caseSummary = WeeklySummary(
-                    lastDate = syncDate.toLocalDate(),
-                    currentTotal = 12220,
-                    dailyTotal = 320,
-                    weeklyTotal = 1000,
-                    changeInTotal = 100,
-                    weeklyRate = 120.0,
-                    changeInRate = 20.0
-                ),
-                deaths = deaths(),
-                deathSummary = WeeklySummary(
-                    lastDate = syncDate.toLocalDate(),
-                    currentTotal = 12220,
-                    dailyTotal = 320,
-                    weeklyTotal = 2321,
-                    changeInTotal = 212,
-                    weeklyRate = 32.0,
-                    changeInRate = 12.0
+                lineChartData = LineChartData(
+                    label = lineChartLabel,
+                    values = listOf(
+                        LineChartItem(
+                            value = 10.0f,
+                            label = "Foo"
+                        )
+                    )
                 )
             )
-
-        private fun cases(): List<CaseModel> {
-            var cumulativeCases = 0
-            return (1 until 100).map {
-                cumulativeCases += it
-                CaseModel(
-                    newCases = it,
-                    cumulativeCases = cumulativeCases,
-                    date = LocalDate.ofEpochDay(it.toLong()),
-                    rollingAverage = 1.0,
-                    baseRate = 0.0
-                )
-            }
-        }
-
-        private fun deaths(): List<DeathModel> {
-            var cumulativeDeaths = 0
-            return (1 until 100).map {
-                cumulativeDeaths += it
-                DeathModel(
-                    newDeaths = it,
-                    cumulativeDeaths = cumulativeDeaths,
-                    date = LocalDate.ofEpochDay(it.toLong()),
-                    rollingAverage = 3.0,
-                    baseRate = 0.0
-                )
-            }
-        }
     }
 }

@@ -17,12 +17,12 @@
 package com.chrisa.covid19.features.area.presentation.models
 
 import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
-import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.ChartData
+import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
 
 data class AreaDataModel(
     val caseSummary: WeeklySummary,
     val deathSummary: WeeklySummary,
-    val caseChartData: List<ChartData>,
+    val caseChartData: List<CombinedChartData>,
     val showDeaths: Boolean,
-    val deathsChartData: List<ChartData>
+    val deathsChartData: List<CombinedChartData>
 )

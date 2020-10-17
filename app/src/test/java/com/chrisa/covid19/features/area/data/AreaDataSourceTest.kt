@@ -23,9 +23,8 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.db.MetaDataIds
 import com.chrisa.covid19.core.data.db.MetadataEntity
+import com.chrisa.covid19.core.data.synchronisation.DailyData
 import com.chrisa.covid19.features.area.data.dtos.AreaDetailDto
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
-import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
 import com.chrisa.covid19.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
@@ -125,21 +124,19 @@ class AreaDataSourceTest {
                 areaName = areaData.areaName,
                 areaType = areaData.areaType.value,
                 cases = listOf(
-                    CaseDto(
-                        newCases = areaData.newCases,
-                        cumulativeCases = areaData.cumulativeCases,
-                        date = areaData.date,
-                        infectionRate = areaData.infectionRate,
-                        baseRate = areaData.infectionRate / areaData.cumulativeCases
+                    DailyData(
+                        newValue = areaData.newCases,
+                        cumulativeValue = areaData.cumulativeCases,
+                        rate = areaData.infectionRate,
+                        date = areaData.date
                     )
                 ),
-                deathsByPublishedDate = listOf(
-                    DeathDto(
-                        newDeaths = areaData.newDeathsByPublishedDate!!,
-                        cumulativeDeaths = areaData.cumulativeDeathsByPublishedDate!!,
-                        date = areaData.date,
-                        deathRate = areaData.cumulativeDeathsByPublishedDateRate!!,
-                        baseRate = areaData.cumulativeDeathsByPublishedDateRate!! / areaData.cumulativeDeathsByPublishedDate!!
+                deaths = listOf(
+                    DailyData(
+                        newValue = areaData.newDeathsByPublishedDate!!,
+                        cumulativeValue = areaData.cumulativeDeathsByPublishedDate!!,
+                        rate = areaData.cumulativeDeathsByPublishedDateRate!!,
+                        date = areaData.date
                     )
                 )
             )

@@ -17,26 +17,22 @@
 package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.synchronisation.DailyData
 import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
 import com.chrisa.covid19.features.area.data.dtos.AreaDetailDto
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
-import com.chrisa.covid19.features.area.data.dtos.DeathDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import com.chrisa.covid19.features.area.domain.models.CaseModel
-import com.chrisa.covid19.features.area.domain.models.DeathModel
 
 data class AreaDetailTestData(
     val metadata: MetadataDto,
     val areaCode: String,
     val areaName: String,
     val areaType: AreaType,
-    val cases: List<CaseDto>,
+    val cases: List<DailyData>,
     val caseSummary: WeeklySummary,
-    val deaths: List<DeathDto>,
+    val deaths: List<DailyData>,
     val deathSummary: WeeklySummary
 ) {
-    private val lastCase = cases.lastOrNull()
 
     val areaDetail: AreaDetailDto
         get() = AreaDetailDto(
@@ -47,40 +43,13 @@ data class AreaDetailTestData(
             deaths
         )
 
-    val cumulativeCases: Int
-        get() = lastCase?.cumulativeCases ?: 0
-    val newCases: Int
-        get() = lastCase?.newCases ?: 0
-
-    private val caseModels: List<CaseModel>
-        get() = cases.map {
-            CaseModel(
-                newCases = it.newCases,
-                date = it.date,
-                rollingAverage = 1.0,
-                cumulativeCases = it.cumulativeCases,
-                baseRate = 0.0
-            )
-        }
-
-    private val deathModels: List<DeathModel>
-        get() = deaths.map {
-            DeathModel(
-                newDeaths = it.newDeaths,
-                date = it.date,
-                rollingAverage = 1.0,
-                cumulativeDeaths = it.cumulativeDeaths,
-                baseRate = 0.0
-            )
-        }
-
     val areaDetailModel: AreaDetailModel
         get() = AreaDetailModel(
             areaType = areaType.value,
             lastSyncedAt = metadata.lastSyncTime,
-            allCases = caseModels,
+            allCases = cases,
             caseSummary = caseSummary,
-            allDeaths = deathModels,
+            allDeaths = deaths,
             deathSummary = deathSummary
         )
 }

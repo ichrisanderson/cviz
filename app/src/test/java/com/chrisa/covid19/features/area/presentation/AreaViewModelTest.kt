@@ -19,7 +19,7 @@ package com.chrisa.covid19.features.area.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.chrisa.covid19.core.data.db.AreaType
-import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
+import com.chrisa.covid19.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
@@ -298,35 +298,24 @@ class AreaViewModelTest {
         private val savedStateHandle =
             SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
 
-        private val emptyWeeklySummary =
-            WeeklySummary(
-                lastDate = null,
-                currentTotal = 0,
-                dailyTotal = 0,
-                weeklyTotal = 0,
-                changeInTotal = 0,
-                weeklyRate = 0.0,
-                changeInRate = 0.0
-            )
-
         private fun areaDetailModel(): AreaDetailModel {
             return AreaDetailModel(
                 areaType = AreaType.OVERVIEW.value,
                 lastSyncedAt = null,
                 allCases = emptyList(),
-                caseSummary = emptyWeeklySummary,
+                caseSummary = SynchronisationTestData.emptyWeeklySummary,
                 allDeaths = emptyList(),
-                deathSummary = emptyWeeklySummary
+                deathSummary = SynchronisationTestData.emptyWeeklySummary
             )
         }
 
         private fun areaData(): AreaDataModel {
             return AreaDataModel(
                 caseChartData = emptyList(),
-                caseSummary = emptyWeeklySummary,
+                caseSummary = SynchronisationTestData.emptyWeeklySummary,
                 deathsChartData = emptyList(),
                 showDeaths = false,
-                deathSummary = emptyWeeklySummary
+                deathSummary = SynchronisationTestData.emptyWeeklySummary
             )
         }
     }

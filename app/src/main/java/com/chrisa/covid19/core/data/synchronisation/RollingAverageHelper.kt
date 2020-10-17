@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.core.ui.widgets.recyclerview.chart
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
-import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
+import javax.inject.Inject
 
-data class ChartData(
-    val title: String,
-    val barChartData: BarChartData,
-    val lineChartData: LineChartData
-)
+class RollingAverageHelper @Inject constructor() {
+    fun average(index: Int, caseValues: List<Int>): Double {
+        var average = 0
+        for (i in 0 until 7) {
+            average += caseValues.getOrNull(index - i) ?: 0
+        }
+        return when {
+            (average == 0) -> 0.0
+            else -> average / 7.0
+        }
+    }
+}

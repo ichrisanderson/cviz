@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain.models
+package com.chrisa.covid19.core.ui.widgets.charts
 
-import java.time.LocalDate
-
-data class CaseModel(
-    val cumulativeCases: Int,
-    val newCases: Int,
-    val date: LocalDate,
-    val rollingAverage: Double,
-    val baseRate: Double
+data class CombinedChartData(
+    val title: String,
+    val barChartData: BarChartData,
+    val lineChartData: LineChartData
 )

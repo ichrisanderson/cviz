@@ -20,12 +20,7 @@ import com.chrisa.covid19.core.data.synchronisation.DailyData
 import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
 import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
-import com.chrisa.covid19.features.area.data.dtos.DeathDto
-import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import com.chrisa.covid19.features.area.domain.models.CaseModel
-import com.chrisa.covid19.features.area.domain.models.DeathModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -34,7 +29,6 @@ import kotlinx.coroutines.flow.map
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
-    private val rollingAverageHelper: RollingAverageHelper,
     private val weeklySummaryBuilder: WeeklySummaryBuilder
 ) {
 
@@ -46,18 +40,17 @@ class AreaDetailUseCase @Inject constructor(
             } else {
 
                 val areaData = areaDataSource.loadAreaData(areaCode)
-                val cases = mapAllCases(areaData.cases)
-                val deathsByPublishedDate = mapAllDeaths(areaData.deathsByPublishedDate)
-                val areaCaseSummary = areaCaseSummary(areaData.cases.map(::toDailyData))
-                val areaDeathSummaryModel =
-                    areaDeathSummaryModel(areaData.deathsByPublishedDate.map(::toDailyData))
+                val caseDailyData = areaData.cases
+                val deathDailyData = areaData.deaths
+                val areaCaseSummary = areaCaseSummary(caseDailyData)
+                val areaDeathSummaryModel = areaDeathSummaryModel(deathDailyData)
 
                 AreaDetailModel(
                     areaType = areaData.areaType,
                     lastSyncedAt = metadata.lastSyncTime,
-                    allCases = cases,
+                    allCases = caseDailyData,
                     caseSummary = areaCaseSummary,
-                    allDeaths = deathsByPublishedDate,
+                    allDeaths = deathDailyData,
                     deathSummary = areaDeathSummaryModel
                 )
             }
@@ -69,24 +62,6 @@ class AreaDetailUseCase @Inject constructor(
 
     private fun areaDeathSummaryModel(dailyData: List<DailyData>): WeeklySummary =
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
-
-    private fun toDailyData(caseDto: CaseDto): DailyData {
-        return DailyData(
-            newValue = caseDto.newCases,
-            cumulativeValue = caseDto.cumulativeCases,
-            rate = caseDto.infectionRate,
-            date = caseDto.date
-        )
-    }
-
-    private fun toDailyData(deathDto: DeathDto): DailyData {
-        return DailyData(
-            newValue = deathDto.newDeaths,
-            cumulativeValue = deathDto.cumulativeDeaths,
-            rate = deathDto.deathRate,
-            date = deathDto.date
-        )
-    }
 
     private fun emptyAreaDetailModel(): AreaDetailModel =
         AreaDetailModel(
@@ -108,30 +83,4 @@ class AreaDetailUseCase @Inject constructor(
             weeklyRate = 0.0,
             changeInRate = 0.0
         )
-
-    private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
-        val caseValues = cases.map { it.newCases }
-        return cases.mapIndexed { index, case ->
-            CaseModel(
-                baseRate = case.baseRate,
-                cumulativeCases = case.cumulativeCases,
-                newCases = case.newCases,
-                rollingAverage = rollingAverageHelper.average(index, caseValues),
-                date = case.date
-            )
-        }
-    }
-
-    private fun mapAllDeaths(deaths: List<DeathDto>): List<DeathModel> {
-        val deathValues = deaths.map { it.newDeaths }
-        return deaths.mapIndexed { index, case ->
-            DeathModel(
-                baseRate = case.baseRate,
-                cumulativeDeaths = case.cumulativeDeaths,
-                newDeaths = case.newDeaths,
-                rollingAverage = rollingAverageHelper.average(index, deathValues),
-                date = case.date
-            )
-        }
-    }
 }

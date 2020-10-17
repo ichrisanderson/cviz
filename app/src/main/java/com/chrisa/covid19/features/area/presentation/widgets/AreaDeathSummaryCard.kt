@@ -39,9 +39,9 @@ class AreaDeathSummaryCard(context: Context, attrs: AttributeSet) :
 
     @ModelProp
     fun summary(summary: WeeklySummary) {
-
         dailyDeaths.text = NumberFormatter.format(summary.dailyTotal)
         totalDeaths.text = NumberFormatter.format(summary.currentTotal)
+
         currentNewDeaths.text = NumberFormatter.format(summary.weeklyTotal)
         changeInNewDeathsThisWeek.text =
             NumberFormatter.getChangeText(summary.changeInTotal)

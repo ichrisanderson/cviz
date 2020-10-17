@@ -16,10 +16,12 @@
 
 package com.chrisa.covid19.features.area.data.dtos
 
+import com.chrisa.covid19.core.data.synchronisation.DailyData
+
 data class AreaDetailDto(
     val areaCode: String,
     val areaName: String,
     val areaType: String,
-    val cases: List<CaseDto>,
-    val deathsByPublishedDate: List<DeathDto>
+    val cases: List<DailyData>,
+    val deaths: List<DailyData>
 )

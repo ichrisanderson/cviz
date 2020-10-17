@@ -22,6 +22,7 @@ import android.util.AttributeSet
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
+import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.area_widget_case_graph_card.view.pager
@@ -52,7 +53,7 @@ class ChartTabCard(context: Context, attrs: AttributeSet) : MaterialCardView(con
     }
 
     @ModelProp
-    fun chartData(chartData: List<ChartData>) {
+    fun chartData(chartData: List<CombinedChartData>) {
         adapter.submitList(chartData)
     }
 }
