@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.dtos
+package com.chrisa.covid19.core.ui.widgets.charts
 
-data class AreaCaseDto(
-    val areaCode: String,
-    val areaName: String,
-    val areaType: String,
-    val cumulativeCases: Int,
-    val cases: List<CaseDto>
+data class LineChartData(
+    val label: String,
+    val values: List<LineChartItem>
+)
+
+data class LineChartItem(
+    val value: Float,
+    val label: String
 )

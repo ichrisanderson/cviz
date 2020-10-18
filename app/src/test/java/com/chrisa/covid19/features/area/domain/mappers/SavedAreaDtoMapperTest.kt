@@ -17,16 +17,16 @@
 package com.chrisa.covid19.features.area.domain.mappers
 
 import com.chrisa.covid19.features.area.data.dtos.SavedAreaDto
-import com.google.common.truth.Truth
+import com.chrisa.covid19.features.area.domain.mappers.SavedAreaDtoMapper.mapToSavedAreaDto
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class SavedAreaDtoMapperTest {
     @Test
     fun `WHEN mapToSavedAreaDto called THEN dto is created with correct details`() {
-
         val areaCode = "12234"
 
-        Truth.assertThat(SavedAreaDtoMapper.mapToSavedAreaDto(areaCode)).isEqualTo(
+        assertThat(mapToSavedAreaDto(areaCode)).isEqualTo(
             SavedAreaDto(
                 areaCode = areaCode
             )

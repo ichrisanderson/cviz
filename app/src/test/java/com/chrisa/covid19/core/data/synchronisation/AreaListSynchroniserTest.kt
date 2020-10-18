@@ -45,7 +45,7 @@ import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
 import org.junit.Before
 import org.junit.Test
@@ -272,7 +272,7 @@ class AreaListSynchroniserTest {
                 )
             } returns Response.error(
                 404,
-                ResponseBody.create(MediaType.get("application/json"), "")
+                ResponseBody.create("application/json".toMediaType(), "")
             )
 
             every { metadataDao.metadata(MetaDataIds.areaListId()) } returns metadata

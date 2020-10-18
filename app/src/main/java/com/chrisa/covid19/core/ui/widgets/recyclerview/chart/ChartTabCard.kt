@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.widgets
+package com.chrisa.covid19.core.ui.widgets.recyclerview.chart
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -22,9 +22,7 @@ import android.util.AttributeSet
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
-import com.chrisa.covid19.features.area.presentation.models.AreaCasesModel
-import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartAdapter
-import com.chrisa.covid19.features.area.presentation.widgets.chart.ChartData
+import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.area_widget_case_graph_card.view.pager
@@ -32,7 +30,7 @@ import kotlinx.android.synthetic.main.area_widget_case_graph_card.view.tab_layou
 
 @SuppressLint("NonConstantResourceId")
 @ModelView(defaultLayout = R.layout.area_widget_case_graph_card)
-class AreaCaseGraphCard(context: Context, attrs: AttributeSet) : MaterialCardView(context, attrs) {
+class ChartTabCard(context: Context, attrs: AttributeSet) : MaterialCardView(context, attrs) {
 
     private val adapter = ChartAdapter()
 
@@ -55,20 +53,7 @@ class AreaCaseGraphCard(context: Context, attrs: AttributeSet) : MaterialCardVie
     }
 
     @ModelProp
-    fun areaCasesModel(areaCasesModel: AreaCasesModel) {
-        adapter.submitList(
-            listOf(
-                ChartData(
-                    title = context.getString(R.string.all_cases_chart_label),
-                    barChartData = areaCasesModel.allCasesChartData,
-                    lineChartData = areaCasesModel.allCasesRollingAverageLineChartData
-                ),
-                ChartData(
-                    title = context.getString(R.string.latest_cases_chart_label),
-                    barChartData = areaCasesModel.latestCasesBarChartData,
-                    lineChartData = areaCasesModel.latestCasesRollingAverageLineChartData
-                )
-            )
-        )
+    fun chartData(chartData: List<CombinedChartData>) {
+        adapter.submitList(chartData)
     }
 }

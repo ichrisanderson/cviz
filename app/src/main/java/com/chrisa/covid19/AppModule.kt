@@ -26,6 +26,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -49,5 +52,13 @@ class AppModule {
     @Provides
     fun coroutineScope(dispatchers: CoroutineDispatchers): CoroutineScope {
         return CoroutineScope(dispatchers.io + Job())
+    }
+
+    @Provides
+    fun dateTimeFormatter(): DateTimeFormatter {
+        return DateTimeFormatter
+            .ofPattern("dd-MMM")
+            .withLocale(Locale.UK)
+            .withZone(ZoneId.of("GMT"))
     }
 }

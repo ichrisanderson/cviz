@@ -175,7 +175,25 @@ data class AreaDataEntity(
     @ColumnInfo(name = "cumulativeCases")
     val cumulativeCases: Int,
     @ColumnInfo(name = "date")
-    val date: LocalDate
+    val date: LocalDate,
+    @ColumnInfo(name = "newDeathsByPublishedDate")
+    val newDeathsByPublishedDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByPublishedDate")
+    val cumulativeDeathsByPublishedDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByPublishedDateRate")
+    val cumulativeDeathsByPublishedDateRate: Double?,
+    @ColumnInfo(name = "newDeathsByDeathDate")
+    val newDeathsByDeathDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByDeathDate")
+    val cumulativeDeathsByDeathDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
+    val cumulativeDeathsByDeathDateRate: Double?,
+    @ColumnInfo(name = "newAdmissions")
+    val newAdmissions: Int?,
+    @ColumnInfo(name = "cumulativeAdmissions")
+    val cumulativeAdmissions: Int?,
+    @ColumnInfo(name = "occupiedBeds")
+    val occupiedBeds: Int?
 )
 
 data class AreaDataMetadataTuple(

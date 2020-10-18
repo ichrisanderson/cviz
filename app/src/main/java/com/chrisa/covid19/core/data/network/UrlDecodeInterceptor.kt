@@ -22,7 +22,7 @@ import okhttp3.Response
 class UrlDecodeInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        val replacedUrl = originalRequest.url().toString()
+        val replacedUrl = originalRequest.url.toString()
             .replace("%3D", "=")
             .replace("%3A", ":")
             .replace("%2C", ",")

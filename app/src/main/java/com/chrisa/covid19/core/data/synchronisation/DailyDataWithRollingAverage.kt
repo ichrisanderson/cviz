@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain.models
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.core.data.synchronisation.DailyData
-import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
-import java.time.LocalDateTime
+import java.time.LocalDate
 
-data class AreaDetailModel(
-    val areaType: String?,
-    val lastSyncedAt: LocalDateTime?,
-    val allCases: List<DailyData>,
-    val caseSummary: WeeklySummary,
-    val allDeaths: List<DailyData>,
-    val deathSummary: WeeklySummary
+data class DailyDataWithRollingAverage(
+    val newValue: Int,
+    val cumulativeValue: Int,
+    val rollingAverage: Double,
+    val rate: Double,
+    val date: LocalDate
 )

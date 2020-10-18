@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.widgets.chart
+package com.chrisa.covid19.core.ui.widgets.recyclerview.chart
 
 import android.view.LayoutInflater
 import android.view.View
@@ -23,8 +23,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.charts.CombinedChart
+import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
 
-class ChartAdapter : ListAdapter<ChartData, ChartAdapter.ViewHolder>(
+class ChartAdapter : ListAdapter<CombinedChartData, ChartAdapter.ViewHolder>(
     ChartDataDiffCallback()
 ) {
 

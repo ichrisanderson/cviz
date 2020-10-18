@@ -28,19 +28,15 @@ import org.junit.Test
 class InsertSavedAreaUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
+    private val sut = InsertSavedAreaUseCase(areaDataSource)
 
     @Test
     fun `WHEN execute called THEN saved area is inserted`() {
-
         val areCode = "1234"
-        val sut = InsertSavedAreaUseCase(areaDataSource)
-
-        val dto = SavedAreaDto(areCode)
-
         every { areaDataSource.insertSavedArea(any()) } just Runs
 
         sut.execute(areCode)
 
-        verify(exactly = 1) { areaDataSource.insertSavedArea(dto) }
+        verify(exactly = 1) { areaDataSource.insertSavedArea(SavedAreaDto(areCode)) }
     }
 }

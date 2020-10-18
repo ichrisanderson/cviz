@@ -84,7 +84,16 @@ class AssetBootstrapper @Inject constructor(
                     cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
                     newCases = it.newCases ?: 0,
-                    infectionRate = it.infectionRate ?: 0.0
+                    infectionRate = it.infectionRate ?: 0.0,
+                    newDeathsByPublishedDate = it.newDeathsByPublishedDate,
+                    cumulativeDeathsByPublishedDate = it.cumulativeDeathsByPublishedDate,
+                    cumulativeDeathsByPublishedDateRate = it.cumulativeDeathsByPublishedDateRate,
+                    newDeathsByDeathDate = it.newDeathsByDeathDate,
+                    cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate,
+                    cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate,
+                    newAdmissions = it.newAdmissions,
+                    cumulativeAdmissions = it.cumulativeAdmissions,
+                    occupiedBeds = it.occupiedBeds
                 )
             })
             appDatabase.metadataDao().insert(

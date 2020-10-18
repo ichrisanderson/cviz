@@ -17,9 +17,9 @@
 package com.chrisa.covid19.features.home.domain
 
 import com.chrisa.covid19.core.data.db.AreaType
-import com.chrisa.covid19.core.data.synchronisation.AreaData
-import com.chrisa.covid19.core.data.synchronisation.AreaSummary
-import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
+import com.chrisa.covid19.core.data.synchronisation.DailyData
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.features.home.data.HomeDataSource
 import com.chrisa.covid19.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.covid19.features.home.domain.models.SummaryModel
@@ -33,48 +33,60 @@ import kotlinx.coroutines.flow.map
 @FlowPreview
 class LoadSavedAreasUseCase @Inject constructor(
     private val homeDataSource: HomeDataSource,
-    private val areaSummaryMapper: AreaSummaryMapper
+    private val weeklySummaryBuilder: WeeklySummaryBuilder
 ) {
     fun execute(): Flow<List<SummaryModel>> {
         return homeDataSource.savedAreaCases().map { savedAreaCases ->
-            savedAreaCases.groupBy { Triple(it.areaCode, it.areaName, it.areaType) }
-                .map(this::mapAreaSummary)
-                .sortedBy(AreaSummary::areaName)
+            savedAreaCases.groupBy { Area(it.areaCode, it.areaName, it.areaType) }
+                .map(this::areaData)
+                .sortedBy(AreaData::areaName)
                 .mapIndexed(this::mapSummaryModel)
         }
     }
 
+    private fun areaData(group: Map.Entry<Area, List<SavedAreaCaseDto>>): AreaData {
+        val area = group.key
+        return AreaData(
+            area.areaCode,
+            area.areaName,
+            area.areaType.value,
+            mapDailyDataToWeeklySummary(group.value.map(this::mapDailyData))
+        )
+    }
+
+    private fun mapDailyDataToWeeklySummary(dailyData: List<DailyData>): WeeklySummary =
+        weeklySummaryBuilder.buildWeeklySummary(dailyData)
+
     private fun mapSummaryModel(
         index: Int,
-        savedAreaModel: AreaSummary
+        areaData: AreaData
     ): SummaryModel {
         return SummaryModel(
             position = index + 1,
-            areaType = savedAreaModel.areaType,
-            areaCode = savedAreaModel.areaCode,
-            areaName = savedAreaModel.areaName,
-            currentNewCases = savedAreaModel.currentNewCases,
-            changeInCases = savedAreaModel.changeInCases,
-            currentInfectionRate = savedAreaModel.currentInfectionRate,
-            changeInInfectionRate = savedAreaModel.changeInInfectionRate
+            areaType = areaData.areaType,
+            areaCode = areaData.areaCode,
+            areaName = areaData.areaName,
+            currentNewCases = areaData.weeklyCaseSummary.weeklyTotal,
+            changeInCases = areaData.weeklyCaseSummary.changeInTotal,
+            currentInfectionRate = areaData.weeklyCaseSummary.weeklyRate,
+            changeInInfectionRate = areaData.weeklyCaseSummary.changeInRate
         )
     }
 
-    private fun mapAreaSummary(group: Map.Entry<Triple<String, String, AreaType>, List<SavedAreaCaseDto>>): AreaSummary {
-        return areaSummaryMapper.mapAreaDataToAreaSummary(
-            group.key.first,
-            group.key.second,
-            group.key.third.value,
-            group.value.map(this::mapAreaData)
-        )
-    }
-
-    private fun mapAreaData(it: SavedAreaCaseDto): AreaData {
-        return AreaData(
-            newCases = it.newCases,
-            cumulativeCases = it.cumulativeCases,
-            infectionRate = it.infectionRate,
+    private fun mapDailyData(it: SavedAreaCaseDto): DailyData {
+        return DailyData(
+            newValue = it.newCases,
+            cumulativeValue = it.cumulativeCases,
+            rate = it.infectionRate,
             date = it.date
         )
     }
+
+    private data class Area(val areaCode: String, val areaName: String, val areaType: AreaType)
+    private data class AreaData(
+        val areaCode: String,
+        val areaName: String,
+        val areaType: String,
+        val weeklyCaseSummary: WeeklySummary
+    )
 }

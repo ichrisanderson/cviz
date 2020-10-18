@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.widgets.chart
+package com.chrisa.covid19.core.data.synchronisation
 
-import androidx.recyclerview.widget.DiffUtil
+import java.time.LocalDate
 
-class ChartDataDiffCallback : DiffUtil.ItemCallback<ChartData>() {
-
-    override fun areItemsTheSame(oldItem: ChartData, newItem: ChartData): Boolean {
-        return oldItem.title == newItem.title
-    }
-
-    override fun areContentsTheSame(oldItem: ChartData, newItem: ChartData): Boolean {
-        return oldItem == newItem
-    }
-}
+data class DailyData(
+    val newValue: Int,
+    val cumulativeValue: Int,
+    val rate: Double,
+    val date: LocalDate
+)

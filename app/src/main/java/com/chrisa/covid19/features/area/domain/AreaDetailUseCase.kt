@@ -16,15 +16,11 @@
 
 package com.chrisa.covid19.features.area.domain
 
-import com.chrisa.covid19.core.data.synchronisation.AreaData
-import com.chrisa.covid19.core.data.synchronisation.AreaSummary
-import com.chrisa.covid19.core.data.synchronisation.AreaSummaryMapper
+import com.chrisa.covid19.core.data.synchronisation.DailyData
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.features.area.data.AreaDataSource
-import com.chrisa.covid19.features.area.data.dtos.AreaCaseDto
-import com.chrisa.covid19.features.area.data.dtos.CaseDto
-import com.chrisa.covid19.features.area.domain.helper.RollingAverageHelper
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import com.chrisa.covid19.features.area.domain.models.CaseModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -33,8 +29,7 @@ import kotlinx.coroutines.flow.map
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
-    private val rollingAverageHelper: RollingAverageHelper,
-    private val areaSummaryMapper: AreaSummaryMapper
+    private val weeklySummaryBuilder: WeeklySummaryBuilder
 ) {
 
     fun execute(areaCode: String): Flow<AreaDetailModel> {
@@ -43,59 +38,49 @@ class AreaDetailUseCase @Inject constructor(
             if (metadata == null) {
                 emptyAreaDetailModel()
             } else {
+
                 val areaData = areaDataSource.loadAreaData(areaCode)
-                val caseModels = mapAllCases(areaData.cases.sortedBy { it.date })
-                val areaSummary = areaSummary(areaData)
+                val caseDailyData = areaData.cases
+                val deathDailyData = areaData.deaths
+                val areaCaseSummary = areaCaseSummary(caseDailyData)
+                val areaDeathSummaryModel = areaDeathSummaryModel(deathDailyData)
+
                 AreaDetailModel(
-                    lastUpdatedAt = metadata.lastUpdatedAt,
+                    areaType = areaData.areaType,
                     lastSyncedAt = metadata.lastSyncTime,
-                    allCases = caseModels,
-                    weeklyInfectionRate = areaSummary.currentInfectionRate,
-                    changeInInfectionRate = areaSummary.changeInInfectionRate,
-                    weeklyCases = areaSummary.currentNewCases,
-                    changeInCases = areaSummary.changeInCases,
-                    cumulativeCases = areaData.cumulativeCases
+                    allCases = caseDailyData,
+                    caseSummary = areaCaseSummary,
+                    allDeaths = deathDailyData,
+                    deathSummary = areaDeathSummaryModel
                 )
             }
         }
     }
 
-    private fun areaSummary(areaData: AreaCaseDto): AreaSummary {
-        return areaSummaryMapper.mapAreaDataToAreaSummary(
-            areaData.areaCode,
-            areaData.areaName,
-            areaData.areaType,
-            areaData.cases.map {
-                AreaData(
-                    newCases = it.newCases,
-                    cumulativeCases = it.cumulativeCases,
-                    infectionRate = it.infectionRate,
-                    date = it.date
-                )
-            }
+    private fun areaCaseSummary(dailyData: List<DailyData>): WeeklySummary =
+        weeklySummaryBuilder.buildWeeklySummary(dailyData)
+
+    private fun areaDeathSummaryModel(dailyData: List<DailyData>): WeeklySummary =
+        weeklySummaryBuilder.buildWeeklySummary(dailyData)
+
+    private fun emptyAreaDetailModel(): AreaDetailModel =
+        AreaDetailModel(
+            areaType = null,
+            lastSyncedAt = null,
+            allCases = emptyList(),
+            caseSummary = emptyWeeklySummary,
+            allDeaths = emptyList(),
+            deathSummary = emptyWeeklySummary
         )
-    }
 
-    private fun emptyAreaDetailModel(): AreaDetailModel = AreaDetailModel(
-        lastUpdatedAt = null,
-        lastSyncedAt = null,
-        allCases = emptyList(),
-        cumulativeCases = 0,
-        changeInCases = 0,
-        weeklyCases = 0,
-        weeklyInfectionRate = 0.0,
-        changeInInfectionRate = 0.0
-    )
-
-    private fun mapAllCases(cases: List<CaseDto>): List<CaseModel> {
-        return cases.mapIndexed { index, case ->
-            CaseModel(
-                baseRate = case.baseRate,
-                cumulativeCases = case.cumulativeCases,
-                newCases = case.newCases,
-                rollingAverage = rollingAverageHelper.average(index, cases),
-                date = case.date
-            )
-        }
-    }
+    private val emptyWeeklySummary =
+        WeeklySummary(
+            lastDate = null,
+            currentTotal = 0,
+            dailyTotal = 0,
+            weeklyTotal = 0,
+            changeInTotal = 0,
+            weeklyRate = 0.0,
+            changeInRate = 0.0
+        )
 }

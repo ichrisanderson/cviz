@@ -22,8 +22,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.Carousel
 import com.chrisa.covid19.core.ui.widgets.recyclerview.SectionHeader
 
-class DashboardItemDecoration(private val horizontalMargin: Int, private val verticalMargin: Int) :
-    RecyclerView.ItemDecoration() {
+class DashboardItemDecoration(
+    private val horizontalMargin: Int,
+    private val verticalMargin: Int
+) : RecyclerView.ItemDecoration() {
 
     override fun getItemOffsets(
         outRect: Rect,
@@ -48,8 +50,8 @@ class DashboardItemDecoration(private val horizontalMargin: Int, private val ver
         } else {
             outRect.top = 0
         }
-        outRect.left = horizontalMargin
-        outRect.right = horizontalMargin
+        outRect.left = horizontalMargin * 2
+        outRect.right = horizontalMargin * 2
     }
 
     private fun applyCarouselItemOffsets(

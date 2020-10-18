@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.dtos
+package com.chrisa.covid19.core.data.synchronisation
 
-import java.time.LocalDate
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 
-data class CaseDto(
-    val newCases: Int,
-    val cumulativeCases: Int,
-    val date: LocalDate,
-    val infectionRate: Double,
-    val baseRate: Double
-)
+class RollingAverageHelperTest {
+    private val sut = RollingAverageHelper()
+
+    @Test
+    fun `GIVEN a daily increase of 10 WHEN average called for week THEN average of 40 is returned`() {
+        // 10, 20, 30, 40, 50, 60, 70
+        val values = (0 until 7).map { 10 * (it + 1) }
+
+        // 10, 20, 30, 40, 50, 60, 70 = 280
+        val result = sut.average(values.lastIndex, values)
+
+        // 280 / 7.0 = 40
+        assertThat(result).isEqualTo(40)
+    }
+}

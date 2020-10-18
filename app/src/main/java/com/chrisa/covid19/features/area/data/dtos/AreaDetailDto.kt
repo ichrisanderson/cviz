@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.presentation.widgets.chart
+package com.chrisa.covid19.features.area.data.dtos
 
-import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
-import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
+import com.chrisa.covid19.core.data.synchronisation.DailyData
 
-data class ChartData(
-    val title: String,
-    val barChartData: BarChartData,
-    val lineChartData: LineChartData
+data class AreaDetailDto(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val cases: List<DailyData>,
+    val deaths: List<DailyData>
 )

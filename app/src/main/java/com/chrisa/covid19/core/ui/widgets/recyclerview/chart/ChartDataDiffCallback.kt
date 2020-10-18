@@ -14,4 +14,18 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.data.mappers
+package com.chrisa.covid19.core.ui.widgets.recyclerview.chart
+
+import androidx.recyclerview.widget.DiffUtil
+import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
+
+class ChartDataDiffCallback : DiffUtil.ItemCallback<CombinedChartData>() {
+
+    override fun areItemsTheSame(oldItem: CombinedChartData, newItem: CombinedChartData): Boolean {
+        return oldItem.title == newItem.title
+    }
+
+    override fun areContentsTheSame(oldItem: CombinedChartData, newItem: CombinedChartData): Boolean {
+        return oldItem == newItem
+    }
+}

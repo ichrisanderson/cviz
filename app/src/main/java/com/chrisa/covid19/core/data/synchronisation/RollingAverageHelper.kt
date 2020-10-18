@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.features.area.domain.models
+package com.chrisa.covid19.core.data.synchronisation
 
-import com.chrisa.covid19.core.data.synchronisation.DailyData
-import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
-import java.time.LocalDateTime
+import javax.inject.Inject
 
-data class AreaDetailModel(
-    val areaType: String?,
-    val lastSyncedAt: LocalDateTime?,
-    val allCases: List<DailyData>,
-    val caseSummary: WeeklySummary,
-    val allDeaths: List<DailyData>,
-    val deathSummary: WeeklySummary
-)
+class RollingAverageHelper @Inject constructor() {
+    fun average(index: Int, caseValues: List<Int>): Double {
+        var average = 0
+        for (i in 0 until 7) {
+            average += caseValues.getOrNull(index - i) ?: 0
+        }
+        return when {
+            (average == 0) -> 0.0
+            else -> average / 7.0
+        }
+    }
+}
