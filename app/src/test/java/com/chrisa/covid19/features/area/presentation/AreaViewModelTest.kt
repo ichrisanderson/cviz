@@ -303,9 +303,7 @@ class AreaViewModelTest {
                 areaType = AreaType.OVERVIEW.value,
                 lastSyncedAt = null,
                 allCases = emptyList(),
-                caseSummary = SynchronisationTestData.emptyWeeklySummary,
-                allDeaths = emptyList(),
-                deathSummary = SynchronisationTestData.emptyWeeklySummary
+                allDeaths = emptyList()
             )
         }
 

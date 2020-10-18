@@ -20,8 +20,8 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.db.Constants
 import com.chrisa.covid19.core.data.synchronisation.RollingAverageHelper
 import com.chrisa.covid19.core.data.synchronisation.SynchronisationTestData
-import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.features.area.data.AreaDataSource
+import com.chrisa.covid19.features.area.data.dtos.AreaDetailDto
 import com.chrisa.covid19.features.area.data.dtos.MetadataDto
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.google.common.truth.Truth.assertThat
@@ -42,8 +42,7 @@ class AreaDetailUseCaseTest {
 
     private val areaDataSource = mockk<AreaDataSource>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
-    private val areaSummaryMapper = mockk<WeeklySummaryBuilder>()
-    private val sut = AreaDetailUseCase(areaDataSource, areaSummaryMapper)
+    private val sut = AreaDetailUseCase(areaDataSource)
 
     @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
@@ -61,61 +60,70 @@ class AreaDetailUseCaseTest {
     @Test
     fun `WHEN execute called THEN area detail contains the latest cases for the area`() =
         runBlocking {
-            with(areaWithCases) {
-                every { rollingAverageHelper.average(any(), any()) } returns 1.0
-                every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadata).asFlow()
-                coEvery { areaDataSource.loadAreaData(areaCode) } returns areaDetail
-                every { areaSummaryMapper.buildWeeklySummary(any()) } returns weeklySummary
+            every { rollingAverageHelper.average(any(), any()) } returns 1.0
+            every { areaDataSource.loadAreaMetadata(areaWithCases.areaCode) } returns listOf(
+                metadata
+            ).asFlow()
+            coEvery { areaDataSource.loadAreaData(areaWithCases.areaCode) } returns areaWithCases
 
-                val areaDetailModelFlow = sut.execute(areaCode)
+            val areaDetailModelFlow = sut.execute(areaWithCases.areaCode)
 
-                areaDetailModelFlow.collect { emittedAreaDetailModel ->
-                    assertThat(emittedAreaDetailModel).isEqualTo(areaDetailModel)
-                }
+            areaDetailModelFlow.collect { emittedAreaDetailModel ->
+                assertThat(emittedAreaDetailModel).isEqualTo(
+                    AreaDetailModel(
+                        areaType = AreaType.OVERVIEW.value,
+                        lastSyncedAt = syncDateTime,
+                        allCases = areaWithCases.cases,
+                        allDeaths = emptyList()
+                    )
+                )
             }
         }
 
     @Test
     fun `WHEN execute called THEN area detail contains the latest deaths for the area`() =
         runBlocking {
-            with(areaWithDeaths) {
-                every { rollingAverageHelper.average(any(), any()) } returns 1.0
-                every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(metadata).asFlow()
-                coEvery { areaDataSource.loadAreaData(areaCode) } returns areaDetail
-                every { areaSummaryMapper.buildWeeklySummary(any()) } returns weeklySummary
+            every { rollingAverageHelper.average(any(), any()) } returns 1.0
+            every { areaDataSource.loadAreaMetadata(areaWithDeaths.areaCode) } returns listOf(
+                metadata
+            ).asFlow()
+            coEvery { areaDataSource.loadAreaData(areaWithDeaths.areaCode) } returns areaWithDeaths
 
-                val areaDetailModelFlow = sut.execute(areaCode)
+            val areaDetailModelFlow = sut.execute(areaWithDeaths.areaCode)
 
-                areaDetailModelFlow.collect { emittedAreaDetailModel ->
-                    assertThat(emittedAreaDetailModel).isEqualTo(areaDetailModel)
-                }
+            areaDetailModelFlow.collect { emittedAreaDetailModel ->
+                assertThat(emittedAreaDetailModel).isEqualTo(
+                    AreaDetailModel(
+                        areaType = AreaType.OVERVIEW.value,
+                        lastSyncedAt = syncDateTime,
+                        allCases = emptyList(),
+                        allDeaths = areaWithDeaths.deaths
+                    )
+                )
             }
         }
 
     companion object {
 
-        private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
-        private val weeklySummary = SynchronisationTestData.bigWeeklySummary
+        private val syncDateTime = LocalDateTime.of(2020, 1, 1, 0, 0)
+        private val metadata =
+            MetadataDto(lastUpdatedAt = syncDateTime.minusDays(1), lastSyncTime = syncDateTime)
 
         private val emptyAreaDetailModel =
             AreaDetailModel(
                 areaType = null,
                 lastSyncedAt = null,
                 allCases = emptyList(),
-                caseSummary = SynchronisationTestData.emptyWeeklySummary,
-                allDeaths = emptyList(),
-                deathSummary = SynchronisationTestData.emptyWeeklySummary
+                allDeaths = emptyList()
             )
 
-        private val area = AreaDetailTestData(
-            metadata = MetadataDto(lastUpdatedAt = syncDate.minusDays(1), lastSyncTime = syncDate),
+        private val area = AreaDetailDto(
             areaName = "United Kingdom",
             areaCode = Constants.UK_AREA_CODE,
-            areaType = AreaType.OVERVIEW,
+            areaType = AreaType.OVERVIEW.value,
             cases = emptyList(),
-            caseSummary = weeklySummary,
             deaths = emptyList(),
-            deathSummary = weeklySummary
+            hospitalAdmissions = emptyList()
         )
 
         private val areaWithCases = area.copy(

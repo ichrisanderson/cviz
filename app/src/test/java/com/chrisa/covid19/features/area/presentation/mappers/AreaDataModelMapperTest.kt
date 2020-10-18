@@ -22,6 +22,7 @@ import com.chrisa.covid19.core.data.db.AreaType
 import com.chrisa.covid19.core.data.synchronisation.DailyDataWithRollingAverage
 import com.chrisa.covid19.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.covid19.core.data.synchronisation.SynchronisationTestData
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartData
 import com.chrisa.covid19.core.ui.widgets.charts.BarChartItem
 import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
@@ -42,9 +43,11 @@ class AreaDataModelMapperTest {
     private val context = mockk<Context>()
     private val dailyDataWithRollingAverageBuilder = mockk<DailyDataWithRollingAverageBuilder>()
     private val chartBuilder = mockk<ChartBuilder>()
+    private val weeklySummaryBuilder = mockk<WeeklySummaryBuilder>()
     private val sut = AreaDataModelMapper(
         context,
         dailyDataWithRollingAverageBuilder,
+        weeklySummaryBuilder,
         chartBuilder
     )
 
@@ -58,6 +61,8 @@ class AreaDataModelMapperTest {
 
         every { dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(any()) } returns
             listOf(dailyDataWithRollingAverage)
+
+        every { weeklySummaryBuilder.buildWeeklySummary(any()) } returns weeklySummary
 
         every {
             chartBuilder.allChartData(
@@ -85,10 +90,10 @@ class AreaDataModelMapperTest {
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
                 caseChartData = listOf(combinedChartData),
-                caseSummary = areaDetail.caseSummary,
+                caseSummary = weeklySummary,
                 showDeaths = false,
                 deathsChartData = emptyList(),
-                deathSummary = areaDetail.deathSummary
+                deathSummary = weeklySummary
             )
         )
     }
@@ -110,16 +115,17 @@ class AreaDataModelMapperTest {
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
                 caseChartData = listOf(combinedChartData),
-                caseSummary = areaDetail.caseSummary,
+                caseSummary = weeklySummary,
                 showDeaths = true,
                 deathsChartData = listOf(combinedChartData),
-                deathSummary = areaDetail.deathSummary
+                deathSummary = weeklySummary
             )
         )
     }
 
     companion object {
         private val syncDateTime = LocalDateTime.of(2020, 1, 1, 0, 0)
+        private val weeklySummary = SynchronisationTestData.bigWeeklySummary
 
         private const val allCasesLabel = "All cases"
         private const val latestCasesLabel = "Latest cases"
@@ -133,9 +139,7 @@ class AreaDataModelMapperTest {
             areaType = AreaType.OVERVIEW.value,
             lastSyncedAt = syncDateTime,
             allCases = SynchronisationTestData.dailyData(),
-            caseSummary = SynchronisationTestData.bigWeeklySummary,
-            allDeaths = SynchronisationTestData.dailyData(),
-            deathSummary = SynchronisationTestData.smallWeeklySummary
+            allDeaths = SynchronisationTestData.dailyData()
         )
 
         private val dailyDataWithRollingAverage = DailyDataWithRollingAverage(

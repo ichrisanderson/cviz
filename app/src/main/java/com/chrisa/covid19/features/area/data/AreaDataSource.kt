@@ -70,6 +70,18 @@ class AreaDataSource @Inject constructor(
                         rate = areaData.cumulativeDeathsByPublishedDateRate!!,
                         date = areaData.date
                     )
+                },
+            hospitalAdmissions = allData.filter {
+                it.cumulativeAdmissions != null &&
+                    it.newAdmissions != null
+            }
+                .map { areaData ->
+                    DailyData(
+                        newValue = areaData.newAdmissions!!,
+                        cumulativeValue = areaData.cumulativeAdmissions!!,
+                        rate = 0.0,
+                        date = areaData.date
+                    )
                 }
         )
     }
