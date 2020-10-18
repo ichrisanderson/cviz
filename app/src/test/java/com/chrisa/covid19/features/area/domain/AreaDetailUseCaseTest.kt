@@ -73,8 +73,9 @@ class AreaDetailUseCaseTest {
                     AreaDetailModel(
                         areaType = AreaType.OVERVIEW.value,
                         lastSyncedAt = syncDateTime,
-                        allCases = areaWithCases.cases,
-                        allDeaths = emptyList()
+                        cases = areaWithCases.cases,
+                        deaths = emptyList(),
+                        hospitalAdmissions = emptyList()
                     )
                 )
             }
@@ -96,8 +97,33 @@ class AreaDetailUseCaseTest {
                     AreaDetailModel(
                         areaType = AreaType.OVERVIEW.value,
                         lastSyncedAt = syncDateTime,
-                        allCases = emptyList(),
-                        allDeaths = areaWithDeaths.deaths
+                        cases = emptyList(),
+                        deaths = areaWithDeaths.deaths,
+                        hospitalAdmissions = emptyList()
+                    )
+                )
+            }
+        }
+
+    @Test
+    fun `WHEN execute called THEN area detail contains the latest hospital admissions for the area`() =
+        runBlocking {
+            every { rollingAverageHelper.average(any(), any()) } returns 1.0
+            every { areaDataSource.loadAreaMetadata(areaWithHospitalAdmissions.areaCode) } returns listOf(
+                metadata
+            ).asFlow()
+            coEvery { areaDataSource.loadAreaData(areaWithHospitalAdmissions.areaCode) } returns areaWithHospitalAdmissions
+
+            val areaDetailModelFlow = sut.execute(areaWithHospitalAdmissions.areaCode)
+
+            areaDetailModelFlow.collect { emittedAreaDetailModel ->
+                assertThat(emittedAreaDetailModel).isEqualTo(
+                    AreaDetailModel(
+                        areaType = AreaType.OVERVIEW.value,
+                        lastSyncedAt = syncDateTime,
+                        cases = emptyList(),
+                        deaths = areaWithHospitalAdmissions.deaths,
+                        hospitalAdmissions = emptyList()
                     )
                 )
             }
@@ -113,8 +139,9 @@ class AreaDetailUseCaseTest {
             AreaDetailModel(
                 areaType = null,
                 lastSyncedAt = null,
-                allCases = emptyList(),
-                allDeaths = emptyList()
+                cases = emptyList(),
+                deaths = emptyList(),
+                hospitalAdmissions = emptyList()
             )
 
         private val area = AreaDetailDto(
@@ -132,6 +159,10 @@ class AreaDetailUseCaseTest {
 
         private val areaWithDeaths = area.copy(
             deaths = SynchronisationTestData.dailyData()
+        )
+
+        private val areaWithHospitalAdmissions = area.copy(
+            hospitalAdmissions = SynchronisationTestData.dailyData()
         )
     }
 }

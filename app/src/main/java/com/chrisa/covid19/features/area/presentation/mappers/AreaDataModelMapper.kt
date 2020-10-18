@@ -41,17 +41,17 @@ class AreaDataModelMapper @Inject constructor(
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
 
-        val caseChartData = caseChartData(areaDetailModel.allCases)
-        val deathChartData = deathChartData(areaDetailModel.allDeaths)
+        val caseChartData = caseChartData(areaDetailModel.cases)
+        val deathChartData = deathChartData(areaDetailModel.deaths)
 
         val canDisplayDeaths =
             canDisplayDeaths(areaDetailModel.areaType) && deathChartData.isNotEmpty()
 
         return AreaDataModel(
-            caseSummary = weeklySummary(areaDetailModel.allCases),
+            caseSummary = weeklySummary(areaDetailModel.cases),
             caseChartData = caseChartData,
             showDeaths = canDisplayDeaths,
-            deathSummary = weeklySummary(areaDetailModel.allDeaths),
+            deathSummary = weeklySummary(areaDetailModel.deaths),
             deathsChartData = deathChartData
         )
     }

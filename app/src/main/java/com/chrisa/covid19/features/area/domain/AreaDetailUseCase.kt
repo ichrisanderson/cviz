@@ -16,13 +16,12 @@
 
 package com.chrisa.covid19.features.area.domain
 
-import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
 import com.chrisa.covid19.features.area.data.AreaDataSource
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
@@ -43,8 +42,9 @@ class AreaDetailUseCase @Inject constructor(
                 AreaDetailModel(
                     areaType = areaData.areaType,
                     lastSyncedAt = metadata.lastSyncTime,
-                    allCases = caseDailyData,
-                    allDeaths = deathDailyData
+                    cases = caseDailyData,
+                    deaths = deathDailyData,
+                    hospitalAdmissions = emptyList()
                 )
             }
         }
@@ -54,18 +54,8 @@ class AreaDetailUseCase @Inject constructor(
         AreaDetailModel(
             areaType = null,
             lastSyncedAt = null,
-            allCases = emptyList(),
-            allDeaths = emptyList()
-        )
-
-    private val emptyWeeklySummary =
-        WeeklySummary(
-            lastDate = null,
-            currentTotal = 0,
-            dailyTotal = 0,
-            weeklyTotal = 0,
-            changeInTotal = 0,
-            weeklyRate = 0.0,
-            changeInRate = 0.0
+            cases = emptyList(),
+            deaths = emptyList(),
+            hospitalAdmissions = emptyList()
         )
 }

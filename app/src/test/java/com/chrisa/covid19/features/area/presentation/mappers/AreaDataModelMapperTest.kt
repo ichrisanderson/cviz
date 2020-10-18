@@ -33,10 +33,10 @@ import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class AreaDataModelMapperTest {
 
@@ -138,8 +138,9 @@ class AreaDataModelMapperTest {
         private val areaDetail = AreaDetailModel(
             areaType = AreaType.OVERVIEW.value,
             lastSyncedAt = syncDateTime,
-            allCases = SynchronisationTestData.dailyData(),
-            allDeaths = SynchronisationTestData.dailyData()
+            cases = SynchronisationTestData.dailyData(),
+            deaths = SynchronisationTestData.dailyData(),
+            hospitalAdmissions = SynchronisationTestData.dailyData(),
         )
 
         private val dailyDataWithRollingAverage = DailyDataWithRollingAverage(

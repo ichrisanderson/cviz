@@ -302,8 +302,9 @@ class AreaViewModelTest {
             return AreaDetailModel(
                 areaType = AreaType.OVERVIEW.value,
                 lastSyncedAt = null,
-                allCases = emptyList(),
-                allDeaths = emptyList()
+                cases = emptyList(),
+                deaths = emptyList(),
+                hospitalAdmissions = emptyList()
             )
         }
 
