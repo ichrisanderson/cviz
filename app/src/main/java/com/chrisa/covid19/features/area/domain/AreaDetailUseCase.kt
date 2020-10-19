@@ -18,10 +18,10 @@ package com.chrisa.covid19.features.area.domain
 
 import com.chrisa.covid19.features.area.data.AreaDataSource
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
@@ -32,7 +32,7 @@ class AreaDetailUseCase @Inject constructor(
         val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
-                emptyAreaDetailModel()
+                AreaDetailModel.EMPTY
             } else {
 
                 val areaData = areaDataSource.loadAreaData(areaCode)
@@ -44,18 +44,9 @@ class AreaDetailUseCase @Inject constructor(
                     lastSyncedAt = metadata.lastSyncTime,
                     cases = caseDailyData,
                     deaths = deathDailyData,
-                    hospitalAdmissions = emptyList()
+                    hospitalAdmissions = areaData.hospitalAdmissions
                 )
             }
         }
     }
-
-    private fun emptyAreaDetailModel(): AreaDetailModel =
-        AreaDetailModel(
-            areaType = null,
-            lastSyncedAt = null,
-            cases = emptyList(),
-            deaths = emptyList(),
-            hospitalAdmissions = emptyList()
-        )
 }

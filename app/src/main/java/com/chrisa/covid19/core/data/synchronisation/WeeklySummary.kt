@@ -26,4 +26,16 @@ data class WeeklySummary(
     val changeInTotal: Int,
     val weeklyRate: Double,
     val changeInRate: Double
-)
+) {
+    companion object {
+        val EMPTY = WeeklySummary(
+            lastDate = null,
+            currentTotal = 0,
+            dailyTotal = 0,
+            weeklyTotal = 0,
+            changeInTotal = 0,
+            weeklyRate = 0.0,
+            changeInRate = 0.0
+        )
+    }
+}

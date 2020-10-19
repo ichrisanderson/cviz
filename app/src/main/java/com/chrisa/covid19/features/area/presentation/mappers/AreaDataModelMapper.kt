@@ -39,20 +39,31 @@ class AreaDataModelMapper @Inject constructor(
     private val supportedAreaTypesForDeaths =
         setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
 
-    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
+    private val supportedAreaTypesForHospitalAdmissions =
+        setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
 
+    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
         val caseChartData = caseChartData(areaDetailModel.cases)
         val deathChartData = deathChartData(areaDetailModel.deaths)
+        val hospitalAdmissionsChartData =
+            hospitalAdmissionsChartData(areaDetailModel.hospitalAdmissions)
 
         val canDisplayDeaths =
             canDisplayDeaths(areaDetailModel.areaType) && deathChartData.isNotEmpty()
+
+        val canDisplayHospitalAdmissions =
+            canDisplayHospitalAdmissions(areaDetailModel.areaType) &&
+                areaDetailModel.hospitalAdmissions.isNotEmpty()
 
         return AreaDataModel(
             caseSummary = weeklySummary(areaDetailModel.cases),
             caseChartData = caseChartData,
             showDeaths = canDisplayDeaths,
             deathSummary = weeklySummary(areaDetailModel.deaths),
-            deathsChartData = deathChartData
+            deathsChartData = deathChartData,
+            showHospitalAdmissions = canDisplayHospitalAdmissions,
+            hospitalAdmissionsSummary = weeklySummary(areaDetailModel.hospitalAdmissions),
+            hospitalAdmissionsChartData = hospitalAdmissionsChartData
         )
     }
 
@@ -77,6 +88,18 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
+    private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
+        return chartBuilder.allChartData(
+            context.getString(R.string.all_hospital_admissions_chart_label),
+            context.getString(R.string.latest_hospital_admissions_chart_label),
+            context.getString(R.string.rolling_average_chart_label),
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
+        )
+    }
+
     private fun canDisplayDeaths(areaType: String?): Boolean =
         supportedAreaTypesForDeaths.contains(areaType)
+
+    private fun canDisplayHospitalAdmissions(areaType: String?): Boolean =
+        supportedAreaTypesForHospitalAdmissions.contains(areaType)
 }

@@ -23,18 +23,7 @@ object SynchronisationTestData {
 
     private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
 
-    val emptyWeeklySummary =
-        WeeklySummary(
-            lastDate = null,
-            currentTotal = 0,
-            dailyTotal = 0,
-            weeklyTotal = 0,
-            changeInTotal = 0,
-            weeklyRate = 0.0,
-            changeInRate = 0.0
-        )
-
-    val bigWeeklySummary =
+    val weeklySummary =
         WeeklySummary(
             lastDate = syncDate.toLocalDate(),
             currentTotal = 12220,
@@ -43,17 +32,6 @@ object SynchronisationTestData {
             changeInTotal = 10,
             weeklyRate = 100.0,
             changeInRate = 20.0
-        )
-
-    val smallWeeklySummary =
-        WeeklySummary(
-            lastDate = syncDate.toLocalDate(),
-            currentTotal = 30,
-            dailyTotal = 3,
-            weeklyTotal = 10,
-            changeInTotal = 1,
-            weeklyRate = 4.0,
-            changeInRate = 2.0
         )
 
     fun dailyData(): List<DailyData> {

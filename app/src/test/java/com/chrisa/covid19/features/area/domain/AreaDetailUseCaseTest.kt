@@ -53,7 +53,7 @@ class AreaDetailUseCaseTest {
             val areaDetailModelFlow = sut.execute(area.areaCode)
 
             areaDetailModelFlow.collect { emittedAreaDetailModel ->
-                assertThat(emittedAreaDetailModel).isEqualTo(emptyAreaDetailModel)
+                assertThat(emittedAreaDetailModel).isEqualTo(AreaDetailModel.EMPTY)
             }
         }
 
@@ -122,8 +122,8 @@ class AreaDetailUseCaseTest {
                         areaType = AreaType.OVERVIEW.value,
                         lastSyncedAt = syncDateTime,
                         cases = emptyList(),
-                        deaths = areaWithHospitalAdmissions.deaths,
-                        hospitalAdmissions = emptyList()
+                        deaths = emptyList(),
+                        hospitalAdmissions = areaWithHospitalAdmissions.hospitalAdmissions
                     )
                 )
             }
@@ -134,15 +134,6 @@ class AreaDetailUseCaseTest {
         private val syncDateTime = LocalDateTime.of(2020, 1, 1, 0, 0)
         private val metadata =
             MetadataDto(lastUpdatedAt = syncDateTime.minusDays(1), lastSyncTime = syncDateTime)
-
-        private val emptyAreaDetailModel =
-            AreaDetailModel(
-                areaType = null,
-                lastSyncedAt = null,
-                cases = emptyList(),
-                deaths = emptyList(),
-                hospitalAdmissions = emptyList()
-            )
 
         private val area = AreaDetailDto(
             areaName = "United Kingdom",

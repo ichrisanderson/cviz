@@ -25,4 +25,15 @@ data class AreaDetailModel(
     val cases: List<DailyData>,
     val deaths: List<DailyData>,
     val hospitalAdmissions: List<DailyData>
-)
+) {
+    companion object {
+        val EMPTY =
+            AreaDetailModel(
+                areaType = null,
+                lastSyncedAt = null,
+                cases = emptyList(),
+                deaths = emptyList(),
+                hospitalAdmissions = emptyList()
+            )
+    }
+}

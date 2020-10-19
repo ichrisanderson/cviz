@@ -8,8 +8,6 @@
     <string name="empty_locations_title">You have no saved locations</string>
     <string name="empty_locations_body">Search for locations to see latest Covid-19 data</string>
 
-    <string name="summary">Summary</string>
-
     <string name="rising_cases">Rising cases</string>
     <string name="top_cases">Top cases</string>
     <string name="total_cases">Total cases</string>
@@ -28,6 +26,13 @@
     <string name="deaths_by_date_reported_title">Deaths by date reported</string>
     <string name="all_deaths_chart_label">All deaths</string>
     <string name="latest_deaths_chart_label">Latest deaths</string>
+
+    <string name="hospital_admissions_title">Total hospital admissions</string>
+    <string name="total_hospital_admissions">Total admissions</string>
+    <string name="hospital_admissions_this_week">Admissions this week</string>
+    <string name="daily_hospital_admissions">Daily admissions</string>
+    <string name="all_hospital_admissions_chart_label">All admissions</string>
+    <string name="latest_hospital_admissions_chart_label">Latest admissions</string>
 
     <string name="top_infection_rates">Top infection rates</string>
     <string name="rising_infection_rates">Rising infection rates</string>

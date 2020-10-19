@@ -30,6 +30,7 @@ import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.chartTabCard
 import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
 import com.chrisa.covid19.features.area.presentation.widgets.areaCaseSummaryCard
 import com.chrisa.covid19.features.area.presentation.widgets.areaDeathSummaryCard
+import com.chrisa.covid19.features.area.presentation.widgets.areaHospitalSummaryCard
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -109,38 +110,46 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
             val areaDataModel = it ?: return@Observer
             areaRecyclerView.withModels {
                 sectionHeader {
-                    id("summaryTitle")
-                    title(areaRecyclerView.context.getString(R.string.summary))
-                    isMoreButtonVisible(false)
-                }
-                areaCaseSummaryCard {
-                    id("areaCaseSummary")
-                    summary(areaDataModel.caseSummary)
-                }
-                if (areaDataModel.showDeaths) {
-                    areaDeathSummaryCard {
-                        id("areaDeathSummary")
-                        summary(areaDataModel.deathSummary)
-                    }
-                }
-                sectionHeader {
-                    id("caseGraphsTitle")
+                    id("caseSummaryTitle")
                     title(getString(R.string.cases_title))
                     isMoreButtonVisible(false)
                 }
+                areaCaseSummaryCard {
+                    id("caseSummary")
+                    summary(areaDataModel.caseSummary)
+                }
                 chartTabCard {
-                    id("caseGraphs")
+                    id("caseChartData")
                     chartData(areaDataModel.caseChartData)
                 }
                 if (areaDataModel.showDeaths) {
                     sectionHeader {
-                        id("deathsByPublishedDateGraphsTitle")
+                        id("deathSummaryTitle")
                         title(getString(R.string.deaths_by_date_reported_title))
                         isMoreButtonVisible(false)
                     }
+                    areaDeathSummaryCard {
+                        id("deathSummary")
+                        summary(areaDataModel.deathSummary)
+                    }
                     chartTabCard {
-                        id("deathsByPublishedDateGraphs")
+                        id("deathsChartData")
                         chartData(areaDataModel.deathsChartData)
+                    }
+                }
+                if (areaDataModel.showHospitalAdmissions) {
+                    sectionHeader {
+                        id("hospitalAdmissionsSummaryTitle")
+                        title(getString(R.string.hospital_admissions_title))
+                        isMoreButtonVisible(false)
+                    }
+                    areaHospitalSummaryCard {
+                        id("hospitalAdmissionsSummary")
+                        summary(areaDataModel.hospitalAdmissionsSummary)
+                    }
+                    chartTabCard {
+                        id("hospitalAdmissionsChartData")
+                        chartData(areaDataModel.hospitalAdmissionsChartData)
                     }
                 }
             }
