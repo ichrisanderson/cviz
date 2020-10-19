@@ -24,5 +24,8 @@ data class AreaDataModel(
     val deathSummary: WeeklySummary,
     val caseChartData: List<CombinedChartData>,
     val showDeaths: Boolean,
-    val deathsChartData: List<CombinedChartData>
+    val deathsChartData: List<CombinedChartData>,
+    val showHospitalAdmissions: Boolean,
+    val hospitalAdmissionsSummary: WeeklySummary,
+    val hospitalAdmissionsChartData: List<CombinedChartData>
 )

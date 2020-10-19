@@ -19,7 +19,7 @@ package com.chrisa.covid19.features.area.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.chrisa.covid19.core.data.db.AreaType
-import com.chrisa.covid19.core.data.synchronisation.SynchronisationTestData
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
 import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.covid19.core.util.test
@@ -302,20 +302,22 @@ class AreaViewModelTest {
             return AreaDetailModel(
                 areaType = AreaType.OVERVIEW.value,
                 lastSyncedAt = null,
-                allCases = emptyList(),
-                caseSummary = SynchronisationTestData.emptyWeeklySummary,
-                allDeaths = emptyList(),
-                deathSummary = SynchronisationTestData.emptyWeeklySummary
+                cases = emptyList(),
+                deaths = emptyList(),
+                hospitalAdmissions = emptyList()
             )
         }
 
         private fun areaData(): AreaDataModel {
             return AreaDataModel(
                 caseChartData = emptyList(),
-                caseSummary = SynchronisationTestData.emptyWeeklySummary,
+                caseSummary = WeeklySummary.EMPTY,
                 deathsChartData = emptyList(),
                 showDeaths = false,
-                deathSummary = SynchronisationTestData.emptyWeeklySummary
+                deathSummary = WeeklySummary.EMPTY,
+                showHospitalAdmissions = false,
+                hospitalAdmissionsSummary = WeeklySummary.EMPTY,
+                hospitalAdmissionsChartData = emptyList()
             )
         }
     }

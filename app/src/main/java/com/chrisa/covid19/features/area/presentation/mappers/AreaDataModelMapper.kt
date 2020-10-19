@@ -19,7 +19,10 @@ package com.chrisa.covid19.features.area.presentation.mappers
 import android.content.Context
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.synchronisation.DailyData
 import com.chrisa.covid19.core.data.synchronisation.DailyDataWithRollingAverageBuilder
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
+import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
@@ -29,47 +32,74 @@ import javax.inject.Inject
 class AreaDataModelMapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dailyDataWithRollingAverageBuilder: DailyDataWithRollingAverageBuilder,
+    private val weeklySummaryBuilder: WeeklySummaryBuilder,
     private val chartBuilder: ChartBuilder
 ) {
 
     private val supportedAreaTypesForDeaths =
         setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
 
-    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
+    private val supportedAreaTypesForHospitalAdmissions =
+        setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
 
-        val caseChartData = caseChartData(areaDetailModel)
-        val deathChartData = deathChartData(areaDetailModel)
+    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
+        val caseChartData = caseChartData(areaDetailModel.cases)
+        val deathChartData = deathChartData(areaDetailModel.deaths)
+        val hospitalAdmissionsChartData =
+            hospitalAdmissionsChartData(areaDetailModel.hospitalAdmissions)
 
         val canDisplayDeaths =
             canDisplayDeaths(areaDetailModel.areaType) && deathChartData.isNotEmpty()
 
+        val canDisplayHospitalAdmissions =
+            canDisplayHospitalAdmissions(areaDetailModel.areaType) &&
+                areaDetailModel.hospitalAdmissions.isNotEmpty()
+
         return AreaDataModel(
-            caseSummary = areaDetailModel.caseSummary,
+            caseSummary = weeklySummary(areaDetailModel.cases),
             caseChartData = caseChartData,
             showDeaths = canDisplayDeaths,
-            deathSummary = areaDetailModel.deathSummary,
-            deathsChartData = deathChartData
+            deathSummary = weeklySummary(areaDetailModel.deaths),
+            deathsChartData = deathChartData,
+            showHospitalAdmissions = canDisplayHospitalAdmissions,
+            hospitalAdmissionsSummary = weeklySummary(areaDetailModel.hospitalAdmissions),
+            hospitalAdmissionsChartData = hospitalAdmissionsChartData
         )
     }
 
-    private fun caseChartData(areaDetailModel: AreaDetailModel): List<CombinedChartData> {
+    private fun weeklySummary(dailyData: List<DailyData>): WeeklySummary =
+        weeklySummaryBuilder.buildWeeklySummary(dailyData)
+
+    private fun caseChartData(dailyData: List<DailyData>): List<CombinedChartData> {
         return chartBuilder.allChartData(
             context.getString(R.string.all_cases_chart_label),
             context.getString(R.string.latest_cases_chart_label),
             context.getString(R.string.rolling_average_chart_label),
-            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(areaDetailModel.allCases)
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
 
-    private fun deathChartData(areaDetailModel: AreaDetailModel): List<CombinedChartData> {
+    private fun deathChartData(dailyData: List<DailyData>): List<CombinedChartData> {
         return chartBuilder.allChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
             context.getString(R.string.rolling_average_chart_label),
-            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(areaDetailModel.allDeaths)
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
+        )
+    }
+
+    private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
+        return chartBuilder.allChartData(
+            context.getString(R.string.all_hospital_admissions_chart_label),
+            context.getString(R.string.latest_hospital_admissions_chart_label),
+            context.getString(R.string.rolling_average_chart_label),
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
 
     private fun canDisplayDeaths(areaType: String?): Boolean =
         supportedAreaTypesForDeaths.contains(areaType)
+
+    private fun canDisplayHospitalAdmissions(areaType: String?): Boolean =
+        supportedAreaTypesForHospitalAdmissions.contains(areaType)
 }

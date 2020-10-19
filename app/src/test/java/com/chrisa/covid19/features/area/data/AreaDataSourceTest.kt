@@ -55,7 +55,9 @@ class AreaDataSourceTest {
 
     @Test
     fun `GIVEN area is not saved WHEN isSaved called THEN savedState is false`() = runBlockingTest {
-        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns ConflatedBroadcastChannel(false).asFlow()
+        every {
+            appDatabase.savedAreaDao().isSaved(areaData.areaCode)
+        } returns ConflatedBroadcastChannel(false).asFlow()
 
         val savedState = sut.isSaved(areaData.areaCode).first()
 
@@ -64,7 +66,9 @@ class AreaDataSourceTest {
 
     @Test
     fun `GIVEN area is saved WHEN isSaved called THEN savedState is true`() = runBlockingTest {
-        every { appDatabase.savedAreaDao().isSaved(areaData.areaCode) } returns ConflatedBroadcastChannel(false).asFlow()
+        every {
+            appDatabase.savedAreaDao().isSaved(areaData.areaCode)
+        } returns ConflatedBroadcastChannel(false).asFlow()
 
         val savedState = sut.isSaved(areaData.areaCode).first()
 
@@ -136,6 +140,14 @@ class AreaDataSourceTest {
                         newValue = areaData.newDeathsByPublishedDate!!,
                         cumulativeValue = areaData.cumulativeDeathsByPublishedDate!!,
                         rate = areaData.cumulativeDeathsByPublishedDateRate!!,
+                        date = areaData.date
+                    )
+                ),
+                hospitalAdmissions = listOf(
+                    DailyData(
+                        newValue = areaData.newAdmissions!!,
+                        cumulativeValue = areaData.cumulativeAdmissions!!,
+                        rate = 0.0,
                         date = areaData.date
                     )
                 )
