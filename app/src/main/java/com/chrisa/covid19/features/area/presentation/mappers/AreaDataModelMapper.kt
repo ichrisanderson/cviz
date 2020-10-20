@@ -26,6 +26,7 @@ import com.chrisa.covid19.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
+import com.chrisa.covid19.features.area.presentation.models.AreaMetadata
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -43,6 +44,12 @@ class AreaDataModelMapper @Inject constructor(
         setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
+        val areaMetadata = AreaMetadata(
+            lastUpdatedDate = areaDetailModel.lastSyncedAt,
+            lastCaseDate = areaDetailModel.cases.lastOrNull()?.date,
+            lastDeathDate = areaDetailModel.deaths.lastOrNull()?.date,
+            lastHospitalAdmissionDate = areaDetailModel.hospitalAdmissions.lastOrNull()?.date
+        )
         val caseChartData = caseChartData(areaDetailModel.cases)
         val deathChartData = deathChartData(areaDetailModel.deaths)
         val hospitalAdmissionsChartData =
@@ -56,6 +63,7 @@ class AreaDataModelMapper @Inject constructor(
                 areaDetailModel.hospitalAdmissions.isNotEmpty()
 
         return AreaDataModel(
+            areaMetadata = areaMetadata,
             caseSummary = weeklySummary(areaDetailModel.cases),
             caseChartData = caseChartData,
             showDeaths = canDisplayDeaths,

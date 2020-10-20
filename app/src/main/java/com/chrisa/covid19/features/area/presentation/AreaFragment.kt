@@ -27,10 +27,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.recyclerview.chart.chartTabCard
-import com.chrisa.covid19.core.ui.widgets.recyclerview.sectionHeader
+import com.chrisa.covid19.core.util.DateFormatter
 import com.chrisa.covid19.features.area.presentation.widgets.areaCaseSummaryCard
 import com.chrisa.covid19.features.area.presentation.widgets.areaDeathSummaryCard
 import com.chrisa.covid19.features.area.presentation.widgets.areaHospitalSummaryCard
+import com.chrisa.covid19.features.area.presentation.widgets.areaSectionHeader
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,6 +39,10 @@ import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlinx.android.synthetic.main.area_error.areaError
 import kotlinx.android.synthetic.main.area_error.errorAction
 import kotlinx.android.synthetic.main.area_fragment.areaProgress
@@ -52,6 +57,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     private val viewModel: AreaViewModel by viewModels()
     private val args by navArgs<AreaFragmentArgs>()
     private val disposables = CompositeDisposable()
+    private val formatter = DateTimeFormatter
+        .ofPattern("MMM d")
+        .withLocale(Locale.UK)
+        .withZone(ZoneId.of("GMT"))
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -108,11 +117,26 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     private fun observeCases() {
         viewModel.areaDataModel.observe(viewLifecycleOwner, Observer {
             val areaDataModel = it ?: return@Observer
+
+            val lastCaseDate = dateLabel(areaDataModel.areaMetadata.lastCaseDate)
+            val lastDeathDate = dateLabel(areaDataModel.areaMetadata.lastDeathDate)
+            val lastHospitalAdmissionDate =
+                dateLabel(areaDataModel.areaMetadata.lastHospitalAdmissionDate)
+            val lastUpdated = areaRecyclerView.context.getString(
+                R.string.updated_label,
+                DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.areaMetadata.lastUpdatedDate)
+            )
             areaRecyclerView.withModels {
-                sectionHeader {
+                areaSectionHeader {
                     id("caseSummaryTitle")
                     title(getString(R.string.cases_title))
-                    isMoreButtonVisible(false)
+                    subtitle1(
+                        areaToolbar.context.getString(
+                            R.string.latest_data_label,
+                            lastCaseDate
+                        )
+                    )
+                    subtitle2(lastUpdated)
                 }
                 areaCaseSummaryCard {
                     id("caseSummary")
@@ -123,10 +147,16 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     chartData(areaDataModel.caseChartData)
                 }
                 if (areaDataModel.showDeaths) {
-                    sectionHeader {
+                    areaSectionHeader {
                         id("deathSummaryTitle")
-                        title(getString(R.string.deaths_by_date_reported_title))
-                        isMoreButtonVisible(false)
+                        title(getString(R.string.deaths_title))
+                        subtitle1(
+                            areaToolbar.context.getString(
+                                R.string.latest_data_label,
+                                lastDeathDate
+                            )
+                        )
+                        subtitle2(lastUpdated)
                     }
                     areaDeathSummaryCard {
                         id("deathSummary")
@@ -138,10 +168,16 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                 }
                 if (areaDataModel.showHospitalAdmissions) {
-                    sectionHeader {
+                    areaSectionHeader {
                         id("hospitalAdmissionsSummaryTitle")
                         title(getString(R.string.hospital_admissions_title))
-                        isMoreButtonVisible(false)
+                        subtitle1(
+                            areaToolbar.context.getString(
+                                R.string.latest_data_label,
+                                lastHospitalAdmissionDate
+                            )
+                        )
+                        subtitle2(lastUpdated)
                     }
                     areaHospitalSummaryCard {
                         id("hospitalAdmissionsSummary")
@@ -156,6 +192,9 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
             areaError.isVisible = false
         })
     }
+
+    private fun dateLabel(date: LocalDate?) =
+        date?.format(formatter) ?: ""
 
     private fun observeIsSaved() {
         viewModel.isSaved.observe(viewLifecycleOwner, Observer { isSaved ->

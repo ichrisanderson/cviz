@@ -115,13 +115,11 @@ class AreaViewModel @ViewModelInject constructor(
                     ) {
                         syncAreaCases(areaDetailModel)
                     } else {
-                        _isLoading.postValue(false)
-                        _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel))
+                        postAreaDetailModel(areaDetailModel)
                     }
                 }
             }.onFailure {
-                _isLoading.postValue(false)
-                _syncAreaError.postValue(Event(true))
+                postError()
             }
         }
     }
@@ -132,17 +130,24 @@ class AreaViewModel @ViewModelInject constructor(
                 syncAreaDetailUseCase.execute(areaCode, areaType)
             }.onFailure { error ->
                 if (error is HttpException && error.code() == 304) {
-                    _isLoading.postValue(false)
-                    _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel))
+                    postAreaDetailModel(areaDetailModel)
                 } else if (areaDetailModel.lastSyncedAt == null) {
-                    _isLoading.postValue(false)
-                    _syncAreaError.postValue(Event(true))
+                    postError()
                 } else {
-                    _isLoading.postValue(false)
-                    _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel))
+                    postAreaDetailModel(areaDetailModel)
                     _syncAreaError.postValue(Event(false))
                 }
             }
         }
+    }
+
+    private fun postError() {
+        _isLoading.postValue(false)
+        _syncAreaError.postValue(Event(true))
+    }
+
+    private fun postAreaDetailModel(areaDetailModel: AreaDetailModel) {
+        _isLoading.postValue(false)
+        _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel))
     }
 }

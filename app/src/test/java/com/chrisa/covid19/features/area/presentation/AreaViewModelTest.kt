@@ -19,6 +19,7 @@ package com.chrisa.covid19.features.area.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.chrisa.covid19.core.data.db.AreaType
+import com.chrisa.covid19.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.covid19.core.data.synchronisation.WeeklySummary
 import com.chrisa.covid19.core.data.time.TimeProvider
 import com.chrisa.covid19.core.util.coroutines.TestCoroutineDispatchersImpl
@@ -31,6 +32,7 @@ import com.chrisa.covid19.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.mappers.AreaDataModelMapper
 import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
+import com.chrisa.covid19.features.area.presentation.models.AreaMetadata
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -297,6 +299,7 @@ class AreaViewModelTest {
         private const val areaType = "utla"
         private val savedStateHandle =
             SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+        private val lastData = SynchronisationTestData.dailyData().last()
 
         private fun areaDetailModel(): AreaDetailModel {
             return AreaDetailModel(
@@ -308,8 +311,16 @@ class AreaViewModelTest {
             )
         }
 
+        private val areaMetadata = AreaMetadata(
+            lastUpdatedDate = syncTime,
+            lastDeathDate = lastData.date,
+            lastHospitalAdmissionDate = lastData.date,
+            lastCaseDate = lastData.date
+        )
+
         private fun areaData(): AreaDataModel {
             return AreaDataModel(
+                areaMetadata = areaMetadata,
                 caseChartData = emptyList(),
                 caseSummary = WeeklySummary.EMPTY,
                 deathsChartData = emptyList(),
