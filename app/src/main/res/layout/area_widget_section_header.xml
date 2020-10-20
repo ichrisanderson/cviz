@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chrisa.covid19.core.ui.widgets.recyclerview.SectionHeader xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chrisa.covid19.features.area.presentation.widgets.AreaSectionHeader xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,36 +10,36 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-        app:layout_constraintEnd_toStartOf="@id/moreButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Title" />
 
     <TextView
-        android:id="@+id/subtitle"
+        android:id="@+id/subtitle1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/roboto_light"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/moreButton"
+        app:layout_constraintEnd_toStartOf="@id/subtitle2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
-        android:visibility="gone"
-        tools:text="Subtitle" />
+        tools:text="Data label" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/moreButton"
-        style="@style/SectionHeaderButton"
+    <TextView
+        android:id="@+id/subtitle2"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:minHeight="0dp"
-        android:text="@string/view_all"
-        app:icon="@drawable/ic_chevron_right"
-        app:iconGravity="end"
-        app:layout_constraintBaseline_toBaselineOf="@id/title"
-        app:layout_constraintBottom_toBottomOf="@id/title"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:fontFamily="@font/roboto_light"
+        android:gravity="end"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/title"
-        app:layout_constraintTop_toTopOf="@id/title" />
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:text="Data label" />
 
-</com.chrisa.covid19.core.ui.widgets.recyclerview.SectionHeader>
+</com.chrisa.covid19.features.area.presentation.widgets.AreaSectionHeader>

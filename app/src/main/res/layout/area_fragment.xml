@@ -12,6 +12,7 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/areaToolbar"
+            style="@style/Widget.Covid19.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:menu="@menu/area_menu"
@@ -32,5 +33,5 @@
         android:layout_gravity="center" />
 
     <include layout="@layout/area_error" />
-
+    
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

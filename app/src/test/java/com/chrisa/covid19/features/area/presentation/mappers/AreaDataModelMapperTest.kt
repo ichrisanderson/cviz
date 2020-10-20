@@ -30,6 +30,7 @@ import com.chrisa.covid19.core.ui.widgets.charts.LineChartData
 import com.chrisa.covid19.core.ui.widgets.charts.LineChartItem
 import com.chrisa.covid19.features.area.domain.models.AreaDetailModel
 import com.chrisa.covid19.features.area.presentation.models.AreaDataModel
+import com.chrisa.covid19.features.area.presentation.models.AreaMetadata
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -62,7 +63,6 @@ class AreaDataModelMapperTest {
         every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
 
         every { dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(any()) } returns dailyData
-
         every { weeklySummaryBuilder.buildWeeklySummary(any()) } returns weeklySummary
 
         every {
@@ -95,10 +95,11 @@ class AreaDataModelMapperTest {
 
     @Test
     fun `WHEN mapAreaDetailModel called without death data THEN deaths are hidden`() {
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithDeaths)
+        val mappedModel = sut.mapAreaDetailModel(areaDetail)
 
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
+                areaMetadata = areaMetadata,
                 caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
                 showDeaths = false,
@@ -123,10 +124,11 @@ class AreaDataModelMapperTest {
         } returns
             listOf(combinedChartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetail)
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithDeaths)
 
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
+                areaMetadata = areaMetadataWithDeaths,
                 caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
                 showDeaths = true,
@@ -145,6 +147,7 @@ class AreaDataModelMapperTest {
 
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
+                areaMetadata = areaMetadata,
                 caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
                 showDeaths = false,
@@ -172,6 +175,7 @@ class AreaDataModelMapperTest {
 
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
+                areaMetadata = areaMetadataWithHospitalAdmissions,
                 caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
                 showDeaths = false,
@@ -207,6 +211,22 @@ class AreaDataModelMapperTest {
         )
 
         private val dailyData = listOf(dailyDataWithRollingAverage)
+
+        private val lastData = SynchronisationTestData.dailyData().last()
+        private val areaMetadata = AreaMetadata(
+            lastUpdatedDate = syncDateTime,
+            lastCaseDate = lastData.date,
+            lastHospitalAdmissionDate = null,
+            lastDeathDate = null
+        )
+
+        private val areaMetadataWithDeaths = areaMetadata.copy(
+            lastDeathDate = lastData.date
+        )
+
+        private val areaMetadataWithHospitalAdmissions = areaMetadata.copy(
+            lastHospitalAdmissionDate = lastData.date
+        )
 
         private val areaDetail = AreaDetailModel(
             areaType = AreaType.OVERVIEW.value,

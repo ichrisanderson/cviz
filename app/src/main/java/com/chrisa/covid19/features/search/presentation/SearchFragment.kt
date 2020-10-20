@@ -58,7 +58,6 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
             ContextCompat.getDrawable(searchToolbar.context, R.drawable.ic_arrow_back)
 
         searchToolbar.setNavigationOnClickListener {
-            KeyboardUtils.hideSoftKeyboard(it)
             navigateUp()
         }
     }
@@ -120,13 +119,23 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
     }
 
     private fun navigateUp() {
+        hideKeyboard()
         findNavController().navigateUp()
     }
 
     private fun navigateToArea(area: AreaModel) {
+        hideKeyboard()
         val action =
-            SearchFragmentDirections.searchToArea(areaCode = area.code, areaName = area.name, areaType = area.type)
+            SearchFragmentDirections.searchToArea(
+                areaCode = area.code,
+                areaName = area.name,
+                areaType = area.type
+            )
         findNavController().navigate(action)
+    }
+
+    private fun hideKeyboard() {
+        KeyboardUtils.hideSoftKeyboard(searchView)
     }
 
     override fun onDestroyView() {

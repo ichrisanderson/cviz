@@ -14,32 +14,22 @@
  * limitations under the License.
  */
 
-package com.chrisa.covid19.core.ui.widgets.recyclerview
+package com.chrisa.covid19.features.area.presentation.widgets
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isVisible
-import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.covid19.R
-import kotlinx.android.synthetic.main.core_widget_section_header.view.moreButton
-import kotlinx.android.synthetic.main.core_widget_section_header.view.subtitle
-import kotlinx.android.synthetic.main.core_widget_section_header.view.title
+import kotlinx.android.synthetic.main.area_widget_section_header.view.subtitle1
+import kotlinx.android.synthetic.main.area_widget_section_header.view.subtitle2
+import kotlinx.android.synthetic.main.area_widget_section_header.view.title
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.core_widget_section_header)
-class SectionHeader(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
-
-    var clickListener: OnClickListener? = null
-        @CallbackProp set
-
-    override fun onFinishInflate() {
-        super.onFinishInflate()
-        moreButton.setOnClickListener { clickListener?.onClick(this) }
-    }
+@ModelView(defaultLayout = R.layout.area_widget_section_header)
+class AreaSectionHeader(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
 
     @ModelProp
     fun title(text: String) {
@@ -47,13 +37,12 @@ class SectionHeader(context: Context, attrs: AttributeSet) : ConstraintLayout(co
     }
 
     @ModelProp
-    fun subtitle(text: String?) {
-        subtitle.text = text
-        subtitle.isVisible = !text.isNullOrEmpty()
+    fun subtitle1(text: String?) {
+        subtitle1.text = text
     }
 
     @ModelProp
-    fun isMoreButtonVisible(isVisible: Boolean) {
-        moreButton.isVisible = isVisible
+    fun subtitle2(text: String?) {
+        subtitle2.text = text
     }
 }

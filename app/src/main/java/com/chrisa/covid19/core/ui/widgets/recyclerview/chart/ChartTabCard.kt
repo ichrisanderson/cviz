@@ -25,11 +25,11 @@ import com.chrisa.covid19.R
 import com.chrisa.covid19.core.ui.widgets.charts.CombinedChartData
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.area_widget_case_graph_card.view.pager
-import kotlinx.android.synthetic.main.area_widget_case_graph_card.view.tab_layout
+import kotlinx.android.synthetic.main.core_widget_chart_tab_card.view.pager
+import kotlinx.android.synthetic.main.core_widget_chart_tab_card.view.tab_layout
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.area_widget_case_graph_card)
+@ModelView(defaultLayout = R.layout.core_widget_chart_tab_card)
 class ChartTabCard(context: Context, attrs: AttributeSet) : MaterialCardView(context, attrs) {
 
     private val adapter = ChartAdapter()

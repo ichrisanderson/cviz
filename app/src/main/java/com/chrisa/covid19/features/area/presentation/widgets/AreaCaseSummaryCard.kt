@@ -41,7 +41,6 @@ class AreaCaseSummaryCard(context: Context, attrs: AttributeSet) :
 
     @ModelProp
     fun summary(summary: WeeklySummary) {
-
         dailyCases.text = NumberFormatter.format(summary.dailyTotal)
         totalCases.text = NumberFormatter.format(summary.currentTotal)
         currentNewCases.text = NumberFormatter.format(summary.weeklyTotal)

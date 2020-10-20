@@ -51,12 +51,10 @@ class DashboardViewModel @ViewModelInject constructor(
     private fun loadSavedAreaCases() {
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
-
             val homeScreenData = loadDashboardDataUseCase.execute()
-
             homeScreenData.collect {
-                _dashboardData.postValue(it)
                 _isLoading.postValue(false)
+                _dashboardData.postValue(it)
             }
         }
     }

@@ -117,31 +117,7 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                     id("dailyRecordCarousel")
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
-                sectionHeader {
-                    id("risingCasesHeader")
-                    title(getString(R.string.rising_cases))
-                    isMoreButtonVisible(true)
-                    clickListener { _ -> navigateToSummaryList(SortOption.RisingCases) }
-                }
-                carousel {
-                    id("risingCasesCarousel")
-                    models(mapCases("risingCase_", homeScreenData.risingNewCases))
-                }
-                sectionHeader {
-                    id("risingInfectionRatesHeader")
-                    title(getString(R.string.rising_infection_rates))
-                    isMoreButtonVisible(true)
-                    clickListener { _ -> navigateToSummaryList(SortOption.RisingInfectionRate) }
-                }
-                carousel {
-                    id("risingInfectionRatesCarousel")
-                    models(
-                        mapInfectionRateModels(
-                            "risingInfectionRate_",
-                            homeScreenData.risingInfectionRates
-                        )
-                    )
-                }
+
                 sectionHeader {
                     id("topNewCasesHeader")
                     title(getString(R.string.top_cases))
@@ -164,6 +140,31 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                         mapInfectionRateModels(
                             "topInfectionRate_",
                             homeScreenData.topInfectionRates
+                        )
+                    )
+                }
+                sectionHeader {
+                    id("risingCasesHeader")
+                    title(getString(R.string.rising_cases))
+                    isMoreButtonVisible(true)
+                    clickListener { _ -> navigateToSummaryList(SortOption.RisingCases) }
+                }
+                carousel {
+                    id("risingCasesCarousel")
+                    models(mapCases("risingCase_", homeScreenData.risingNewCases))
+                }
+                sectionHeader {
+                    id("risingInfectionRatesHeader")
+                    title(getString(R.string.rising_infection_rates))
+                    isMoreButtonVisible(true)
+                    clickListener { _ -> navigateToSummaryList(SortOption.RisingInfectionRate) }
+                }
+                carousel {
+                    id("risingInfectionRatesCarousel")
+                    models(
+                        mapInfectionRateModels(
+                            "risingInfectionRate_",
+                            homeScreenData.risingInfectionRates
                         )
                     )
                 }
