@@ -18,7 +18,7 @@
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/searchView"
-                android:theme="@style/Widget.Covid19.ToolbarSearchView"
+                android:theme="@style/Widget.Cron19.ToolbarSearchView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:queryHint="@string/home_search_hint"

@@ -9,7 +9,7 @@ android {
     compileSdkVersion 29
 
     defaultConfig {
-        applicationId "com.chrisa.covid19"
+        applicationId "com.chrisa.cron19"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1

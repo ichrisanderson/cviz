@@ -10,5 +10,4 @@
     <color name="windowBackground">#EEE</color>
     <color name="negativeChange">#ffcc0000</color>
     <color name="positiveChange">#ff669900</color>
-    <color name="ic_launcher_background">#50C836</color>
 </resources>

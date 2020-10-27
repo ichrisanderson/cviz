@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/startup"
-        android:name="com.chrisa.covid19.features.startup.presentation.StartupFragment"
+        android:name="com.chrisa.cron19.features.startup.presentation.StartupFragment"
         tools:layout="@layout/startup_fragment">
         <action
             android:id="@+id/startup_to_home"
@@ -20,7 +20,7 @@
 
     <fragment
         android:id="@+id/home"
-        android:name="com.chrisa.covid19.features.home.presentation.HomeFragment"
+        android:name="com.chrisa.cron19.features.home.presentation.HomeFragment"
         tools:layout="@layout/home_fragment">
         <action
             android:id="@+id/home_to_search"
@@ -47,7 +47,7 @@
 
     <fragment
         android:id="@+id/search"
-        android:name="com.chrisa.covid19.features.search.presentation.SearchFragment"
+        android:name="com.chrisa.cron19.features.search.presentation.SearchFragment"
         tools:layout="@layout/search_fragment">
         <action
             android:id="@+id/search_to_area"
@@ -58,11 +58,11 @@
 
     <fragment
         android:id="@+id/summaryListFragment"
-        android:name="com.chrisa.covid19.features.home.presentation.summarylist.SummaryListFragment"
+        android:name="com.chrisa.cron19.features.home.presentation.summarylist.SummaryListFragment"
         tools:layout="@layout/summary_list_fragment">
         <argument
             android:name="sortOption"
-            app:argType="com.chrisa.covid19.features.home.domain.models.SortOption" />
+            app:argType="com.chrisa.cron19.features.home.domain.models.SortOption" />
         <action
             android:id="@+id/summary_list_to_area"
             app:destination="@id/area"
@@ -72,7 +72,7 @@
 
     <fragment
         android:id="@+id/area"
-        android:name="com.chrisa.covid19.features.area.presentation.AreaFragment"
+        android:name="com.chrisa.cron19.features.area.presentation.AreaFragment"
         tools:layout="@layout/area_fragment">
         <argument
             android:name="areaCode"
