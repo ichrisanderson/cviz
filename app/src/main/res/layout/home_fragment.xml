@@ -17,7 +17,7 @@
             android:layout_height="?attr/actionBarSize"
             app:contentInsetStartWithNavigation="16dp"
             app:menu="@menu/home_menu"
-            app:navigationIcon="@drawable/ic_covid_19"
+            app:navigationIcon="@drawable/ic_app_icon"
             app:title="@string/app_name" />
 
     </com.google.android.material.appbar.AppBarLayout>
