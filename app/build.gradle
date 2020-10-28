@@ -25,10 +25,21 @@ android {
         }
     }
 
+    signingConfigs {
+        release {
+            def keyStore = findProperty('cron19_store_file') ?: 'debug.key'
+            storeFile file(keyStore)
+            keyAlias findProperty('cron19_release_keyAlias') ?: 'android'
+            keyPassword findProperty('cron19_release_keyPassword') ?: 'android'
+            storePassword findProperty('cron19_release_storePassword') ?: 'android'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
