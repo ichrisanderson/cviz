@@ -27,10 +27,11 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(cron19_store_file)
-            keyAlias cron19_release_keyAlias
-            keyPassword cron19_release_keyPassword
-            storePassword cron19_release_storePassword
+            def keyStore = findProperty('cron19_store_file') ?: 'debug.key'
+            storeFile file(keyStore)
+            keyAlias findProperty('cron19_release_keyAlias') ?: 'android'
+            keyPassword findProperty('cron19_release_keyPassword') ?: 'android'
+            storePassword findProperty('cron19_release_storePassword') ?: 'android'
         }
     }
 
