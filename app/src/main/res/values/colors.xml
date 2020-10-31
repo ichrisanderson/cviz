@@ -3,6 +3,7 @@
     <color name="primaryColor">#ff00c805</color>
     <color name="primaryDarkColor">#ff009b04</color>
     <color name="primaryTextColor">#000000</color>
+    <color name="disabledColor">#CCC</color>
     <color name="secondaryColor">#ffb90a</color>
     <color name="secondaryTextColor">#000000</color>
     <color name="colorOnPrimary">#FFFFFF</color>
