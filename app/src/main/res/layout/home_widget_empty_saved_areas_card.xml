@@ -37,15 +37,28 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_end="16dp" />
 
+        <ImageView
+            android:id="@+id/emptyBookmark"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:importantForAccessibility="no"
+            android:tint="@color/disabledColor"
+            android:src="@drawable/ic_bookmark_off"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toTopOf="@id/guideline_top" />
+
         <TextView
             android:id="@+id/homeEmptyLocationsTitle"
             style="@style/TextAppearance.MaterialComponents.Body1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="8dp"
             android:text="@string/empty_locations_title"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toTopOf="@id/guideline_top" />
+            app:layout_constraintTop_toBottomOf="@id/emptyBookmark" />
 
         <TextView
             android:id="@+id/homeEmptyLocationsSubtitle"
@@ -56,6 +69,7 @@
             android:layout_marginTop="4dp"
             android:text="@string/empty_locations_body"
             app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintTop_toBottomOf="@id/homeEmptyLocationsTitle" />
 
