@@ -1,0 +1,19 @@
+// Check for google-services.json file and copy to project dir
+def googleServicesFile = findProperty('cviz_google_services_file') ?: ''
+if (googleServicesFile != '') {
+    def googleServicesJsonFile = new File(googleServicesFile)
+
+    if (googleServicesJsonFile.exists()) {
+        def targetFile = file("google-services.json")
+        targetFile.write(googleServicesJsonFile.text)
+    }
+
+    apply plugin: 'com.google.gms.google-services'
+    tasks.withType(Test) {
+        testLogging {
+            exceptionFormat "full"
+            events "started", "skipped", "passed", "failed"
+            showStandardStreams true
+        }
+    }
+}

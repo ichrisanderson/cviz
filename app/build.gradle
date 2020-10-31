@@ -169,3 +169,5 @@ dependencies {
     testImplementation "androidx.test.ext:junit:${versions.androidxjunit}"
     testImplementation "androidx.test.ext:truth:${versions.androidxTruth}"
 }
+
+apply from: "$rootDir/gradle/googleservices.gradle"
