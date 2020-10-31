@@ -13,7 +13,7 @@
     <string name="daily_cases">Daily cases</string>
     <string name="cases_title">Cases</string>L 19 October
     <string name="latest_data_label">Last data provided on %s</string>
-    <string name="updated_label">Updated %s</string>
+    <string name="updated_label">Last updated: %s</string>
     <string name="all_cases_chart_label">All cases</string>
     <string name="latest_cases_chart_label">Latest cases</string>
 

@@ -45,7 +45,7 @@ class AreaDataModelMapper @Inject constructor(
 
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
         val areaMetadata = AreaMetadata(
-            lastUpdatedDate = areaDetailModel.lastSyncedAt,
+            lastUpdatedDate = areaDetailModel.lastUpdatedAt,
             lastCaseDate = areaDetailModel.cases.lastOrNull()?.date,
             lastDeathDate = areaDetailModel.deaths.lastOrNull()?.date,
             lastHospitalAdmissionDate = areaDetailModel.hospitalAdmissions.lastOrNull()?.date

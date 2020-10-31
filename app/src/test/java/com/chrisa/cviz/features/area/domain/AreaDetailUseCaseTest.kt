@@ -72,6 +72,7 @@ class AreaDetailUseCaseTest {
                 assertThat(emittedAreaDetailModel).isEqualTo(
                     AreaDetailModel(
                         areaType = AreaType.OVERVIEW.value,
+                        lastUpdatedAt = lastUpdatedDateTime,
                         lastSyncedAt = syncDateTime,
                         cases = areaWithCases.cases,
                         deaths = emptyList(),
@@ -96,6 +97,7 @@ class AreaDetailUseCaseTest {
                 assertThat(emittedAreaDetailModel).isEqualTo(
                     AreaDetailModel(
                         areaType = AreaType.OVERVIEW.value,
+                        lastUpdatedAt = lastUpdatedDateTime,
                         lastSyncedAt = syncDateTime,
                         cases = emptyList(),
                         deaths = areaWithDeaths.deaths,
@@ -120,6 +122,7 @@ class AreaDetailUseCaseTest {
                 assertThat(emittedAreaDetailModel).isEqualTo(
                     AreaDetailModel(
                         areaType = AreaType.OVERVIEW.value,
+                        lastUpdatedAt = lastUpdatedDateTime,
                         lastSyncedAt = syncDateTime,
                         cases = emptyList(),
                         deaths = emptyList(),
@@ -131,9 +134,11 @@ class AreaDetailUseCaseTest {
 
     companion object {
 
-        private val syncDateTime = LocalDateTime.of(2020, 1, 1, 0, 0)
+        private val syncDateTime = LocalDateTime.of(2020, 1, 1, 12, 0)
+        private val lastUpdatedDateTime = LocalDateTime.of(2020, 1, 1, 11, 0)
+
         private val metadata =
-            MetadataDto(lastUpdatedAt = syncDateTime.minusDays(1), lastSyncTime = syncDateTime)
+            MetadataDto(lastUpdatedAt = lastUpdatedDateTime, lastSyncTime = syncDateTime)
 
         private val area = AreaDetailDto(
             areaName = "United Kingdom",

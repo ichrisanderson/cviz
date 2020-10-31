@@ -230,6 +230,7 @@ class AreaDataModelMapperTest {
 
         private val areaDetail = AreaDetailModel(
             areaType = AreaType.OVERVIEW.value,
+            lastUpdatedAt = syncDateTime,
             lastSyncedAt = syncDateTime,
             cases = SynchronisationTestData.dailyData(),
             deaths = emptyList(),
