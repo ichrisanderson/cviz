@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Cron19</string>
+    <string name="app_name">cViz</string>
 
     <string name="home_search_hint">Search for locations</string>
     <string name="dashboard_title">Dashboard</string>

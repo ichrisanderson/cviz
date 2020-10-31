@@ -10,9 +10,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/ic_app_icon"
-        android:drawablePadding="8dp"
         android:gravity="center"
         android:text="@string/app_name"
+        app:fontFamily="@font/anton"
         app:layout_constraintBottom_toTopOf="@id/startupProgress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,12 +21,13 @@
 
     <ProgressBar
         android:id="@+id/startupProgress"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:indeterminate="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/startupTitle"
+        app:layout_constraintStart_toStartOf="@id/startupTitle"
         app:layout_constraintTop_toBottomOf="@id/startupTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
