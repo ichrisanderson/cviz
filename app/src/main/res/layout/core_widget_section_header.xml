@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chrisa.cron19.core.ui.widgets.recyclerview.SectionHeader xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chrisa.cviz.core.ui.widgets.recyclerview.SectionHeader xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -29,7 +29,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/moreButton"
-        style="@style/Widget.Cron19.SectionHeaderButton"
+        style="@style/Widget.Cviz.SectionHeaderButton"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:minHeight="0dp"
@@ -42,4 +42,4 @@
         app:layout_constraintStart_toEndOf="@id/title"
         app:layout_constraintTop_toTopOf="@id/title" />
 
-</com.chrisa.cron19.core.ui.widgets.recyclerview.SectionHeader>
+</com.chrisa.cviz.core.ui.widgets.recyclerview.SectionHeader>

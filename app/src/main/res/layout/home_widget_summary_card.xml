@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.chrisa.cron19.features.home.presentation.widgets.SummaryCard xmlns:android="http://schemas.android.com/apk/res/android"
+<com.chrisa.cviz.features.home.presentation.widgets.SummaryCard xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -172,4 +172,4 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</com.chrisa.cron19.features.home.presentation.widgets.SummaryCard>
+</com.chrisa.cviz.features.home.presentation.widgets.SummaryCard>

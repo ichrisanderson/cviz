@@ -15,10 +15,22 @@
             android:id="@+id/homeToolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:contentInsetStartWithNavigation="16dp"
-            app:menu="@menu/home_menu"
-            app:navigationIcon="@drawable/ic_app_icon"
-            app:title="@string/app_name" />
+            app:contentInsetStart="0dp"
+            app:menu="@menu/home_menu">
+
+            <TextView
+                android:id="@+id/title"
+                style="@style/TextAppearance.MaterialComponents.Headline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:includeFontPadding="true"
+                android:drawableStart="@drawable/ic_app_icon"
+                android:text="@string/app_name"
+                android:textColor="@color/colorOnPrimary"
+                app:fontFamily="@font/anton"
+                app:layout_scrollFlags="scroll" />
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
