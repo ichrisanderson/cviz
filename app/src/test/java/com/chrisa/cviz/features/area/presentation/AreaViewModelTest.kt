@@ -304,6 +304,7 @@ class AreaViewModelTest {
         private fun areaDetailModel(): AreaDetailModel {
             return AreaDetailModel(
                 areaType = AreaType.OVERVIEW.value,
+                lastUpdatedAt = null,
                 lastSyncedAt = null,
                 cases = emptyList(),
                 deaths = emptyList(),

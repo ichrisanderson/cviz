@@ -41,6 +41,7 @@ class AreaDetailUseCase @Inject constructor(
 
                 AreaDetailModel(
                     areaType = areaData.areaType,
+                    lastUpdatedAt = metadata.lastUpdatedAt,
                     lastSyncedAt = metadata.lastSyncTime,
                     cases = caseDailyData,
                     deaths = deathDailyData,
