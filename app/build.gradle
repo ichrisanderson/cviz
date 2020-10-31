@@ -6,14 +6,14 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion versions.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.chrisa.cron19"
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        applicationId "com.chrisa.cviz"
+        minSdkVersion versions.minSdkVersion
+        targetSdkVersion versions.targetSdkVersion
+        versionCode versions.versionCode
+        versionName versions.versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -27,11 +27,11 @@ android {
 
     signingConfigs {
         release {
-            def keyStore = findProperty('cron19_store_file') ?: 'debug.key'
+            def keyStore = findProperty('cviz_store_file') ?: 'debug.key'
             storeFile file(keyStore)
-            keyAlias findProperty('cron19_release_keyAlias') ?: 'android'
-            keyPassword findProperty('cron19_release_keyPassword') ?: 'android'
-            storePassword findProperty('cron19_release_storePassword') ?: 'android'
+            keyAlias findProperty('cviz_release_keyAlias') ?: 'android'
+            keyPassword findProperty('cviz_release_keyPassword') ?: 'android'
+            storePassword findProperty('cviz_release_storePassword') ?: 'android'
         }
     }
 
