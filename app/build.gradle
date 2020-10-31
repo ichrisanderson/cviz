@@ -33,6 +33,12 @@ android {
             keyPassword findProperty('cviz_release_keyPassword') ?: 'android'
             storePassword findProperty('cviz_release_storePassword') ?: 'android'
         }
+        debug {
+            storeFile file('debug.key')
+            keyAlias 'android'
+            keyPassword 'android'
+            storePassword 'android'
+        }
     }
 
     buildTypes {
@@ -40,6 +46,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -109,6 +121,11 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:${versions.androidxWork}"
     implementation "androidx.viewpager2:viewpager2:${versions.androidxViewpager2}"
 
+    /* firebase */
+    implementation platform("com.google.firebase:firebase-bom:${versions.firebaseBom}")
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
     /* rx */
     implementation "io.reactivex.rxjava3:rxjava:${versions.rxjava}"
     implementation "io.reactivex.rxjava3:rxandroid:${versions.rxandroid}"
@@ -169,3 +186,5 @@ dependencies {
     testImplementation "androidx.test.ext:junit:${versions.androidxjunit}"
     testImplementation "androidx.test.ext:truth:${versions.androidxTruth}"
 }
+
+apply from: "$rootDir/gradle/googleservices.gradle"

@@ -1,0 +1,20 @@
+// Check for google-services.json file and copy to project dir
+copyFile(findProperty('cviz_google_services_file') ?: '', file("src/release/google-services.json"))
+copyFile(findProperty('cviz_google_services_debug_file') ?: '', file("src/debug/google-services.json"))
+runTask(findProperty('cviz_google_services_debug_file') ?: '')
+
+private void copyFile(googleServicesFile = '', targetFile) {
+    if (googleServicesFile != '') {
+        def googleServicesJsonFile = new File(googleServicesFile)
+        if (googleServicesJsonFile.exists()) {
+            targetFile.write(googleServicesJsonFile.text)
+        }
+    }
+}
+
+private void runTask(googleServicesFile = '') {
+    if (googleServicesFile != '') {
+        apply plugin: 'com.google.gms.google-services'
+        apply plugin: 'com.google.firebase.crashlytics'
+    }
+}
