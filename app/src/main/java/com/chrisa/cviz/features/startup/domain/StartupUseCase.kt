@@ -16,59 +16,31 @@
 
 package com.chrisa.cviz.features.startup.domain
 
-import com.chrisa.cviz.core.data.synchronisation.AreaListSynchroniser
-import com.chrisa.cviz.core.data.synchronisation.AreaSummaryDataSynchroniser
-import com.chrisa.cviz.core.data.synchronisation.SavedAreaDataSynchroniser
+import com.chrisa.cviz.core.data.synchronisation.DataSynchroniser
 import com.chrisa.cviz.core.data.synchronisation.SynchroniseDataWorkManager
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.startup.data.StartupDataSource
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
 class StartupUseCase @Inject constructor(
     private val coroutineDispatchers: CoroutineDispatchers,
-    private val areaListSynchroniser: AreaListSynchroniser,
-    private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser,
-    private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser,
+    private val dataSynchroniser: DataSynchroniser,
     private val synchroniseDataWorkManager: SynchroniseDataWorkManager,
     private val startupDataSource: StartupDataSource
 ) {
 
     suspend fun execute(): StartupResult = withContext(coroutineDispatchers.io) {
         try {
-            syncData()
+            dataSynchroniser.syncData()
             synchroniseDataWorkManager.schedulePeriodicSync()
-            return@withContext StartupResult.ShowHomeScreen
+            StartupResult.ShowHomeScreen
         } catch (t: Throwable) {
-            val dataCount = startupDataSource.dataCount()
-            return@withContext when {
-                dataCount.areaSummaryEntities > 0 && dataCount.areaData > 0 -> StartupResult.ShowHomeScreenWithSyncError
+            val areaData = startupDataSource.dataCount()
+            when {
+                areaData.isNotEmpty() -> StartupResult.ShowHomeScreenWithSyncError
                 else -> StartupResult.ShowFatalError
             }
         }
     }
-
-    private suspend fun syncData() {
-        coroutineScope {
-            val jobs = listOf(
-                async(start = CoroutineStart.LAZY) { syncAreaSummaries() },
-                async(start = CoroutineStart.LAZY) { syncAreaList() },
-                async(start = CoroutineStart.LAZY) { syncSavedAreas() }
-            )
-            jobs.awaitAll()
-        }
-    }
-
-    private suspend fun syncAreaList() =
-        areaListSynchroniser.performSync()
-
-    private suspend fun syncAreaSummaries() =
-        areaSummaryDataSynchroniser.performSync()
-
-    private suspend fun syncSavedAreas() =
-        savedAreaDataSynchroniser.performSync()
 }

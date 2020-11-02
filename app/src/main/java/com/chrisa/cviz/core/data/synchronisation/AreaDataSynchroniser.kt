@@ -39,15 +39,19 @@ import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 
-class AreaDataSynchroniser @Inject constructor(
+interface AreaDataSynchroniser {
+    suspend fun performSync(areaCode: String, areaType: AreaType)
+}
+
+internal class AreaDataSynchroniserImpl @Inject constructor(
     private val api: CovidApi,
     private val appDatabase: AppDatabase,
     private val areaDataModelStructureMapper: AreaDataModelStructureMapper,
     private val networkUtils: NetworkUtils,
     private val timeProvider: TimeProvider
-) {
+) : AreaDataSynchroniser {
 
-    suspend fun performSync(
+    override suspend fun performSync(
         areaCode: String,
         areaType: AreaType
     ) {

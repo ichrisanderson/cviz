@@ -16,8 +16,6 @@
 
 package com.chrisa.cviz
 
-import android.content.Context
-import android.content.res.AssetManager
 import com.chrisa.cviz.core.data.synchronisation.DataSyncCoroutineScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchersImpl
@@ -25,7 +23,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -41,11 +38,6 @@ class AppModule {
     @Provides
     fun provideCoroutineDispatchers(): CoroutineDispatchers {
         return CoroutineDispatchersImpl()
-    }
-
-    @Provides
-    fun assetManager(@ApplicationContext context: Context): AssetManager {
-        return context.assets
     }
 
     @DataSyncCoroutineScope

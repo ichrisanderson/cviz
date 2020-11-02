@@ -23,6 +23,10 @@ import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.network.CommonHeaderInterceptor
 import com.chrisa.cviz.core.data.network.CovidApi
 import com.chrisa.cviz.core.data.network.UrlDecodeInterceptor
+import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
+import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniserImpl
+import com.chrisa.cviz.core.data.synchronisation.DataSynchroniser
+import com.chrisa.cviz.core.data.synchronisation.DataSynchroniserImpl
 import com.chrisa.cviz.core.data.synchronisation.SyncNotification
 import com.chrisa.cviz.core.data.synchronisation.SyncNotificationImpl
 import com.squareup.moshi.FromJson
@@ -114,6 +118,12 @@ internal object DatabaseModule {
 @InstallIn(ApplicationComponent::class)
 @Module
 abstract class SyncModule {
+    @Binds
+    internal abstract fun bindAreaDataSynchroniser(areaDataSynchroniserImpl: AreaDataSynchroniserImpl): AreaDataSynchroniser
+
+    @Binds
+    internal abstract fun bindDataSynchroniser(dataSynchroniserImpl: DataSynchroniserImpl): DataSynchroniser
+
     @Binds
     internal abstract fun bindSyncNotification(syncNotificationImpl: SyncNotificationImpl): SyncNotification
 }

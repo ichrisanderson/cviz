@@ -38,7 +38,7 @@ import okhttp3.ResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 
-class AreaListSynchroniser @Inject constructor(
+internal class AreaListSynchroniser @Inject constructor(
     private val api: CovidApi,
     private val appDatabase: AppDatabase,
     private val networkUtils: NetworkUtils,

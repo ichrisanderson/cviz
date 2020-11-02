@@ -22,7 +22,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import javax.inject.Inject
 
-class SavedAreaDataSynchroniser @Inject constructor(
+internal class SavedAreaDataSynchroniser @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser,
     private val appDatabase: AppDatabase
 ) {
