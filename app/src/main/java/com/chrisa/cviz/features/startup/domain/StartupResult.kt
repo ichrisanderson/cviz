@@ -16,13 +16,8 @@
 
 package com.chrisa.cviz.features.startup.domain
 
-import com.chrisa.cviz.core.data.Bootstrapper
-import javax.inject.Inject
-
-class BootstrapDataUseCase @Inject constructor(
-    private val bootstrapper: Bootstrapper
-) {
-    suspend fun execute() {
-        bootstrapper.bootstrapData()
-    }
+sealed class StartupResult {
+    object ShowHomeScreen : StartupResult()
+    object ShowHomeScreenWithSyncError : StartupResult()
+    object ShowFatalError : StartupResult()
 }

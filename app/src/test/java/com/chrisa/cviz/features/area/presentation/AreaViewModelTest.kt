@@ -193,7 +193,7 @@ class AreaViewModelTest {
     fun `GIVEN areaDetailUseCase fails WHEN viewmodel initialized THEN error state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
-                coEvery { areaDetailUseCase.execute(areaCode) } throws IOException()
+                every { areaDetailUseCase.execute(areaCode) } throws IOException()
 
                 val sut = areaViewModel()
 

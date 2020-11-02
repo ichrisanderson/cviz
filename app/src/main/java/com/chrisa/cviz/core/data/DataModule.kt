@@ -113,13 +113,6 @@ internal object DatabaseModule {
 
 @InstallIn(ApplicationComponent::class)
 @Module
-abstract class BootstrapperModule {
-    @Binds
-    internal abstract fun bindAssetBootstrapper(assetBootstrapper: AssetBootstrapper): Bootstrapper
-}
-
-@InstallIn(ApplicationComponent::class)
-@Module
 abstract class SyncModule {
     @Binds
     internal abstract fun bindSyncNotification(syncNotificationImpl: SyncNotificationImpl): SyncNotification

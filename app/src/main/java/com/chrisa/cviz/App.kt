@@ -19,7 +19,6 @@ package com.chrisa.cviz
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.chrisa.cviz.core.data.synchronisation.SynchroniseDataWorkManager
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 import timber.log.Timber
@@ -29,15 +28,12 @@ class App : Application(), Configuration.Provider {
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
-    @Inject
-    lateinit var synchroniseDataWorkManager: SynchroniseDataWorkManager
 
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
-        synchroniseDataWorkManager.syncData()
     }
 
     override fun getWorkManagerConfiguration(): Configuration =

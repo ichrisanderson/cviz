@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:indeterminate="true"
+        android:progressBackgroundTint="?android:attr/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/startupTitle"
         app:layout_constraintStart_toStartOf="@id/startupTitle"
