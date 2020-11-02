@@ -17,7 +17,6 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -43,20 +42,6 @@ class SynchroniseDataWorkManagerTest {
     )
 
     @Test
-    fun `WHEN syncData THEN immediate sync is enqueued`() = testDispatcher.runBlockingTest {
-
-        val oneTimeWorkRequest = OneTimeWorkRequestBuilder<SynchroniseDataWorker>()
-            .addTag(SynchroniseDataWorkManager.SYNC_DATA_ONE_SHOT)
-            .build()
-
-        every { workRequestFactory.oneTimeWorkRequest() } returns oneTimeWorkRequest
-
-        sut.syncData()
-
-        verify(exactly = 1) { workManager.enqueue(oneTimeWorkRequest) }
-    }
-
-    @Test
     fun `GIVEN scheduled jobs WHEN syncData THEN periodic sync is enqueued`() = testDispatcher.runBlockingTest {
 
         val periodicWorkRequestBuilder = PeriodicWorkRequestBuilder<SynchroniseDataWorker>(
@@ -78,7 +63,7 @@ class SynchroniseDataWorkManagerTest {
         every { workRequestFactory.periodicWorkRequest() } returns periodicWorkRequestBuilder
         every { workManager.getWorkInfosByTag(SynchroniseDataWorkManager.SYNC_DATA) } returns workInfosByTagRequest
 
-        sut.syncData()
+        sut.schedulePeriodicSync()
 
         verify(exactly = 0) {
             workManager.enqueueUniquePeriodicWork(
@@ -109,7 +94,7 @@ class SynchroniseDataWorkManagerTest {
         every { workRequestFactory.periodicWorkRequest() } returns periodicWorkRequestBuilder
         every { workManager.getWorkInfosByTag(SynchroniseDataWorkManager.SYNC_DATA) } returns workInfosByTagRequest
 
-        sut.syncData()
+        sut.schedulePeriodicSync()
 
         verify(exactly = 1) {
             workManager.enqueueUniquePeriodicWork(

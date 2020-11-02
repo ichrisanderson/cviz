@@ -24,11 +24,13 @@ import androidx.lifecycle.viewModelScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.home.domain.LoadDashboardDataUseCase
 import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 @InternalCoroutinesApi
 @FlowPreview
 class HomeViewModel @ViewModelInject constructor(

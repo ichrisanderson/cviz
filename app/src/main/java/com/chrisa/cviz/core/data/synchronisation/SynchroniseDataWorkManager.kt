@@ -41,16 +41,7 @@ class SynchroniseDataWorkManager @Inject constructor(
 
     private val job = Job()
 
-    fun syncData() {
-        syncImmediate()
-        schedulePeriodicSync()
-    }
-
-    private fun syncImmediate() {
-        workManager.enqueue(workRequestFactory.oneTimeWorkRequest())
-    }
-
-    private fun schedulePeriodicSync() {
+    fun schedulePeriodicSync() {
         CoroutineScope(coroutineDispatchers.io + job).launch {
             val workInfoRequest = workManager.getWorkInfosByTag(SYNC_DATA)
             val workInfo = workInfoRequest.await()
@@ -80,19 +71,19 @@ class WorkRequestFactory @Inject constructor() {
     }
 
     fun periodicWorkRequest(): PeriodicWorkRequest {
-
         val data = Data.Builder()
             .putBoolean(SynchroniseDataWorker.SHOW_NOTIFICATION_KEY, true)
             .build()
 
         return PeriodicWorkRequestBuilder<SynchroniseDataWorker>(
-            repeatInterval = 7,
+            repeatInterval = 6,
             repeatIntervalTimeUnit = TimeUnit.HOURS,
             flexTimeInterval = 30,
             flexTimeIntervalUnit = TimeUnit.MINUTES
         )
             .addTag(SynchroniseDataWorkManager.SYNC_DATA)
             .setConstraints(workConstraints())
+            .setInitialDelay(1, TimeUnit.HOURS)
             .setInputData(data)
             .build()
     }

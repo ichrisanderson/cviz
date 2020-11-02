@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.data
+package com.chrisa.cviz.features.startup.data
 
-interface Bootstrapper {
-    suspend fun bootstrapData()
+import com.chrisa.cviz.core.data.db.AppDatabase
+import javax.inject.Inject
+
+class StartupDataSource @Inject constructor(
+    private val appDatabase: AppDatabase
+) {
+    fun dataCount(): DataCount {
+        return DataCount(
+            appDatabase.areaDataDao().countAll(),
+            appDatabase.areaSummaryEntityDao().countAll()
+        )
+    }
 }
+
+data class DataCount(val areaData: Int, val areaSummaryEntities: Int)

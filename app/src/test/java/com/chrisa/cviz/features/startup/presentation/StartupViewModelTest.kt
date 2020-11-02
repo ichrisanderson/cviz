@@ -19,13 +19,12 @@ package com.chrisa.cviz.features.startup.presentation
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.cviz.core.util.test
-import com.chrisa.cviz.features.startup.domain.BootstrapDataUseCase
+import com.chrisa.cviz.features.startup.domain.StartupResult
+import com.chrisa.cviz.features.startup.domain.StartupUseCase
 import com.google.common.truth.Truth.assertThat
-import io.mockk.Runs
 import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.just
 import io.mockk.mockk
+import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -39,30 +38,51 @@ class StartupViewModelTest {
     @JvmField
     val liveDataJunitRule = InstantTaskExecutorRule()
 
-    private val bootstrapDataUseCase = mockk<BootstrapDataUseCase>()
+    private val startupUseCase = mockk<StartupUseCase>()
     private val testDispatcher = TestCoroutineDispatcher()
     private val dispatchers = TestCoroutineDispatchersImpl(testDispatcher)
 
     @Test
-    fun `GIVEN bootstap succeeds WHEN viewmodel initialized THEN success state emitted`() =
+    fun `GIVEN startup shows home screen WHEN viewmodel initialized THEN home screen event emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
-
-                coEvery { bootstrapDataUseCase.execute() } just Runs
-
-                val sut = StartupViewModel(
-                    bootstrapDataUseCase,
-                    dispatchers
-                )
-
-                val statesObserver = sut.startupState.test()
+                coEvery { startupUseCase.execute() } returns StartupResult.ShowHomeScreen
+                val sut = StartupViewModel(startupUseCase, dispatchers)
+                val navigateHomeObserver = sut.navigateHome.test()
 
                 runCurrent()
 
-                assertThat(statesObserver.values[0]).isEqualTo(StartupState.Loading)
-                assertThat(statesObserver.values[1]).isEqualTo(StartupState.Success)
+                assertThat(navigateHomeObserver.values[0]).isEqualTo(Event(Unit))
+            }
+        }
 
-                coVerify { bootstrapDataUseCase.execute() }
+    @Test
+    fun `GIVEN startup shows home screen with error WHEN viewmodel initialized THEN fatal error emitted and home screen shown`() =
+        testDispatcher.runBlockingTest {
+            pauseDispatcher {
+                coEvery { startupUseCase.execute() } returns StartupResult.ShowHomeScreenWithSyncError
+                val sut = StartupViewModel(startupUseCase, dispatchers)
+                val syncErrorObserver = sut.syncError.test()
+                val navigateHomeObserver = sut.navigateHome.test()
+
+                runCurrent()
+
+                assertThat(syncErrorObserver.values[0]).isEqualTo(Event(false))
+                assertThat(navigateHomeObserver.values[0]).isEqualTo(Event(Unit))
+            }
+        }
+
+    @Test
+    fun `GIVEN startup shows fatal error WHEN viewmodel initialized THEN fatal error emitted`() =
+        testDispatcher.runBlockingTest {
+            pauseDispatcher {
+                coEvery { startupUseCase.execute() } returns StartupResult.ShowFatalError
+                val sut = StartupViewModel(startupUseCase, dispatchers)
+                val syncErrorObserver = sut.syncError.test()
+
+                runCurrent()
+
+                assertThat(syncErrorObserver.values[0]).isEqualTo(Event(true))
             }
         }
 }

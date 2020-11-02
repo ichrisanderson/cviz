@@ -22,33 +22,52 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
-import com.chrisa.cviz.features.startup.domain.BootstrapDataUseCase
+import com.chrisa.cviz.features.startup.domain.StartupResult
+import com.chrisa.cviz.features.startup.domain.StartupUseCase
+import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.launch
 
 class StartupViewModel @ViewModelInject constructor(
-    private val bootstrapDataUseCase: BootstrapDataUseCase,
-    dispatchers: CoroutineDispatchers
+    private val startupUseCase: StartupUseCase,
+    private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _startupState = MutableLiveData<StartupState>()
-    val startupState: LiveData<StartupState>
-        get() = _startupState
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+
+    private val _syncError = MutableLiveData<Event<Boolean>>()
+    val syncError: LiveData<Event<Boolean>>
+        get() = _syncError
+
+    private val _navigateHome = MutableLiveData<Event<Unit>>()
+    val navigateHome: LiveData<Event<Unit>>
+        get() = _navigateHome
 
     init {
+        refresh()
+    }
+
+    fun refresh() {
         viewModelScope.launch(dispatchers.io) {
-            _startupState.postValue(StartupState.Loading)
-            boostrapData()
-            _startupState.postValue(StartupState.Success)
+            refreshData()
         }
     }
 
-    private suspend fun boostrapData() {
-        // TODO: Error handling
-        bootstrapDataUseCase.execute()
+    private suspend fun refreshData() {
+        _isLoading.postValue(true)
+        when (startupUseCase.execute()) {
+            StartupResult.ShowHomeScreen -> {
+                _navigateHome.postValue(Event(Unit))
+            }
+            StartupResult.ShowHomeScreenWithSyncError -> {
+                _navigateHome.postValue(Event(Unit))
+                _syncError.postValue(Event(false))
+            }
+            is StartupResult.ShowFatalError -> {
+                _isLoading.postValue(false)
+                _syncError.postValue(Event(true))
+            }
+        }
     }
-}
-
-sealed class StartupState {
-    object Loading : StartupState()
-    object Success : StartupState()
 }
