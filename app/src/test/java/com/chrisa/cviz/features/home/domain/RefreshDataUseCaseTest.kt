@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.domain
+package com.chrisa.cviz.features.home.domain
 
-import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
+import com.chrisa.cviz.core.data.synchronisation.DataSynchroniser
+import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
-class SyncAreaDetailUseCaseTest {
+class RefreshDataUseCaseTest {
 
-    private val dataSynchroniser = mockk<AreaDataSynchroniser>(relaxed = true)
-    private val sut = SyncAreaDetailUseCase(dataSynchroniser)
+    private val dataSynchroniser = mockk<DataSynchroniser>(relaxed = true)
+    private val testDispatcher = TestCoroutineDispatcher()
+    private val dispatchers = TestCoroutineDispatchersImpl(testDispatcher)
+    private val sut = RefreshDataUseCase(dispatchers, dataSynchroniser)
 
     @Test
     fun `WHEN execute called THEN performSync is called`() =
-        runBlocking {
-            val areaCode = "1234"
-            val areaType = AreaType.OVERVIEW
+        testDispatcher.runBlockingTest {
+            sut.execute()
 
-            sut.execute(areaCode, areaType.value)
-
-            coVerify { dataSynchroniser.performSync(areaCode, areaType) }
+            coVerify { dataSynchroniser.syncData() }
         }
 }

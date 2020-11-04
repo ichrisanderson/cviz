@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz
+package com.chrisa.cviz.features.home.domain
 
-object AppConfig {
-    const val CASE_DATA_ENDPOINT =
-        "https://coronavirus.data.gov.uk/downloads/json/coronavirus-cases_latest.json"
-    const val DEATH_DATA_ENDPOINT =
-        "https://coronavirus.data.gov.uk/downloads/json/coronavirus-cases_latest.json"
+import com.chrisa.cviz.core.data.synchronisation.DataSynchroniser
+import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
+import javax.inject.Inject
+import kotlinx.coroutines.withContext
+
+class RefreshDataUseCase @Inject constructor(
+    private val coroutineDispatchers: CoroutineDispatchers,
+    private val dataSynchroniser: DataSynchroniser
+) {
+
+    suspend fun execute() = withContext(coroutineDispatchers.io) {
+        dataSynchroniser.syncData()
+    }
 }

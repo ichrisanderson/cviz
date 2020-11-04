@@ -32,9 +32,7 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class SynchroniseDataWorkerTest {
 
-    private val areaListSynchroniser: AreaListSynchroniser = mockk(relaxed = true)
-    private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser = mockk(relaxed = true)
-    private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser = mockk(relaxed = true)
+    private val dataSynchroniser: DataSynchroniser = mockk(relaxed = true)
     private val syncNotification: SyncNotification = mockk(relaxed = true)
     private val params: WorkerParameters = mockk(relaxed = true)
     private val context: Context = mockk()
@@ -45,22 +43,23 @@ class SynchroniseDataWorkerTest {
         context,
         params,
         TestCoroutineDispatchersImpl(testDispatcher),
-        areaListSynchroniser,
-        areaSummaryDataSynchroniser,
-        savedAreaDataSynchroniser,
+        dataSynchroniser,
         syncNotification
     )
 
     @Test
     fun `WHEN work is run THEN synchronisers are launched`() = testCoroutineScope.runBlockingTest {
 
-        every { params.inputData.getBoolean(SynchroniseDataWorker.SHOW_NOTIFICATION_KEY, false) } returns true
+        every {
+            params.inputData.getBoolean(
+                SynchroniseDataWorker.SHOW_NOTIFICATION_KEY,
+                false
+            )
+        } returns true
 
         sut.doWork()
 
-        coVerify { areaListSynchroniser.performSync() }
-        coVerify { areaSummaryDataSynchroniser.performSync() }
-        coVerify { savedAreaDataSynchroniser.performSync() }
+        coVerify { dataSynchroniser.syncData() }
 
         verify { syncNotification.showSuccess() }
     }

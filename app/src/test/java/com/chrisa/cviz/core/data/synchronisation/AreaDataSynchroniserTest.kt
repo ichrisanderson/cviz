@@ -81,8 +81,7 @@ class AreaDataSynchroniserTest {
 
         appDatabase.mockTransaction()
 
-        sut =
-            AreaDataSynchroniser(covidApi, appDatabase, areaDataModelStructureMapper, networkUtils, timeProvider)
+        sut = AreaDataSynchroniserImpl(covidApi, appDatabase, areaDataModelStructureMapper, networkUtils, timeProvider)
     }
 
     @Test(expected = IOException::class)

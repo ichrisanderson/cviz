@@ -22,12 +22,15 @@ import javax.inject.Inject
 class StartupDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
-    fun dataCount(): DataCount {
-        return DataCount(
+    fun dataCount(): AreaData {
+        return AreaData(
             appDatabase.areaDataDao().countAll(),
             appDatabase.areaSummaryEntityDao().countAll()
         )
     }
 }
 
-data class DataCount(val areaData: Int, val areaSummaryEntities: Int)
+data class AreaData(private val areaData: Int, private val areaSummaryEntities: Int) {
+    fun isNotEmpty(): Boolean =
+        areaSummaryEntities > 0 && areaData > 0
+}

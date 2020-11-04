@@ -22,70 +22,30 @@ import androidx.hilt.work.WorkerInject
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 class SynchroniseDataWorker @WorkerInject constructor(
     @Assisted context: Context,
     @Assisted private val params: WorkerParameters,
     private val coroutineDispatchers: CoroutineDispatchers,
-    private val areaListSynchroniser: AreaListSynchroniser,
-    private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser,
-    private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser,
+    private val dataSynchroniser: DataSynchroniser,
     private val syncNotification: SyncNotification
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result = withContext(coroutineDispatchers.io) {
-        val jobs = listOf(
-            async { syncAreaSummaries() },
-            async { syncSavedAreas() },
-            async { syncAreaList() }
-        )
-        // awaitAll will throw an exception if a download fails, which CoroutineWorker will treat as a failure
-        val results = jobs.awaitAll()
-        if (results.all { true } && showNotification()) {
-            syncNotification.showSuccess()
+        try {
+            dataSynchroniser.syncData()
+            if (showNotification()) {
+                syncNotification.showSuccess()
+            }
+            Result.success()
+        } catch (throwable: Throwable) {
+            return@withContext Result.failure()
         }
-        return@withContext Result.success()
     }
 
     private fun showNotification(): Boolean {
         return params.inputData.getBoolean(SHOW_NOTIFICATION_KEY, false)
-    }
-
-    private suspend fun syncAreaList(): Boolean {
-        var result = true
-        try {
-            areaListSynchroniser.performSync()
-        } catch (throwable: Throwable) {
-            Timber.e(throwable)
-            result = false
-        }
-        return result
-    }
-
-    private suspend fun syncSavedAreas(): Boolean {
-        var result = true
-        try {
-            savedAreaDataSynchroniser.performSync()
-        } catch (throwable: Throwable) {
-            Timber.e(throwable)
-            result = false
-        }
-        return result
-    }
-
-    private suspend fun syncAreaSummaries(): Boolean {
-        var result = true
-        try {
-            areaSummaryDataSynchroniser.performSync()
-        } catch (throwable: Throwable) {
-            Timber.e(throwable)
-            result = false
-        }
-        return result
     }
 
     companion object {

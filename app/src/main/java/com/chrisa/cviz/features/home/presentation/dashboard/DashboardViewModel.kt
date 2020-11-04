@@ -23,16 +23,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.home.domain.LoadDashboardDataUseCase
+import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
 import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@ExperimentalCoroutinesApi
 @InternalCoroutinesApi
 @FlowPreview
 class DashboardViewModel @ViewModelInject constructor(
     private val loadDashboardDataUseCase: LoadDashboardDataUseCase,
+    private val refreshDataUseCase: RefreshDataUseCase,
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
@@ -43,6 +47,10 @@ class DashboardViewModel @ViewModelInject constructor(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
         get() = _isLoading
+
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
 
     init {
         loadSavedAreaCases()
@@ -55,6 +63,19 @@ class DashboardViewModel @ViewModelInject constructor(
             homeScreenData.collect {
                 _isLoading.postValue(false)
                 _dashboardData.postValue(it)
+            }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch(dispatchers.io) {
+            runCatching {
+                _isRefreshing.postValue(true)
+                refreshDataUseCase.execute()
+            }.onSuccess {
+                _isRefreshing.postValue(false)
+            }.onFailure {
+                _isRefreshing.postValue(false)
             }
         }
     }

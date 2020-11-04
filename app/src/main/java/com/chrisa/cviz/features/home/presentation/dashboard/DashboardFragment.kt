@@ -37,9 +37,12 @@ import com.chrisa.cviz.features.home.presentation.widgets.SummaryCardModel_
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.dashboard_fragment.homeProgress
 import kotlinx.android.synthetic.main.dashboard_fragment.homeRecyclerView
+import kotlinx.android.synthetic.main.dashboard_fragment.swipeRefreshLayout
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
+@ExperimentalCoroutinesApi
 @FlowPreview
 @InternalCoroutinesApi
 @AndroidEntryPoint
@@ -52,7 +55,9 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
+        initSwipeRefreshLayout()
         bindIsLoading()
+        bindIsRefreshing()
         bindAreaCases()
     }
 
@@ -93,17 +98,27 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
         )
     }
 
+    private fun initSwipeRefreshLayout() {
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+    }
+
     private fun bindIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            val isLoading = it ?: return@Observer
-            homeProgress.isVisible = isLoading
+            homeProgress.isVisible = it
+        })
+    }
+
+    private fun bindIsRefreshing() {
+        viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
+            swipeRefreshLayout.isRefreshing = it
         })
     }
 
     private fun bindAreaCases() {
         viewModel.dashboardData.observe(viewLifecycleOwner, Observer {
             val homeScreenData = it ?: return@Observer
-            homeRecyclerView.isVisible = true
+            swipeRefreshLayout.isVisible = true
+            swipeRefreshLayout.isRefreshing = false
             homeRecyclerView.withModels {
 
                 attachToController(this)

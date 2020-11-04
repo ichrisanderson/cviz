@@ -35,7 +35,7 @@ import java.io.IOException
 import java.time.LocalDate
 import javax.inject.Inject
 
-class AreaSummaryDataSynchroniser @Inject constructor(
+internal class AreaSummaryDataSynchroniser @Inject constructor(
     private val appDatabase: AppDatabase,
     private val monthlyDataLoader: MonthlyDataLoader,
     private val areaEntityListBuilder: AreaEntityListBuilder,

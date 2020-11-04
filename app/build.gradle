@@ -120,6 +120,7 @@ dependencies {
     implementation "com.google.android.material:material:${versions.material}"
     implementation "androidx.work:work-runtime-ktx:${versions.androidxWork}"
     implementation "androidx.viewpager2:viewpager2:${versions.androidxViewpager2}"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     /* firebase */
     implementation platform("com.google.firebase:firebase-bom:${versions.firebaseBom}")

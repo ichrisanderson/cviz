@@ -64,6 +64,10 @@ class AreaViewModel @ViewModelInject constructor(
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
+
     private val _syncAreaError = MutableLiveData<Event<Boolean>>()
     val syncAreaError: LiveData<Event<Boolean>>
         get() = _syncAreaError
@@ -76,11 +80,15 @@ class AreaViewModel @ViewModelInject constructor(
 
     init {
         loadAreaSavedState(areaCode)
-        loadAreaDetail(areaCode)
+        loadAreaDetail(areCode = areaCode, isLoading = true, isRefreshing = false)
+    }
+
+    fun retry() {
+        loadAreaDetail(areCode = areaCode, isLoading = true, isRefreshing = false)
     }
 
     fun refresh() {
-        loadAreaDetail(areaCode)
+        loadAreaDetail(areCode = areaCode, isLoading = false, isRefreshing = true)
     }
 
     fun insertSavedArea() {
@@ -102,9 +110,10 @@ class AreaViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun loadAreaDetail(areCode: String) {
+    private fun loadAreaDetail(areCode: String, isLoading: Boolean, isRefreshing: Boolean) {
+        _isLoading.postValue(isLoading)
+        _isRefreshing.postValue(isRefreshing)
         viewModelScope.launch(dispatchers.io) {
-            _isLoading.postValue(true)
             runCatching {
                 areaDetailUseCase.execute(areCode)
             }.onSuccess { areaDetail ->
@@ -142,11 +151,13 @@ class AreaViewModel @ViewModelInject constructor(
     }
 
     private fun postError() {
+        _isRefreshing.postValue(false)
         _isLoading.postValue(false)
         _syncAreaError.postValue(Event(true))
     }
 
     private fun postAreaDetailModel(areaDetailModel: AreaDetailModel) {
+        _isRefreshing.postValue(false)
         _isLoading.postValue(false)
         _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel))
     }

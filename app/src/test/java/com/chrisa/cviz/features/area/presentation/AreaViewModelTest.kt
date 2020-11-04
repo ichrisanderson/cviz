@@ -79,14 +79,11 @@ class AreaViewModelTest {
     fun `GIVEN area detail succeeds WHEN viewmodel initialized THEN success state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
+                val areaCasesModel = areaData()
                 val areaDetailModel = areaDetailModel().copy(
                     lastSyncedAt = syncTime
                 )
-                val areaCasesModel = areaData()
-
-                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
-                    areaDetailModel
-                ).asFlow()
+                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(areaDetailModel).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
                 val sut = areaViewModel()
@@ -109,15 +106,12 @@ class AreaViewModelTest {
                 val areaDetailModel = areaDetailModel().copy(
                     lastSyncedAt = syncTime.minusDays(1)
                 )
-
                 val areaCasesModel = areaData()
-
                 coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
-
                 val sut = areaViewModel()
 
                 val statesObserver = sut.areaDataModel.test()
@@ -143,9 +137,7 @@ class AreaViewModelTest {
                     areaDetailModel
                 ).asFlow()
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
-
                 val sut = areaViewModel()
-
                 val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
@@ -167,15 +159,12 @@ class AreaViewModelTest {
                 val areaCasesModel = areaData()
                 val exception = mockk<HttpException>()
                 every { exception.code() } returns 304
-
                 coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
                     areaDetailModel
                 ).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
                 coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws exception
-
                 val sut = areaViewModel()
-
                 val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
@@ -194,9 +183,7 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
             pauseDispatcher {
                 every { areaDetailUseCase.execute(areaCode) } throws IOException()
-
                 val sut = areaViewModel()
-
                 val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
@@ -214,12 +201,10 @@ class AreaViewModelTest {
     fun `WHEN refresh called THEN saveAreaUseCase is executed`() =
         testDispatcher.runBlockingTest {
             coEvery { areaDetailUseCase.execute(areaCode) } throws IOException()
-
             val sut = areaViewModel()
-
             verify(exactly = 1) { areaDetailUseCase.execute(areaCode) }
 
-            sut.refresh()
+            sut.retry()
 
             verify(exactly = 2) { areaDetailUseCase.execute(areaCode) }
         }
@@ -229,11 +214,8 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
             pauseDispatcher {
                 val publisher = ConflatedBroadcastChannel(false)
-
                 every { isSavedUseCase.execute(areaCode) } returns publisher.asFlow()
-
                 val sut = areaViewModel()
-
                 val observer = sut.isSaved.test()
 
                 runCurrent()
@@ -277,6 +259,39 @@ class AreaViewModelTest {
             sut.deleteSavedArea()
 
             verify(exactly = 1) { deleteSavedAreaUseCase.execute(areaCode) }
+        }
+
+    @Test
+    fun `WHEN retry called THEN loading states emitted`() =
+        testDispatcher.runBlockingTest {
+            val areaDetailModel = areaDetailModel().copy(
+                lastSyncedAt = syncTime
+            )
+            coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(areaDetailModel).asFlow()
+            val sut = areaViewModel()
+
+            val isLoadingObserver = sut.isLoading.test()
+            sut.retry()
+
+            assertThat(isLoadingObserver.values[0]).isEqualTo(false)
+            assertThat(isLoadingObserver.values[1]).isEqualTo(true)
+            assertThat(isLoadingObserver.values[2]).isEqualTo(false)
+        }
+
+    @Test
+    fun `WHEN refresh called THEN refresh states emitted`() =
+        testDispatcher.runBlockingTest {
+            val areaDetailModel = areaDetailModel().copy(
+                lastSyncedAt = syncTime
+            )
+            coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(areaDetailModel).asFlow()
+            val sut = areaViewModel()
+
+            val isRefreshingObserver = sut.isRefreshing.test()
+            sut.refresh()
+
+            assertThat(isRefreshingObserver.values[0]).isEqualTo(false)
+            assertThat(isRefreshingObserver.values[1]).isEqualTo(true)
         }
 
     private fun areaViewModel(): AreaViewModel {
