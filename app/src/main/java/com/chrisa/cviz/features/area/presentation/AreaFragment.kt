@@ -48,6 +48,7 @@ import kotlinx.android.synthetic.main.area_error.errorAction
 import kotlinx.android.synthetic.main.area_fragment.areaProgress
 import kotlinx.android.synthetic.main.area_fragment.areaRecyclerView
 import kotlinx.android.synthetic.main.area_fragment.areaToolbar
+import kotlinx.android.synthetic.main.area_fragment.swipeRefreshLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
@@ -66,9 +67,11 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         super.onViewCreated(view, savedInstanceState)
         initToolbar()
         initRecyclerView()
+        initSwipeRefreshLayout()
         observeCases()
         observeIsSaved()
         observeIsLoading()
+        observeIsRefreshing()
         observeSyncAreaError()
     }
 
@@ -83,6 +86,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         areaToolbar.title = args.areaName
         areaToolbar.setNavigationOnClickListener { navigateUp() }
         disposables.addAll(subscribeMenuClicks())
+    }
+
+    private fun initSwipeRefreshLayout() {
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     private fun initRecyclerView() {
@@ -117,7 +124,6 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     private fun observeCases() {
         viewModel.areaDataModel.observe(viewLifecycleOwner, Observer {
             val areaDataModel = it ?: return@Observer
-
             val lastCaseDate = dateLabel(areaDataModel.areaMetadata.lastCaseDate)
             val lastDeathDate = dateLabel(areaDataModel.areaMetadata.lastDeathDate)
             val lastHospitalAdmissionDate =
@@ -214,10 +220,16 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         })
     }
 
+    private fun observeIsRefreshing() {
+        viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
+            swipeRefreshLayout.isRefreshing = it
+        })
+    }
+
     private fun observeSyncAreaError() {
         viewModel.syncAreaError.observe(viewLifecycleOwner, EventObserver { isFatal ->
             if (isFatal) {
-                errorAction.setOnClickListener { viewModel.refresh() }
+                errorAction.setOnClickListener { viewModel.retry() }
                 areaError.isVisible = true
                 Snackbar.make(
                     areaRecyclerView,

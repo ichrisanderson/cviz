@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.home.domain.LoadSavedAreasUseCase
+import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -35,6 +36,7 @@ import kotlinx.coroutines.launch
 @FlowPreview
 class SavedAreasViewModel @ViewModelInject constructor(
     private val loadSavedAreasUseCase: LoadSavedAreasUseCase,
+    private val refreshDataUseCase: RefreshDataUseCase,
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
@@ -45,6 +47,10 @@ class SavedAreasViewModel @ViewModelInject constructor(
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean>
         get() = _isLoading
+
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
 
     init {
         loadSavedAreaCases()
@@ -57,6 +63,19 @@ class SavedAreasViewModel @ViewModelInject constructor(
             savedAreas.collect {
                 _savedAreas.postValue(it)
                 _isLoading.postValue(false)
+            }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch(dispatchers.io) {
+            runCatching {
+                _isRefreshing.postValue(true)
+                refreshDataUseCase.execute()
+            }.onSuccess {
+                _isRefreshing.postValue(false)
+            }.onFailure {
+                _isRefreshing.postValue(false)
             }
         }
     }

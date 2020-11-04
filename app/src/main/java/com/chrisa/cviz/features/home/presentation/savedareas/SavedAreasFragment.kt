@@ -32,6 +32,7 @@ import com.chrisa.cviz.features.home.presentation.widgets.emptySavedAreasCard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.saved_areas_fragment.savedAreasProgress
 import kotlinx.android.synthetic.main.saved_areas_fragment.savedAreasRecyclerView
+import kotlinx.android.synthetic.main.saved_areas_fragment.swipeRefreshLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -49,7 +50,9 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initRecyclerView()
+        initSwipeRefreshLayout()
         bindIsLoading()
+        bindIsRefreshing()
         bindSummaries()
     }
 
@@ -90,6 +93,10 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
         )
     }
 
+    private fun initSwipeRefreshLayout() {
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+    }
+
     private fun bindIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer {
             val isLoading = it ?: return@Observer
@@ -97,10 +104,17 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
         })
     }
 
+    private fun bindIsRefreshing() {
+        viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
+            swipeRefreshLayout.isRefreshing = it
+        })
+    }
+
     private fun bindSummaries() {
         viewModel.savedAreas.observe(viewLifecycleOwner, Observer {
             val savedAreas = it ?: return@Observer
             savedAreasRecyclerView.isVisible = true
+            swipeRefreshLayout.isVisible = true
             savedAreasRecyclerView.withModels {
                 attachToController(this)
                 if (savedAreas.isEmpty()) {

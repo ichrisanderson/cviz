@@ -34,6 +34,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.summary_list_fragment.summaryListProgress
 import kotlinx.android.synthetic.main.summary_list_fragment.summaryListRecyclerView
 import kotlinx.android.synthetic.main.summary_list_fragment.summaryListToolbar
+import kotlinx.android.synthetic.main.summary_list_fragment.swipeRefreshLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -52,7 +53,9 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
         super.onViewCreated(view, savedInstanceState)
         initToolbar()
         initRecyclerView()
+        initSwipeRefreshLayout()
         bindIsLoading()
+        bindIsRefreshing()
         bindSummaries()
     }
 
@@ -83,8 +86,6 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
     private fun initToolbar() {
         summaryListToolbar.navigationIcon =
             ContextCompat.getDrawable(summaryListToolbar.context, R.drawable.ic_arrow_back)
-        summaryListToolbar.title = "Rising Cases"
-
         summaryListToolbar.title = when (viewModel.sortOption) {
             SortOption.InfectionRate -> getString(R.string.top_infection_rates)
             SortOption.NewCases -> getString(R.string.top_cases)
@@ -110,6 +111,10 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
         )
     }
 
+    private fun initSwipeRefreshLayout() {
+        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+    }
+
     private fun bindIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer {
             val isLoading = it ?: return@Observer
@@ -117,10 +122,17 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
         })
     }
 
+    private fun bindIsRefreshing() {
+        viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
+            swipeRefreshLayout.isRefreshing = it
+        })
+    }
+
     private fun bindSummaries() {
         viewModel.summaries.observe(viewLifecycleOwner, Observer {
             val summaries = it ?: return@Observer
             summaryListRecyclerView.isVisible = true
+            swipeRefreshLayout.isRefreshing = false
             summaryListRecyclerView.withModels {
                 attachToController(this)
                 summaries.forEach { summary ->

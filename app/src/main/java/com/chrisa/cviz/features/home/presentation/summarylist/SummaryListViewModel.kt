@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.home.domain.LoadAreaSummariesUseCase
+import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
 import com.chrisa.cviz.features.home.domain.models.SortOption
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,6 +39,7 @@ import kotlinx.coroutines.launch
 @FlowPreview
 class SummaryListViewModel @ViewModelInject constructor(
     private val loadAreaSummariesUseCase: LoadAreaSummariesUseCase,
+    private val refreshDataUseCase: RefreshDataUseCase,
     private val dispatchers: CoroutineDispatchers,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -50,6 +52,10 @@ class SummaryListViewModel @ViewModelInject constructor(
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
+
     val sortOption: SortOption
         get() = savedStateHandle.get<SortOption>("sortOption")!!
 
@@ -60,12 +66,23 @@ class SummaryListViewModel @ViewModelInject constructor(
     private fun loadSavedAreaCases() {
         viewModelScope.launch(dispatchers.io) {
             _isLoading.postValue(true)
-
             val summaries = loadAreaSummariesUseCase.execute(sortOption)
-
             summaries.collect {
                 _summaries.postValue(it)
                 _isLoading.postValue(false)
+            }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch(dispatchers.io) {
+            runCatching {
+                _isRefreshing.postValue(true)
+                refreshDataUseCase.execute()
+            }.onSuccess {
+                _isRefreshing.postValue(false)
+            }.onFailure {
+                _isRefreshing.postValue(false)
             }
         }
     }

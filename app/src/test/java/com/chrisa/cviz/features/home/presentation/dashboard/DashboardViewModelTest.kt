@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.home.presentation.summarylist
+package com.chrisa.cviz.features.home.presentation.dashboard
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.SavedStateHandle
+import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.cviz.core.util.test
-import com.chrisa.cviz.features.home.domain.LoadAreaSummariesUseCase
+import com.chrisa.cviz.features.home.domain.LoadDashboardDataUseCase
 import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
-import com.chrisa.cviz.features.home.domain.models.SortOption
+import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
+import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
@@ -30,6 +32,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -42,21 +45,31 @@ import org.junit.Test
 @InternalCoroutinesApi
 @FlowPreview
 @ExperimentalCoroutinesApi
-class SummaryListViewModelTest {
+class DashboardViewModelTest {
 
     @Rule
     @JvmField
     val liveDataJunitRule = InstantTaskExecutorRule()
 
-    private val loadAreaSummariesUseCase = mockk<LoadAreaSummariesUseCase>()
+    private val loadHomeDataUseCase = mockk<LoadDashboardDataUseCase>()
     private val refreshDataUseCase = mockk<RefreshDataUseCase>()
     private val testDispatcher = TestCoroutineDispatcher()
+    private val coroutineDispatchers = TestCoroutineDispatchersImpl(testDispatcher)
 
     @Test
-    fun `GIVEN load area data succeeds WHEN viewmodel initialized THEN summary list data is emitted`() =
+    fun `GIVEN load home data cases succeeds WHEN viewmodel initialized THEN home screen data is emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
-                val sortOption = SortOption.RisingCases
+
+                val latestUkData = LatestUkDataModel(
+                    areaCode = Constants.UK_AREA_CODE,
+                    areaName = "UK",
+                    areaType = AreaType.OVERVIEW.value,
+                    cumulativeCases = 22,
+                    newCases = 33,
+                    lastUpdated = LocalDateTime.of(2020, 1, 1, 1, 1)
+                )
+
                 val summaryModel = SummaryModel(
                     position = 1,
                     areaCode = "1234",
@@ -67,23 +80,29 @@ class SummaryListViewModelTest {
                     changeInInfectionRate = 100.0,
                     currentInfectionRate = 10.0
                 )
-                val summaries = listOf(summaryModel)
-                val savedStateHandle = SavedStateHandle(mapOf("sortOption" to sortOption))
-                every { loadAreaSummariesUseCase.execute(sortOption) } returns listOf(summaries).asFlow()
 
-                val sut = SummaryListViewModel(
-                    loadAreaSummariesUseCase,
-                    refreshDataUseCase,
-                    TestCoroutineDispatchersImpl(testDispatcher),
-                    savedStateHandle
+                val homeScreenDataModel = DashboardDataModel(
+                    latestUkData = listOf(latestUkData),
+                    topInfectionRates = listOf(summaryModel),
+                    risingInfectionRates = listOf(summaryModel),
+                    risingNewCases = listOf(summaryModel),
+                    topNewCases = listOf(summaryModel)
                 )
 
-                val summariesObserver = sut.summaries.test()
+                every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()
+
+                val sut = DashboardViewModel(
+                    loadHomeDataUseCase,
+                    refreshDataUseCase,
+                    coroutineDispatchers
+                )
+
+                val homeScreenDataObserver = sut.dashboardData.test()
                 val isLoadingObserver = sut.isLoading.test()
 
                 runCurrent()
 
-                assertThat(summariesObserver.values[0]).isEqualTo(summaries)
+                assertThat(homeScreenDataObserver.values[0]).isEqualTo(homeScreenDataModel)
                 assertThat(isLoadingObserver.values[0]).isEqualTo(true)
                 assertThat(isLoadingObserver.values[1]).isEqualTo(false)
             }
@@ -92,21 +111,18 @@ class SummaryListViewModelTest {
     @Test
     fun `WHEN viewmodel refreshed THEN refresh state is emitted`() =
         testDispatcher.runBlockingTest {
-            val sortOption = SortOption.RisingCases
-            every { loadAreaSummariesUseCase.execute(sortOption) } returns emptyList<List<SummaryModel>>().asFlow()
-            coEvery { refreshDataUseCase.execute() } just Runs
-            val savedStateHandle = SavedStateHandle(mapOf("sortOption" to sortOption))
-            val sut = SummaryListViewModel(
-                loadAreaSummariesUseCase,
-                refreshDataUseCase,
-                TestCoroutineDispatchersImpl(testDispatcher),
-                savedStateHandle
-            )
-            val isRefreshingObserver = sut.isRefreshing.test()
+                every { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
+                coEvery { refreshDataUseCase.execute() } just Runs
+                val sut = DashboardViewModel(
+                    loadHomeDataUseCase,
+                    refreshDataUseCase,
+                    coroutineDispatchers
+                )
+                val isRefreshingObserver = sut.isRefreshing.test()
 
-            sut.refresh()
+                sut.refresh()
 
-            assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
-            assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
+                assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
+                assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
         }
 }
