@@ -16,6 +16,7 @@
 
 package com.chrisa.cviz.features.startup.domain
 
+import com.chrisa.cviz.core.data.db.Bootstrapper
 import com.chrisa.cviz.core.data.synchronisation.DataSynchroniser
 import com.chrisa.cviz.core.data.synchronisation.SynchroniseDataWorkManager
 import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
@@ -40,10 +41,12 @@ class StartupUseCaseTest {
 
     private val testDispatcher = TestCoroutineDispatcher()
     private val dataSynchroniser: DataSynchroniser = mockk()
+    private val bootstrapper: Bootstrapper = mockk()
     private val synchroniseDataWorkManager: SynchroniseDataWorkManager = mockk()
     private val startupDataSource: StartupDataSource = mockk()
     private val sut = StartupUseCase(
         TestCoroutineDispatchersImpl(testDispatcher),
+        bootstrapper,
         dataSynchroniser,
         synchroniseDataWorkManager,
         startupDataSource
@@ -51,10 +54,20 @@ class StartupUseCaseTest {
 
     @Before
     fun setup() {
+        coEvery { bootstrapper.execute() } just Runs
         coEvery { dataSynchroniser.syncData() } just Runs
         coEvery { synchroniseDataWorkManager.schedulePeriodicSync() } just Runs
         every { startupDataSource.dataCount() } returns AreaData(0, 0)
     }
+
+    @Test
+    fun `WHEN execute called THEN bootstrapper is executed`() =
+        testDispatcher.runBlockingTest {
+            val result = sut.execute()
+
+            assertThat(result).isEqualTo(StartupResult.ShowHomeScreen)
+            verify(exactly = 1) { bootstrapper.execute() }
+        }
 
     @Test
     fun `GIVEN sync succeeds WHEN execute called THEN periodic sync is scheduled`() =
@@ -88,8 +101,9 @@ class StartupUseCaseTest {
         }
 
     @Test
-    fun `GIVEN no data WHEN saved areas fails to sync THEN no data error is returned`() =
+    fun `GIVEN only area data is present WHEN area list fails to sync THEN no data error is returned`() =
         testDispatcher.runBlockingTest {
+            every { startupDataSource.dataCount() } returns AreaData(1, 0)
             coEvery { dataSynchroniser.syncData() } throws IOException()
 
             val result = sut.execute()
@@ -99,14 +113,26 @@ class StartupUseCaseTest {
         }
 
     @Test
-    fun `GIVEN only area data is present WHEN area list fails to sync THEN no data error is returned`() =
+    fun `GIVEN only area summary is present WHEN area list fails to sync THEN no data error is returned`() =
         testDispatcher.runBlockingTest {
-            every { startupDataSource.dataCount() } returns AreaData(1, 0)
+            every { startupDataSource.dataCount() } returns AreaData(0, 1)
             coEvery { dataSynchroniser.syncData() } throws IOException()
 
             val result = sut.execute()
 
             assertThat(result).isEqualTo(StartupResult.ShowFatalError)
+            verify(exactly = 0) { synchroniseDataWorkManager.schedulePeriodicSync() }
+        }
+
+    @Test
+    fun `GIVEN all data is present WHEN area list fails to sync THEN home screen is shown`() =
+        testDispatcher.runBlockingTest {
+            every { startupDataSource.dataCount() } returns AreaData(1, 1)
+            coEvery { dataSynchroniser.syncData() } throws IOException()
+
+            val result = sut.execute()
+
+            assertThat(result).isEqualTo(StartupResult.ShowHomeScreen)
             verify(exactly = 0) { synchroniseDataWorkManager.schedulePeriodicSync() }
         }
 }

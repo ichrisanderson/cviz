@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.startup.domain
+package com.chrisa.cviz.core.data.db
 
-sealed class StartupResult {
-    object ShowHomeScreen : StartupResult()
-    object ShowFatalError : StartupResult()
+import javax.inject.Inject
+
+class Bootstrapper @Inject constructor(
+    val appDatabase: AppDatabase
+) {
+    fun execute() {
+        val items = appDatabase.areaDao().count()
+        if (items > 0) return
+        appDatabase.areaDao().insertAll(BootstrapData.areas())
+    }
 }

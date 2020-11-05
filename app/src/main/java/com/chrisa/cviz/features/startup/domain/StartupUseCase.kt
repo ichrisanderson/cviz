@@ -16,6 +16,7 @@
 
 package com.chrisa.cviz.features.startup.domain
 
+import com.chrisa.cviz.core.data.db.Bootstrapper
 import com.chrisa.cviz.core.data.synchronisation.DataSynchroniser
 import com.chrisa.cviz.core.data.synchronisation.SynchroniseDataWorkManager
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
@@ -25,6 +26,7 @@ import kotlinx.coroutines.withContext
 
 class StartupUseCase @Inject constructor(
     private val coroutineDispatchers: CoroutineDispatchers,
+    private val bootstrapper: Bootstrapper,
     private val dataSynchroniser: DataSynchroniser,
     private val synchroniseDataWorkManager: SynchroniseDataWorkManager,
     private val startupDataSource: StartupDataSource
@@ -32,13 +34,14 @@ class StartupUseCase @Inject constructor(
 
     suspend fun execute(): StartupResult = withContext(coroutineDispatchers.io) {
         try {
+            bootstrapper.execute()
             dataSynchroniser.syncData()
             synchroniseDataWorkManager.schedulePeriodicSync()
             StartupResult.ShowHomeScreen
         } catch (t: Throwable) {
             val areaData = startupDataSource.dataCount()
             when {
-                areaData.isNotEmpty() -> StartupResult.ShowHomeScreenWithSyncError
+                areaData.isNotEmpty() -> StartupResult.ShowHomeScreen
                 else -> StartupResult.ShowFatalError
             }
         }

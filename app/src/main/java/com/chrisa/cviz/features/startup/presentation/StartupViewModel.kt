@@ -36,8 +36,8 @@ class StartupViewModel @ViewModelInject constructor(
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-    private val _syncError = MutableLiveData<Event<Boolean>>()
-    val syncError: LiveData<Event<Boolean>>
+    private val _syncError = MutableLiveData<Event<Unit>>()
+    val syncError: LiveData<Event<Unit>>
         get() = _syncError
 
     private val _navigateHome = MutableLiveData<Event<Unit>>()
@@ -60,13 +60,9 @@ class StartupViewModel @ViewModelInject constructor(
             StartupResult.ShowHomeScreen -> {
                 _navigateHome.postValue(Event(Unit))
             }
-            StartupResult.ShowHomeScreenWithSyncError -> {
-                _navigateHome.postValue(Event(Unit))
-                _syncError.postValue(Event(false))
-            }
             is StartupResult.ShowFatalError -> {
                 _isLoading.postValue(false)
-                _syncError.postValue(Event(true))
+                _syncError.postValue(Event(Unit))
             }
         }
     }

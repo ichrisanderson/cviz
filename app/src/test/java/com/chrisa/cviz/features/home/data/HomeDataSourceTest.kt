@@ -46,7 +46,6 @@ class HomeDataSourceTest {
 
     @Test
     fun `WHEN ukOverview called THEN all cases from uk are returned`() = runBlockingTest {
-
         val caseEntity = AreaDataMetadataTuple(
             lastUpdatedAt = LocalDateTime.now(),
             areaCode = "1234",
@@ -57,13 +56,11 @@ class HomeDataSourceTest {
             infectionRate = 122.0,
             newCases = 122
         )
-
         val allCases = listOf(
             caseEntity,
             caseEntity.copy(areaCode = "1111", areaName = "England")
         )
         val allCasesFlow = flow { emit(allCases) }
-
         val allDailyRecordDtos = allCases.map {
             DailyRecordDto(
                 areaCode = it.areaCode,
@@ -74,7 +71,6 @@ class HomeDataSourceTest {
                 lastUpdated = it.lastUpdatedAt
             )
         }
-
         every {
             appDatabase.areaDataDao().latestWithMetadataByAreaCodeAsFlow(
                 listOf(
@@ -86,7 +82,6 @@ class HomeDataSourceTest {
                 )
             )
         } returns allCasesFlow
-
         val emittedItems = mutableListOf<List<DailyRecordDto>>()
 
         sut.ukOverview().collect { emittedItems.add(it) }
@@ -98,7 +93,6 @@ class HomeDataSourceTest {
     @Test
     fun `GIVEN duplicate areas WHEN ukOverview called THEN all unique cases from uk are returned`() =
         runBlockingTest {
-
             val ukData = AreaDataMetadataTuple(
                 lastUpdatedAt = LocalDateTime.now(),
                 areaCode = Constants.UK_AREA_CODE,
@@ -109,7 +103,6 @@ class HomeDataSourceTest {
                 infectionRate = 122.0,
                 newCases = 122
             )
-
             val englandData = ukData.copy(
                 areaCode = Constants.ENGLAND_AREA_CODE,
                 areaName = "England",
@@ -134,7 +127,6 @@ class HomeDataSourceTest {
                 areaType = AreaType.NATION,
                 lastUpdatedAt = ukData.lastUpdatedAt.minusDays(1)
             )
-
             val allCases = listOf(
                 scotlandData,
                 scotlandData.copy(date = ukData.date.minusDays(7)),
@@ -148,7 +140,6 @@ class HomeDataSourceTest {
                 englandData.copy(date = englandData.date.minusDays(7))
             )
             val allCasesFlow = flow { emit(allCases) }
-
             every {
                 appDatabase.areaDataDao().latestWithMetadataByAreaCodeAsFlow(
                     listOf(
@@ -160,66 +151,65 @@ class HomeDataSourceTest {
                     )
                 )
             } returns allCasesFlow
-
             val emittedItems = mutableListOf<List<DailyRecordDto>>()
 
             sut.ukOverview().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
-            assertThat(emittedItems.first()).isEqualTo(listOf(
-                DailyRecordDto(
-                    areaCode = ukData.areaCode,
-                    areaName = ukData.areaName,
-                    areaType = ukData.areaType.value,
-                    newCases = ukData.newCases,
-                    cumulativeCases = ukData.cumulativeCases,
-                    lastUpdated = ukData.lastUpdatedAt
-                ),
-                DailyRecordDto(
-                    areaCode = englandData.areaCode,
-                    areaName = englandData.areaName,
-                    areaType = englandData.areaType.value,
-                    newCases = englandData.newCases,
-                    cumulativeCases = englandData.cumulativeCases,
-                    lastUpdated = englandData.lastUpdatedAt
-                ),
-                DailyRecordDto(
-                    areaCode = scotlandData.areaCode,
-                    areaName = scotlandData.areaName,
-                    areaType = scotlandData.areaType.value,
-                    newCases = scotlandData.newCases,
-                    cumulativeCases = scotlandData.cumulativeCases,
-                    lastUpdated = scotlandData.lastUpdatedAt
-                ),
-                DailyRecordDto(
-                    areaCode = walesData.areaCode,
-                    areaName = walesData.areaName,
-                    areaType = walesData.areaType.value,
-                    newCases = walesData.newCases,
-                    cumulativeCases = walesData.cumulativeCases,
-                    lastUpdated = walesData.lastUpdatedAt
-                ),
-                DailyRecordDto(
-                    areaCode = northernIrelandData.areaCode,
-                    areaName = northernIrelandData.areaName,
-                    areaType = northernIrelandData.areaType.value,
-                    newCases = northernIrelandData.newCases,
-                    cumulativeCases = northernIrelandData.cumulativeCases,
-                    lastUpdated = northernIrelandData.lastUpdatedAt
+            assertThat(emittedItems.first()).isEqualTo(
+                listOf(
+                    DailyRecordDto(
+                        areaCode = ukData.areaCode,
+                        areaName = ukData.areaName,
+                        areaType = ukData.areaType.value,
+                        newCases = ukData.newCases,
+                        cumulativeCases = ukData.cumulativeCases,
+                        lastUpdated = ukData.lastUpdatedAt
+                    ),
+                    DailyRecordDto(
+                        areaCode = englandData.areaCode,
+                        areaName = englandData.areaName,
+                        areaType = englandData.areaType.value,
+                        newCases = englandData.newCases,
+                        cumulativeCases = englandData.cumulativeCases,
+                        lastUpdated = englandData.lastUpdatedAt
+                    ),
+                    DailyRecordDto(
+                        areaCode = scotlandData.areaCode,
+                        areaName = scotlandData.areaName,
+                        areaType = scotlandData.areaType.value,
+                        newCases = scotlandData.newCases,
+                        cumulativeCases = scotlandData.cumulativeCases,
+                        lastUpdated = scotlandData.lastUpdatedAt
+                    ),
+                    DailyRecordDto(
+                        areaCode = walesData.areaCode,
+                        areaName = walesData.areaName,
+                        areaType = walesData.areaType.value,
+                        newCases = walesData.newCases,
+                        cumulativeCases = walesData.cumulativeCases,
+                        lastUpdated = walesData.lastUpdatedAt
+                    ),
+                    DailyRecordDto(
+                        areaCode = northernIrelandData.areaCode,
+                        areaName = northernIrelandData.areaName,
+                        areaType = northernIrelandData.areaType.value,
+                        newCases = northernIrelandData.newCases,
+                        cumulativeCases = northernIrelandData.cumulativeCases,
+                        lastUpdated = northernIrelandData.lastUpdatedAt
+                    )
                 )
-            ))
+            )
         }
 
     @Test
     fun `WHEN savedAreaCases called THEN all saved areas from database are returned`() =
         runBlockingTest {
-
             val allCases = listOf(
                 areaData,
                 areaData.copy(areaCode = "1111", areaName = "England")
             )
             val allCasesFlow = flow { emit(allCases) }
-
             val allSavedAreaDtos = allCases.map {
                 SavedAreaCaseDto(
                     areaCode = it.areaCode,
@@ -231,11 +221,9 @@ class HomeDataSourceTest {
                     date = it.date
                 )
             }
-
             every {
                 appDatabase.areaDataDao().allSavedAreaDataAsFlow()
             } returns allCasesFlow
-
             val emittedItems = mutableListOf<List<SavedAreaCaseDto>>()
 
             sut.savedAreaCases().collect { emittedItems.add(it) }
@@ -245,56 +233,52 @@ class HomeDataSourceTest {
         }
 
     @Test
-    fun `WHEN areaSummaryEntities called THEN all area summary entities are returned`() = runBlockingTest {
-
-        val areaSummaryEntity = AreaSummaryEntity(
-            areaCode = Constants.UK_AREA_CODE,
-            areaType = AreaType.OVERVIEW,
-            areaName = "UK",
-            date = syncTime.toLocalDate(),
-            baseInfectionRate = 100.0,
-            cumulativeCasesWeek1 = 100,
-            cumulativeCaseInfectionRateWeek1 = 85.0,
-            newCaseInfectionRateWeek1 = 25.0,
-            newCasesWeek1 = 30,
-            cumulativeCasesWeek2 = 80,
-            cumulativeCaseInfectionRateWeek2 = 80.0,
-            newCaseInfectionRateWeek2 = 22.0,
-            newCasesWeek2 = 22,
-            cumulativeCasesWeek3 = 66,
-            cumulativeCaseInfectionRateWeek3 = 82.0,
-            newCaseInfectionRateWeek3 = 33.0,
-            newCasesWeek3 = 26,
-            cumulativeCasesWeek4 = 50,
-            cumulativeCaseInfectionRateWeek4 = 75.0
-        )
-
-        val areaSummaryEntities = listOf(areaSummaryEntity)
-        val allAreaSummaryEntities = flow { emit(areaSummaryEntities) }
-
-        val allInfectionRates = areaSummaryEntities.map {
-            AreaSummaryDto(
-                areaCode = it.areaCode,
-                areaType = it.areaType.value,
-                areaName = it.areaName,
-                changeInCases = it.newCasesWeek1 - it.newCasesWeek2,
-                currentNewCases = it.newCasesWeek1,
-                currentInfectionRate = it.newCaseInfectionRateWeek1,
-                changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2
+    fun `WHEN areaSummaryEntities called THEN all area summary entities are returned`() =
+        runBlockingTest {
+            val areaSummaryEntity = AreaSummaryEntity(
+                areaCode = Constants.UK_AREA_CODE,
+                areaType = AreaType.OVERVIEW,
+                areaName = "UK",
+                date = syncTime.toLocalDate(),
+                baseInfectionRate = 100.0,
+                cumulativeCasesWeek1 = 100,
+                cumulativeCaseInfectionRateWeek1 = 85.0,
+                newCaseInfectionRateWeek1 = 25.0,
+                newCasesWeek1 = 30,
+                cumulativeCasesWeek2 = 80,
+                cumulativeCaseInfectionRateWeek2 = 80.0,
+                newCaseInfectionRateWeek2 = 22.0,
+                newCasesWeek2 = 22,
+                cumulativeCasesWeek3 = 66,
+                cumulativeCaseInfectionRateWeek3 = 82.0,
+                newCaseInfectionRateWeek3 = 33.0,
+                newCasesWeek3 = 26,
+                cumulativeCasesWeek4 = 50,
+                cumulativeCaseInfectionRateWeek4 = 75.0
             )
+            val areaSummaryEntities = listOf(areaSummaryEntity)
+            val allAreaSummaryEntities = flow { emit(areaSummaryEntities) }
+            val allInfectionRates = areaSummaryEntities.map {
+                AreaSummaryDto(
+                    areaCode = it.areaCode,
+                    areaType = it.areaType.value,
+                    areaName = it.areaName,
+                    changeInCases = it.newCasesWeek1 - it.newCasesWeek2,
+                    currentNewCases = it.newCasesWeek1,
+                    currentInfectionRate = it.newCaseInfectionRateWeek1,
+                    changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2
+                )
+            }
+            every {
+                appDatabase.areaSummaryEntityDao().allAsFlow()
+            } returns allAreaSummaryEntities
+            val emittedItems = mutableListOf<List<AreaSummaryDto>>()
+
+            sut.areaSummaries().collect { emittedItems.add(it) }
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems.first()).isEqualTo(allInfectionRates)
         }
-
-        every {
-            appDatabase.areaSummaryEntityDao().allAsFlow()
-        } returns allAreaSummaryEntities
-
-        val emittedItems = mutableListOf<List<AreaSummaryDto>>()
-
-        sut.areaSummaries().collect { emittedItems.add(it) }
-
-        assertThat(emittedItems.size).isEqualTo(1)
-        assertThat(emittedItems.first()).isEqualTo(allInfectionRates)
-    }
 
     companion object {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)

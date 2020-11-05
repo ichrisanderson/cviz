@@ -27,7 +27,6 @@ interface DataSynchroniser {
 }
 
 internal class DataSynchroniserImpl @Inject constructor(
-    private val areaListSynchroniser: AreaListSynchroniser,
     private val areaSummaryDataSynchroniser: AreaSummaryDataSynchroniser,
     private val savedAreaDataSynchroniser: SavedAreaDataSynchroniser
 ) : DataSynchroniser {
@@ -36,15 +35,11 @@ internal class DataSynchroniserImpl @Inject constructor(
         coroutineScope {
             val jobs = listOf(
                 async(start = CoroutineStart.LAZY) { syncAreaSummaries() },
-                async(start = CoroutineStart.LAZY) { syncAreaList() },
                 async(start = CoroutineStart.LAZY) { syncSavedAreas() }
             )
             jobs.awaitAll()
         }
     }
-
-    private suspend fun syncAreaList() =
-        areaListSynchroniser.performSync()
 
     private suspend fun syncAreaSummaries() =
         areaSummaryDataSynchroniser.performSync()
