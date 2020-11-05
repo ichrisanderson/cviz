@@ -18,7 +18,6 @@ package com.chrisa.cviz.features.startup.presentation
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -41,12 +40,8 @@ class StartupFragment : Fragment(R.layout.startup_fragment) {
         viewModel.isLoading.observe(this.viewLifecycleOwner, {
             startupProgress.isIndeterminate = it
         })
-        viewModel.syncError.observe(this.viewLifecycleOwner, EventObserver { isFatal ->
-            if (isFatal) {
-                showSnackbar()
-            } else {
-                showToast()
-            }
+        viewModel.syncError.observe(this.viewLifecycleOwner, EventObserver {
+            showSnackbar()
         })
     }
 
@@ -60,14 +55,6 @@ class StartupFragment : Fragment(R.layout.startup_fragment) {
                 viewModel.refresh()
             }
             .show()
-    }
-
-    private fun showToast() {
-        Toast.makeText(
-            startupProgress.context,
-            getString(R.string.sync_error_message),
-            Toast.LENGTH_LONG
-        ).show()
     }
 
     private fun navigateToHome() {

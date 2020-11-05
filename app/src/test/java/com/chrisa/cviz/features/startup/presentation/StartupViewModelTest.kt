@@ -57,22 +57,6 @@ class StartupViewModelTest {
         }
 
     @Test
-    fun `GIVEN startup shows home screen with error WHEN viewmodel initialized THEN fatal error emitted and home screen shown`() =
-        testDispatcher.runBlockingTest {
-            pauseDispatcher {
-                coEvery { startupUseCase.execute() } returns StartupResult.ShowHomeScreenWithSyncError
-                val sut = StartupViewModel(startupUseCase, dispatchers)
-                val syncErrorObserver = sut.syncError.test()
-                val navigateHomeObserver = sut.navigateHome.test()
-
-                runCurrent()
-
-                assertThat(syncErrorObserver.values[0]).isEqualTo(Event(false))
-                assertThat(navigateHomeObserver.values[0]).isEqualTo(Event(Unit))
-            }
-        }
-
-    @Test
     fun `GIVEN startup shows fatal error WHEN viewmodel initialized THEN fatal error emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
@@ -82,7 +66,7 @@ class StartupViewModelTest {
 
                 runCurrent()
 
-                assertThat(syncErrorObserver.values[0]).isEqualTo(Event(true))
+                assertThat(syncErrorObserver.values[0]).isEqualTo(Event(Unit))
             }
         }
 }

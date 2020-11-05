@@ -18,6 +18,5 @@ package com.chrisa.cviz.features.startup.domain
 
 sealed class StartupResult {
     object ShowHomeScreen : StartupResult()
-    object ShowHomeScreenWithSyncError : StartupResult()
     object ShowFatalError : StartupResult()
 }

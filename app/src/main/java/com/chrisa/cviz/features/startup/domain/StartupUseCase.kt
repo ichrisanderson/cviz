@@ -41,7 +41,7 @@ class StartupUseCase @Inject constructor(
         } catch (t: Throwable) {
             val areaData = startupDataSource.dataCount()
             when {
-                areaData.isNotEmpty() -> StartupResult.ShowHomeScreenWithSyncError
+                areaData.isNotEmpty() -> StartupResult.ShowHomeScreen
                 else -> StartupResult.ShowFatalError
             }
         }
