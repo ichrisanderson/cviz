@@ -49,8 +49,9 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         homePager.adapter = HomeAdapter(childFragmentManager, lifecycle)
         homeNavigation.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.dashboard -> homePager.setCurrentItem(0, true)
-                R.id.saved -> homePager.setCurrentItem(1, true)
+                R.id.dashboard -> homePager.setCurrentItem(0, false)
+                R.id.saved -> homePager.setCurrentItem(1, false)
+                R.id.settings -> homePager.setCurrentItem(2, false)
             }
             true
         }

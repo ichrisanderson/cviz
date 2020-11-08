@@ -117,10 +117,11 @@ dependencies {
     implementation "androidx.core:core-ktx:${versions.ktx}"
     implementation "androidx.fragment:fragment-ktx:${versions.fragment}"
     implementation "androidx.recyclerview:recyclerview:${versions.recyclerview}"
-    implementation "com.google.android.material:material:${versions.material}"
+    implementation 'androidx.preference:preference-ktx:1.1.0-rc01'
     implementation "androidx.work:work-runtime-ktx:${versions.androidxWork}"
     implementation "androidx.viewpager2:viewpager2:${versions.androidxViewpager2}"
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "com.google.android.material:material:${versions.material}"
 
     /* firebase */
     implementation platform("com.google.firebase:firebase-bom:${versions.firebaseBom}")
