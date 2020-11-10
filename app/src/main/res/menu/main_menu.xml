@@ -5,13 +5,19 @@
     <item
         android:id="@+id/dashboard"
         android:icon="@drawable/ic_bar_chart"
-        android:title="@string/dashboard_title"
+        android:title="@string/menu_dashboard"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/saved"
         android:icon="@drawable/ic_bookmark_off"
-        android:title="@string/saved_locations_title"
+        android:title="@string/menu_saved_locations"
+        app:showAsAction="always"
+        tools:ignore="AlwaysShowAction" />
+    <item
+        android:id="@+id/settings"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/menu_settings"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 </menu>

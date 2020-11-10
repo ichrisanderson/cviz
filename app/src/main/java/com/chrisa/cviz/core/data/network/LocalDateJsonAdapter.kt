@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.data.time
+package com.chrisa.cviz.core.data.network
 
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.ToJson
 import java.time.LocalDate
-import java.time.LocalDateTime
-import javax.inject.Inject
+import java.time.format.DateTimeFormatter
 
-class TimeProvider @Inject constructor() {
-    fun currentDate(): LocalDate =
-        LocalDate.now()
+class LocalDateJsonAdapter {
+    @ToJson
+    fun toJson(localDate: LocalDate): String {
+        return localDate.format(FORMATTER)
+    }
 
-    fun currentTime(): LocalDateTime =
-        LocalDateTime.now()
+    @FromJson
+    fun fromJson(json: String): LocalDate {
+        return FORMATTER.parse(json, LocalDate::from)
+    }
+
+    companion object {
+        private val FORMATTER = DateTimeFormatter.ISO_DATE
+    }
 }

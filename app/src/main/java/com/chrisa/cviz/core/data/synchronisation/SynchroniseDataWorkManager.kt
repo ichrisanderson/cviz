@@ -17,14 +17,8 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.concurrent.futures.await
-import androidx.work.Constraints
-import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequest
-import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import java.util.concurrent.TimeUnit
@@ -36,60 +30,56 @@ import kotlinx.coroutines.launch
 class SynchroniseDataWorkManager @Inject constructor(
     private val workManager: WorkManager,
     private val workRequestFactory: WorkRequestFactory,
-    private val coroutineDispatchers: CoroutineDispatchers
+    private val coroutineDispatchers: CoroutineDispatchers,
+    private val synchronisationPreferences: SynchronisationPreferences,
+    private val syncTimeHelper: SyncTimeHelper
 ) {
 
     private val job = Job()
 
     fun schedulePeriodicSync() {
         CoroutineScope(coroutineDispatchers.io + job).launch {
-            val workInfoRequest = workManager.getWorkInfosByTag(SYNC_DATA)
+            if (!synchronisationPreferences.refreshDataInBackground()) return@launch
+            val workInfoRequest = workManager.getWorkInfosByTag(SYNC_DATA_TAG)
             val workInfo = workInfoRequest.await()
-            if (workInfo.isEmpty())
-                workManager
-                    .enqueueUniquePeriodicWork(
-                        SYNC_DATA,
-                        ExistingPeriodicWorkPolicy.REPLACE,
-                        workRequestFactory.periodicWorkRequest()
-                    )
+            val enqueuedWork = workInfo.filter { it.state == WorkInfo.State.ENQUEUED }
+            if (enqueuedWork.isEmpty()) {
+                enqueueWork()
+            }
+        }
+    }
+
+    fun reschedulePeriodicSync() {
+        if (!synchronisationPreferences.refreshDataInBackground()) return
+        enqueueWork()
+    }
+
+    private fun enqueueWork() {
+        workManager.enqueueUniquePeriodicWork(
+            SYNC_DATA_TAG,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            workRequestFactory.periodicWorkRequest(
+                repeatIntervalSeconds = TimeUnit.HOURS.toMillis(1),
+                flexTimeIntervalSeconds = TimeUnit.MINUTES.toMillis(30),
+                initialDelaySeconds = syncTimeHelper.timeToNextSyncInMillis()
+            )
+        )
+    }
+
+    fun cancelWork() {
+        workManager.cancelAllWorkByTag(SYNC_DATA_TAG)
+    }
+
+    fun toggleRefresh() {
+        val canRefresh = synchronisationPreferences.refreshDataInBackground()
+        if (canRefresh) {
+            schedulePeriodicSync()
+        } else {
+            cancelWork()
         }
     }
 
     companion object {
-        const val SYNC_DATA_ONE_SHOT = "SYNC_DATA_ONE_SHOT"
-        const val SYNC_DATA = "SYNC_DATA"
+        const val SYNC_DATA_TAG = "SYNC_DATA"
     }
-}
-
-class WorkRequestFactory @Inject constructor() {
-
-    fun oneTimeWorkRequest(): OneTimeWorkRequest {
-        return OneTimeWorkRequestBuilder<SynchroniseDataWorker>()
-            .addTag(SynchroniseDataWorkManager.SYNC_DATA_ONE_SHOT)
-            .setConstraints(workConstraints())
-            .build()
-    }
-
-    fun periodicWorkRequest(): PeriodicWorkRequest {
-        val data = Data.Builder()
-            .putBoolean(SynchroniseDataWorker.SHOW_NOTIFICATION_KEY, true)
-            .build()
-
-        return PeriodicWorkRequestBuilder<SynchroniseDataWorker>(
-            repeatInterval = 6,
-            repeatIntervalTimeUnit = TimeUnit.HOURS,
-            flexTimeInterval = 30,
-            flexTimeIntervalUnit = TimeUnit.MINUTES
-        )
-            .addTag(SynchroniseDataWorkManager.SYNC_DATA)
-            .setConstraints(workConstraints())
-            .setInitialDelay(1, TimeUnit.HOURS)
-            .setInputData(data)
-            .build()
-    }
-
-    private fun workConstraints(): Constraints = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.CONNECTED)
-        .setRequiresBatteryNotLow(true)
-        .build()
 }

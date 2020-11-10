@@ -11,6 +11,7 @@
         <item name="toolbarStyle">@style/Widget.Cviz.Toolbar</item>
         <item name="colorOnPrimaryOpaque">@color/colorOnPrimaryOpaque</item>
         <item name="android:navigationBarColor">@color/primaryDarkColor</item>
+        <item name="preferenceCategoryStyle">@style/PreferenceCategory</item>
     </style>
 
     <style name="Widget.Cviz.ToolbarSearchView" parent="Widget.AppCompat.SearchView">
@@ -38,5 +39,12 @@
         <item name="android:paddingRight">12dp</item>
         <item name="android:minWidth">48dp</item>
         <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="PreferenceCategory">
+        <item name="android:layout">@layout/setting_preference_category</item>
+        <item name="allowDividerAbove">true</item>
+        <item name="allowDividerBelow">true</item>
+        <item name="iconSpaceReserved">false</item>
     </style>
 </resources>

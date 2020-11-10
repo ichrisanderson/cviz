@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.chrisa.cviz.features.home.presentation.dashboard.DashboardFragment
 import com.chrisa.cviz.features.home.presentation.savedareas.SavedAreasFragment
+import com.chrisa.cviz.features.home.presentation.settings.SettingsFragment
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
@@ -29,12 +30,13 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @InternalCoroutinesApi
 class HomeAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
-    override fun getItemCount(): Int = 2
+    override fun getItemCount(): Int = 3
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> DashboardFragment()
             1 -> SavedAreasFragment()
+            2 -> SettingsFragment()
             else -> throw IllegalArgumentException("Unsupported position: $position")
         }
     }
