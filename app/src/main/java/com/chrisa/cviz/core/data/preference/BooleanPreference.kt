@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.data.time
+package com.chrisa.cviz.core.data.preference
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import javax.inject.Inject
-
-class TimeProvider @Inject constructor() {
-    fun currentDate(): LocalDate =
-        LocalDate.now()
-
-    fun currentTime(): LocalDateTime =
-        LocalDateTime.now()
-}
+data class BooleanPreference(val key: String, val defaultValue: Boolean)

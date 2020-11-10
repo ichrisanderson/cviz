@@ -16,13 +16,45 @@
 
 package com.chrisa.cviz.features.home.presentation.settings
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
 import com.chrisa.cviz.R
+import com.chrisa.cviz.core.data.preference.PreferenceValues
+import com.chrisa.cviz.core.data.synchronisation.SynchroniseDataWorkManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-class SettingsFragment : PreferenceFragmentCompat() {
+@AndroidEntryPoint
+class SettingsFragment : PreferenceFragmentCompat(),
+    SharedPreferences.OnSharedPreferenceChangeListener {
+
+    @Inject
+    lateinit var synchroniseDataWorkManager: SynchroniseDataWorkManager
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, rootKey)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preferenceScreen.preferenceManager.sharedPreferences.registerOnSharedPreferenceChangeListener(
+            this
+        )
+    }
+
+    override fun onPause() {
+        preferenceScreen.preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(
+            this
+        )
+        super.onPause()
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            PreferenceValues.refreshDataInBackground.key -> {
+                synchroniseDataWorkManager.toggleRefresh()
+            }
+        }
     }
 }

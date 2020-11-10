@@ -29,7 +29,9 @@ class SynchroniseDataWorker @WorkerInject constructor(
     @Assisted private val params: WorkerParameters,
     private val coroutineDispatchers: CoroutineDispatchers,
     private val dataSynchroniser: DataSynchroniser,
-    private val syncNotification: SyncNotification
+    private val synchronisationPreferences: SynchronisationPreferences,
+    private val syncNotification: SyncNotification,
+    private val synchroniseDataWorkManager: SynchroniseDataWorkManager
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result = withContext(coroutineDispatchers.io) {
@@ -38,6 +40,7 @@ class SynchroniseDataWorker @WorkerInject constructor(
             if (showNotification()) {
                 syncNotification.showSuccess()
             }
+            synchroniseDataWorkManager.reschedulePeriodicSync()
             Result.success()
         } catch (throwable: Throwable) {
             return@withContext Result.failure()
@@ -45,7 +48,8 @@ class SynchroniseDataWorker @WorkerInject constructor(
     }
 
     private fun showNotification(): Boolean {
-        return params.inputData.getBoolean(SHOW_NOTIFICATION_KEY, false)
+        return params.inputData.getBoolean(SHOW_NOTIFICATION_KEY, false) &&
+            synchronisationPreferences.showNotificationAfterDataRefresh()
     }
 
     companion object {

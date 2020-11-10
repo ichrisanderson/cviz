@@ -1,6 +1,5 @@
 <resources>
-    <string name="preference_key_refresh_data_in_background">refreshDataInBackground</string>
+    <string name="preference_data_settings_title">Data Settings</string>
     <string name="preference_title_refresh_data_in_background">Refresh in background</string>
-    <string name="preference_key_show_notification_after_refresh_data_in_background">showNotificationAfterDataRefresh</string>
     <string name="preference_title_show_notification_after_refresh_data_in_background">Show notification after refresh</string>
 </resources>

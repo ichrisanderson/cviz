@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.data.time
+package com.chrisa.cviz.core.data.preference
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import javax.inject.Inject
-
-class TimeProvider @Inject constructor() {
-    fun currentDate(): LocalDate =
-        LocalDate.now()
-
-    fun currentTime(): LocalDateTime =
-        LocalDateTime.now()
+object PreferenceValues {
+    val refreshDataInBackground =
+        BooleanPreference("refresh_data_in_background", true)
+    val showNotificationAfterDataRefresh =
+        BooleanPreference("show_notification_after_data_refresh", true)
 }

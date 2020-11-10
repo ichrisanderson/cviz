@@ -34,6 +34,8 @@ class SynchroniseDataWorkerTest {
 
     private val dataSynchroniser: DataSynchroniser = mockk(relaxed = true)
     private val syncNotification: SyncNotification = mockk(relaxed = true)
+    private val synchronisationPreferences = mockk<SynchronisationPreferences>(relaxed = true)
+    private val synchroniseDataWorkManager = mockk<SynchroniseDataWorkManager>(relaxed = true)
     private val params: WorkerParameters = mockk(relaxed = true)
     private val context: Context = mockk()
     private val testDispatcher = TestCoroutineDispatcher()
@@ -44,12 +46,14 @@ class SynchroniseDataWorkerTest {
         params,
         TestCoroutineDispatchersImpl(testDispatcher),
         dataSynchroniser,
-        syncNotification
+        synchronisationPreferences,
+        syncNotification,
+        synchroniseDataWorkManager
     )
 
     @Test
     fun `WHEN work is run THEN synchronisers are launched`() = testCoroutineScope.runBlockingTest {
-
+        every { synchronisationPreferences.showNotificationAfterDataRefresh() } returns true
         every {
             params.inputData.getBoolean(
                 SynchroniseDataWorker.SHOW_NOTIFICATION_KEY,
@@ -60,7 +64,72 @@ class SynchroniseDataWorkerTest {
         sut.doWork()
 
         coVerify { dataSynchroniser.syncData() }
-
-        verify { syncNotification.showSuccess() }
     }
+
+    @Test
+    fun `GIVEN work succeeds WHEN work is run THEN period sync is rescheduled`() =
+        testCoroutineScope.runBlockingTest {
+            every { synchronisationPreferences.showNotificationAfterDataRefresh() } returns true
+            every {
+                params.inputData.getBoolean(
+                    SynchroniseDataWorker.SHOW_NOTIFICATION_KEY,
+                    false
+                )
+            } returns true
+
+            sut.doWork()
+
+            verify { synchroniseDataWorkManager.reschedulePeriodicSync() }
+        }
+
+    @Test
+    fun `GIVEN notification disabled WHEN work is run THEN notification is not shown`() =
+        testCoroutineScope.runBlockingTest {
+            every { synchronisationPreferences.showNotificationAfterDataRefresh() } returns false
+            every {
+                params.inputData.getBoolean(
+                    SynchroniseDataWorker.SHOW_NOTIFICATION_KEY,
+                    false
+                )
+            } returns true
+
+            sut.doWork()
+
+            coVerify { dataSynchroniser.syncData() }
+            verify(exactly = 0) { syncNotification.showSuccess() }
+        }
+
+    @Test
+    fun `GIVEN notification enabled WHEN work is run THEN notification is not shown`() =
+        testCoroutineScope.runBlockingTest {
+            every { synchronisationPreferences.showNotificationAfterDataRefresh() } returns true
+            every {
+                params.inputData.getBoolean(
+                    SynchroniseDataWorker.SHOW_NOTIFICATION_KEY,
+                    false
+                )
+            } returns true
+
+            sut.doWork()
+
+            coVerify { dataSynchroniser.syncData() }
+            verify(exactly = 1) { syncNotification.showSuccess() }
+        }
+
+    @Test
+    fun `GIVEN notification parameter disabled WHEN work is run THEN notification is not shown`() =
+        testCoroutineScope.runBlockingTest {
+            every { synchronisationPreferences.showNotificationAfterDataRefresh() } returns true
+            every {
+                params.inputData.getBoolean(
+                    SynchroniseDataWorker.SHOW_NOTIFICATION_KEY,
+                    false
+                )
+            } returns false
+
+            sut.doWork()
+
+            coVerify { dataSynchroniser.syncData() }
+            verify(exactly = 0) { syncNotification.showSuccess() }
+        }
 }

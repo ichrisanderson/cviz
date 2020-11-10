@@ -14,16 +14,27 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.data.time
+package com.chrisa.cviz.core.data.network
 
-import java.time.LocalDate
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.ToJson
 import java.time.LocalDateTime
-import javax.inject.Inject
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
-class TimeProvider @Inject constructor() {
-    fun currentDate(): LocalDate =
-        LocalDate.now()
+class LocalDateTimeJsonAdapter {
+    @ToJson
+    fun toJson(localDateTime: LocalDateTime): String {
+        return localDateTime.atZone(ZoneId.of("UTC"))
+            .format(FORMATTER)
+    }
 
-    fun currentTime(): LocalDateTime =
-        LocalDateTime.now()
+    @FromJson
+    fun fromJson(json: String): LocalDateTime {
+        return FORMATTER.parse(json, LocalDateTime::from)
+    }
+
+    companion object {
+        private val FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+    }
 }
