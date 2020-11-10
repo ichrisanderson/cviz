@@ -24,6 +24,7 @@ class SearchUseCase @Inject constructor(
     private val searchDataSource: SearchDataSource
 ) {
     fun execute(query: String): List<AreaModel> {
+        if (query.isBlank()) return emptyList()
         return searchDataSource.searchAreas(query)
             .map { AreaModel(it.code, it.name, it.type) }
     }
