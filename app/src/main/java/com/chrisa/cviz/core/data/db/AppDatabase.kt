@@ -148,7 +148,7 @@ interface AreaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(area: List<AreaEntity>)
 
-    @Query("SELECT * FROM area WHERE areaName LIKE :areaName ORDER BY areaName ASC")
+    @Query("SELECT * FROM area WHERE areaName LIKE '%' || :areaName || '%' ORDER BY areaName ASC")
     fun search(areaName: String): List<AreaEntity>
 
     @Query("SELECT * FROM area INNER JOIN savedArea ON area.areaCode = savedArea.areaCode ORDER BY areaName ASC")

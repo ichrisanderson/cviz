@@ -27,30 +27,25 @@ import org.junit.Test
 class SearchUseCaseTest {
 
     private val searchDataSource = mockk<SearchDataSource>()
-
     private val sut = SearchUseCase(searchDataSource)
 
     @Test
-    fun `WHEN execute called THEN casesDao searchs for area`() {
+    fun `GIVEN query is empty WHEN execute called THEN empty list returned`() {
+        val results = sut.execute("")
 
-        val area = AreaDTO(
-            code = "1234",
-            name = "London",
-            type = "utla"
-        )
+        assertThat(results).isEmpty()
+    }
 
+    @Test
+    fun `WHEN execute called THEN casesDao searches for area`() {
+        val area = AreaDTO(code = "1234", name = "London", type = "utla")
         val expectedResults = listOf(area)
-
         every { searchDataSource.searchAreas(area.name) } returns expectedResults
 
         val results = sut.execute(area.name)
 
         assertThat(results).isEqualTo(expectedResults.map {
-            AreaModel(
-                it.code,
-                it.name,
-                it.type
-            )
+            AreaModel(it.code, it.name, it.type)
         })
     }
 }
