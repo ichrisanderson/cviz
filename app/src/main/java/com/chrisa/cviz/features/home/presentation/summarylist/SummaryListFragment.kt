@@ -17,7 +17,9 @@
 package com.chrisa.cviz.features.home.presentation.summarylist
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -27,14 +29,11 @@ import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyController
 import com.chrisa.cviz.R
 import com.chrisa.cviz.core.util.KeyboardUtils
+import com.chrisa.cviz.databinding.SummaryListFragmentBinding
 import com.chrisa.cviz.features.home.domain.models.SortOption
 import com.chrisa.cviz.features.home.presentation.HomeItemDecoration
 import com.chrisa.cviz.features.home.presentation.widgets.summaryCard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.summary_list_fragment.summaryListProgress
-import kotlinx.android.synthetic.main.summary_list_fragment.summaryListRecyclerView
-import kotlinx.android.synthetic.main.summary_list_fragment.summaryListToolbar
-import kotlinx.android.synthetic.main.summary_list_fragment.swipeRefreshLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -45,9 +44,19 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @AndroidEntryPoint
 class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
 
+    private lateinit var binding: SummaryListFragmentBinding
     private val viewModel: SummaryListViewModel by viewModels()
     private var controllerState: Bundle? = null
     private var attachedController: EpoxyController? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = SummaryListFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -84,27 +93,27 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
     }
 
     private fun initToolbar() {
-        summaryListToolbar.navigationIcon =
-            ContextCompat.getDrawable(summaryListToolbar.context, R.drawable.ic_arrow_back)
-        summaryListToolbar.title = when (viewModel.sortOption) {
+        binding.toolbar.navigationIcon =
+            ContextCompat.getDrawable(binding.toolbar.context, R.drawable.ic_arrow_back)
+        binding.toolbar.title = when (viewModel.sortOption) {
             SortOption.InfectionRate -> getString(R.string.top_infection_rates)
             SortOption.NewCases -> getString(R.string.top_cases)
             SortOption.RisingInfectionRate -> getString(R.string.rising_infection_rates)
             SortOption.RisingCases -> getString(R.string.rising_cases)
         }
-        summaryListToolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             KeyboardUtils.hideSoftKeyboard(it)
             navigateUp()
         }
     }
 
     private fun initRecyclerView() {
-        summaryListRecyclerView.addItemDecoration(
+        binding.recyclerView.addItemDecoration(
             HomeItemDecoration(
-                summaryListRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin_large
                 ),
-                summaryListRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin_large
                 )
             )
@@ -112,28 +121,27 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     private fun bindIsLoading() {
-        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            val isLoading = it ?: return@Observer
-            summaryListProgress.isVisible = isLoading
+        viewModel.isLoading.observe(viewLifecycleOwner, {
+            binding.progress.isVisible = it
         })
     }
 
     private fun bindIsRefreshing() {
-        viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
-            swipeRefreshLayout.isRefreshing = it
+        viewModel.isRefreshing.observe(viewLifecycleOwner, {
+            binding.swipeRefreshLayout.isRefreshing = it
         })
     }
 
     private fun bindSummaries() {
         viewModel.summaries.observe(viewLifecycleOwner, Observer {
             val summaries = it ?: return@Observer
-            summaryListRecyclerView.isVisible = true
-            swipeRefreshLayout.isRefreshing = false
-            summaryListRecyclerView.withModels {
+            binding.recyclerView.isVisible = true
+            binding.swipeRefreshLayout.isRefreshing = false
+            binding.recyclerView.withModels {
                 attachToController(this)
                 summaries.forEach { summary ->
                     summaryCard {

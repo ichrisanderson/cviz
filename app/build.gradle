@@ -41,6 +41,11 @@ android {
         }
     }
 
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -160,6 +165,7 @@ dependencies {
 
     /* epoxy */
     implementation "com.airbnb.android:epoxy:${versions.epoxy}"
+    implementation "com.airbnb.android:epoxy-databinding:${versions.epoxy}"
     kapt "com.airbnb.android:epoxy-processor:${versions.epoxy}"
 
     /* ok-http */

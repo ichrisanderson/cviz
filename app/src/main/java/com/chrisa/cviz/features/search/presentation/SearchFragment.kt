@@ -17,7 +17,9 @@
 package com.chrisa.cviz.features.search.presentation
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,6 +28,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.chrisa.cviz.R
 import com.chrisa.cviz.core.util.KeyboardUtils
+import com.chrisa.cviz.databinding.SearchFragmentBinding
 import com.chrisa.cviz.features.search.domain.models.AreaModel
 import com.jakewharton.rxbinding4.appcompat.queryTextChanges
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,16 +36,23 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import java.util.concurrent.TimeUnit
-import kotlinx.android.synthetic.main.search_fragment.searchRecyclerView
-import kotlinx.android.synthetic.main.search_fragment.searchToolbar
-import kotlinx.android.synthetic.main.search_fragment.searchView
 
 @AndroidEntryPoint
 class SearchFragment : Fragment(R.layout.search_fragment) {
 
+    private lateinit var binding: SearchFragmentBinding
     private val disposables = CompositeDisposable()
     private val viewModel: SearchViewModel by viewModels()
     private val areaAdapter = AreaAdapter()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = SearchFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -54,24 +64,24 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
     }
 
     private fun initToolbar() {
-        searchToolbar.navigationIcon =
-            ContextCompat.getDrawable(searchToolbar.context, R.drawable.ic_arrow_back)
+        binding.toolbar.navigationIcon =
+            ContextCompat.getDrawable(binding.toolbar.context, R.drawable.ic_arrow_back)
 
-        searchToolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener {
             navigateUp()
         }
     }
 
     private fun initSearchView() {
-        searchView.isIconified = false
-        searchView.onActionViewExpanded()
+        binding.searchView.isIconified = false
+        binding.searchView.onActionViewExpanded()
     }
 
     private fun initRecyclerView() {
-        searchRecyclerView.adapter = areaAdapter
-        searchRecyclerView.addItemDecoration(
+        binding.recyclerView.adapter = areaAdapter
+        binding.recyclerView.addItemDecoration(
             DividerItemDecoration(
-                searchRecyclerView.context,
+                binding.recyclerView.context,
                 DividerItemDecoration.VERTICAL
             )
         )
@@ -100,7 +110,7 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
     }
 
     private fun searchViewQueryTextChanges(): Disposable {
-        return searchView.queryTextChanges()
+        return binding.searchView.queryTextChanges()
             .skipInitialValue()
             .debounce(300, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
@@ -135,7 +145,7 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
     }
 
     private fun hideKeyboard() {
-        KeyboardUtils.hideSoftKeyboard(searchView)
+        KeyboardUtils.hideSoftKeyboard(binding.searchView)
     }
 
     override fun onDestroyView() {

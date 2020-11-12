@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/areaError"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:visibility="gone"
@@ -10,14 +10,14 @@
     tools:visibility="visible">
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/area_error_guideline_start"
+        android:id="@+id/areaErrorGuidelineStart"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
         app:layout_constraintGuide_begin="16dp" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/area_error_guideline_end"
+        android:id="@+id/areaErrorGuidelineEnd"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -31,7 +31,7 @@
         app:layout_constraintGuide_begin="96dp" />
 
     <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/area_error_guideline_bottom"
+        android:id="@+id/areaErrorGuidelineBottom"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
@@ -43,8 +43,8 @@
         android:layout_height="64dp"
         android:importantForAccessibility="no"
         android:src="@drawable/ic_error"
-        app:layout_constraintEnd_toEndOf="@id/area_error_guideline_end"
-        app:layout_constraintStart_toStartOf="@id/area_error_guideline_start"
+        app:layout_constraintEnd_toEndOf="@id/areaErrorGuidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/areaErrorGuidelineStart"
         app:layout_constraintTop_toBottomOf="@id/area_error_guideline_top" />
 
     <TextView
@@ -55,8 +55,8 @@
         android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="@string/area_data_error_message"
-        app:layout_constraintEnd_toEndOf="@id/area_error_guideline_end"
-        app:layout_constraintStart_toStartOf="@id/area_error_guideline_start"
+        app:layout_constraintEnd_toEndOf="@id/areaErrorGuidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/areaErrorGuidelineStart"
         app:layout_constraintTop_toBottomOf="@id/errorIcon" />
 
     <com.google.android.material.button.MaterialButton
@@ -66,8 +66,8 @@
         android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="@string/retry"
-        app:layout_constraintEnd_toEndOf="@id/area_error_guideline_end"
-        app:layout_constraintStart_toStartOf="@id/area_error_guideline_start"
+        app:layout_constraintEnd_toEndOf="@id/areaErrorGuidelineEnd"
+        app:layout_constraintStart_toStartOf="@id/areaErrorGuidelineStart"
         app:layout_constraintTop_toBottomOf="@id/errorText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

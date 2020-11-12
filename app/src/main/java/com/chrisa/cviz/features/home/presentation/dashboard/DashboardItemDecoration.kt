@@ -19,8 +19,9 @@ package com.chrisa.cviz.features.home.presentation.dashboard
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.epoxy.Carousel
-import com.chrisa.cviz.core.ui.widgets.recyclerview.SectionHeader
+import com.airbnb.epoxy.CarouselModel_
+import com.airbnb.epoxy.EpoxyControllerAdapter
+import com.chrisa.cviz.SectionHeaderBindingModel_
 
 class DashboardItemDecoration(
     private val horizontalMargin: Int,
@@ -33,16 +34,20 @@ class DashboardItemDecoration(
         parent: RecyclerView,
         state: RecyclerView.State
     ) {
-        when (view) {
-            is SectionHeader -> applySectionHeaderItemOffsets(outRect, view, parent)
-            is Carousel -> applyCarouselItemOffsets(outRect)
-            else -> applyDefaultItemOffsets(outRect, view, parent)
+        val position = parent.getChildAdapterPosition(view)
+        val adapter = parent.adapter
+        if (adapter is EpoxyControllerAdapter) {
+            when (adapter.getModelAtPosition(position)) {
+                is SectionHeaderBindingModel_ -> applySectionHeaderItemOffsets(outRect, view, parent)
+                is CarouselModel_ -> applyCarouselItemOffsets(outRect)
+                else -> applyDefaultItemOffsets(outRect, view, parent)
+            }
         }
     }
 
     private fun applySectionHeaderItemOffsets(
         outRect: Rect,
-        view: SectionHeader,
+        view: View,
         parent: RecyclerView
     ) {
         if (parent.getChildLayoutPosition(view) == 0) {
