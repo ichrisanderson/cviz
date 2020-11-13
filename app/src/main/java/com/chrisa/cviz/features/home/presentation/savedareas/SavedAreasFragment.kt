@@ -27,11 +27,11 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyController
 import com.chrisa.cviz.R
+import com.chrisa.cviz.areaDetailCard
 import com.chrisa.cviz.databinding.SavedAreasFragmentBinding
+import com.chrisa.cviz.emptySavedAreasCard
 import com.chrisa.cviz.features.home.presentation.HomeFragmentDirections
 import com.chrisa.cviz.features.home.presentation.HomeItemDecoration
-import com.chrisa.cviz.features.home.presentation.widgets.areaDetailCard
-import com.chrisa.cviz.features.home.presentation.widgets.emptySavedAreasCard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -135,7 +135,11 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
                     savedAreas.forEach { summary ->
                         areaDetailCard {
                             id(summary.areaCode)
-                            summary(summary)
+                            areaName(summary.areaName)
+                            currentNewCases(summary.currentNewCases)
+                            changeInCasesThisWeek(summary.changeInCases)
+                            currentInfectionRate(summary.changeInInfectionRate.toInt())
+                            changeInInfectionRateThisWeek(summary.changeInInfectionRate.toInt())
                             clickListener { _ ->
                                 navigateToArea(
                                     summary.areaCode,

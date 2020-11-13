@@ -32,7 +32,7 @@ import com.chrisa.cviz.core.util.KeyboardUtils
 import com.chrisa.cviz.databinding.SummaryListFragmentBinding
 import com.chrisa.cviz.features.home.domain.models.SortOption
 import com.chrisa.cviz.features.home.presentation.HomeItemDecoration
-import com.chrisa.cviz.features.home.presentation.widgets.summaryCard
+import com.chrisa.cviz.summaryCard
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -146,9 +146,12 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
                 summaries.forEach { summary ->
                     summaryCard {
                         id("summary" + summary.areaName)
-                        summary(summary)
-                        showCases(viewModel.sortOption.showCases())
-                        showInfectionRates(viewModel.sortOption.showInfectionRate())
+                        currentNewCases(summary.currentNewCases)
+                        changeInCasesThisWeek(summary.changeInCases)
+                        currentInfectionRate(summary.currentInfectionRate.toInt())
+                        changeInInfectionRateThisWeek(summary.changeInInfectionRate.toInt())
+                        isCasesVisible(viewModel.sortOption.showCases())
+                        isInfectionRateVisible(viewModel.sortOption.showInfectionRate())
                         clickListener { _ ->
                             navigateToArea(
                                 summary.areaCode,

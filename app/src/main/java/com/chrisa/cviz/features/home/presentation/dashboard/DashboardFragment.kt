@@ -28,14 +28,14 @@ import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.carousel
+import com.chrisa.cviz.LatestUkDataCardBindingModel_
 import com.chrisa.cviz.R
+import com.chrisa.cviz.SummaryCardBindingModel_
 import com.chrisa.cviz.databinding.DashboardFragmentBinding
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SortOption
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.chrisa.cviz.features.home.presentation.HomeFragmentDirections
-import com.chrisa.cviz.features.home.presentation.widgets.LatestUkDataCardModel_
-import com.chrisa.cviz.features.home.presentation.widgets.SummaryCardModel_
 import com.chrisa.cviz.sectionHeader
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -156,7 +156,7 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                     id("topInfectionRatesHeader")
                     title(getString(R.string.top_infection_rates))
                     isMoreButtonVisible(true)
-                    clickListener { _ ->navigateToSummaryList(SortOption.InfectionRate) }
+                    clickListener { _ -> navigateToSummaryList(SortOption.InfectionRate) }
                 }
                 carousel {
                     id("topInfectionRatesCarousel")
@@ -201,21 +201,28 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
         topInfectionRates: List<SummaryModel>
     ): List<EpoxyModel<*>> =
         topInfectionRates.map { data ->
-            SummaryCardModel_()
+            SummaryCardBindingModel_()
                 .id(idPrefix + data.areaName)
-                .summary(data)
-                .showInfectionRates(true)
+                .areaPosition(data.position)
+                .areaName(data.areaName)
+                .isInfectionRateVisible(true)
+                .currentInfectionRate(data.currentInfectionRate.toInt())
+                .changeInInfectionRateThisWeek(data.changeInInfectionRate.toInt())
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
+
         }
 
     private fun mapCases(idPrefix: String, cases: List<SummaryModel>): List<EpoxyModel<*>> =
         cases.map { data ->
-            SummaryCardModel_()
+            SummaryCardBindingModel_()
                 .id(idPrefix + data.areaName)
-                .summary(data)
-                .showCases(true)
+                .areaPosition(data.position)
+                .areaName(data.areaName)
+                .isCasesVisible(true)
+                .currentNewCases(data.currentNewCases)
+                .changeInCasesThisWeek(data.changeInCases)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
@@ -226,9 +233,12 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
         latestUkData: List<LatestUkDataModel>
     ): List<EpoxyModel<*>> =
         latestUkData.map { data ->
-            LatestUkDataCardModel_()
+            LatestUkDataCardBindingModel_()
                 .id(idPrefix + data.areaName + data.lastUpdated)
-                .latestUkData(data)
+                .areaName(data.areaName)
+                .dailyCases(data.newCases)
+                .totalCases(data.cumulativeCases)
+                .lastUpdated(data.lastUpdated)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }

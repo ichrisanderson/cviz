@@ -19,20 +19,22 @@ package com.chrisa.cviz.core.ui.widgets.recyclerview.chart
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.cviz.R
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.google.android.material.card.MaterialCardView
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.core_widget_chart_tab_card.view.pager
-import kotlinx.android.synthetic.main.core_widget_chart_tab_card.view.tab_layout
 
 @SuppressLint("NonConstantResourceId")
 @ModelView(defaultLayout = R.layout.core_widget_chart_tab_card)
 class ChartTabCard(context: Context, attrs: AttributeSet) : MaterialCardView(context, attrs) {
 
     private val adapter = ChartAdapter()
+    private lateinit var pager: ViewPager2
+    private lateinit var tabLayout: TabLayout
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -41,13 +43,15 @@ class ChartTabCard(context: Context, attrs: AttributeSet) : MaterialCardView(con
     }
 
     private fun setupViewPager() {
+        pager = findViewById(R.id.pager)
         pager.adapter = adapter
         pager.isUserInputEnabled = false
         pager.offscreenPageLimit = 2
     }
 
     private fun setupTabLayout() {
-        TabLayoutMediator(tab_layout, pager) { tab, position ->
+        tabLayout = findViewById(R.id.tabLayout)
+        TabLayoutMediator(tabLayout, pager) { tab, position ->
             tab.text = adapter.getItemTitle(position)
         }.attach()
     }

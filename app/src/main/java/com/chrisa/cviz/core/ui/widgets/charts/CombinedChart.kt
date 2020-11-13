@@ -21,7 +21,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import com.chrisa.cviz.R
+import com.chrisa.cviz.databinding.CoreWidgetCombinedChartBinding
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
@@ -31,34 +31,35 @@ import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import kotlinx.android.synthetic.main.core_widget_combined_chart.view.chart
 
 class CombinedChart(
     context: Context,
     attrs: AttributeSet
 ) : ConstraintLayout(context, attrs) {
 
+    private var binding: CoreWidgetCombinedChartBinding =
+        CoreWidgetCombinedChartBinding.inflate(LayoutInflater.from(context), this)
+
     init {
-        LayoutInflater.from(context).inflate(R.layout.core_widget_combined_chart, this, true)
         initChart()
         initXAxis()
         initYAxis()
     }
 
     private fun initChart() {
-        chart.setDrawGridBackground(false)
-        chart.axisRight.isEnabled = false
-        chart.description.isEnabled = false
-        chart.setDrawBarShadow(false)
-        chart.setDrawValueAboveBar(true)
-        chart.setDrawGridBackground(false)
-        chart.setPinchZoom(false)
-        chart.isDoubleTapToZoomEnabled = false
-        chart.extraBottomOffset = 16f
+        binding.chart.setDrawGridBackground(false)
+        binding.chart.axisRight.isEnabled = false
+        binding.chart.description.isEnabled = false
+        binding.chart.setDrawBarShadow(false)
+        binding.chart.setDrawValueAboveBar(true)
+        binding.chart.setDrawGridBackground(false)
+        binding.chart.setPinchZoom(false)
+        binding.chart.isDoubleTapToZoomEnabled = false
+        binding.chart.extraBottomOffset = 16f
     }
 
     private fun initXAxis() {
-        val xAxis: XAxis = chart.xAxis
+        val xAxis: XAxis = binding.chart.xAxis
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.setDrawGridLines(false)
         xAxis.granularity = 1f // only intervals of 1 day
@@ -66,7 +67,7 @@ class CombinedChart(
     }
 
     private fun initYAxis() {
-        val leftAxis: YAxis = chart.axisLeft
+        val leftAxis: YAxis = binding.chart.axisLeft
         leftAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART)
         leftAxis.spaceTop = 16f
         leftAxis.axisMinimum = 0f // this replaces setStartAtZero(true)
@@ -82,9 +83,9 @@ class CombinedChart(
         combinedData.setData(barDataSet(barChartData))
         combinedData.setData(lineDataSet(lineChartData))
 
-        chart.data = combinedData
+        binding.chart.data = combinedData
 
-        chart.invalidate()
+        binding.chart.invalidate()
     }
 
     private fun barDataSet(data: BarChartData): BarData {
@@ -95,7 +96,7 @@ class CombinedChart(
         barDataSet.setDrawValues(false)
         barDataSet.isHighlightEnabled = false
 
-        chart.xAxis.valueFormatter = StringValueAxisFormatter(data.values.map { it.label })
+        binding.chart.xAxis.valueFormatter = StringValueAxisFormatter(data.values.map { it.label })
 
         return BarData(barDataSet)
     }

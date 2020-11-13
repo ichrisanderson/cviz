@@ -28,13 +28,13 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.cviz.R
+import com.chrisa.cviz.areaCaseSummaryCard
+import com.chrisa.cviz.areaSectionHeader
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.chartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
 import com.chrisa.cviz.databinding.AreaFragmentBinding
-import com.chrisa.cviz.features.area.presentation.widgets.areaCaseSummaryCard
 import com.chrisa.cviz.features.area.presentation.widgets.areaDeathSummaryCard
 import com.chrisa.cviz.features.area.presentation.widgets.areaHospitalSummaryCard
-import com.chrisa.cviz.features.area.presentation.widgets.areaSectionHeader
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -153,7 +153,12 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                 }
                 areaCaseSummaryCard {
                     id("caseSummary")
-                    summary(areaDataModel.caseSummary)
+                    totalCases(areaDataModel.caseSummary.currentTotal)
+                    dailyCases(areaDataModel.caseSummary.dailyTotal)
+                    currentNewCases(areaDataModel.caseSummary.weeklyTotal)
+                    changeInNewCasesThisWeek(areaDataModel.caseSummary.changeInTotal)
+                    currentInfectionRate(areaDataModel.caseSummary.weeklyRate.toInt())
+                    changeInInfectionRateThisWeek(areaDataModel.caseSummary.changeInRate.toInt())
                 }
                 chartTabCard {
                     id("caseChartData")

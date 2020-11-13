@@ -51,9 +51,7 @@ class AreaAdapter : ListAdapter<AreaModel, AreaAdapter.ViewHolder>(
         private val view: View
     ) : RecyclerView.ViewHolder(view) {
 
-        private val text: TextView = view.findViewById(
-            R.id.areaTitle
-        )
+        private val text: TextView = view.findViewById(R.id.areaTitle)
 
         fun bind(item: AreaModel, onClickListener: (View) -> Unit) {
             view.setOnClickListener(onClickListener)
