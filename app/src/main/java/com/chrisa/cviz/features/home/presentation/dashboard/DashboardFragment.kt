@@ -211,7 +211,6 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
-
         }
 
     private fun mapCases(idPrefix: String, cases: List<SummaryModel>): List<EpoxyModel<*>> =

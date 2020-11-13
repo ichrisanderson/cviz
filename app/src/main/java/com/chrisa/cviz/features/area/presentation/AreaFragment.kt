@@ -29,12 +29,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.cviz.R
 import com.chrisa.cviz.areaCaseSummaryCard
+import com.chrisa.cviz.areaDeathSummaryCard
+import com.chrisa.cviz.areaHospitalSummaryCard
 import com.chrisa.cviz.areaSectionHeader
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.chartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
 import com.chrisa.cviz.databinding.AreaFragmentBinding
-import com.chrisa.cviz.features.area.presentation.widgets.areaDeathSummaryCard
-import com.chrisa.cviz.features.area.presentation.widgets.areaHospitalSummaryCard
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,11 +42,11 @@ import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
@@ -178,7 +178,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     areaDeathSummaryCard {
                         id("deathSummary")
-                        summary(areaDataModel.deathSummary)
+                        totalDeaths(areaDataModel.deathSummary.currentTotal)
+                        dailyDeaths(areaDataModel.deathSummary.dailyTotal)
+                        currentNewDeaths(areaDataModel.deathSummary.weeklyTotal)
+                        changeInNewDeathsThisWeek(areaDataModel.deathSummary.changeInTotal)
                     }
                     chartTabCard {
                         id("deathsChartData")
@@ -199,7 +202,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     areaHospitalSummaryCard {
                         id("hospitalAdmissionsSummary")
-                        summary(areaDataModel.hospitalAdmissionsSummary)
+                        totalHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.currentTotal)
+                        dailyHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.dailyTotal)
+                        currentNewHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.weeklyTotal)
+                        changeInNewHospitalAdmissionsThisWeek(areaDataModel.hospitalAdmissionsSummary.changeInTotal)
                     }
                     chartTabCard {
                         id("hospitalAdmissionsChartData")

@@ -146,6 +146,8 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
                 summaries.forEach { summary ->
                     summaryCard {
                         id("summary" + summary.areaName)
+                        areaPosition(summary.position)
+                        areaName(summary.areaName)
                         currentNewCases(summary.currentNewCases)
                         changeInCasesThisWeek(summary.changeInCases)
                         currentInfectionRate(summary.currentInfectionRate.toInt())
