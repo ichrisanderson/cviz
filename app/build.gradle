@@ -66,6 +66,7 @@ android {
     lintOptions {
         warningsAsErrors true
         checkDependencies true
+        checkGeneratedSources = true
         ignoreTestSources true
         lintConfig file("lint.xml")
     }
