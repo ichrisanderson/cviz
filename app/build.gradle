@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'dagger.hilt.android.plugin'
@@ -41,6 +40,11 @@ android {
         }
     }
 
+    buildFeatures {
+        dataBinding true
+        viewBinding true
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -62,6 +66,7 @@ android {
     lintOptions {
         warningsAsErrors true
         checkDependencies true
+        checkGeneratedSources = true
         ignoreTestSources true
         lintConfig file("lint.xml")
     }
@@ -160,6 +165,7 @@ dependencies {
 
     /* epoxy */
     implementation "com.airbnb.android:epoxy:${versions.epoxy}"
+    implementation "com.airbnb.android:epoxy-databinding:${versions.epoxy}"
     kapt "com.airbnb.android:epoxy-processor:${versions.epoxy}"
 
     /* ok-http */

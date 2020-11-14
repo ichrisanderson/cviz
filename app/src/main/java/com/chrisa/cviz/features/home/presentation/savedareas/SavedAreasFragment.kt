@@ -17,7 +17,9 @@
 package com.chrisa.cviz.features.home.presentation.savedareas
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,14 +27,12 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyController
 import com.chrisa.cviz.R
+import com.chrisa.cviz.areaDetailCard
+import com.chrisa.cviz.databinding.SavedAreasFragmentBinding
+import com.chrisa.cviz.emptySavedAreasCard
 import com.chrisa.cviz.features.home.presentation.HomeFragmentDirections
 import com.chrisa.cviz.features.home.presentation.HomeItemDecoration
-import com.chrisa.cviz.features.home.presentation.widgets.areaDetailCard
-import com.chrisa.cviz.features.home.presentation.widgets.emptySavedAreasCard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.saved_areas_fragment.savedAreasProgress
-import kotlinx.android.synthetic.main.saved_areas_fragment.savedAreasRecyclerView
-import kotlinx.android.synthetic.main.saved_areas_fragment.swipeRefreshLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -43,9 +43,19 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @AndroidEntryPoint
 class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
 
+    private lateinit var binding: SavedAreasFragmentBinding
     private val viewModel: SavedAreasViewModel by viewModels()
     private var controllerState: Bundle? = null
     private var attachedController: EpoxyController? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = SavedAreasFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -81,12 +91,12 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
     }
 
     private fun initRecyclerView() {
-        savedAreasRecyclerView.addItemDecoration(
+        binding.recyclerView.addItemDecoration(
             HomeItemDecoration(
-                savedAreasRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin_large
                 ),
-                savedAreasRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin_large
                 )
             )
@@ -94,28 +104,28 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     private fun bindIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer {
             val isLoading = it ?: return@Observer
-            savedAreasProgress.isVisible = isLoading
+            binding.progress.isVisible = isLoading
         })
     }
 
     private fun bindIsRefreshing() {
         viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
-            swipeRefreshLayout.isRefreshing = it
+            binding.swipeRefreshLayout.isRefreshing = it
         })
     }
 
     private fun bindSummaries() {
         viewModel.savedAreas.observe(viewLifecycleOwner, Observer {
             val savedAreas = it ?: return@Observer
-            savedAreasRecyclerView.isVisible = true
-            swipeRefreshLayout.isVisible = true
-            savedAreasRecyclerView.withModels {
+            binding.swipeRefreshLayout.isVisible = true
+            binding.recyclerView.isVisible = true
+            binding.recyclerView.withModels {
                 attachToController(this)
                 if (savedAreas.isEmpty()) {
                     emptySavedAreasCard {
@@ -125,7 +135,11 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
                     savedAreas.forEach { summary ->
                         areaDetailCard {
                             id(summary.areaCode)
-                            summary(summary)
+                            areaName(summary.areaName)
+                            currentNewCases(summary.currentNewCases)
+                            changeInCasesThisWeek(summary.changeInCases)
+                            currentInfectionRate(summary.changeInInfectionRate.toInt())
+                            changeInInfectionRateThisWeek(summary.changeInInfectionRate.toInt())
                             clickListener { _ ->
                                 navigateToArea(
                                     summary.areaCode,

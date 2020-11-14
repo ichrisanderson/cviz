@@ -17,7 +17,9 @@
 package com.chrisa.cviz.features.home.presentation.dashboard
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -26,18 +28,16 @@ import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.carousel
+import com.chrisa.cviz.LatestUkDataCardBindingModel_
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.ui.widgets.recyclerview.sectionHeader
+import com.chrisa.cviz.SummaryCardBindingModel_
+import com.chrisa.cviz.databinding.DashboardFragmentBinding
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SortOption
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.chrisa.cviz.features.home.presentation.HomeFragmentDirections
-import com.chrisa.cviz.features.home.presentation.widgets.LatestUkDataCardModel_
-import com.chrisa.cviz.features.home.presentation.widgets.SummaryCardModel_
+import com.chrisa.cviz.sectionHeader
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.dashboard_fragment.homeProgress
-import kotlinx.android.synthetic.main.dashboard_fragment.homeRecyclerView
-import kotlinx.android.synthetic.main.dashboard_fragment.swipeRefreshLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -48,9 +48,19 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @AndroidEntryPoint
 class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
 
+    private lateinit var binding: DashboardFragmentBinding
     private val viewModel: DashboardViewModel by viewModels()
     private var controllerState: Bundle? = null
     private var attachedController: EpoxyController? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = DashboardFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -86,12 +96,12 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
     }
 
     private fun initRecyclerView() {
-        homeRecyclerView.addItemDecoration(
+        binding.recyclerView.addItemDecoration(
             DashboardItemDecoration(
-                homeRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin
                 ),
-                homeRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin
                 )
             )
@@ -99,27 +109,27 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     private fun bindIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer {
-            homeProgress.isVisible = it
+            binding.progress.isVisible = it
         })
     }
 
     private fun bindIsRefreshing() {
         viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
-            swipeRefreshLayout.isRefreshing = it
+            binding.swipeRefreshLayout.isRefreshing = it
         })
     }
 
     private fun bindAreaCases() {
         viewModel.dashboardData.observe(viewLifecycleOwner, Observer {
             val homeScreenData = it ?: return@Observer
-            swipeRefreshLayout.isVisible = true
-            swipeRefreshLayout.isRefreshing = false
-            homeRecyclerView.withModels {
+            binding.swipeRefreshLayout.isVisible = true
+            binding.swipeRefreshLayout.isRefreshing = false
+            binding.recyclerView.withModels {
 
                 attachToController(this)
 
@@ -132,7 +142,6 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                     id("dailyRecordCarousel")
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
-
                 sectionHeader {
                     id("topNewCasesHeader")
                     title(getString(R.string.top_cases))
@@ -192,10 +201,13 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
         topInfectionRates: List<SummaryModel>
     ): List<EpoxyModel<*>> =
         topInfectionRates.map { data ->
-            SummaryCardModel_()
+            SummaryCardBindingModel_()
                 .id(idPrefix + data.areaName)
-                .summary(data)
-                .showInfectionRates(true)
+                .areaPosition(data.position)
+                .areaName(data.areaName)
+                .isInfectionRateVisible(true)
+                .currentInfectionRate(data.currentInfectionRate.toInt())
+                .changeInInfectionRateThisWeek(data.changeInInfectionRate.toInt())
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
@@ -203,10 +215,13 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
 
     private fun mapCases(idPrefix: String, cases: List<SummaryModel>): List<EpoxyModel<*>> =
         cases.map { data ->
-            SummaryCardModel_()
+            SummaryCardBindingModel_()
                 .id(idPrefix + data.areaName)
-                .summary(data)
-                .showCases(true)
+                .areaPosition(data.position)
+                .areaName(data.areaName)
+                .isCasesVisible(true)
+                .currentNewCases(data.currentNewCases)
+                .changeInCasesThisWeek(data.changeInCases)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
@@ -217,9 +232,12 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
         latestUkData: List<LatestUkDataModel>
     ): List<EpoxyModel<*>> =
         latestUkData.map { data ->
-            LatestUkDataCardModel_()
+            LatestUkDataCardBindingModel_()
                 .id(idPrefix + data.areaName + data.lastUpdated)
-                .latestUkData(data)
+                .areaName(data.areaName)
+                .dailyCases(data.newCases)
+                .totalCases(data.cumulativeCases)
+                .lastUpdated(data.lastUpdated)
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }

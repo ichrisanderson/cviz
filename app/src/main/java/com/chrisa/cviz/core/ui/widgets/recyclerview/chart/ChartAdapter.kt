@@ -45,8 +45,6 @@ class ChartAdapter : ListAdapter<CombinedChartData, ChartAdapter.ViewHolder>(
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val chart: CombinedChart = itemView.findViewById(
-            R.id.chart_container
-        )
+        val chart: CombinedChart = itemView.findViewById(R.id.chart_container)
     }
 }

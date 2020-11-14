@@ -1,4 +1,10 @@
 <lint>
     <issue id="GradleDependency" severity="ignore"/>
     <issue id="OldTargetApi" severity="ignore"/>
+    <issue id="RestrictedApi" severity="error">
+        <ignore path="build" />
+    </issue>
+    <issue id="UnusedResources" severity="error">
+        <ignore path="build" />
+    </issue>
 </lint>

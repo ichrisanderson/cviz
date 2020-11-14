@@ -5,13 +5,13 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarContainer"
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/searchToolbar"
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             app:navigationIcon="@drawable/ic_arrow_back"
             android:layout_height="?attr/actionBarSize">
@@ -33,13 +33,13 @@
         android:layout_width="match_parent"
         android:layout_height="4dp"
         android:background="#666"
-        app:layout_constraintTop_toBottomOf="@+id/appBarContainer" />
+        app:layout_constraintTop_toBottomOf="@+id/appBar" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/searchRecyclerView"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/appBarContainer"
+        android:layout_below="@id/appBar"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />

@@ -17,7 +17,9 @@
 package com.chrisa.cviz.features.area.presentation
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -26,12 +28,13 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.cviz.R
+import com.chrisa.cviz.areaCaseSummaryCard
+import com.chrisa.cviz.areaDeathSummaryCard
+import com.chrisa.cviz.areaHospitalSummaryCard
+import com.chrisa.cviz.areaSectionHeader
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.chartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
-import com.chrisa.cviz.features.area.presentation.widgets.areaCaseSummaryCard
-import com.chrisa.cviz.features.area.presentation.widgets.areaDeathSummaryCard
-import com.chrisa.cviz.features.area.presentation.widgets.areaHospitalSummaryCard
-import com.chrisa.cviz.features.area.presentation.widgets.areaSectionHeader
+import com.chrisa.cviz.databinding.AreaFragmentBinding
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,18 +46,13 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlinx.android.synthetic.main.area_error.areaError
-import kotlinx.android.synthetic.main.area_error.errorAction
-import kotlinx.android.synthetic.main.area_fragment.areaProgress
-import kotlinx.android.synthetic.main.area_fragment.areaRecyclerView
-import kotlinx.android.synthetic.main.area_fragment.areaToolbar
-import kotlinx.android.synthetic.main.area_fragment.swipeRefreshLayout
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class AreaFragment : Fragment(R.layout.area_fragment) {
 
+    private lateinit var binding: AreaFragmentBinding
     private val viewModel: AreaViewModel by viewModels()
     private val args by navArgs<AreaFragmentArgs>()
     private val disposables = CompositeDisposable()
@@ -62,6 +60,15 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         .ofPattern("MMM d")
         .withLocale(Locale.UK)
         .withZone(ZoneId.of("GMT"))
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = AreaFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -81,24 +88,24 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     }
 
     private fun initToolbar() {
-        areaToolbar.navigationIcon =
-            ContextCompat.getDrawable(areaToolbar.context, R.drawable.ic_arrow_back)
-        areaToolbar.title = args.areaName
-        areaToolbar.setNavigationOnClickListener { navigateUp() }
+        binding.toolbar.navigationIcon =
+            ContextCompat.getDrawable(binding.toolbar.context, R.drawable.ic_arrow_back)
+        binding.toolbar.title = args.areaName
+        binding.toolbar.setNavigationOnClickListener { navigateUp() }
         disposables.addAll(subscribeMenuClicks())
     }
 
     private fun initSwipeRefreshLayout() {
-        swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
     private fun initRecyclerView() {
-        areaRecyclerView.addItemDecoration(
+        binding.recyclerView.addItemDecoration(
             AreaItemDecoration(
-                areaRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin_large
                 ),
-                areaRecyclerView.context.resources.getDimensionPixelSize(
+                binding.recyclerView.context.resources.getDimensionPixelSize(
                     R.dimen.card_margin
                 )
             )
@@ -106,7 +113,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     }
 
     private fun subscribeMenuClicks(): @NonNull Disposable {
-        return areaToolbar.itemClicks().subscribe {
+        return binding.toolbar.itemClicks().subscribe {
             when (it.itemId) {
                 R.id.insertSavedArea -> {
                     viewModel.insertSavedArea()
@@ -128,16 +135,16 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
             val lastDeathDate = dateLabel(areaDataModel.areaMetadata.lastDeathDate)
             val lastHospitalAdmissionDate =
                 dateLabel(areaDataModel.areaMetadata.lastHospitalAdmissionDate)
-            val lastUpdated = areaRecyclerView.context.getString(
+            val lastUpdated = binding.recyclerView.context.getString(
                 R.string.updated_label,
                 DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.areaMetadata.lastUpdatedDate)
             )
-            areaRecyclerView.withModels {
+            binding.recyclerView.withModels {
                 areaSectionHeader {
                     id("caseSummaryTitle")
                     title(getString(R.string.cases_title))
                     subtitle1(
-                        areaToolbar.context.getString(
+                        binding.toolbar.context.getString(
                             R.string.latest_data_label,
                             lastCaseDate
                         )
@@ -146,7 +153,12 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                 }
                 areaCaseSummaryCard {
                     id("caseSummary")
-                    summary(areaDataModel.caseSummary)
+                    totalCases(areaDataModel.caseSummary.currentTotal)
+                    dailyCases(areaDataModel.caseSummary.dailyTotal)
+                    currentNewCases(areaDataModel.caseSummary.weeklyTotal)
+                    changeInNewCasesThisWeek(areaDataModel.caseSummary.changeInTotal)
+                    currentInfectionRate(areaDataModel.caseSummary.weeklyRate.toInt())
+                    changeInInfectionRateThisWeek(areaDataModel.caseSummary.changeInRate.toInt())
                 }
                 chartTabCard {
                     id("caseChartData")
@@ -157,7 +169,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         id("deathSummaryTitle")
                         title(getString(R.string.deaths_title))
                         subtitle1(
-                            areaToolbar.context.getString(
+                            binding.toolbar.context.getString(
                                 R.string.latest_data_label,
                                 lastDeathDate
                             )
@@ -166,7 +178,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     areaDeathSummaryCard {
                         id("deathSummary")
-                        summary(areaDataModel.deathSummary)
+                        totalDeaths(areaDataModel.deathSummary.currentTotal)
+                        dailyDeaths(areaDataModel.deathSummary.dailyTotal)
+                        currentNewDeaths(areaDataModel.deathSummary.weeklyTotal)
+                        changeInNewDeathsThisWeek(areaDataModel.deathSummary.changeInTotal)
                     }
                     chartTabCard {
                         id("deathsChartData")
@@ -178,7 +193,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         id("hospitalAdmissionsSummaryTitle")
                         title(getString(R.string.hospital_admissions_title))
                         subtitle1(
-                            areaToolbar.context.getString(
+                            binding.toolbar.context.getString(
                                 R.string.latest_data_label,
                                 lastHospitalAdmissionDate
                             )
@@ -187,7 +202,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     areaHospitalSummaryCard {
                         id("hospitalAdmissionsSummary")
-                        summary(areaDataModel.hospitalAdmissionsSummary)
+                        totalHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.currentTotal)
+                        dailyHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.dailyTotal)
+                        currentNewHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.weeklyTotal)
+                        changeInNewHospitalAdmissionsThisWeek(areaDataModel.hospitalAdmissionsSummary.changeInTotal)
                     }
                     chartTabCard {
                         id("hospitalAdmissionsChartData")
@@ -195,7 +213,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                 }
             }
-            areaError.isVisible = false
+            binding.error.container.isVisible = false
         })
     }
 
@@ -205,7 +223,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     private fun observeIsSaved() {
         viewModel.isSaved.observe(viewLifecycleOwner, Observer { isSaved ->
             isSaved?.let { saved ->
-                val menu = areaToolbar.menu
+                val menu = binding.toolbar.menu
                 menu.findItem(R.id.insertSavedArea).isVisible = !saved
                 menu.findItem(R.id.deleteSavedArea).isVisible = saved
             }
@@ -215,30 +233,30 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     private fun observeIsLoading() {
         viewModel.isLoading.observe(viewLifecycleOwner, Observer { isLoading ->
             isLoading?.let { loading ->
-                areaProgress.isVisible = loading
+                binding.progress.isVisible = loading
             }
         })
     }
 
     private fun observeIsRefreshing() {
         viewModel.isRefreshing.observe(viewLifecycleOwner, Observer {
-            swipeRefreshLayout.isRefreshing = it
+            binding.swipeRefreshLayout.isRefreshing = it
         })
     }
 
     private fun observeSyncAreaError() {
         viewModel.syncAreaError.observe(viewLifecycleOwner, EventObserver { isFatal ->
             if (isFatal) {
-                errorAction.setOnClickListener { viewModel.retry() }
-                areaError.isVisible = true
+                binding.error.errorAction.setOnClickListener { viewModel.retry() }
+                binding.error.container.isVisible = true
                 Snackbar.make(
-                    areaRecyclerView,
+                    binding.recyclerView,
                     getString(R.string.sync_error_message),
                     Snackbar.LENGTH_SHORT
                 ).show()
             } else {
                 Snackbar.make(
-                    areaRecyclerView,
+                    binding.recyclerView,
                     getString(R.string.sync_error_message),
                     Snackbar.LENGTH_SHORT
                 )

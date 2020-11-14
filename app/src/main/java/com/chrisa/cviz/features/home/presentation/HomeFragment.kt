@@ -17,14 +17,14 @@
 package com.chrisa.cviz.features.home.presentation
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.chrisa.cviz.R
+import com.chrisa.cviz.databinding.HomeFragmentBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.home_fragment.homeNavigation
-import kotlinx.android.synthetic.main.home_fragment.homePager
-import kotlinx.android.synthetic.main.home_fragment.homeToolbar
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 
@@ -33,9 +33,43 @@ import kotlinx.coroutines.InternalCoroutinesApi
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.home_fragment) {
 
+    private lateinit var binding: HomeFragmentBinding
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = HomeFragmentBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        homeToolbar.setOnMenuItemClickListener {
+        initToolbar()
+        initPager()
+        initNavigation()
+    }
+
+    private fun initNavigation() {
+        binding.navigation.setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.dashboard -> binding.pager.setCurrentItem(0, false)
+                R.id.saved -> binding.pager.setCurrentItem(1, false)
+                R.id.settings -> binding.pager.setCurrentItem(2, false)
+            }
+            true
+        }
+    }
+
+    private fun initPager() {
+        binding.pager.isUserInputEnabled = false
+        binding.pager.offscreenPageLimit = 3
+        binding.pager.adapter = HomeAdapter(childFragmentManager, lifecycle)
+    }
+
+    private fun initToolbar() {
+        binding.toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.search -> {
                     navigateToSearch()
@@ -43,17 +77,6 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
                 }
                 else -> false
             }
-        }
-        homePager.isUserInputEnabled = false
-        homePager.offscreenPageLimit = 3
-        homePager.adapter = HomeAdapter(childFragmentManager, lifecycle)
-        homeNavigation.setOnNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.dashboard -> homePager.setCurrentItem(0, false)
-                R.id.saved -> homePager.setCurrentItem(1, false)
-                R.id.settings -> homePager.setCurrentItem(2, false)
-            }
-            true
         }
     }
 

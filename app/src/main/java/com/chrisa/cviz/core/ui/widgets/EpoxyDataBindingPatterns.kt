@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.home.presentation.widgets
+package com.chrisa.cviz.core.ui.widgets
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.util.AttributeSet
-import androidx.cardview.widget.CardView
-import com.airbnb.epoxy.ModelView
+import com.airbnb.epoxy.EpoxyDataBindingPattern
 import com.chrisa.cviz.R
 
-@SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.home_widget_empty_saved_areas_card)
-class EmptySavedAreasCard(context: Context, attrs: AttributeSet) : CardView(context, attrs)
+@EpoxyDataBindingPattern(rClass = R::class, layoutPrefix = "epoxy_layout")
+object EpoxyDataBindingPatterns
