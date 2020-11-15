@@ -14,28 +14,20 @@
             type="String" />
 
         <variable
-            name="currentNewCases"
+            name="currentValue"
             type="Integer" />
 
         <variable
-            name="changeInCasesThisWeek"
+            name="currentValueCaption"
+            type="String" />
+
+        <variable
+            name="changeInValue"
             type="Integer" />
 
         <variable
-            name="currentInfectionRate"
-            type="Integer" />
-
-        <variable
-            name="changeInInfectionRateThisWeek"
-            type="Integer" />
-
-        <variable
-            name="isCasesVisible"
-            type="Boolean" />
-
-        <variable
-            name="isInfectionRateVisible"
-            type="Boolean" />
+            name="changeInValueCaption"
+            type="String" />
 
         <variable
             name="clickListener"
@@ -53,28 +45,28 @@
             android:layout_height="wrap_content">
 
             <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_start"
+                android:id="@+id/guidelineStart"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:orientation="vertical"
                 app:layout_constraintGuide_begin="12dp" />
 
             <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_end"
+                android:id="@+id/guidelineEnd"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:orientation="vertical"
                 app:layout_constraintGuide_end="12dp" />
 
             <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_top"
+                android:id="@+id/guidelineTop"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:orientation="horizontal"
                 app:layout_constraintGuide_begin="8dp" />
 
             <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline_bottom"
+                android:id="@+id/guidelineBottom"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:orientation="horizontal"
@@ -87,8 +79,8 @@
                 android:fontFamily="@font/roboto_light"
                 android:paddingBottom="4dp"
                 android:textAppearance="?attr/textAppearanceHeadline5"
-                app:layout_constraintStart_toStartOf="@id/guideline_start"
-                app:layout_constraintTop_toTopOf="@id/guideline_top"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
+                app:layout_constraintTop_toTopOf="@id/guidelineTop"
                 app:position="@{areaPosition}"
                 tools:text="#1" />
 
@@ -103,124 +95,63 @@
                 android:paddingBottom="4dp"
                 android:text="@{areaName}"
                 android:textAppearance="?attr/textAppearanceHeadline5"
-                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
                 app:layout_constraintStart_toEndOf="@id/areaPosition"
-                app:layout_constraintTop_toTopOf="@id/guideline_top"
+                app:layout_constraintTop_toTopOf="@id/guidelineTop"
                 app:layout_goneMarginStart="0dp"
                 tools:text="Lambeth" />
 
             <TextView
-                android:id="@+id/currentNewCases"
+                android:id="@+id/currentValue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                app:formattedInt="@{currentNewCases}"
-                app:layout_constraintEnd_toStartOf="@+id/changeInCasesThisWeek"
-                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:formattedInt="@{currentValue}"
+                app:layout_constraintEnd_toStartOf="@+id/changeInValue"
+                app:layout_constraintStart_toStartOf="@id/guidelineStart"
                 app:layout_constraintTop_toBottomOf="@id/areaName"
                 tools:text="122" />
 
             <TextView
-                android:id="@+id/currentNewCasesCaption"
+                android:id="@+id/currentValueCaption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:fontFamily="@font/roboto_light"
-                android:text="@string/cases_this_week"
+                android:text="@{currentValueCaption}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                app:layout_constraintStart_toStartOf="@id/guideline_start"
-                app:layout_constraintTop_toBottomOf="@id/currentNewCases" />
+                app:layout_constraintStart_toStartOf="@id/currentValue"
+                app:layout_constraintTop_toBottomOf="@id/currentValue"
+                app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+                tools:text="Current Value" />
 
             <TextView
-                android:id="@+id/changeInCasesThisWeek"
+                android:id="@+id/changeInValue"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                app:changeText="@{changeInCasesThisWeek}"
-                app:changeTextColor="@{changeInCasesThisWeek}"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_end"
-                app:layout_constraintStart_toEndOf="@+id/currentNewCases"
-                app:layout_constraintTop_toBottomOf="@id/areaName"
-                tools:text="22" />
+                app:changeText="@{changeInValue}"
+                app:changeTextColor="@{changeInValue}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/currentValue"
+                app:layout_constraintTop_toTopOf="@id/currentValue"
+                tools:text="+22"
+                tools:textColor="@color/negativeChange" />
 
             <TextView
-                android:id="@+id/changeInCasesThisWeekCaption"
+                android:id="@+id/changeInValueCaption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:fontFamily="@font/roboto_light"
-                android:text="@string/change_this_week"
+                android:text="@{changeInValueCaption}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                app:layout_constraintStart_toStartOf="@id/changeInCasesThisWeek"
-                app:layout_constraintTop_toBottomOf="@id/currentNewCases" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/casesGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-                app:constraint_referenced_ids="currentNewCases,currentNewCasesCaption,changeInCasesThisWeek,changeInCasesThisWeekCaption"
-                app:isVisible="@{isCasesVisible}" />
-
-            <TextView
-                android:id="@+id/currentInfectionRate"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                app:formattedInt="@{currentInfectionRate}"
-                app:layout_constraintEnd_toStartOf="@+id/changeInInfectionRateThisWeek"
-                app:layout_constraintStart_toStartOf="@id/guideline_start"
-                app:layout_constraintTop_toBottomOf="@id/changeInCasesThisWeekCaption"
-                app:layout_goneMarginTop="2dp"
-                tools:text="12,345" />
-
-            <TextView
-                android:id="@+id/currentInfectionRateCaption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/roboto_light"
-                android:text="@string/current_infection_rate"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                app:layout_constraintBottom_toTopOf="@id/guideline_bottom"
-                app:layout_constraintStart_toStartOf="@id/guideline_start"
-                app:layout_constraintTop_toBottomOf="@id/currentInfectionRate" />
-
-            <TextView
-                android:id="@+id/changeInInfectionRateThisWeek"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                app:changeText="@{changeInInfectionRateThisWeek}"
-                app:changeTextColor="@{changeInInfectionRateThisWeek}"
-                app:layout_constraintEnd_toStartOf="@+id/guideline_end"
-                app:layout_constraintStart_toEndOf="@+id/currentInfectionRate"
-                app:layout_constraintTop_toBottomOf="@id/changeInCasesThisWeekCaption"
-                app:layout_goneMarginTop="2dp"
-                tools:text="125" />
-
-            <TextView
-                android:id="@+id/changeInInfectionRateThisWeekCaption"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="@font/roboto_light"
-                android:text="@string/change_this_week"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                app:layout_constraintStart_toStartOf="@id/changeInInfectionRateThisWeek"
-                app:layout_constraintTop_toBottomOf="@id/currentInfectionRate" />
-
-            <androidx.constraintlayout.widget.Group
-                android:id="@+id/infectionRateGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="visible"
-                app:constraint_referenced_ids="changeInInfectionRateThisWeek,changeInInfectionRateThisWeekCaption,currentInfectionRate,currentInfectionRateCaption"
-                app:isVisible="@{isInfectionRateVisible}" />
+                app:layout_constraintStart_toStartOf="@id/changeInValue"
+                app:layout_constraintTop_toBottomOf="@id/currentValue"
+                app:layout_constraintBottom_toBottomOf="@id/guidelineBottom"
+                tools:text="Change in value" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -143,35 +143,41 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
             binding.swipeRefreshLayout.isRefreshing = false
             binding.recyclerView.withModels {
                 attachToController(this)
-                summaries.forEach { summary ->
-                    summaryCard {
-                        id("summary" + summary.areaName)
-                        areaPosition(summary.position)
-                        areaName(summary.areaName)
-                        currentNewCases(summary.currentNewCases)
-                        changeInCasesThisWeek(summary.changeInCases)
-                        currentInfectionRate(summary.currentInfectionRate.toInt())
-                        changeInInfectionRateThisWeek(summary.changeInInfectionRate.toInt())
-                        isCasesVisible(viewModel.sortOption.showCases())
-                        isInfectionRateVisible(viewModel.sortOption.showInfectionRate())
-                        clickListener { _ ->
-                            navigateToArea(
-                                summary.areaCode,
-                                summary.areaName,
-                                summary.areaType
-                            )
+                summaries.forEach { data ->
+                    when (viewModel.sortOption) {
+                        SortOption.InfectionRate, SortOption.RisingInfectionRate -> {
+                            summaryCard {
+                                id("infection_rate_summary_" + data.areaName)
+                                areaPosition(data.position)
+                                areaName(data.areaName)
+                                currentValue(data.currentInfectionRate.toInt())
+                                currentValueCaption(getString(R.string.current_infection_rate))
+                                changeInValue(data.changeInInfectionRate.toInt())
+                                changeInValueCaption(getString(R.string.change_this_week_condensed))
+                                clickListener { _ ->
+                                    navigateToArea(data.areaCode, data.areaName, data.areaType)
+                                }
+                            }
+                        }
+                        SortOption.NewCases, SortOption.RisingCases -> {
+                            summaryCard {
+                                id("infection_rate_summary_" + data.areaName)
+                                areaPosition(data.position)
+                                areaName(data.areaName)
+                                currentValue(data.currentNewCases)
+                                currentValueCaption(getString(R.string.cases_this_week))
+                                changeInValue(data.changeInCases)
+                                changeInValueCaption(getString(R.string.change_this_week_condensed))
+                                clickListener { _ ->
+                                    navigateToArea(data.areaCode, data.areaName, data.areaType)
+                                }
+                            }
                         }
                     }
                 }
             }
         })
     }
-
-    private fun SortOption.showCases(): Boolean =
-        setOf(SortOption.RisingCases, SortOption.NewCases).contains(this)
-
-    private fun SortOption.showInfectionRate(): Boolean =
-        setOf(SortOption.RisingInfectionRate, SortOption.InfectionRate).contains(this)
 
     private fun navigateUp() {
         findNavController().navigateUp()

@@ -80,12 +80,12 @@
 
             <TextView
                 android:id="@+id/currentNewHospitalAdmissions"
-                changeTextColor="@{currentNewHospitalAdmissions}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                app:formattedInt="@{currentNewHospitalAdmissions}"
+                app:changeText="@{currentNewHospitalAdmissions}"
+                app:changeTextColor="@{currentNewHospitalAdmissions}"
                 app:layout_constraintEnd_toStartOf="@+id/changeInNewHospitalAdmissionsThisWeek"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintHorizontal_chainStyle="packed"
@@ -106,12 +106,12 @@
 
             <TextView
                 android:id="@+id/changeInNewHospitalAdmissionsThisWeek"
-                changeTextColor="@{changeInNewHospitalAdmissionsThisWeek}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                app:formattedInt="@{changeInNewHospitalAdmissionsThisWeek}"
+                app:changeText="@{changeInNewHospitalAdmissionsThisWeek}"
+                app:changeTextColor="@{changeInNewHospitalAdmissionsThisWeek}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintHorizontal_chainStyle="packed"
