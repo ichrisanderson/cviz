@@ -104,6 +104,7 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor)
         binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
@@ -138,7 +139,7 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
                             areaName(summary.areaName)
                             currentNewCases(summary.currentNewCases)
                             changeInCasesThisWeek(summary.changeInCases)
-                            currentInfectionRate(summary.changeInInfectionRate.toInt())
+                            currentInfectionRate(summary.currentInfectionRate.toInt())
                             changeInInfectionRateThisWeek(summary.changeInInfectionRate.toInt())
                             clickListener { _ ->
                                 navigateToArea(

@@ -109,6 +109,7 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor)
         binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
@@ -205,9 +206,10 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                 .id(idPrefix + data.areaName)
                 .areaPosition(data.position)
                 .areaName(data.areaName)
-                .isInfectionRateVisible(true)
-                .currentInfectionRate(data.currentInfectionRate.toInt())
-                .changeInInfectionRateThisWeek(data.changeInInfectionRate.toInt())
+                .currentValue(data.currentInfectionRate.toInt())
+                .currentValueCaption(getString(R.string.current_infection_rate))
+                .changeInValue(data.changeInInfectionRate.toInt())
+                .changeInValueCaption(getString(R.string.change_this_week_condensed))
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }
@@ -219,9 +221,10 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                 .id(idPrefix + data.areaName)
                 .areaPosition(data.position)
                 .areaName(data.areaName)
-                .isCasesVisible(true)
-                .currentNewCases(data.currentNewCases)
-                .changeInCasesThisWeek(data.changeInCases)
+                .currentValue(data.currentNewCases)
+                .currentValueCaption(getString(R.string.cases_this_week))
+                .changeInValue(data.changeInCases)
+                .changeInValueCaption(getString(R.string.change_this_week_condensed))
                 .clickListener { _ ->
                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                 }

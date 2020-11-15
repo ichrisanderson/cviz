@@ -105,12 +105,12 @@
 
             <TextView
                 android:id="@+id/changeInNewDeathsThisWeek"
-                changeTextColor="@{changeInNewDeathsThisWeek}"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                app:formattedInt="@{changeInNewDeathsThisWeek}"
+                app:changeText="@{changeInNewDeathsThisWeek}"
+                app:changeTextColor="@{changeInNewDeathsThisWeek}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintHorizontal_chainStyle="packed"
