@@ -154,7 +154,7 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
                                 currentValue(data.currentInfectionRate.toInt())
                                 currentValueCaption(getString(R.string.current_infection_rate))
                                 changeInValue(data.changeInInfectionRate.toInt())
-                                changeInValueCaption(getString(R.string.change_this_week_condensed))
+                                changeInValueCaption(getString(R.string.change_this_week))
                                 clickListener { _ ->
                                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                                 }
@@ -168,7 +168,7 @@ class SummaryListFragment : Fragment(R.layout.summary_list_fragment) {
                                 currentValue(data.currentNewCases)
                                 currentValueCaption(getString(R.string.cases_this_week))
                                 changeInValue(data.changeInCases)
-                                changeInValueCaption(getString(R.string.change_this_week_condensed))
+                                changeInValueCaption(getString(R.string.change_this_week))
                                 clickListener { _ ->
                                     navigateToArea(data.areaCode, data.areaName, data.areaType)
                                 }

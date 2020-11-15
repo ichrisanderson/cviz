@@ -141,7 +141,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:fontFamily="@font/roboto_thin"
-                    android:text="@string/change_this_week_condensed"
+                    android:text="@string/change_this_week"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                     app:layout_constraintBottom_toBottomOf="@id/changeInCasesThisWeek"
                     app:layout_constraintStart_toEndOf="@id/changeInCasesThisWeek" />
@@ -209,7 +209,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:fontFamily="@font/roboto_thin"
-                    android:text="@string/change_this_week_condensed"
+                    android:text="@string/change_this_week"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                     app:layout_constraintBottom_toBottomOf="@id/changeInInfectionRateThisWeek"
                     app:layout_constraintStart_toEndOf="@id/changeInInfectionRateThisWeek" />

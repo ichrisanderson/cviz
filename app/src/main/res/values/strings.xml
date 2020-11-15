@@ -21,7 +21,6 @@
     <string name="latest_cases_chart_label">Latest cases</string>
 
     <string name="change_this_week">On last week</string>
-    <string name="change_this_week_condensed">on last week</string>
 
     <string name="deaths_title">Deaths</string>
     <string name="total_deaths">Total deaths</string>
