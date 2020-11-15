@@ -96,6 +96,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor)
         binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 

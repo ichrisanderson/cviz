@@ -109,6 +109,7 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor)
         binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 

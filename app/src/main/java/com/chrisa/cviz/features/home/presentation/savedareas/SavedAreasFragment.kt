@@ -104,6 +104,7 @@ class SavedAreasFragment : Fragment(R.layout.saved_areas_fragment) {
     }
 
     private fun initSwipeRefreshLayout() {
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor)
         binding.swipeRefreshLayout.setOnRefreshListener { viewModel.refresh() }
     }
 
