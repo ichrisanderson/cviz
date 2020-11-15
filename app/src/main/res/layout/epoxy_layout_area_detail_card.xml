@@ -152,6 +152,7 @@
                 android:layout_width="1dp"
                 android:layout_height="0dp"
                 android:background="?android:listDivider"
+                android:layout_marginTop="8dp"
                 app:layout_constraintBottom_toBottomOf="@id/casesLayout"
                 app:layout_constraintEnd_toEndOf="@id/infectionRateLayout"
                 app:layout_constraintStart_toEndOf="@id/casesLayout"
