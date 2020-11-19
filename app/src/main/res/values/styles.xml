@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="Theme.Cviz" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.Cviz" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primaryColor</item>
         <item name="colorPrimaryDark">@color/primaryDarkColor</item>
         <item name="colorAccent">@color/secondaryColor</item>
@@ -10,7 +10,7 @@
         <item name="android:textColorSecondary">@color/secondaryTextColor</item>
         <item name="toolbarStyle">@style/Widget.Cviz.Toolbar</item>
         <item name="colorOnPrimaryOpaque">@color/colorOnPrimaryOpaque</item>
-        <item name="android:navigationBarColor">@color/primaryDarkColor</item>
+        <item name="android:navigationBarColor">@color/navigationColor</item>
         <item name="preferenceCategoryStyle">@style/PreferenceCategory</item>
     </style>
 
@@ -40,6 +40,8 @@
         <item name="android:minWidth">48dp</item>
         <item name="android:minHeight">48dp</item>
     </style>
+
+    <style name="Widget.Cviz.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView.Colored" />
 
     <style name="PreferenceCategory">
         <item name="android:layout">@layout/setting_preference_category</item>
