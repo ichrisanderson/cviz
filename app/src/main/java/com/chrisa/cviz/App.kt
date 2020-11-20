@@ -18,6 +18,7 @@ package com.chrisa.cviz
 
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
+import androidx.preference.PreferenceManager
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -31,6 +32,7 @@ class App : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        PreferenceManager.setDefaultValues(this, R.xml.settings, false)
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }

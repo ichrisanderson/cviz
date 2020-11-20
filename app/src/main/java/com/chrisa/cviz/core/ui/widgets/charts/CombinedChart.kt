@@ -98,9 +98,9 @@ class CombinedChart(
         barDataSet.isHighlightEnabled = false
         barDataSet.color = ContextCompat.getColor(context, R.color.combinedChartBarColor)
 
-        binding.chart.legend.textColor = ContextCompat.getColor(context, R.color.primaryTextColor)
-        binding.chart.xAxis.textColor = ContextCompat.getColor(context, R.color.primaryTextColor)
-        binding.chart.axisLeft.textColor = ContextCompat.getColor(context, R.color.primaryTextColor)
+        binding.chart.legend.textColor = defaultTextColor()
+        binding.chart.xAxis.textColor = defaultTextColor()
+        binding.chart.axisLeft.textColor = defaultTextColor()
         binding.chart.xAxis.valueFormatter = StringValueAxisFormatter(data.values.map { it.label })
 
         return BarData(barDataSet)
@@ -119,4 +119,6 @@ class CombinedChart(
 
         return LineData(dataSet)
     }
+
+    private fun defaultTextColor() = ContextCompat.getColor(context, R.color.primaryTextColor)
 }
