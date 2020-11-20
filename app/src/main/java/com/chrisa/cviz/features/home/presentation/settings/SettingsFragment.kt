@@ -18,12 +18,11 @@ package com.chrisa.cviz.features.home.presentation.settings
 
 import android.content.SharedPreferences
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceFragmentCompat
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.data.preference.DarkModeValues
 import com.chrisa.cviz.core.data.preference.PreferenceValues
 import com.chrisa.cviz.core.data.synchronisation.SynchroniseDataWorkManager
+import com.chrisa.cviz.core.ui.ThemeHelper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -33,6 +32,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     @Inject
     lateinit var synchroniseDataWorkManager: SynchroniseDataWorkManager
+
+    @Inject
+    lateinit var themeHelper: ThemeHelper
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, rootKey)
@@ -58,21 +60,7 @@ class SettingsFragment : PreferenceFragmentCompat(),
                 synchroniseDataWorkManager.toggleRefresh()
             }
             PreferenceValues.darkMode.key -> {
-                toggleDarkMode()
-            }
-        }
-    }
-
-    private fun toggleDarkMode() {
-        when (preferenceManager.sharedPreferences.getString(PreferenceValues.darkMode.key, "")) {
-            DarkModeValues.Automatic.value -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            }
-            DarkModeValues.Off.value -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            }
-            DarkModeValues.On.value -> {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                themeHelper.setThemeFromPreferences()
             }
         }
     }
