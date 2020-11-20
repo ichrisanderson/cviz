@@ -1,0 +1,10 @@
+<resources>
+
+    <style name="Theme.Cviz" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorOnPrimaryOpaque">@color/colorOnPrimaryOpaque</item>
+        <item name="preferenceCategoryStyle">@style/PreferenceCategory</item>
+    </style>
+
+    <style name="Widget.Cviz.BottomNavigationView" parent="Widget.MaterialComponents.BottomNavigationView" />
+</resources>

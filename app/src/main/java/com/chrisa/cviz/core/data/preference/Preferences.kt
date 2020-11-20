@@ -17,3 +17,4 @@
 package com.chrisa.cviz.core.data.preference
 
 data class BooleanPreference(val key: String, val defaultValue: Boolean)
+data class StringListPreference(val key: String, val defaultValue: String)

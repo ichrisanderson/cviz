@@ -21,6 +21,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import com.chrisa.cviz.R
 import com.chrisa.cviz.databinding.CoreWidgetCombinedChartBinding
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
@@ -95,7 +96,11 @@ class CombinedChart(
         )
         barDataSet.setDrawValues(false)
         barDataSet.isHighlightEnabled = false
+        barDataSet.color = ContextCompat.getColor(context, R.color.combinedChartBarColor)
 
+        binding.chart.legend.textColor = defaultTextColor()
+        binding.chart.xAxis.textColor = defaultTextColor()
+        binding.chart.axisLeft.textColor = defaultTextColor()
         binding.chart.xAxis.valueFormatter = StringValueAxisFormatter(data.values.map { it.label })
 
         return BarData(barDataSet)
@@ -108,11 +113,12 @@ class CombinedChart(
         )
         dataSet.setDrawValues(false)
         dataSet.isHighlightEnabled = false
-
-        dataSet.color = ContextCompat.getColor(context, android.R.color.black)
+        dataSet.color = ContextCompat.getColor(context, R.color.combinedChartLineColor)
         dataSet.setDrawCircleHole(false)
         dataSet.setDrawCircles(false)
 
         return LineData(dataSet)
     }
+
+    private fun defaultTextColor() = ContextCompat.getColor(context, R.color.primaryTextColor)
 }

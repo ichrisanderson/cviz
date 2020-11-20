@@ -21,4 +21,12 @@ object PreferenceValues {
         BooleanPreference("refresh_data_in_background", true)
     val showNotificationAfterDataRefresh =
         BooleanPreference("show_notification_after_data_refresh", true)
+    val darkMode =
+        StringListPreference("dark_mode", DarkModeValues.Off.value)
+}
+
+sealed class DarkModeValues(val value: String) {
+    object Off : DarkModeValues("off")
+    object On : DarkModeValues("on")
+    object Automatic : DarkModeValues("automatic")
 }

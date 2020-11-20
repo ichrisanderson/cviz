@@ -19,6 +19,7 @@ package com.chrisa.cviz.core.data.preference
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import com.chrisa.cviz.R
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,6 +31,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 internal object PreferenceModule {
     @Provides
     fun defaultSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        PreferenceManager.setDefaultValues(context, R.xml.settings, false)
         return PreferenceManager.getDefaultSharedPreferences(context)
     }
 }

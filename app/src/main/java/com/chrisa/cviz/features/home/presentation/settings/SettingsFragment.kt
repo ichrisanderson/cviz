@@ -22,6 +22,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.chrisa.cviz.R
 import com.chrisa.cviz.core.data.preference.PreferenceValues
 import com.chrisa.cviz.core.data.synchronisation.SynchroniseDataWorkManager
+import com.chrisa.cviz.core.ui.ThemeHelper
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -31,6 +32,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
 
     @Inject
     lateinit var synchroniseDataWorkManager: SynchroniseDataWorkManager
+
+    @Inject
+    lateinit var themeHelper: ThemeHelper
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings, rootKey)
@@ -54,6 +58,9 @@ class SettingsFragment : PreferenceFragmentCompat(),
         when (key) {
             PreferenceValues.refreshDataInBackground.key -> {
                 synchroniseDataWorkManager.toggleRefresh()
+            }
+            PreferenceValues.darkMode.key -> {
+                themeHelper.setThemeFromPreferences()
             }
         }
     }
