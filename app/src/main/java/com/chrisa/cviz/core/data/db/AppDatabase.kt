@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.Flow
         SavedAreaEntity::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
 @TypeConverters(
     AreTypeConverter::class,
@@ -60,7 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun savedAreaDao(): SavedAreaDao
 
     companion object {
-        private const val databaseName = "cron19-uk-db"
+        private const val databaseName = "cviz-db"
         fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
                 .fallbackToDestructiveMigration()
@@ -187,13 +187,7 @@ data class AreaDataEntity(
     @ColumnInfo(name = "cumulativeDeathsByDeathDate")
     val cumulativeDeathsByDeathDate: Int?,
     @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
-    val cumulativeDeathsByDeathDateRate: Double?,
-    @ColumnInfo(name = "newAdmissions")
-    val newAdmissions: Int?,
-    @ColumnInfo(name = "cumulativeAdmissions")
-    val cumulativeAdmissions: Int?,
-    @ColumnInfo(name = "occupiedBeds")
-    val occupiedBeds: Int?
+    val cumulativeDeathsByDeathDateRate: Double?
 )
 
 data class AreaDataMetadataTuple(

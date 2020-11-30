@@ -126,7 +126,7 @@ class AreaDetailUseCaseTest {
                         lastSyncedAt = syncDateTime,
                         cases = emptyList(),
                         deaths = emptyList(),
-                        hospitalAdmissions = areaWithHospitalAdmissions.hospitalAdmissions
+                        hospitalAdmissions = emptyList()
                     )
                 )
             }
@@ -145,8 +145,7 @@ class AreaDetailUseCaseTest {
             areaCode = Constants.UK_AREA_CODE,
             areaType = AreaType.OVERVIEW.value,
             cases = emptyList(),
-            deaths = emptyList(),
-            hospitalAdmissions = emptyList()
+            deaths = emptyList()
         )
 
         private val areaWithCases = area.copy(
@@ -157,8 +156,6 @@ class AreaDetailUseCaseTest {
             deaths = SynchronisationTestData.dailyData()
         )
 
-        private val areaWithHospitalAdmissions = area.copy(
-            hospitalAdmissions = SynchronisationTestData.dailyData()
-        )
+        private val areaWithHospitalAdmissions = area
     }
 }

@@ -202,10 +202,7 @@ class AreaDataSynchroniserTest {
                             cumulativeDeathsByPublishedDateRate = areaModel.cumulativeDeathsByPublishedDateRate!!,
                             newDeathsByDeathDate = areaModel.newDeathsByDeathDate!!,
                             cumulativeDeathsByDeathDate = areaModel.cumulativeDeathsByDeathDate!!,
-                            cumulativeDeathsByDeathDateRate = areaModel.cumulativeDeathsByDeathDateRate!!,
-                            newAdmissions = areaModel.newAdmissions!!,
-                            cumulativeAdmissions = areaModel.cumulativeAdmissions!!,
-                            occupiedBeds = areaModel.occupiedBeds!!
+                            cumulativeDeathsByDeathDateRate = areaModel.cumulativeDeathsByDeathDateRate!!
                         )
                     )
                 )

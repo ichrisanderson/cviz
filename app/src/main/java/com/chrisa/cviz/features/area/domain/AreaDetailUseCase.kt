@@ -45,7 +45,7 @@ class AreaDetailUseCase @Inject constructor(
                     lastSyncedAt = metadata.lastSyncTime,
                     cases = caseDailyData,
                     deaths = deathDailyData,
-                    hospitalAdmissions = areaData.hospitalAdmissions
+                    hospitalAdmissions = emptyList()
                 )
             }
         }

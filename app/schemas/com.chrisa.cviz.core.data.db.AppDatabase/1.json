@@ -1,0 +1,325 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "ec3eaff2ccb55709d454abf96971ce0c",
+    "entities": [
+      {
+        "tableName": "area",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, PRIMARY KEY(`areaCode`))",
+        "fields": [
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaName",
+            "columnName": "areaName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaType",
+            "columnName": "areaType",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "areaData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`metadataId` TEXT NOT NULL, `areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, PRIMARY KEY(`areaCode`, `date`))",
+        "fields": [
+          {
+            "fieldPath": "metadataId",
+            "columnName": "metadataId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaName",
+            "columnName": "areaName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaType",
+            "columnName": "areaType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCases",
+            "columnName": "newCases",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "infectionRate",
+            "columnName": "infectionRate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCases",
+            "columnName": "cumulativeCases",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newDeathsByPublishedDate",
+            "columnName": "newDeathsByPublishedDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cumulativeDeathsByPublishedDate",
+            "columnName": "cumulativeDeathsByPublishedDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cumulativeDeathsByPublishedDateRate",
+            "columnName": "cumulativeDeathsByPublishedDateRate",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "newDeathsByDeathDate",
+            "columnName": "newDeathsByDeathDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cumulativeDeathsByDeathDate",
+            "columnName": "cumulativeDeathsByDeathDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cumulativeDeathsByDeathDateRate",
+            "columnName": "cumulativeDeathsByDeathDateRate",
+            "affinity": "REAL",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode",
+            "date"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "areaSummary",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `baseInfectionRate` REAL NOT NULL, `cumulativeCasesWeek1` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek1` REAL NOT NULL, `newCasesWeek1` INTEGER NOT NULL, `newCaseInfectionRateWeek1` REAL NOT NULL, `cumulativeCasesWeek2` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek2` REAL NOT NULL, `newCasesWeek2` INTEGER NOT NULL, `newCaseInfectionRateWeek2` REAL NOT NULL, `cumulativeCasesWeek3` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek3` REAL NOT NULL, `newCasesWeek3` INTEGER NOT NULL, `newCaseInfectionRateWeek¬3` REAL NOT NULL, `cumulativeCasesWeek4` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek4` REAL NOT NULL, PRIMARY KEY(`areaCode`))",
+        "fields": [
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaName",
+            "columnName": "areaName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaType",
+            "columnName": "areaType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baseInfectionRate",
+            "columnName": "baseInfectionRate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCasesWeek1",
+            "columnName": "cumulativeCasesWeek1",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCaseInfectionRateWeek1",
+            "columnName": "cumulativeCaseInfectionRateWeek1",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCasesWeek1",
+            "columnName": "newCasesWeek1",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCaseInfectionRateWeek1",
+            "columnName": "newCaseInfectionRateWeek1",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCasesWeek2",
+            "columnName": "cumulativeCasesWeek2",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCaseInfectionRateWeek2",
+            "columnName": "cumulativeCaseInfectionRateWeek2",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCasesWeek2",
+            "columnName": "newCasesWeek2",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCaseInfectionRateWeek2",
+            "columnName": "newCaseInfectionRateWeek2",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCasesWeek3",
+            "columnName": "cumulativeCasesWeek3",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCaseInfectionRateWeek3",
+            "columnName": "cumulativeCaseInfectionRateWeek3",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCasesWeek3",
+            "columnName": "newCasesWeek3",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newCaseInfectionRateWeek3",
+            "columnName": "newCaseInfectionRateWeek¬3",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCasesWeek4",
+            "columnName": "cumulativeCasesWeek4",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cumulativeCaseInfectionRateWeek4",
+            "columnName": "cumulativeCaseInfectionRateWeek4",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "metadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `lastUpdatedAt` INTEGER NOT NULL, `lastSyncTime` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdatedAt",
+            "columnName": "lastUpdatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSyncTime",
+            "columnName": "lastSyncTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "savedArea",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, PRIMARY KEY(`areaCode`))",
+        "fields": [
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ec3eaff2ccb55709d454abf96971ce0c')"
+    ]
+  }
+}
