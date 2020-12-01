@@ -23,6 +23,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
 import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.cviz.core.data.network.CovidApi
@@ -44,14 +45,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
 
 @ExperimentalCoroutinesApi
-class AreaDataSynchroniserTest {
+class AreaDataSynchroniserImplTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
@@ -81,7 +82,13 @@ class AreaDataSynchroniserTest {
 
         appDatabase.mockTransaction()
 
-        sut = AreaDataSynchroniserImpl(covidApi, appDatabase, areaDataModelStructureMapper, networkUtils, timeProvider)
+        sut = AreaDataSynchroniserImpl(
+            covidApi,
+            appDatabase,
+            areaDataModelStructureMapper,
+            networkUtils,
+            timeProvider
+        )
     }
 
     @Test(expected = IOException::class)
@@ -96,12 +103,49 @@ class AreaDataSynchroniserTest {
         }
 
     @Test(expected = HttpException::class)
+    fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
+        testDispatcher.runBlockingTest {
+            val emptyBody = "".toResponseBody("application/json".toMediaType())
+
+            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns null
+            coEvery { covidApi.pagedAreaDataResponse(any(), any(), any()) } returns
+                Response.error(500, emptyBody)
+
+            sut.performSync(areaCode, areaType)
+
+            coVerify(exactly = 1) {
+                covidApi.pagedAreaDataResponse(
+                    null,
+                    AREA_DATA_FILTER(areaCode, areaType.value),
+                    areaDataModel
+                )
+            }
+        }
+
+    @Test
+    fun `GIVEN recent area metadata WHEN performSync THEN api is not called`() =
+        testDispatcher.runBlockingTest {
+            val metadataEntity = MetadataEntity(
+                id = MetaDataIds.areaCodeId(areaCode),
+                lastUpdatedAt = syncTime.minusDays(1),
+                lastSyncTime = syncTime.minusSeconds(1)
+            )
+            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+
+            sut.performSync(areaCode, areaType)
+
+            coVerify(exactly = 0) {
+                covidApi.pagedAreaDataResponse(any(), any(), any())
+            }
+        }
+
+    @Test(expected = HttpException::class)
     fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime
+                lastSyncTime = syncTime.minusSeconds(301)
             )
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
@@ -113,7 +157,7 @@ class AreaDataSynchroniserTest {
                 )
             } returns Response.error(
                 404,
-                ResponseBody.create("application/json".toMediaType(), "")
+                "".toResponseBody("application/json".toMediaType())
             )
 
             sut.performSync(areaCode, areaType)
@@ -125,7 +169,7 @@ class AreaDataSynchroniserTest {
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime
+                lastSyncTime = syncTime.minusMinutes(6)
             )
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
@@ -146,7 +190,7 @@ class AreaDataSynchroniserTest {
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime
+                lastSyncTime = syncTime.minusMinutes(6)
             )
             val areaModel = AreaDataModel(
                 areaCode = "001",

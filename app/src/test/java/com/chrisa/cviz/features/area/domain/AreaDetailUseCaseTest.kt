@@ -18,6 +18,7 @@ package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
+import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.core.data.synchronisation.RollingAverageHelper
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.features.area.data.AreaDataSource
@@ -40,20 +41,21 @@ import org.junit.Test
 @InternalCoroutinesApi
 class AreaDetailUseCaseTest {
 
+    private val areaDataSynchroniser = mockk<AreaDataSynchroniser>()
     private val areaDataSource = mockk<AreaDataSource>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
-    private val sut = AreaDetailUseCase(areaDataSource)
+    private val sut = AreaDetailUseCase(areaDataSynchroniser, areaDataSource)
 
     @Test
-    fun `GIVEN metadata is null WHEN execute called THEN area detail emits with null data`() =
+    fun `GIVEN metadata is null WHEN execute called THEN area detail emits no data result`() =
         runBlocking {
             every { rollingAverageHelper.average(any(), any()) } returns 1.0
             every { areaDataSource.loadAreaMetadata(area.areaCode) } returns listOf(null).asFlow()
 
-            val areaDetailModelFlow = sut.execute(area.areaCode)
+            val areaDetailModelFlow = sut.execute(area.areaCode, area.areaType)
 
-            areaDetailModelFlow.collect { emittedAreaDetailModel ->
-                assertThat(emittedAreaDetailModel).isEqualTo(AreaDetailModel.EMPTY)
+            areaDetailModelFlow.collect { resultResult ->
+                assertThat(resultResult).isEqualTo(AreaDetailModelResult.NoData)
             }
         }
 
@@ -66,17 +68,19 @@ class AreaDetailUseCaseTest {
             ).asFlow()
             coEvery { areaDataSource.loadAreaData(areaWithCases.areaCode) } returns areaWithCases
 
-            val areaDetailModelFlow = sut.execute(areaWithCases.areaCode)
+            val areaDetailModelFlow = sut.execute(areaWithCases.areaCode, areaWithCases.areaType)
 
-            areaDetailModelFlow.collect { emittedAreaDetailModel ->
-                assertThat(emittedAreaDetailModel).isEqualTo(
-                    AreaDetailModel(
-                        areaType = AreaType.OVERVIEW.value,
-                        lastUpdatedAt = lastUpdatedDateTime,
-                        lastSyncedAt = syncDateTime,
-                        cases = areaWithCases.cases,
-                        deaths = emptyList(),
-                        hospitalAdmissions = emptyList()
+            areaDetailModelFlow.collect { result ->
+                assertThat(result).isEqualTo(
+                    AreaDetailModelResult.Success(
+                        AreaDetailModel(
+                            areaType = AreaType.OVERVIEW.value,
+                            lastUpdatedAt = lastUpdatedDateTime,
+                            lastSyncedAt = syncDateTime,
+                            cases = areaWithCases.cases,
+                            deaths = emptyList(),
+                            hospitalAdmissions = emptyList()
+                        )
                     )
                 )
             }
@@ -91,17 +95,19 @@ class AreaDetailUseCaseTest {
             ).asFlow()
             coEvery { areaDataSource.loadAreaData(areaWithDeaths.areaCode) } returns areaWithDeaths
 
-            val areaDetailModelFlow = sut.execute(areaWithDeaths.areaCode)
+            val areaDetailModelFlow = sut.execute(areaWithDeaths.areaCode, areaWithDeaths.areaType)
 
-            areaDetailModelFlow.collect { emittedAreaDetailModel ->
-                assertThat(emittedAreaDetailModel).isEqualTo(
-                    AreaDetailModel(
-                        areaType = AreaType.OVERVIEW.value,
-                        lastUpdatedAt = lastUpdatedDateTime,
-                        lastSyncedAt = syncDateTime,
-                        cases = emptyList(),
-                        deaths = areaWithDeaths.deaths,
-                        hospitalAdmissions = emptyList()
+            areaDetailModelFlow.collect { result ->
+                assertThat(result).isEqualTo(
+                    AreaDetailModelResult.Success(
+                        AreaDetailModel(
+                            areaType = AreaType.OVERVIEW.value,
+                            lastUpdatedAt = lastUpdatedDateTime,
+                            lastSyncedAt = syncDateTime,
+                            cases = emptyList(),
+                            deaths = areaWithDeaths.deaths,
+                            hospitalAdmissions = emptyList()
+                        )
                     )
                 )
             }
@@ -116,17 +122,22 @@ class AreaDetailUseCaseTest {
             ).asFlow()
             coEvery { areaDataSource.loadAreaData(areaWithHospitalAdmissions.areaCode) } returns areaWithHospitalAdmissions
 
-            val areaDetailModelFlow = sut.execute(areaWithHospitalAdmissions.areaCode)
+            val areaDetailModelFlow = sut.execute(
+                areaWithHospitalAdmissions.areaCode,
+                areaWithHospitalAdmissions.areaType
+            )
 
-            areaDetailModelFlow.collect { emittedAreaDetailModel ->
-                assertThat(emittedAreaDetailModel).isEqualTo(
-                    AreaDetailModel(
-                        areaType = AreaType.OVERVIEW.value,
-                        lastUpdatedAt = lastUpdatedDateTime,
-                        lastSyncedAt = syncDateTime,
-                        cases = emptyList(),
-                        deaths = emptyList(),
-                        hospitalAdmissions = emptyList()
+            areaDetailModelFlow.collect { result ->
+                assertThat(result).isEqualTo(
+                    AreaDetailModelResult.Success(
+                        AreaDetailModel(
+                            areaType = AreaType.OVERVIEW.value,
+                            lastUpdatedAt = lastUpdatedDateTime,
+                            lastSyncedAt = syncDateTime,
+                            cases = emptyList(),
+                            deaths = emptyList(),
+                            hospitalAdmissions = emptyList()
+                        )
                     )
                 )
             }

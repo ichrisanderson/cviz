@@ -58,6 +58,10 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
+        val now = timeProvider.currentTime()
+        if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
+            return
+        }
 
         val casesFromNetwork = api.pagedAreaDataResponse(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),

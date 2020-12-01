@@ -103,7 +103,7 @@ class AreaSummaryDataSynchroniserTest {
         }
 
     @Test
-    fun `GIVEN data for day exists WHEN performSync THEN api is not called`() =
+    fun `GIVEN data can be loaded from the api WHEN performSync THEN data is cached`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaSummaryId(),

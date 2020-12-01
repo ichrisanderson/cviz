@@ -21,14 +21,13 @@ import androidx.lifecycle.SavedStateHandle
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
-import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.cviz.core.util.test
+import com.chrisa.cviz.features.area.domain.AreaDetailModelResult
 import com.chrisa.cviz.features.area.domain.AreaDetailUseCase
 import com.chrisa.cviz.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.cviz.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.cviz.features.area.domain.IsSavedUseCase
-import com.chrisa.cviz.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.mappers.AreaDataModelMapper
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
@@ -36,6 +35,7 @@ import com.chrisa.cviz.features.area.presentation.models.AreaMetadata
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -49,10 +49,8 @@ import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
 class AreaViewModelTest {
@@ -62,18 +60,11 @@ class AreaViewModelTest {
     val liveDataJunitRule = InstantTaskExecutorRule()
 
     private val areaDetailUseCase = mockk<AreaDetailUseCase>(relaxed = true)
-    private val syncAreaDetailUseCase = mockk<SyncAreaDetailUseCase>(relaxed = true)
     private val isSavedUseCase = mockk<IsSavedUseCase>(relaxed = true)
     private val insertSavedAreaUseCase = mockk<InsertSavedAreaUseCase>(relaxed = true)
     private val deleteSavedAreaUseCase = mockk<DeleteSavedAreaUseCase>(relaxed = true)
     private val areaUiModelMapper = mockk<AreaDataModelMapper>()
-    private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
-
-    @Before
-    fun setup() {
-        every { timeProvider.currentTime() } returns syncTime
-    }
 
     @Test
     fun `GIVEN area detail succeeds WHEN viewmodel initialized THEN success state emitted`() =
@@ -83,7 +74,8 @@ class AreaViewModelTest {
                 val areaDetailModel = areaDetailModel().copy(
                     lastSyncedAt = syncTime
                 )
-                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(areaDetailModel).asFlow()
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
+                    listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
                 every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
 
                 val sut = areaViewModel()
@@ -100,44 +92,14 @@ class AreaViewModelTest {
         }
 
     @Test
-    fun `GIVEN area detail succeeds with stale data and syncAreaDetailUseCase fails WHEN viewmodel initialized THEN error state emitted`() =
+    fun `GIVEN areaDetailUseCase returns No Data WHEN viewmodel initialized THEN error state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
-                val areaDetailModel = areaDetailModel().copy(
-                    lastSyncedAt = syncTime.minusDays(1)
-                )
-                val areaCasesModel = areaData()
-                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
-                    areaDetailModel
-                ).asFlow()
-                coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
-                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
+                    listOf(AreaDetailModelResult.NoData).asFlow()
+
                 val sut = areaViewModel()
 
-                val statesObserver = sut.areaDataModel.test()
-                val isLoadingObserver = sut.isLoading.test()
-                val syncAreaError = sut.syncAreaError.test()
-
-                runCurrent()
-
-                assertThat(statesObserver.values[0]).isEqualTo(areaCasesModel)
-                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
-                assertThat(isLoadingObserver.values[1]).isEqualTo(false)
-                assertThat(syncAreaError.values[0]).isEqualTo(Event(false))
-            }
-        }
-
-    @Test
-    fun `GIVEN area detail succeeds with no sync data AND syncAreaDetailUseCase fails WHEN viewmodel initialized THEN error state emitted`() =
-        testDispatcher.runBlockingTest {
-            pauseDispatcher {
-                val areaDetailModel = areaDetailModel().copy()
-
-                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
-                    areaDetailModel
-                ).asFlow()
-                coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws IOException()
-                val sut = areaViewModel()
                 val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
                 val syncAreaError = sut.syncAreaError.test()
@@ -152,37 +114,10 @@ class AreaViewModelTest {
         }
 
     @Test
-    fun `GIVEN area detail succeeds with no sync data AND syncAreaDetailUseCase fails with 304 WHEN viewmodel initialized THEN error state emitted`() =
-        testDispatcher.runBlockingTest {
-            pauseDispatcher {
-                val areaDetailModel = areaDetailModel()
-                val areaCasesModel = areaData()
-                val exception = mockk<HttpException>()
-                every { exception.code() } returns 304
-                coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(
-                    areaDetailModel
-                ).asFlow()
-                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
-                coEvery { syncAreaDetailUseCase.execute(areaCode, areaType) } throws exception
-                val sut = areaViewModel()
-                val statesObserver = sut.areaDataModel.test()
-                val isLoadingObserver = sut.isLoading.test()
-                val syncAreaError = sut.syncAreaError.test()
-
-                runCurrent()
-
-                assertThat(statesObserver.values[0]).isEqualTo(areaCasesModel)
-                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
-                assertThat(isLoadingObserver.values[1]).isEqualTo(false)
-                assertThat(syncAreaError.values).isEmpty()
-            }
-        }
-
-    @Test
     fun `GIVEN areaDetailUseCase fails WHEN viewmodel initialized THEN error state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
-                every { areaDetailUseCase.execute(areaCode) } throws IOException()
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
                 val sut = areaViewModel()
                 val statesObserver = sut.areaDataModel.test()
                 val isLoadingObserver = sut.isLoading.test()
@@ -200,13 +135,13 @@ class AreaViewModelTest {
     @Test
     fun `WHEN refresh called THEN saveAreaUseCase is executed`() =
         testDispatcher.runBlockingTest {
-            coEvery { areaDetailUseCase.execute(areaCode) } throws IOException()
+            coEvery { areaDetailUseCase.execute(areaCode, areaType) } throws IOException()
             val sut = areaViewModel()
-            verify(exactly = 1) { areaDetailUseCase.execute(areaCode) }
+            coVerify(exactly = 1) { areaDetailUseCase.execute(areaCode, areaType) }
 
             sut.retry()
 
-            verify(exactly = 2) { areaDetailUseCase.execute(areaCode) }
+            coVerify(exactly = 2) { areaDetailUseCase.execute(areaCode, areaType) }
         }
 
     @Test
@@ -267,7 +202,8 @@ class AreaViewModelTest {
             val areaDetailModel = areaDetailModel().copy(
                 lastSyncedAt = syncTime
             )
-            coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(areaDetailModel).asFlow()
+            coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
+                listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
             val sut = areaViewModel()
 
             val isLoadingObserver = sut.isLoading.test()
@@ -284,7 +220,8 @@ class AreaViewModelTest {
             val areaDetailModel = areaDetailModel().copy(
                 lastSyncedAt = syncTime
             )
-            coEvery { areaDetailUseCase.execute(areaCode) } returns listOf(areaDetailModel).asFlow()
+            coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
+                listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
             val sut = areaViewModel()
 
             val isRefreshingObserver = sut.isRefreshing.test()
@@ -296,14 +233,12 @@ class AreaViewModelTest {
 
     private fun areaViewModel(): AreaViewModel {
         return AreaViewModel(
-            syncAreaDetailUseCase,
             areaDetailUseCase,
             isSavedUseCase,
             insertSavedAreaUseCase,
             deleteSavedAreaUseCase,
             TestCoroutineDispatchersImpl(testDispatcher),
             areaUiModelMapper,
-            timeProvider,
             savedStateHandle
         )
     }

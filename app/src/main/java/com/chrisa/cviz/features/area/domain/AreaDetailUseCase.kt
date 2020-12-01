@@ -16,6 +16,8 @@
 
 package com.chrisa.cviz.features.area.domain
 
+import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import javax.inject.Inject
@@ -25,29 +27,46 @@ import kotlinx.coroutines.flow.map
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
+    private val areaDataSynchroniser: AreaDataSynchroniser,
     private val areaDataSource: AreaDataSource
 ) {
 
-    fun execute(areaCode: String): Flow<AreaDetailModel> {
+    suspend fun execute(areaCode: String, areaType: String): Flow<AreaDetailModelResult> {
+        syncAreaCases(areaCode, areaType)
         val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
-                AreaDetailModel.EMPTY
+                AreaDetailModelResult.NoData
             } else {
-
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val caseDailyData = areaData.cases
                 val deathDailyData = areaData.deaths
 
-                AreaDetailModel(
-                    areaType = areaData.areaType,
-                    lastUpdatedAt = metadata.lastUpdatedAt,
-                    lastSyncedAt = metadata.lastSyncTime,
-                    cases = caseDailyData,
-                    deaths = deathDailyData,
-                    hospitalAdmissions = emptyList()
+                AreaDetailModelResult.Success(
+                    AreaDetailModel(
+                        areaType = areaData.areaType,
+                        lastUpdatedAt = metadata.lastUpdatedAt,
+                        lastSyncedAt = metadata.lastSyncTime,
+                        cases = caseDailyData,
+                        deaths = deathDailyData,
+                        hospitalAdmissions = emptyList()
+                    )
                 )
             }
         }
     }
+
+    private suspend fun syncAreaCases(areaCode: String, areaType: String): Boolean {
+        return try {
+            areaDataSynchroniser.performSync(areaCode, AreaType.from(areaType)!!)
+            true
+        } catch (error: Throwable) {
+            false
+        }
+    }
+}
+
+sealed class AreaDetailModelResult {
+    object NoData : AreaDetailModelResult()
+    data class Success(val data: AreaDetailModel) : AreaDetailModelResult()
 }

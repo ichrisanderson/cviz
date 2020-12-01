@@ -23,13 +23,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
+import com.chrisa.cviz.features.area.domain.AreaDetailModelResult
 import com.chrisa.cviz.features.area.domain.AreaDetailUseCase
 import com.chrisa.cviz.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.cviz.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.cviz.features.area.domain.IsSavedUseCase
-import com.chrisa.cviz.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.mappers.AreaDataModelMapper
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
@@ -37,18 +36,15 @@ import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
 class AreaViewModel @ViewModelInject constructor(
-    private val syncAreaDetailUseCase: SyncAreaDetailUseCase,
     private val areaDetailUseCase: AreaDetailUseCase,
     private val isSavedUseCase: IsSavedUseCase,
     private val insertSavedAreaUseCase: InsertSavedAreaUseCase,
     private val deleteSavedAreaUseCase: DeleteSavedAreaUseCase,
     private val dispatchers: CoroutineDispatchers,
     private val areaDataModelMapper: AreaDataModelMapper,
-    private val timeProvider: TimeProvider,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -115,37 +111,16 @@ class AreaViewModel @ViewModelInject constructor(
         _isRefreshing.postValue(isRefreshing)
         viewModelScope.launch(dispatchers.io) {
             runCatching {
-                areaDetailUseCase.execute(areCode)
+                areaDetailUseCase.execute(areCode, areaType)
             }.onSuccess { areaDetail ->
-                areaDetail.collect { areaDetailModel ->
-                    val now = timeProvider.currentTime()
-                    if (areaDetailModel.lastSyncedAt == null ||
-                        areaDetailModel.lastSyncedAt.plusMinutes(5).isBefore(now)
-                    ) {
-                        syncAreaCases(areaDetailModel)
-                    } else {
-                        postAreaDetailModel(areaDetailModel)
+                areaDetail.collect { result ->
+                    when (result) {
+                        is AreaDetailModelResult.Success -> postAreaDetailModel(result.data)
+                        is AreaDetailModelResult.NoData -> postError()
                     }
                 }
             }.onFailure {
                 postError()
-            }
-        }
-    }
-
-    private suspend fun syncAreaCases(areaDetailModel: AreaDetailModel) {
-        viewModelScope.launch(dispatchers.io) {
-            runCatching {
-                syncAreaDetailUseCase.execute(areaCode, areaType)
-            }.onFailure { error ->
-                if (error is HttpException && error.code() == 304) {
-                    postAreaDetailModel(areaDetailModel)
-                } else if (areaDetailModel.lastSyncedAt == null) {
-                    postError()
-                } else {
-                    postAreaDetailModel(areaDetailModel)
-                    _syncAreaError.postValue(Event(false))
-                }
             }
         }
     }
