@@ -25,13 +25,13 @@ import org.junit.Test
 class BootstrapperTest {
     private val appDatabase: AppDatabase = mockk(relaxed = true)
     private val areaDao: AreaDao = mockk(relaxed = true)
-    private val sut = Bootstrapper(
-        appDatabase
-    )
+    private val areaLookupDao: AreaLookupDao = mockk(relaxed = true)
+    private val sut = Bootstrapper(appDatabase)
 
     @Before
     fun setup() {
         every { appDatabase.areaDao() } returns areaDao
+        every { appDatabase.areaLookupDao() } returns areaLookupDao
     }
 
     @Test
@@ -40,7 +40,7 @@ class BootstrapperTest {
 
         sut.execute()
 
-        verify(exactly = 0) { areaDao.insertAll(BootstrapData.areas()) }
+        verify(exactly = 0) { areaDao.insertAll(BootstrapData.areaData()) }
     }
 
     @Test
@@ -49,6 +49,6 @@ class BootstrapperTest {
 
         sut.execute()
 
-        verify(exactly = 1) { areaDao.insertAll(BootstrapData.areas()) }
+        verify(exactly = 1) { areaDao.insertAll(BootstrapData.areaData()) }
     }
 }

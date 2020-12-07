@@ -61,10 +61,7 @@ class MonthlyDataLoaderTest {
         cumulativeDeathsByPublishedDateRate = 30.0,
         newDeathsByDeathDate = 40,
         cumulativeDeathsByDeathDate = 50,
-        cumulativeDeathsByDeathDateRate = 60.0,
-        newAdmissions = 70,
-        cumulativeAdmissions = 80,
-        occupiedBeds = 90
+        cumulativeDeathsByDeathDateRate = 60.0
     )
     private val week2Data = week1Data.copy(
         date = week1Data.date.minusDays(7),

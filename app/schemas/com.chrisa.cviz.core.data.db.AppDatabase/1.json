@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ec3eaff2ccb55709d454abf96971ce0c",
+    "identityHash": "074c8e439f69e715e95b6c6e106d06b2",
     "entities": [
       {
         "tableName": "area",
@@ -314,12 +314,167 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "healthcare",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, PRIMARY KEY(`areaCode`, `date`))",
+        "fields": [
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaName",
+            "columnName": "areaName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaType",
+            "columnName": "areaType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newAdmissions",
+            "columnName": "newAdmissions",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cumulativeAdmissions",
+            "columnName": "cumulativeAdmissions",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "occupiedBeds",
+            "columnName": "occupiedBeds",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode",
+            "date"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "areaLookup",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lsoaCode` TEXT NOT NULL, `lsoaName` TEXT, `msoaCode` TEXT NOT NULL, `msoaName` TEXT, `ltlaCode` TEXT NOT NULL, `ltlaName` TEXT NOT NULL, `utlaCode` TEXT NOT NULL, `utlaName` TEXT NOT NULL, `nhsRegionCode` TEXT, `nhsRegionName` TEXT, `regionCode` TEXT NOT NULL, `regionName` TEXT, `nationCode` TEXT NOT NULL, `nationName` TEXT NOT NULL, PRIMARY KEY(`lsoaCode`))",
+        "fields": [
+          {
+            "fieldPath": "lsoaCode",
+            "columnName": "lsoaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lsoaName",
+            "columnName": "lsoaName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "msoaCode",
+            "columnName": "msoaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "msoaName",
+            "columnName": "msoaName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ltlaCode",
+            "columnName": "ltlaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ltlaName",
+            "columnName": "ltlaName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "utlaCode",
+            "columnName": "utlaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "utlaName",
+            "columnName": "utlaName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nhsRegionCode",
+            "columnName": "nhsRegionCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nhsRegionName",
+            "columnName": "nhsRegionName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "regionCode",
+            "columnName": "regionCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "regionName",
+            "columnName": "regionName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nationCode",
+            "columnName": "nationCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nationName",
+            "columnName": "nationName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "lsoaCode"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ec3eaff2ccb55709d454abf96971ce0c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '074c8e439f69e715e95b6c6e106d06b2')"
     ]
   }
 }

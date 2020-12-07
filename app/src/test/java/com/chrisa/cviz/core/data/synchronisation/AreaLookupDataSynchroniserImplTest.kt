@@ -51,7 +51,7 @@ import retrofit2.HttpException
 import retrofit2.Response
 
 @ExperimentalCoroutinesApi
-class AreaDataSynchroniserImplTest {
+class AreaLookupDataSynchroniserImplTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
@@ -152,10 +152,7 @@ class AreaDataSynchroniserImplTest {
                     any(),
                     any()
                 )
-            } returns Response.error(
-                404,
-                emptyJsonResponse()
-            )
+            } returns Response.error(404, emptyJsonResponse())
 
             sut.performSync(areaCode, areaType)
         }

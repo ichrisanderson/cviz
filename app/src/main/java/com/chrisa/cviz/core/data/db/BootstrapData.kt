@@ -18,30 +18,30 @@ package com.chrisa.cviz.core.data.db
 
 object BootstrapData {
 
-    fun areas(): List<AreaEntity> {
+    fun areaData(): List<AreaEntity> {
         return listOf(
             AreaEntity(
-                areaCode = "K02000001",
+                areaCode = Constants.UK_AREA_CODE,
                 areaName = "United Kingdom",
                 areaType = AreaType.OVERVIEW
             ),
             AreaEntity(
-                areaCode = "E92000001",
+                areaCode = Constants.ENGLAND_AREA_CODE,
                 areaName = "England",
                 areaType = AreaType.NATION
             ),
             AreaEntity(
-                areaCode = "N92000002",
+                areaCode = Constants.NORTHERN_IRELAND_AREA_CODE,
                 areaName = "Northern Ireland",
                 areaType = AreaType.NATION
             ),
             AreaEntity(
-                areaCode = "S92000003",
+                areaCode = Constants.SCOTLAND_AREA_CODE,
                 areaName = "Scotland",
                 areaType = AreaType.NATION
             ),
             AreaEntity(
-                areaCode = "W92000004",
+                areaCode = Constants.WALES_AREA_CODE,
                 areaName = "Wales",
                 areaType = AreaType.NATION
             ),

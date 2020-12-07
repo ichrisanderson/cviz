@@ -23,6 +23,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.area.domain.AreaDetailModelResult
 import com.chrisa.cviz.features.area.domain.AreaDetailUseCase
@@ -71,8 +72,8 @@ class AreaViewModel @ViewModelInject constructor(
     private val areaCode: String
         get() = savedStateHandle.get<String>("areaCode")!!
 
-    private val areaType: String
-        get() = savedStateHandle.get<String>("areaType")!!
+    private val areaType: AreaType
+        get() = AreaType.from(savedStateHandle.get<String>("areaType")!!)!!
 
     init {
         loadAreaSavedState(areaCode)

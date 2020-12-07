@@ -16,16 +16,10 @@
 
 package com.chrisa.cviz.core.data.network
 
-import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.network.AreaDataModel.Companion.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
-import com.chrisa.cviz.core.data.network.AreaDataModel.Companion.AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
-import javax.inject.Inject
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.ResponseBody.Companion.toResponseBody
 
-class AreaDataModelStructureMapper @Inject constructor() {
-    fun mapAreaTypeToDataModel(areaType: AreaType): String {
-        return when (areaType) {
-            AreaType.OVERVIEW, AreaType.NATION -> AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
-            else -> AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
-        }
-    }
+object Utils {
+
+    fun emptyJsonResponse() = "".toResponseBody("application/json".toMediaType())
 }

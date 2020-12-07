@@ -25,6 +25,7 @@ data class AreaDetailModel(
     val lastSyncedAt: LocalDateTime?,
     val cases: List<DailyData>,
     val deaths: List<DailyData>,
+    val hospitalAdmissionsRegion: String,
     val hospitalAdmissions: List<DailyData>
 ) {
     companion object {
@@ -35,6 +36,7 @@ data class AreaDetailModel(
                 lastSyncedAt = null,
                 cases = emptyList(),
                 deaths = emptyList(),
+                hospitalAdmissionsRegion = "",
                 hospitalAdmissions = emptyList()
             )
     }

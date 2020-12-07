@@ -76,7 +76,8 @@ class AreaViewModelTest {
                 )
                 coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
                     listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
-                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns areaCasesModel
+                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns
+                    areaCasesModel
 
                 val sut = areaViewModel()
 
@@ -246,9 +247,9 @@ class AreaViewModelTest {
     companion object {
         private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
         private const val areaCode = "AC-001"
-        private const val areaType = "utla"
+        private val areaType = AreaType.UTLA
         private val savedStateHandle =
-            SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType))
+            SavedStateHandle(mapOf("areaCode" to areaCode, "areaType" to areaType.value))
         private val lastData = SynchronisationTestData.dailyData().last()
 
         private fun areaDetailModel(): AreaDetailModel {
@@ -258,6 +259,7 @@ class AreaViewModelTest {
                 lastSyncedAt = null,
                 cases = emptyList(),
                 deaths = emptyList(),
+                hospitalAdmissionsRegion = "",
                 hospitalAdmissions = emptyList()
             )
         }
@@ -278,6 +280,7 @@ class AreaViewModelTest {
                 showDeaths = false,
                 deathSummary = WeeklySummary.EMPTY,
                 showHospitalAdmissions = false,
+                hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = WeeklySummary.EMPTY,
                 hospitalAdmissionsChartData = emptyList()
             )

@@ -14,20 +14,8 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz
+package com.chrisa.cviz.features.area.data.dtos
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
+import com.chrisa.cviz.core.data.db.AreaType
 
-@RunWith(AndroidJUnit4::class)
-class ExampleInstrumentedTest {
-    @Test
-    fun useAppContext() {
-        // Context of the app under test.
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.chrisa.helloworld", appContext.packageName)
-    }
-}
+data class AreaDto(val code: String, val name: String, val regionType: AreaType)

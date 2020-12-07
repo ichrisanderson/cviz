@@ -22,8 +22,12 @@ class Bootstrapper @Inject constructor(
     val appDatabase: AppDatabase
 ) {
     fun execute() {
+        insertAreaData()
+    }
+
+    private fun insertAreaData() {
         val items = appDatabase.areaDao().count()
         if (items > 0) return
-        appDatabase.areaDao().insertAll(BootstrapData.areas())
+        appDatabase.areaDao().insertAll(BootstrapData.areaData())
     }
 }

@@ -106,6 +106,7 @@ class AreaDataModelMapperTest {
                 deathsChartData = emptyList(),
                 deathSummary = weeklySummary,
                 showHospitalAdmissions = false,
+                hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = weeklySummary,
                 hospitalAdmissionsChartData = emptyList()
             )
@@ -135,6 +136,7 @@ class AreaDataModelMapperTest {
                 deathsChartData = listOf(combinedChartData),
                 deathSummary = weeklySummary,
                 showHospitalAdmissions = false,
+                hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = weeklySummary,
                 hospitalAdmissionsChartData = emptyList()
             )
@@ -154,6 +156,7 @@ class AreaDataModelMapperTest {
                 deathsChartData = emptyList(),
                 deathSummary = weeklySummary,
                 showHospitalAdmissions = false,
+                hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = weeklySummary,
                 hospitalAdmissionsChartData = emptyList()
             )
@@ -182,6 +185,7 @@ class AreaDataModelMapperTest {
                 deathsChartData = emptyList(),
                 deathSummary = weeklySummary,
                 showHospitalAdmissions = true,
+                hospitalAdmissionsRegion = hospitalAdmissionsRegion,
                 hospitalAdmissionsSummary = weeklySummary,
                 hospitalAdmissionsChartData = listOf(combinedChartData)
             )
@@ -201,6 +205,7 @@ class AreaDataModelMapperTest {
         private const val rollingAverageLabel = "Rolling average"
         private const val barChartLabel = "bar chart"
         private const val lineChartLabel = "line chart"
+        private const val hospitalAdmissionsRegion = "London"
 
         private val dailyDataWithRollingAverage = DailyDataWithRollingAverage(
             newValue = 1,
@@ -234,6 +239,7 @@ class AreaDataModelMapperTest {
             lastSyncedAt = syncDateTime,
             cases = SynchronisationTestData.dailyData(),
             deaths = emptyList(),
+            hospitalAdmissionsRegion = "",
             hospitalAdmissions = emptyList()
         )
 
@@ -242,6 +248,7 @@ class AreaDataModelMapperTest {
         )
 
         private val areaDetailWithHospitalAdmissions = areaDetail.copy(
+            hospitalAdmissionsRegion = hospitalAdmissionsRegion,
             hospitalAdmissions = SynchronisationTestData.dailyData()
         )
 

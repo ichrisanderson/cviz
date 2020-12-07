@@ -18,15 +18,16 @@ package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
 import com.chrisa.cviz.core.data.network.AreaDataModel
-import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.cviz.core.data.network.CovidApi
+import com.chrisa.cviz.core.data.network.HealthcareData
 import com.chrisa.cviz.core.data.network.Page
+import com.chrisa.cviz.core.data.network.Utils.emptyJsonResponse
 import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.DateUtils.formatAsGmt
 import com.chrisa.cviz.core.util.DateUtils.toGmtDateTime
@@ -34,22 +35,19 @@ import com.chrisa.cviz.core.util.NetworkUtils
 import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 
-interface AreaDataSynchroniser {
+interface HealthcareDataSynchroniser {
     suspend fun performSync(areaCode: String, areaType: AreaType)
 }
 
-internal class AreaDataSynchroniserImpl @Inject constructor(
+internal class HealthcareDataSynchroniserImpl @Inject constructor(
     private val api: CovidApi,
     private val appDatabase: AppDatabase,
-    private val areaDataModelStructureMapper: AreaDataModelStructureMapper,
     private val networkUtils: NetworkUtils,
     private val timeProvider: TimeProvider
-) : AreaDataSynchroniser {
+) : HealthcareDataSynchroniser {
 
     override suspend fun performSync(
         areaCode: String,
@@ -57,23 +55,22 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
     ) {
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
-        val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
+        val metadata = appDatabase.metadataDao().metadata(MetaDataIds.healthcareId(areaCode))
         val now = timeProvider.currentTime()
-        if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
+        if (metadata != null && metadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
         }
 
-        val casesFromNetwork = api.pagedAreaDataResponse(
-            modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
+        val response = api.pagedHealthcareDataResponse(
+            modifiedDate = metadata?.lastUpdatedAt?.formatAsGmt(),
             filters = AREA_DATA_FILTER(areaCode, areaType.value),
-            structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
-                areaType
-            )
+            structure = HealthcareData.STRUCTURE
         )
-        if (casesFromNetwork.isSuccessful) {
-            val pagedAreaCodeData = casesFromNetwork.body()!!
-            val lastModified = casesFromNetwork.headers()["Last-Modified"]
-            cacheAreaData(
+
+        if (response.isSuccessful) {
+            val pagedAreaCodeData = response.body()!!
+            val lastModified = response.headers()["Last-Modified"]
+            cacheData(
                 areaCode,
                 pagedAreaCodeData,
                 lastModified?.toGmtDateTime() ?: timeProvider.currentTime()
@@ -81,40 +78,31 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         } else {
             throw HttpException(
                 Response.error<Page<AreaDataModel>>(
-                    casesFromNetwork.errorBody() ?: "".toResponseBody(
-                        "application/json".toMediaType()
-                    ),
-                    casesFromNetwork.raw()
+                    response.errorBody() ?: emptyJsonResponse(),
+                    response.raw()
                 )
             )
         }
     }
 
-    private suspend fun cacheAreaData(
+    private suspend fun cacheData(
         areaCode: String,
-        pagedAreaCodeData: Page<AreaDataModel>,
+        pagedAreaCodeData: Page<HealthcareData>,
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
-            val metadataId = MetaDataIds.areaCodeId(areaCode)
-            val dataToInsert = pagedAreaCodeData.data.filter { it.cumulativeCases != null }
-            appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
-            appDatabase.areaDataDao().insertAll(dataToInsert.map {
-                AreaDataEntity(
-                    metadataId = metadataId,
+            val metadataId = MetaDataIds.healthcareId(areaCode)
+            val dataToInsert = pagedAreaCodeData.data.filter { it.occupiedBeds != null }
+            appDatabase.healthcareDao().deleteAllByAreaCode(areaCode)
+            appDatabase.healthcareDao().insertAll(dataToInsert.map {
+                HealthcareEntity(
                     areaCode = it.areaCode,
                     areaName = it.areaName,
                     areaType = AreaType.from(it.areaType)!!,
-                    cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
-                    infectionRate = it.infectionRate ?: 0.0,
-                    newCases = it.newCases ?: 0,
-                    newDeathsByPublishedDate = it.newDeathsByPublishedDate,
-                    cumulativeDeathsByPublishedDate = it.cumulativeDeathsByPublishedDate,
-                    cumulativeDeathsByPublishedDateRate = it.cumulativeDeathsByPublishedDateRate,
-                    newDeathsByDeathDate = it.newDeathsByDeathDate,
-                    cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate,
-                    cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate
+                    newAdmissions = it.newAdmissions,
+                    cumulativeAdmissions = it.cumulativeAdmissions,
+                    occupiedBeds = it.occupiedBeds
                 )
             })
             appDatabase.metadataDao().insert(

@@ -192,7 +192,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                 if (areaDataModel.showHospitalAdmissions) {
                     areaSectionHeader {
                         id("hospitalAdmissionsSummaryTitle")
-                        title(getString(R.string.hospital_admissions_title))
+                        title(getString(R.string.hospital_admissions_title, areaDataModel.hospitalAdmissionsRegion))
                         subtitle1(
                             binding.toolbar.context.getString(
                                 R.string.latest_data_label,

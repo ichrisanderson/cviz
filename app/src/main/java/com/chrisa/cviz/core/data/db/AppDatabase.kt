@@ -41,7 +41,9 @@ import kotlinx.coroutines.flow.Flow
         AreaDataEntity::class,
         AreaSummaryEntity::class,
         MetadataEntity::class,
-        SavedAreaEntity::class
+        SavedAreaEntity::class,
+        HealthcareEntity::class,
+        AreaLookupEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -58,6 +60,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun areaSummaryEntityDao(): AreaSummaryEntityDao
     abstract fun metadataDao(): MetadataDao
     abstract fun savedAreaDao(): SavedAreaDao
+    abstract fun areaLookupDao(): AreaLookupDao
+    abstract fun healthcareDao(): HealthcareDao
 
     companion object {
         private const val databaseName = "cviz-db"
@@ -109,6 +113,7 @@ enum class AreaType(val value: String) {
     OVERVIEW("overview"),
     NATION("nation"),
     REGION("region"),
+    NHS_REGION("nhsRegion"),
     UTLA("utla"),
     LTLA("ltla");
 
@@ -118,6 +123,7 @@ enum class AreaType(val value: String) {
                 OVERVIEW.value -> OVERVIEW
                 NATION.value -> NATION
                 REGION.value -> REGION
+                NHS_REGION.value -> NHS_REGION
                 UTLA.value -> UTLA
                 LTLA.value -> LTLA
                 else -> null
@@ -306,9 +312,9 @@ object Constants {
 }
 
 object MetaDataIds {
-    fun areaListId(): String = "AREA_LIST_METADATA"
     fun areaSummaryId(): String = "AREA_SUMMARY_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
+    fun healthcareId(areaCode: String) = "HEALTHCARE_${areaCode}_METADATA"
 }
 
 @Entity(
@@ -373,4 +379,101 @@ interface AreaSummaryEntityDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaSummaries: List<AreaSummaryEntity>)
+}
+
+@Entity(
+    tableName = "areaLookup",
+    primaryKeys = ["lsoaCode"]
+)
+data class AreaLookupEntity(
+    @ColumnInfo(name = "lsoaCode")
+    val lsoaCode: String,
+    @ColumnInfo(name = "lsoaName")
+    val lsoaName: String?,
+    @ColumnInfo(name = "msoaCode")
+    val msoaCode: String,
+    @ColumnInfo(name = "msoaName")
+    val msoaName: String?,
+    @ColumnInfo(name = "ltlaCode")
+    val ltlaCode: String,
+    @ColumnInfo(name = "ltlaName")
+    val ltlaName: String,
+    @ColumnInfo(name = "utlaCode")
+    val utlaCode: String,
+    @ColumnInfo(name = "utlaName")
+    val utlaName: String,
+    @ColumnInfo(name = "nhsRegionCode")
+    val nhsRegionCode: String?,
+    @ColumnInfo(name = "nhsRegionName")
+    val nhsRegionName: String?,
+    @ColumnInfo(name = "regionCode")
+    val regionCode: String,
+    @ColumnInfo(name = "regionName")
+    val regionName: String?,
+    @ColumnInfo(name = "nationCode")
+    val nationCode: String,
+    @ColumnInfo(name = "nationName")
+    val nationName: String
+)
+
+@Dao
+interface AreaLookupDao {
+
+    @Query("SELECT COUNT(msoaCode) FROM areaLookup")
+    fun countAll(): Int
+
+    @Query("SELECT * FROM areaLookup WHERE ltlaCode = :code LIMIT 1")
+    fun byLtla(code: String): AreaLookupEntity?
+
+    @Query("SELECT * FROM areaLookup WHERE utlaCode = :code LIMIT 1")
+    fun byUtla(code: String): AreaLookupEntity?
+
+    @Query("SELECT * FROM areaLookup WHERE regionCode = :code LIMIT 1")
+    fun byRegion(code: String): AreaLookupEntity?
+
+    @Query("SELECT * FROM areaLookup WHERE nationCode = :code LIMIT 1")
+    fun byNation(code: String): AreaLookupEntity?
+
+    @Query("SELECT * FROM areaLookup WHERE nhsRegionCode = :code LIMIT 1")
+    fun byNhsRegion(code: String): AreaLookupEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(areaLookupEntities: List<AreaLookupEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(areaLookupEntity: AreaLookupEntity)
+}
+
+@Entity(
+    tableName = "healthcare",
+    primaryKeys = ["areaCode", "date"]
+)
+data class HealthcareEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: AreaType,
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "newAdmissions")
+    val newAdmissions: Int?,
+    @ColumnInfo(name = "cumulativeAdmissions")
+    val cumulativeAdmissions: Int?,
+    @ColumnInfo(name = "occupiedBeds")
+    val occupiedBeds: Int?
+)
+
+@Dao
+interface HealthcareDao {
+
+    @Query("DELETE FROM healthcare WHERE :areaCode = areaCode")
+    fun deleteAllByAreaCode(areaCode: String)
+
+    @Query("SELECT * FROM healthcare WHERE areaCode = :code")
+    fun byAreaCode(code: String): List<HealthcareEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(healthcareData: List<HealthcareEntity>)
 }

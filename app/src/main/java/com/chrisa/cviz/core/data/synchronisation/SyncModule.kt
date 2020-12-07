@@ -32,6 +32,12 @@ abstract class SyncModule {
     internal abstract fun bindAreaDataSynchroniser(areaDataSynchroniserImpl: AreaDataSynchroniserImpl): AreaDataSynchroniser
 
     @Binds
+    internal abstract fun bindAreaLookupDataSynchroniser(areaLookupDataSynchroniser: AreaLookupDataSynchroniserImpl): AreaLookupDataSynchroniser
+
+    @Binds
+    internal abstract fun bindHealthcareDataSynchroniser(healthcareDataSynchroniser: HealthcareDataSynchroniserImpl): HealthcareDataSynchroniser
+
+    @Binds
     internal abstract fun bindDataSynchroniser(dataSynchroniserImpl: DataSynchroniserImpl): DataSynchroniser
 
     @Binds

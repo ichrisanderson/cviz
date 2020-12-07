@@ -18,7 +18,6 @@ package com.chrisa.cviz.features.area.presentation.mappers
 
 import android.content.Context
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
@@ -37,12 +36,6 @@ class AreaDataModelMapper @Inject constructor(
     private val chartBuilder: ChartBuilder
 ) {
 
-    private val supportedAreaTypesForDeaths =
-        setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
-
-    private val supportedAreaTypesForHospitalAdmissions =
-        setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
-
     fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
         val areaMetadata = AreaMetadata(
             lastUpdatedDate = areaDetailModel.lastUpdatedAt,
@@ -55,12 +48,8 @@ class AreaDataModelMapper @Inject constructor(
         val hospitalAdmissionsChartData =
             hospitalAdmissionsChartData(areaDetailModel.hospitalAdmissions)
 
-        val canDisplayDeaths =
-            canDisplayDeaths(areaDetailModel.areaType) && deathChartData.isNotEmpty()
-
-        val canDisplayHospitalAdmissions =
-            canDisplayHospitalAdmissions(areaDetailModel.areaType) &&
-                areaDetailModel.hospitalAdmissions.isNotEmpty()
+        val canDisplayDeaths = deathChartData.isNotEmpty()
+        val canDisplayHospitalAdmissions = areaDetailModel.hospitalAdmissions.isNotEmpty()
 
         return AreaDataModel(
             areaMetadata = areaMetadata,
@@ -70,6 +59,7 @@ class AreaDataModelMapper @Inject constructor(
             deathSummary = weeklySummary(areaDetailModel.deaths),
             deathsChartData = deathChartData,
             showHospitalAdmissions = canDisplayHospitalAdmissions,
+            hospitalAdmissionsRegion = areaDetailModel.hospitalAdmissionsRegion,
             hospitalAdmissionsSummary = weeklySummary(areaDetailModel.hospitalAdmissions),
             hospitalAdmissionsChartData = hospitalAdmissionsChartData
         )
@@ -104,10 +94,4 @@ class AreaDataModelMapper @Inject constructor(
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
-
-    private fun canDisplayDeaths(areaType: String?): Boolean =
-        supportedAreaTypesForDeaths.contains(areaType)
-
-    private fun canDisplayHospitalAdmissions(areaType: String?): Boolean =
-        supportedAreaTypesForHospitalAdmissions.contains(areaType)
 }
