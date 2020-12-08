@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "074c8e439f69e715e95b6c6e106d06b2",
+    "identityHash": "862f1252882bb5c5f0008cab1c999600",
     "entities": [
       {
         "tableName": "area",
@@ -317,7 +317,7 @@
       },
       {
         "tableName": "healthcare",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, PRIMARY KEY(`areaCode`, `date`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`))",
         "fields": [
           {
             "fieldPath": "areaCode",
@@ -359,6 +359,30 @@
             "fieldPath": "occupiedBeds",
             "columnName": "occupiedBeds",
             "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "transmissionRateMin",
+            "columnName": "transmissionRateMin",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "transmissionRateMax",
+            "columnName": "transmissionRateMax",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "transmissionRateGrowthRateMin",
+            "columnName": "transmissionRateGrowthRateMin",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "transmissionRateGrowthRateMax",
+            "columnName": "transmissionRateGrowthRateMax",
+            "affinity": "REAL",
             "notNull": false
           }
         ],
@@ -474,7 +498,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '074c8e439f69e715e95b6c6e106d06b2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '862f1252882bb5c5f0008cab1c999600')"
     ]
   }
 }

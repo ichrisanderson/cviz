@@ -462,7 +462,15 @@ data class HealthcareEntity(
     @ColumnInfo(name = "cumulativeAdmissions")
     val cumulativeAdmissions: Int?,
     @ColumnInfo(name = "occupiedBeds")
-    val occupiedBeds: Int?
+    val occupiedBeds: Int?,
+    @ColumnInfo(name = "transmissionRateMin")
+    val transmissionRateMin: Double?,
+    @ColumnInfo(name = "transmissionRateMax")
+    val transmissionRateMax: Double?,
+    @ColumnInfo(name = "transmissionRateGrowthRateMin")
+    val transmissionRateGrowthRateMin: Double?,
+    @ColumnInfo(name = "transmissionRateGrowthRateMax")
+    val transmissionRateGrowthRateMax: Double?
 )
 
 @Dao

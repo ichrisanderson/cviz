@@ -102,7 +102,11 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
                     date = it.date,
                     newAdmissions = it.newAdmissions,
                     cumulativeAdmissions = it.cumulativeAdmissions,
-                    occupiedBeds = it.occupiedBeds
+                    occupiedBeds = it.occupiedBeds,
+                    transmissionRateMin = it.transmissionRateMin,
+                    transmissionRateMax = it.transmissionRateMax,
+                    transmissionRateGrowthRateMin = it.transmissionRateGrowthRateMin,
+                    transmissionRateGrowthRateMax = it.transmissionRateGrowthRateMax
                 )
             })
             appDatabase.metadataDao().insert(

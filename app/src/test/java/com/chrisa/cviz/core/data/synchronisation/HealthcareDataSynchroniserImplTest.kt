@@ -224,7 +224,11 @@ class HealthcareDataSynchroniserImplTest {
                             date = healthcareData.date,
                             newAdmissions = healthcareData.newAdmissions,
                             cumulativeAdmissions = healthcareData.cumulativeAdmissions,
-                            occupiedBeds = healthcareData.occupiedBeds
+                            occupiedBeds = healthcareData.occupiedBeds,
+                            transmissionRateMin = healthcareData.transmissionRateMin,
+                            transmissionRateMax = healthcareData.transmissionRateMax,
+                            transmissionRateGrowthRateMin = healthcareData.transmissionRateGrowthRateMin,
+                            transmissionRateGrowthRateMax = healthcareData.transmissionRateGrowthRateMax
                         )
                     )
                 )
