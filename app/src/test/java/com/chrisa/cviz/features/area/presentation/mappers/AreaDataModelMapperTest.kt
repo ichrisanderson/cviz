@@ -100,11 +100,13 @@ class AreaDataModelMapperTest {
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
                 areaMetadata = areaMetadata,
-                caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
-                showDeaths = false,
-                deathsChartData = emptyList(),
-                deathSummary = weeklySummary,
+                deathsByPublishedDateSummary = weeklySummary,
+                caseChartData = listOf(combinedChartData),
+                canDisplayDeathsByPublishedDate = false,
+                deathsByPublishedDateChartData = emptyList(),
+                canDisplayOnsDeathsByRegistrationDate = false,
+                onsDeathsByRegistrationDateChartData = emptyList(),
                 showHospitalAdmissions = false,
                 hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = weeklySummary,
@@ -130,11 +132,13 @@ class AreaDataModelMapperTest {
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
                 areaMetadata = areaMetadataWithDeaths,
-                caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
-                showDeaths = true,
-                deathsChartData = listOf(combinedChartData),
-                deathSummary = weeklySummary,
+                deathsByPublishedDateSummary = weeklySummary,
+                caseChartData = listOf(combinedChartData),
+                canDisplayDeathsByPublishedDate = true,
+                deathsByPublishedDateChartData = listOf(combinedChartData),
+                canDisplayOnsDeathsByRegistrationDate = false,
+                onsDeathsByRegistrationDateChartData = emptyList(),
                 showHospitalAdmissions = false,
                 hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = weeklySummary,
@@ -150,11 +154,13 @@ class AreaDataModelMapperTest {
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
                 areaMetadata = areaMetadata,
-                caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
-                showDeaths = false,
-                deathsChartData = emptyList(),
-                deathSummary = weeklySummary,
+                deathsByPublishedDateSummary = weeklySummary,
+                caseChartData = listOf(combinedChartData),
+                canDisplayDeathsByPublishedDate = false,
+                deathsByPublishedDateChartData = emptyList(),
+                canDisplayOnsDeathsByRegistrationDate = false,
+                onsDeathsByRegistrationDateChartData = emptyList(),
                 showHospitalAdmissions = false,
                 hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = weeklySummary,
@@ -179,11 +185,13 @@ class AreaDataModelMapperTest {
         assertThat(mappedModel).isEqualTo(
             AreaDataModel(
                 areaMetadata = areaMetadataWithHospitalAdmissions,
-                caseChartData = listOf(combinedChartData),
                 caseSummary = weeklySummary,
-                showDeaths = false,
-                deathsChartData = emptyList(),
-                deathSummary = weeklySummary,
+                deathsByPublishedDateSummary = weeklySummary,
+                caseChartData = listOf(combinedChartData),
+                canDisplayDeathsByPublishedDate = false,
+                deathsByPublishedDateChartData = emptyList(),
+                canDisplayOnsDeathsByRegistrationDate = false,
+                onsDeathsByRegistrationDateChartData = emptyList(),
                 showHospitalAdmissions = true,
                 hospitalAdmissionsRegion = hospitalAdmissionsRegion,
                 hospitalAdmissionsSummary = weeklySummary,
@@ -238,13 +246,15 @@ class AreaDataModelMapperTest {
             lastUpdatedAt = syncDateTime,
             lastSyncedAt = syncDateTime,
             cases = SynchronisationTestData.dailyData(),
-            deaths = emptyList(),
+            deathsByPublishedDateArea = "",
+            deathsByPublishedDate = emptyList(),
+            onsDeathsByRegistrationDate = emptyList(),
             hospitalAdmissionsRegion = "",
             hospitalAdmissions = emptyList()
         )
 
         private val areaDetailWithDeaths = areaDetail.copy(
-            deaths = SynchronisationTestData.dailyData()
+            deathsByPublishedDate = SynchronisationTestData.dailyData()
         )
 
         private val areaDetailWithHospitalAdmissions = areaDetail.copy(

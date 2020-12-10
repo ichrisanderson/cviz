@@ -114,7 +114,10 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
                     cumulativeDeathsByPublishedDateRate = it.cumulativeDeathsByPublishedDateRate,
                     newDeathsByDeathDate = it.newDeathsByDeathDate,
                     cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate,
-                    cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate
+                    cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate,
+                    newOnsDeathsByRegistrationDate = it.newOnsDeathsByRegistrationDate,
+                    cumulativeOnsDeathsByRegistrationDate = it.cumulativeOnsDeathsByRegistrationDate,
+                    cumulativeOnsDeathsByRegistrationDateRate = it.cumulativeOnsDeathsByRegistrationDateRate
                 )
             })
             appDatabase.metadataDao().insert(

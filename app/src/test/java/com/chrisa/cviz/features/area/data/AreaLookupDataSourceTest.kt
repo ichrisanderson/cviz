@@ -19,9 +19,6 @@ package com.chrisa.cviz.features.area.data
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaLookupDao
 import com.chrisa.cviz.core.data.db.AreaLookupEntity
-import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -32,69 +29,37 @@ class AreaLookupDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaLookupDao = mockk<AreaLookupDao>()
-    private val areaCodeMapper = mockk<AreaCodeMapper>()
-    private val sut = AreaLookupDataSource(appDatabase, areaCodeMapper)
+    private val sut = AreaLookupDataSource(appDatabase)
 
     @Before
     fun setup() {
         every { appDatabase.areaLookupDao() } returns areaLookupDao
-        every { areaCodeMapper.defaultAreaDto(any()) } returns defaultArea
     }
 
     @Test
-    fun `GIVEN healthcare area exists WHEN healthCareArea called THEN area data returned`() {
-        val areas = listOf(
-            AreaDto("1", "", AreaType.REGION),
-            AreaDto("2", "", AreaType.UTLA),
-            AreaDto("3", "", AreaType.LTLA)
+    fun `WHEN areaLookupByLtla called THEN ltla data returned`() {
+        val ltlaArea = lookupEntity.copy(
+            ltlaCode = "ltlaCode",
+            ltlaName = "ltlaName"
         )
-        every { areaLookupDao.byRegion("1") } returns lookupEntity
-        every { areaLookupDao.byUtla("2") } returns lookupEntity
-        every { areaLookupDao.byLtla("3") } returns lookupEntity
+        every { areaLookupDao.byLtla("1") } returns ltlaArea
 
-        areas.forEach { area ->
-            val areaDto = sut.healthCareArea(area.code, area.regionType)
+        val areaLookup = sut.areaLookupByLtla("1")
 
-            assertThat(areaDto).isEqualTo(
-                AreaDto(
-                    code = lookupEntity.nhsRegionCode!!,
-                    name = lookupEntity.nhsRegionName!!,
-                    regionType = AreaType.NHS_REGION
-                )
-            )
-        }
+        assertThat(areaLookup).isEqualTo(ltlaArea.toAreaLookupDto())
     }
 
     @Test
-    fun `GIVEN healthcare area does not exist WHEN healthCareArea called THEN default data returned`() {
-        val areas = listOf(
-            AreaDto("1", "", AreaType.REGION),
-            AreaDto("2", "", AreaType.UTLA),
-            AreaDto("3", "", AreaType.LTLA)
+    fun `WHEN areaLookupByUtla called THEN utla data returned`() {
+        val utlaArea = lookupEntity.copy(
+            utlaCode = "utlaCode",
+            utlaName = "utlaName"
         )
-        every { areaLookupDao.byRegion("1") } returns lookupEntityWithoutNhsRegion
-        every { areaLookupDao.byUtla("2") } returns lookupEntityWithoutNhsRegion
-        every { areaLookupDao.byLtla("3") } returns lookupEntityWithoutNhsRegion
+        every { areaLookupDao.byUtla("1") } returns utlaArea
 
-        areas.forEach { area ->
-            val areaDto = sut.healthCareArea(area.code, area.regionType)
+        val areaLookup = sut.areaLookupByUtla("1")
 
-            assertThat(areaDto).isEqualTo(defaultArea)
-        }
-    }
-
-    @Test
-    fun `GIVEN non-lookup area WHEN healthCareArea called THEN default area data returned`() {
-        val areas = listOf(
-            AreaDto("K1", "", AreaType.OVERVIEW),
-            AreaDto("E2", "", AreaType.NATION)
-        )
-
-        areas.forEach { area ->
-            val areaDto = sut.healthCareArea(area.code, area.regionType)
-
-            assertThat(areaDto).isEqualTo(defaultArea)
-        }
+        assertThat(areaLookup).isEqualTo(utlaArea.toAreaLookupDto())
     }
 
     companion object {
@@ -107,21 +72,12 @@ class AreaLookupDataSourceTest {
             ltlaName = "",
             utlaCode = "",
             utlaName = "",
-            nhsRegionCode = "NHS_1",
-            nhsRegionName = "NHS",
+            nhsRegionCode = null,
+            nhsRegionName = null,
             regionCode = "",
             regionName = null,
             nationCode = "",
             nationName = ""
-        )
-        val lookupEntityWithoutNhsRegion = lookupEntity.copy(
-            nhsRegionCode = null,
-            nhsRegionName = null
-        )
-        val defaultArea = AreaDto(
-            code = Constants.UK_AREA_CODE,
-            name = "United Kingdom",
-            regionType = AreaType.OVERVIEW
         )
     }
 }

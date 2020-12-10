@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "862f1252882bb5c5f0008cab1c999600",
+    "identityHash": "0024e8dfeb6ba96f6c96079452c027c8",
     "entities": [
       {
         "tableName": "area",
@@ -38,7 +38,7 @@
       },
       {
         "tableName": "areaData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`metadataId` TEXT NOT NULL, `areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, PRIMARY KEY(`areaCode`, `date`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`metadataId` TEXT NOT NULL, `areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`))",
         "fields": [
           {
             "fieldPath": "metadataId",
@@ -121,6 +121,24 @@
           {
             "fieldPath": "cumulativeDeathsByDeathDateRate",
             "columnName": "cumulativeDeathsByDeathDateRate",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "newOnsDeathsByRegistrationDate",
+            "columnName": "newOnsDeathsByRegistrationDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cumulativeOnsDeathsByRegistrationDate",
+            "columnName": "cumulativeOnsDeathsByRegistrationDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "cumulativeOnsDeathsByRegistrationDateRate",
+            "columnName": "cumulativeOnsDeathsByRegistrationDateRate",
             "affinity": "REAL",
             "notNull": false
           }
@@ -498,7 +516,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '862f1252882bb5c5f0008cab1c999600')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0024e8dfeb6ba96f6c96079452c027c8')"
     ]
   }
 }

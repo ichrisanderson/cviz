@@ -18,10 +18,7 @@ package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
-import com.chrisa.cviz.core.data.synchronisation.AreaLookupDataSynchroniser
-import com.chrisa.cviz.core.data.synchronisation.HealthcareDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
-import com.chrisa.cviz.features.area.data.AreaLookupDataSource
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,10 +28,9 @@ import kotlinx.coroutines.flow.map
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser,
-    private val areaLookupDataSynchroniser: AreaLookupDataSynchroniser,
-    private val healthcareDataSynchroniser: HealthcareDataSynchroniser,
     private val areaDataSource: AreaDataSource,
-    private val areaLookupDataSource: AreaLookupDataSource
+    private val areaLookupUseCase: AreaLookupUseCase,
+    private val healthcareUseCase: HealthcareUseCase
 ) {
 
     suspend fun execute(areaCode: String, areaType: AreaType): Flow<AreaDetailModelResult> {
@@ -44,20 +40,23 @@ class AreaDetailUseCase @Inject constructor(
             if (metadata == null) {
                 AreaDetailModelResult.NoData
             } else {
-                val nhsRegion = areaLookupDataSource.healthCareArea(areaCode, areaType)
-                val healthCareData = areaDataSource.healthcareData(nhsRegion.code)
+                val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
+
+                val healthcareData = healthcareUseCase.healthcareData(areaCode, areaLookup)
                 val areaData = areaDataSource.loadAreaData(areaCode)
                 val caseDailyData = areaData.cases
-                val deathDailyData = areaData.deaths
+
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
                         areaType = areaData.areaType,
                         lastUpdatedAt = metadata.lastUpdatedAt,
                         lastSyncedAt = metadata.lastSyncTime,
                         cases = caseDailyData,
-                        deaths = deathDailyData,
-                        hospitalAdmissionsRegion = nhsRegion.name,
-                        hospitalAdmissions = healthCareData
+                        deathsByPublishedDateArea = "",
+                        deathsByPublishedDate = areaData.deathsByPublishedDate,
+                        onsDeathsByRegistrationDate = areaData.onsDeathsByRegistrationDate,
+                        hospitalAdmissionsRegion = healthcareData.name,
+                        hospitalAdmissions = healthcareData.data
                     )
                 )
             }
@@ -71,12 +70,13 @@ class AreaDetailUseCase @Inject constructor(
         syncAreaCases(areaCode, areaType)
         when (areaType) {
             AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
-                syncAreaLookup(areaCode, areaType)
-                val nhsRegion = areaLookupDataSource.healthCareArea(areaCode, areaType)
-                syncHospitalData(nhsRegion.code, nhsRegion.regionType)
+                areaLookupUseCase.syncAreaLookup(areaCode, areaType)
+                val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
+                val nhsRegion = healthcareUseCase.healthCareRegion(areaCode, areaLookup)
+                healthcareUseCase.syncHospitalData(nhsRegion.code, nhsRegion.regionType)
             }
             else -> {
-                syncHospitalData(areaCode, areaType)
+                healthcareUseCase.syncHospitalData(areaCode, areaType)
             }
         }
     }
@@ -87,22 +87,6 @@ class AreaDetailUseCase @Inject constructor(
             true
         } catch (error: Throwable) {
             false
-        }
-    }
-
-    private suspend fun syncAreaLookup(areaCode: String, areaType: AreaType) {
-        try {
-            areaLookupDataSynchroniser.performSync(areaCode, areaType)
-        } catch (error: Throwable) {
-            error.printStackTrace()
-        }
-    }
-
-    private suspend fun syncHospitalData(areaCode: String, areaType: AreaType) {
-        try {
-            healthcareDataSynchroniser.performSync(areaCode, areaType)
-        } catch (error: Throwable) {
-            error.printStackTrace()
         }
     }
 }

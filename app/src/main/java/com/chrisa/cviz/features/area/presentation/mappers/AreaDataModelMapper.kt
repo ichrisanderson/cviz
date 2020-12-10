@@ -40,24 +40,26 @@ class AreaDataModelMapper @Inject constructor(
         val areaMetadata = AreaMetadata(
             lastUpdatedDate = areaDetailModel.lastUpdatedAt,
             lastCaseDate = areaDetailModel.cases.lastOrNull()?.date,
-            lastDeathDate = areaDetailModel.deaths.lastOrNull()?.date,
+            lastDeathDate = areaDetailModel.deathsByPublishedDate.lastOrNull()?.date,
             lastHospitalAdmissionDate = areaDetailModel.hospitalAdmissions.lastOrNull()?.date
         )
         val caseChartData = caseChartData(areaDetailModel.cases)
-        val deathChartData = deathChartData(areaDetailModel.deaths)
+        val deathsByPublishedDate = deathsByPublishedDateChartData(areaDetailModel.deathsByPublishedDate)
+        val onsDeathsByRegistrationDate = deathsByPublishedDateChartData(areaDetailModel.onsDeathsByRegistrationDate)
         val hospitalAdmissionsChartData =
             hospitalAdmissionsChartData(areaDetailModel.hospitalAdmissions)
 
-        val canDisplayDeaths = deathChartData.isNotEmpty()
         val canDisplayHospitalAdmissions = areaDetailModel.hospitalAdmissions.isNotEmpty()
 
         return AreaDataModel(
             areaMetadata = areaMetadata,
             caseSummary = weeklySummary(areaDetailModel.cases),
             caseChartData = caseChartData,
-            showDeaths = canDisplayDeaths,
-            deathSummary = weeklySummary(areaDetailModel.deaths),
-            deathsChartData = deathChartData,
+            canDisplayDeathsByPublishedDate = deathsByPublishedDate.isNotEmpty(),
+            deathsByPublishedDateSummary = weeklySummary(areaDetailModel.deathsByPublishedDate),
+            deathsByPublishedDateChartData = deathsByPublishedDate,
+            canDisplayOnsDeathsByRegistrationDate = false,
+            onsDeathsByRegistrationDateChartData = emptyList(),
             showHospitalAdmissions = canDisplayHospitalAdmissions,
             hospitalAdmissionsRegion = areaDetailModel.hospitalAdmissionsRegion,
             hospitalAdmissionsSummary = weeklySummary(areaDetailModel.hospitalAdmissions),
@@ -77,7 +79,7 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
-    private fun deathChartData(dailyData: List<DailyData>): List<CombinedChartData> {
+    private fun deathsByPublishedDateChartData(dailyData: List<DailyData>): List<CombinedChartData> {
         return chartBuilder.allChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),

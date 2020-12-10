@@ -18,11 +18,4 @@ package com.chrisa.cviz.features.area.data.dtos
 
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 
-data class AreaDetailDto(
-    val areaCode: String,
-    val areaName: String,
-    val areaType: String,
-    val cases: List<DailyData>,
-    val deathsByPublishedDate: List<DailyData>,
-    val onsDeathsByRegistrationDate: List<DailyData>
-)
+data class AreaDailyDataDto(val name: String, val data: List<DailyData>)

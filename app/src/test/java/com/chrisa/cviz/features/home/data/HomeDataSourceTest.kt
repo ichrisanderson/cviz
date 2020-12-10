@@ -297,7 +297,10 @@ class HomeDataSourceTest {
             cumulativeDeathsByPublishedDateRate = 30.0,
             newDeathsByDeathDate = 40,
             cumulativeDeathsByDeathDate = 50,
-            cumulativeDeathsByDeathDateRate = 60.0
+            cumulativeDeathsByDeathDateRate = 60.0,
+            newOnsDeathsByRegistrationDate = 10,
+            cumulativeOnsDeathsByRegistrationDate = 53,
+            cumulativeOnsDeathsByRegistrationDateRate = 62.0
         )
     }
 }

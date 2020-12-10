@@ -24,7 +24,9 @@ data class AreaDetailModel(
     val lastUpdatedAt: LocalDateTime?,
     val lastSyncedAt: LocalDateTime?,
     val cases: List<DailyData>,
-    val deaths: List<DailyData>,
+    val deathsByPublishedDateArea: String,
+    val deathsByPublishedDate: List<DailyData>,
+    val onsDeathsByRegistrationDate: List<DailyData>,
     val hospitalAdmissionsRegion: String,
     val hospitalAdmissions: List<DailyData>
 ) {
@@ -35,7 +37,9 @@ data class AreaDetailModel(
                 lastUpdatedAt = null,
                 lastSyncedAt = null,
                 cases = emptyList(),
-                deaths = emptyList(),
+                deathsByPublishedDateArea = "",
+                deathsByPublishedDate = emptyList(),
+                onsDeathsByRegistrationDate = emptyList(),
                 hospitalAdmissionsRegion = "",
                 hospitalAdmissions = emptyList()
             )

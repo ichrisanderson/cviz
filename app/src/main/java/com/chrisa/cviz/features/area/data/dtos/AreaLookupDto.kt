@@ -16,13 +16,19 @@
 
 package com.chrisa.cviz.features.area.data.dtos
 
-import com.chrisa.cviz.core.data.synchronisation.DailyData
-
-data class AreaDetailDto(
-    val areaCode: String,
-    val areaName: String,
-    val areaType: String,
-    val cases: List<DailyData>,
-    val deathsByPublishedDate: List<DailyData>,
-    val onsDeathsByRegistrationDate: List<DailyData>
+data class AreaLookupDto(
+    val lsoaCode: String,
+    val lsoaName: String?,
+    val msoaCode: String,
+    val msoaName: String?,
+    val ltlaCode: String,
+    val ltlaName: String,
+    val utlaCode: String,
+    val utlaName: String,
+    val nhsRegionCode: String?,
+    val nhsRegionName: String?,
+    val regionCode: String,
+    val regionName: String?,
+    val nationCode: String,
+    val nationName: String
 )

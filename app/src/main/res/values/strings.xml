@@ -28,6 +28,7 @@
     <string name="daily_deaths">Daily deaths</string>
     <string name="all_deaths_chart_label">All deaths</string>
     <string name="latest_deaths_chart_label">Latest deaths</string>
+    <string name="weekly_deaths_title">Weekly deaths</string>
 
     <string name="hospital_admissions_title">Hospital admissions for %s</string>
     <string name="total_hospital_admissions">Total admissions</string>

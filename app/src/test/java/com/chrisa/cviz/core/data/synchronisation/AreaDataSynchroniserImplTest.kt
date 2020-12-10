@@ -202,7 +202,10 @@ class AreaDataSynchroniserImplTest {
                 cumulativeDeathsByPublishedDateRate = 30.0,
                 newDeathsByDeathDate = 40,
                 cumulativeDeathsByDeathDate = 50,
-                cumulativeDeathsByDeathDateRate = 60.0
+                cumulativeDeathsByDeathDateRate = 60.0,
+                newOnsDeathsByRegistrationDate = 10,
+                cumulativeOnsDeathsByRegistrationDate = 53,
+                cumulativeOnsDeathsByRegistrationDateRate = 62.0
             )
             val pageModel = Page(
                 length = 1,
@@ -240,7 +243,10 @@ class AreaDataSynchroniserImplTest {
                             cumulativeDeathsByPublishedDateRate = areaModel.cumulativeDeathsByPublishedDateRate!!,
                             newDeathsByDeathDate = areaModel.newDeathsByDeathDate!!,
                             cumulativeDeathsByDeathDate = areaModel.cumulativeDeathsByDeathDate!!,
-                            cumulativeDeathsByDeathDateRate = areaModel.cumulativeDeathsByDeathDateRate!!
+                            cumulativeDeathsByDeathDateRate = areaModel.cumulativeDeathsByDeathDateRate!!,
+                            newOnsDeathsByRegistrationDate = areaModel.newOnsDeathsByRegistrationDate,
+                            cumulativeOnsDeathsByRegistrationDate = areaModel.cumulativeOnsDeathsByRegistrationDate,
+                            cumulativeOnsDeathsByRegistrationDateRate = areaModel.cumulativeOnsDeathsByRegistrationDateRate
                         )
                     )
                 )

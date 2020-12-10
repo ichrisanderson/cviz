@@ -135,11 +135,19 @@ class AreaDataSourceTest {
                         date = areaData.date
                     )
                 ),
-                deaths = listOf(
+                deathsByPublishedDate = listOf(
                     DailyData(
                         newValue = areaData.newDeathsByPublishedDate!!,
                         cumulativeValue = areaData.cumulativeDeathsByPublishedDate!!,
                         rate = areaData.cumulativeDeathsByPublishedDateRate!!,
+                        date = areaData.date
+                    )
+                ),
+                onsDeathsByRegistrationDate = listOf(
+                    DailyData(
+                        newValue = areaData.newOnsDeathsByRegistrationDate!!,
+                        cumulativeValue = areaData.cumulativeOnsDeathsByRegistrationDate!!,
+                        rate = areaData.cumulativeOnsDeathsByRegistrationDateRate!!,
                         date = areaData.date
                     )
                 )
@@ -170,7 +178,10 @@ class AreaDataSourceTest {
             cumulativeDeathsByPublishedDateRate = 30.0,
             newDeathsByDeathDate = 40,
             cumulativeDeathsByDeathDate = 50,
-            cumulativeDeathsByDeathDateRate = 60.0
+            cumulativeDeathsByDeathDateRate = 60.0,
+            newOnsDeathsByRegistrationDate = 10,
+            cumulativeOnsDeathsByRegistrationDate = 53,
+            cumulativeOnsDeathsByRegistrationDateRate = 62.0
         )
     }
 }

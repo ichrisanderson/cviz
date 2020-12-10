@@ -258,7 +258,9 @@ class AreaViewModelTest {
                 lastUpdatedAt = null,
                 lastSyncedAt = null,
                 cases = emptyList(),
-                deaths = emptyList(),
+                deathsByPublishedDateArea = "",
+                deathsByPublishedDate = emptyList(),
+                onsDeathsByRegistrationDate = emptyList(),
                 hospitalAdmissionsRegion = "",
                 hospitalAdmissions = emptyList()
             )
@@ -274,11 +276,13 @@ class AreaViewModelTest {
         private fun areaData(): AreaDataModel {
             return AreaDataModel(
                 areaMetadata = areaMetadata,
-                caseChartData = emptyList(),
                 caseSummary = WeeklySummary.EMPTY,
-                deathsChartData = emptyList(),
-                showDeaths = false,
-                deathSummary = WeeklySummary.EMPTY,
+                deathsByPublishedDateSummary = WeeklySummary.EMPTY,
+                caseChartData = emptyList(),
+                canDisplayDeathsByPublishedDate = false,
+                deathsByPublishedDateChartData = emptyList(),
+                canDisplayOnsDeathsByRegistrationDate = false,
+                onsDeathsByRegistrationDateChartData = emptyList(),
                 showHospitalAdmissions = false,
                 hospitalAdmissionsRegion = "",
                 hospitalAdmissionsSummary = WeeklySummary.EMPTY,

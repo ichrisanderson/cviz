@@ -18,33 +18,41 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaLookupEntity
-import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.features.area.data.dtos.AreaDto
+import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import javax.inject.Inject
 
 class AreaLookupDataSource @Inject constructor(
-    private val appDatabase: AppDatabase,
-    private val areaCodeMapper: AreaCodeMapper
+    private val appDatabase: AppDatabase
 ) {
 
-    fun healthCareArea(areaCode: String, areaType: AreaType): AreaDto {
-        val dao = appDatabase.areaLookupDao()
-        return when (areaType) {
-            AreaType.LTLA -> areaDto(areaCode, dao.byLtla(areaCode))
-            AreaType.UTLA -> areaDto(areaCode, dao.byUtla(areaCode))
-            AreaType.REGION -> areaDto(areaCode, dao.byRegion(areaCode))
-            AreaType.NHS_REGION -> areaDto(areaCode, dao.byNhsRegion(areaCode))
-            AreaType.NATION,
-            AreaType.OVERVIEW -> areaCodeMapper.defaultAreaDto(areaCode)
-        }
-    }
+    fun areaLookupByLtla(areaCode: String): AreaLookupDto? =
+        appDatabase.areaLookupDao().byLtla(areaCode)?.toAreaLookupDto()
 
-    private fun areaDto(areaCode: String, lookup: AreaLookupEntity?): AreaDto {
-        val regionCode = lookup?.nhsRegionCode
-        return if (regionCode != null) {
-            AreaDto(regionCode, lookup.nhsRegionName.orEmpty(), AreaType.NHS_REGION)
-        } else {
-            areaCodeMapper.defaultAreaDto(areaCode)
-        }
-    }
+    fun areaLookupByUtla(areaCode: String): AreaLookupDto? =
+        appDatabase.areaLookupDao().byUtla(areaCode)?.toAreaLookupDto()
+
+    fun areaLookupByRegion(areaCode: String): AreaLookupDto? =
+        appDatabase.areaLookupDao().byRegion(areaCode)?.toAreaLookupDto()
+
+    fun areaLookupByNhsRegion(areaCode: String): AreaLookupDto? =
+        appDatabase.areaLookupDao().byNhsRegion(areaCode)?.toAreaLookupDto()
+}
+
+fun AreaLookupEntity.toAreaLookupDto(): AreaLookupDto? {
+    return AreaLookupDto(
+        lsoaCode = this.lsoaCode,
+        lsoaName = this.lsoaName,
+        msoaCode = this.msoaCode,
+        msoaName = this.msoaName,
+        ltlaName = this.ltlaName,
+        ltlaCode = this.ltlaCode,
+        utlaName = this.utlaName,
+        utlaCode = this.utlaCode,
+        nhsRegionName = this.nhsRegionName,
+        nhsRegionCode = this.nhsRegionCode,
+        regionCode = this.regionCode,
+        regionName = this.regionName,
+        nationName = this.nationName,
+        nationCode = this.nationCode
+    )
 }

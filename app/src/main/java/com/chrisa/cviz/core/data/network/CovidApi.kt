@@ -16,6 +16,7 @@
 
 package com.chrisa.cviz.core.data.network
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -101,7 +102,12 @@ data class AreaDataModel(
     val cumulativeDeathsByPublishedDateRate: Double?,
     val newDeathsByDeathDate: Int?,
     val cumulativeDeathsByDeathDate: Int?,
-    val cumulativeDeathsByDeathDateRate: Double?
+    val cumulativeDeathsByDeathDateRate: Double?,
+    val newOnsDeathsByRegistrationDate: Int?,
+    @Json(name = "cumOnsDeathsByRegistrationDate")
+    val cumulativeOnsDeathsByRegistrationDate: Int?,
+    @Json(name = "cumOnsDeathsByRegistrationDateRate")
+    val cumulativeOnsDeathsByRegistrationDateRate: Double?
 ) {
     companion object {
 
@@ -119,6 +125,9 @@ data class AreaDataModel(
             put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
+            put("newOnsDeathsByRegistrationDate", "newOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDate", "cumOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDateRate", "cumOnsDeathsByRegistrationDateRate")
         }.toString()
 
         val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
@@ -135,6 +144,9 @@ data class AreaDataModel(
             put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
+            put("newOnsDeathsByRegistrationDate", "newOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDate", "cumOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDateRate", "cumOnsDeathsByRegistrationDateRate")
         }.toString()
     }
 }

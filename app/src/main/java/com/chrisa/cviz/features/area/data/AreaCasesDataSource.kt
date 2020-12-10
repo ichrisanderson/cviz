@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.data.dtos
+package com.chrisa.cviz.features.area.data
 
+import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.synchronisation.DailyData
+import javax.inject.Inject
 
-data class AreaDetailDto(
-    val areaCode: String,
-    val areaName: String,
-    val areaType: String,
-    val cases: List<DailyData>,
-    val deathsByPublishedDate: List<DailyData>,
-    val onsDeathsByRegistrationDate: List<DailyData>
-)
+class AreaCasesDataSource @Inject constructor(
+    private val appDatabase: AppDatabase
+) {
+
+    fun cases(areaCode: String): List<DailyData> =
+        allCases(areaCode).map { areaData ->
+            DailyData(
+                newValue = areaData.newCases,
+                cumulativeValue = areaData.cumulativeCases,
+                rate = areaData.infectionRate,
+                date = areaData.date
+            )
+        }
+
+    private fun allCases(areaCode: String) =
+        appDatabase.areaDataDao().allAreaCasesByAreaCode(areaCode)
+}

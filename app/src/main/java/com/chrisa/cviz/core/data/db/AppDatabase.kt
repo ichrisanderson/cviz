@@ -193,7 +193,13 @@ data class AreaDataEntity(
     @ColumnInfo(name = "cumulativeDeathsByDeathDate")
     val cumulativeDeathsByDeathDate: Int?,
     @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
-    val cumulativeDeathsByDeathDateRate: Double?
+    val cumulativeDeathsByDeathDateRate: Double?,
+    @ColumnInfo(name = "newOnsDeathsByRegistrationDate")
+    val newOnsDeathsByRegistrationDate: Int?,
+    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDate")
+    val cumulativeOnsDeathsByRegistrationDate: Int?,
+    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDateRate")
+    val cumulativeOnsDeathsByRegistrationDateRate: Double?
 )
 
 data class AreaDataMetadataTuple(
@@ -213,6 +219,40 @@ data class AreaDataMetadataTuple(
     val cumulativeCases: Int,
     @ColumnInfo(name = "date")
     val date: LocalDate
+)
+
+data class AreaCaseData(
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "newCases")
+    val newCases: Int,
+    @ColumnInfo(name = "infectionRate")
+    val infectionRate: Double,
+    @ColumnInfo(name = "cumulativeCases")
+    val cumulativeCases: Int
+)
+
+data class AreaDeathData(
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "newDeathsByPublishedDate")
+    val newDeathsByPublishedDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByPublishedDate")
+    val cumulativeDeathsByPublishedDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByPublishedDateRate")
+    val cumulativeDeathsByPublishedDateRate: Double?,
+    @ColumnInfo(name = "newDeathsByDeathDate")
+    val newDeathsByDeathDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByDeathDate")
+    val cumulativeDeathsByDeathDate: Int?,
+    @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
+    val cumulativeDeathsByDeathDateRate: Double?,
+    @ColumnInfo(name = "newOnsDeathsByRegistrationDate")
+    val newOnsDeathsByRegistrationDate: Int?,
+    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDate")
+    val cumulativeOnsDeathsByRegistrationDate: Int?,
+    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDateRate")
+    val cumulativeOnsDeathsByRegistrationDateRate: Double?
 )
 
 @Dao
@@ -235,6 +275,12 @@ interface AreaDataDao {
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allByAreaCode(areaCode: String): List<AreaDataEntity>
+
+    @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
+    fun allAreaCasesByAreaCode(areaCode: String): List<AreaCaseData>
+
+    @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
+    fun allAreaDeathsByAreaCode(areaCode: String): List<AreaDeathData>
 
     @Query("SELECT * FROM areaData INNER JOIN metadata on areaData.metadataId = metadata.id WHERE areaCode IN (:areaCodes) ORDER BY date DESC LIMIT :limit")
     fun latestWithMetadataByAreaCodeAsFlow(

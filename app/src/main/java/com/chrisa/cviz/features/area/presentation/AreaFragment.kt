@@ -165,7 +165,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     id("caseChartData")
                     chartData(areaDataModel.caseChartData)
                 }
-                if (areaDataModel.showDeaths) {
+                if (areaDataModel.canDisplayDeathsByPublishedDate) {
                     areaSectionHeader {
                         id("deathSummaryTitle")
                         title(getString(R.string.deaths_title))
@@ -179,14 +179,31 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     areaDeathSummaryCard {
                         id("deathSummary")
-                        totalDeaths(areaDataModel.deathSummary.currentTotal)
-                        dailyDeaths(areaDataModel.deathSummary.dailyTotal)
-                        currentNewDeaths(areaDataModel.deathSummary.weeklyTotal)
-                        changeInNewDeathsThisWeek(areaDataModel.deathSummary.changeInTotal)
+                        totalDeaths(areaDataModel.deathsByPublishedDateSummary.currentTotal)
+                        dailyDeaths(areaDataModel.deathsByPublishedDateSummary.dailyTotal)
+                        currentNewDeaths(areaDataModel.deathsByPublishedDateSummary.weeklyTotal)
+                        changeInNewDeathsThisWeek(areaDataModel.deathsByPublishedDateSummary.changeInTotal)
                     }
                     chartTabCard {
                         id("deathsChartData")
-                        chartData(areaDataModel.deathsChartData)
+                        chartData(areaDataModel.deathsByPublishedDateChartData)
+                    }
+                }
+                if (areaDataModel.canDisplayOnsDeathsByRegistrationDate) {
+                    areaSectionHeader {
+                        id("onsDeathsByRegistrationDateSummaryTitle")
+                        title(getString(R.string.weekly_deaths_title))
+                        subtitle1(
+                            binding.toolbar.context.getString(
+                                R.string.latest_data_label,
+                                lastDeathDate
+                            )
+                        )
+                        subtitle2(lastUpdated)
+                    }
+                    chartTabCard {
+                        id("onsDeathsByRegistrationDateChartData")
+                        chartData(areaDataModel.onsDeathsByRegistrationDateChartData)
                     }
                 }
                 if (areaDataModel.showHospitalAdmissions) {

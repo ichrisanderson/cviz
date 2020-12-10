@@ -34,6 +34,7 @@ import com.chrisa.cviz.core.util.NetworkUtils
 import java.io.IOException
 import java.time.LocalDate
 import javax.inject.Inject
+import org.json.JSONObject
 
 internal class AreaSummaryDataSynchroniser @Inject constructor(
     private val appDatabase: AppDatabase,
@@ -116,10 +117,20 @@ class MonthlyDataLoader @Inject constructor(
         return api.pagedAreaData(
             modifiedDate = null,
             filters = DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), areaType.value),
-            structure = areaDataModelStructureMapper.mapAreaTypeToDataModel(
-                areaType
-            )
+            structure = AREA_SUMMARY_STRUCTURE
         )
+    }
+
+    companion object {
+        val AREA_SUMMARY_STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+            put("date", "date")
+            put("newCases", "newCasesBySpecimenDate")
+            put("cumulativeCases", "cumCasesBySpecimenDate")
+            put("infectionRate", "cumCasesBySpecimenDateRate")
+        }.toString()
     }
 }
 
@@ -129,29 +140,29 @@ class AreaEntityListBuilder @Inject constructor() {
         monthlyData.week1.data
             .filter { it.infectionRate != null && it.cumulativeCases != null }
             .forEach {
-            val data = AreaSummaryEntity(
-                areaCode = it.areaCode,
-                areaType = AreaType.from(it.areaType)!!,
-                areaName = it.areaName,
-                date = it.date,
-                baseInfectionRate = it.infectionRate!! / it.cumulativeCases!!,
-                cumulativeCasesWeek1 = it.cumulativeCases,
-                cumulativeCaseInfectionRateWeek1 = it.infectionRate,
-                newCaseInfectionRateWeek1 = 0.0,
-                newCasesWeek1 = 0,
-                cumulativeCasesWeek2 = 0,
-                cumulativeCaseInfectionRateWeek2 = 0.0,
-                newCaseInfectionRateWeek2 = 0.0,
-                newCasesWeek2 = 0,
-                cumulativeCasesWeek3 = 0,
-                cumulativeCaseInfectionRateWeek3 = 0.0,
-                newCaseInfectionRateWeek3 = 0.0,
-                newCasesWeek3 = 0,
-                cumulativeCasesWeek4 = 0,
-                cumulativeCaseInfectionRateWeek4 = 0.0
-            )
-            areaSummaryMap[it.areaCode] = data
-        }
+                val data = AreaSummaryEntity(
+                    areaCode = it.areaCode,
+                    areaType = AreaType.from(it.areaType)!!,
+                    areaName = it.areaName,
+                    date = it.date,
+                    baseInfectionRate = it.infectionRate!! / it.cumulativeCases!!,
+                    cumulativeCasesWeek1 = it.cumulativeCases,
+                    cumulativeCaseInfectionRateWeek1 = it.infectionRate,
+                    newCaseInfectionRateWeek1 = 0.0,
+                    newCasesWeek1 = 0,
+                    cumulativeCasesWeek2 = 0,
+                    cumulativeCaseInfectionRateWeek2 = 0.0,
+                    newCaseInfectionRateWeek2 = 0.0,
+                    newCasesWeek2 = 0,
+                    cumulativeCasesWeek3 = 0,
+                    cumulativeCaseInfectionRateWeek3 = 0.0,
+                    newCaseInfectionRateWeek3 = 0.0,
+                    newCasesWeek3 = 0,
+                    cumulativeCasesWeek4 = 0,
+                    cumulativeCaseInfectionRateWeek4 = 0.0
+                )
+                areaSummaryMap[it.areaCode] = data
+            }
 
         monthlyData.week2.data.forEach {
             val summary = areaSummaryMap[it.areaCode] ?: return@forEach
