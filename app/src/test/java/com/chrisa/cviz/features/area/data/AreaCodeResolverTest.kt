@@ -22,9 +22,9 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-class AreaCodeMapperTest {
+class AreaCodeResolverTest {
 
-    private val sut = AreaCodeMapper()
+    private val sut = AreaCodeResolver()
 
     @Test
     fun `GIVEN england area code WHEN defaultAreaDto called THEN england area data returned`() {

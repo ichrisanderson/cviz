@@ -21,7 +21,7 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import javax.inject.Inject
 
-class AreaCodeMapper @Inject constructor() {
+class AreaCodeResolver @Inject constructor() {
 
     fun defaultAreaDto(areaCode: String): AreaDto {
         return when {

@@ -45,4 +45,15 @@ class AreaLookupUseCase @Inject constructor(
             error.printStackTrace()
         }
     }
+
+    fun areaName(areaType: AreaType, areaLookupDto: AreaLookupDto): String {
+        return when (areaType) {
+            AreaType.LTLA -> areaLookupDto.ltlaName
+            AreaType.UTLA -> areaLookupDto.utlaName
+            AreaType.REGION -> areaLookupDto.regionName!!
+            AreaType.NHS_REGION -> areaLookupDto.nhsRegionName!!
+            AreaType.NATION -> areaLookupDto.nationName
+            AreaType.OVERVIEW -> "United Kingdom"
+        }
+    }
 }

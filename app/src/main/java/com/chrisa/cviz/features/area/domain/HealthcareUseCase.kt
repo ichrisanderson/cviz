@@ -18,7 +18,7 @@ package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.HealthcareDataSynchroniser
-import com.chrisa.cviz.features.area.data.AreaCodeMapper
+import com.chrisa.cviz.features.area.data.AreaCodeResolver
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
@@ -28,7 +28,7 @@ import javax.inject.Inject
 class HealthcareUseCase @Inject constructor(
     private val healthcareDataSynchroniser: HealthcareDataSynchroniser,
     private val areaDataSource: AreaDataSource,
-    private val areaCodeMapper: AreaCodeMapper
+    private val areaCodeResolver: AreaCodeResolver
 ) {
 
     fun healthcareData(areaCode: String, areaLookup: AreaLookupDto?): AreaDailyDataDto {
@@ -42,7 +42,7 @@ class HealthcareUseCase @Inject constructor(
         return if (nhsRegionCode != null) {
             AreaDto(nhsRegionCode, areaLookup.nhsRegionName.orEmpty(), AreaType.NHS_REGION)
         } else {
-            areaCodeMapper.defaultAreaDto(areaCode)
+            areaCodeResolver.defaultAreaDto(areaCode)
         }
     }
 

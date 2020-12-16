@@ -23,15 +23,15 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 
-class AreaDeathsDataSourceTest {
+class AreaDeathsByPublishedDateDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
-    private val sut = AreaDeathsDataSource(appDatabase)
+    private val sut = AreaDeathsByPublishedDateDataSource(appDatabase)
 
     @Before
     fun setup() {
@@ -42,7 +42,7 @@ class AreaDeathsDataSourceTest {
     fun `GIVEN area does not have published deaths WHEN deathsByPublishedDate called THEN empty list emitted`() {
         every { areaDataDao.allAreaDeathsByAreaCode("") } returns listOf(areaData)
 
-        val deathsByPublishedDate = sut.deathsByPublishedDate("")
+        val deathsByPublishedDate = sut.deaths("")
 
         assertThat(deathsByPublishedDate).isEmpty()
     }
@@ -51,7 +51,7 @@ class AreaDeathsDataSourceTest {
     fun `GIVEN area does has published deaths WHEN deathsByPublishedDate called THEN deaths are emitted`() {
         every { areaDataDao.allAreaDeathsByAreaCode("") } returns listOf(areaDataWithPublishedDeaths)
 
-        val deathsByPublishedDate = sut.deathsByPublishedDate("")
+        val deathsByPublishedDate = sut.deaths("")
 
         assertThat(deathsByPublishedDate).isEqualTo(
             listOf(
@@ -60,33 +60,6 @@ class AreaDeathsDataSourceTest {
                     newValue = areaDataWithPublishedDeaths.newDeathsByPublishedDate!!,
                     cumulativeValue = areaDataWithPublishedDeaths.cumulativeDeathsByPublishedDate!!,
                     rate = areaDataWithPublishedDeaths.cumulativeDeathsByPublishedDateRate!!
-                )
-            )
-        )
-    }
-
-    @Test
-    fun `GIVEN area does not have ons deaths WHEN onsDeathsByRegistrationDate called THEN empty list emitted`() {
-        every { areaDataDao.allAreaDeathsByAreaCode("") } returns listOf(areaData)
-
-        val onsDeathsByRegistrationDate = sut.onsDeathsByRegistrationDate("")
-
-        assertThat(onsDeathsByRegistrationDate).isEmpty()
-    }
-
-    @Test
-    fun `GIVEN area does has ons deaths WHEN onsDeathsByRegistrationDate called THEN deaths are emitted`() {
-        every { areaDataDao.allAreaDeathsByAreaCode("") } returns listOf(areaDataWithOnsDeaths)
-
-        val onsDeathsByRegistrationDate = sut.onsDeathsByRegistrationDate("")
-
-        assertThat(onsDeathsByRegistrationDate).isEqualTo(
-            listOf(
-                DailyData(
-                    date = areaDataWithOnsDeaths.date,
-                    newValue = areaDataWithOnsDeaths.newOnsDeathsByRegistrationDate!!,
-                    cumulativeValue = areaDataWithOnsDeaths.cumulativeOnsDeathsByRegistrationDate!!,
-                    rate = areaDataWithOnsDeaths.cumulativeOnsDeathsByRegistrationDateRate!!
                 )
             )
         )
@@ -113,11 +86,7 @@ class AreaDeathsDataSourceTest {
             cumulativeDeathsByPublishedDate = 100,
             cumulativeDeathsByPublishedDateRate = 20.0
         )
-
-        private val areaDataWithOnsDeaths = areaData.copy(
-            newOnsDeathsByRegistrationDate = 10,
-            cumulativeOnsDeathsByRegistrationDate = 100,
-            cumulativeOnsDeathsByRegistrationDateRate = 20.0
-        )
     }
 }
+
+
