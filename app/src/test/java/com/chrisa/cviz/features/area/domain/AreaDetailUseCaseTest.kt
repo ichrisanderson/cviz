@@ -19,6 +19,7 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
+import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.RollingAverageHelper
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.features.area.data.AreaDataSource
@@ -53,11 +54,17 @@ class AreaDetailUseCaseTest {
     private val areaLookupUseCase = mockk<AreaLookupUseCase>()
     private val healthcareUseCase = mockk<HealthcareUseCase>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
+    private val areaCasesUseCase = mockk<AreaCasesUseCase>()
+    private val areaPublishedDeathsUseCase = mockk<AreaDeathsUseCase>()
+    private val areaOnsDeathsUseCase = mockk<AreaDeathsUseCase>()
 
     private val sut = AreaDetailUseCase(
         areaDataSynchroniser,
         areaDataSource,
         areaLookupUseCase,
+        areaCasesUseCase,
+        areaPublishedDeathsUseCase,
+        areaOnsDeathsUseCase,
         healthcareUseCase
     )
 
@@ -71,6 +78,9 @@ class AreaDetailUseCaseTest {
         every { areaDataSource.healthcareData(ukArea.code) } returns emptyList()
         every { rollingAverageHelper.average(any(), any()) } returns 1.0
         every { healthcareUseCase.healthcareData(any(), any()) } returns ukAreaDailyDataDto
+        every { areaCasesUseCase.cases(any(), any()) } returns ukAreaCaseDataDto
+        every { areaPublishedDeathsUseCase.deaths(any(), any()) } returns ukAreaPublishedDeathsDataDto
+        every { areaOnsDeathsUseCase.deaths(any(), any()) } returns ukAreaOnsDeathsDataDto
     }
 
     @Test
@@ -222,14 +232,15 @@ class AreaDetailUseCaseTest {
                 assertThat(result).isEqualTo(
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
-                            areaType = AreaType.OVERVIEW.value,
                             lastUpdatedAt = lastUpdatedDateTime,
                             lastSyncedAt = syncDateTime,
-                            cases = areaWithCases.cases,
-                            deathsByPublishedDateArea = "",
-                            deathsByPublishedDate = emptyList(),
-                            onsDeathsByRegistrationDate = emptyList(),
-                            hospitalAdmissionsRegion = "United Kingdom",
+                            cases = ukAreaCaseDataDto.data,
+                            casesAreaName = ukAreaCaseDataDto.name,
+                            deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
+                            deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
+                            onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
+                            onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
+                            hospitalAdmissionsRegionName = "United Kingdom",
                             hospitalAdmissions = emptyList()
                         )
                     )
@@ -252,14 +263,15 @@ class AreaDetailUseCaseTest {
                 assertThat(result).isEqualTo(
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
-                            areaType = AreaType.OVERVIEW.value,
                             lastUpdatedAt = lastUpdatedDateTime,
                             lastSyncedAt = syncDateTime,
-                            cases = emptyList(),
-                            deathsByPublishedDateArea = "",
-                            deathsByPublishedDate = areaWithDeaths.deathsByPublishedDate,
-                            onsDeathsByRegistrationDate = emptyList(),
-                            hospitalAdmissionsRegion = "United Kingdom",
+                            cases = ukAreaCaseDataDto.data,
+                            casesAreaName = ukAreaCaseDataDto.name,
+                            deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
+                            deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
+                            onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
+                            onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
+                            hospitalAdmissionsRegionName = "United Kingdom",
                             hospitalAdmissions = emptyList()
                         )
                     )
@@ -295,14 +307,15 @@ class AreaDetailUseCaseTest {
                 assertThat(result).isEqualTo(
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
-                            areaType = AreaType.OVERVIEW.value,
                             lastUpdatedAt = lastUpdatedDateTime,
                             lastSyncedAt = syncDateTime,
-                            cases = emptyList(),
-                            deathsByPublishedDateArea = "",
-                            deathsByPublishedDate = emptyList(),
-                            onsDeathsByRegistrationDate = emptyList(),
-                            hospitalAdmissionsRegion = areaWithHospitalAdmissions.areaName,
+                            cases = ukAreaCaseDataDto.data,
+                            casesAreaName = ukAreaCaseDataDto.name,
+                            deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
+                            deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
+                            onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
+                            onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
+                            hospitalAdmissionsRegionName = areaWithHospitalAdmissions.areaName,
                             hospitalAdmissions = SynchronisationTestData.dailyData()
                         )
                     )
@@ -346,6 +359,36 @@ class AreaDetailUseCaseTest {
             onsDeathsByRegistrationDate = emptyList()
         )
         private val ukAreaDailyDataDto = AreaDailyDataDto("United Kingdom", emptyList())
+        private val ukAreaCaseDataDto = AreaDailyDataDto(
+            "United Kingdom", listOf(
+                DailyData(
+                    10,
+                    100,
+                    10.0,
+                    syncDateTime.toLocalDate()
+                )
+            )
+        )
+        private val ukAreaPublishedDeathsDataDto = AreaDailyDataDto(
+            "United Kingdom", listOf(
+                DailyData(
+                    30,
+                    200,
+                    30.0,
+                    syncDateTime.toLocalDate()
+                )
+            )
+        )
+        private val ukAreaOnsDeathsDataDto = AreaDailyDataDto(
+            "United Kingdom", listOf(
+                DailyData(
+                    40,
+                    400,
+                    44.0,
+                    syncDateTime.toLocalDate()
+                )
+            )
+        )
 
         private val areaWithCases = ukAreaDetailDto.copy(
             cases = SynchronisationTestData.dailyData()

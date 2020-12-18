@@ -254,14 +254,15 @@ class AreaViewModelTest {
 
         private fun areaDetailModel(): AreaDetailModel {
             return AreaDetailModel(
-                areaType = AreaType.OVERVIEW.value,
                 lastUpdatedAt = null,
                 lastSyncedAt = null,
                 cases = emptyList(),
-                deathsByPublishedDateArea = "",
+                casesAreaName = "",
+                deathsByPublishedDateAreaName = "",
                 deathsByPublishedDate = emptyList(),
+                onsDeathAreaName = "",
                 onsDeathsByRegistrationDate = emptyList(),
-                hospitalAdmissionsRegion = "",
+                hospitalAdmissionsRegionName = "",
                 hospitalAdmissions = emptyList()
             )
         }

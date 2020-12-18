@@ -18,7 +18,6 @@ package com.chrisa.cviz.features.area.presentation.mappers
 
 import android.content.Context
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverage
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
@@ -242,14 +241,15 @@ class AreaDataModelMapperTest {
         )
 
         private val areaDetail = AreaDetailModel(
-            areaType = AreaType.OVERVIEW.value,
             lastUpdatedAt = syncDateTime,
             lastSyncedAt = syncDateTime,
             cases = SynchronisationTestData.dailyData(),
-            deathsByPublishedDateArea = "",
+            casesAreaName = "",
+            deathsByPublishedDateAreaName = "",
             deathsByPublishedDate = emptyList(),
+            onsDeathAreaName = "",
             onsDeathsByRegistrationDate = emptyList(),
-            hospitalAdmissionsRegion = "",
+            hospitalAdmissionsRegionName = "",
             hospitalAdmissions = emptyList()
         )
 
@@ -258,7 +258,7 @@ class AreaDataModelMapperTest {
         )
 
         private val areaDetailWithHospitalAdmissions = areaDetail.copy(
-            hospitalAdmissionsRegion = hospitalAdmissionsRegion,
+            hospitalAdmissionsRegionName = hospitalAdmissionsRegion,
             hospitalAdmissions = SynchronisationTestData.dailyData()
         )
 

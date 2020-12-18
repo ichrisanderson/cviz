@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0024e8dfeb6ba96f6c96079452c027c8",
+    "identityHash": "d7eb6d83291a47b77b83f015e75c8f19",
     "entities": [
       {
         "tableName": "area",
@@ -416,7 +416,7 @@
       },
       {
         "tableName": "areaLookup",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lsoaCode` TEXT NOT NULL, `lsoaName` TEXT, `msoaCode` TEXT NOT NULL, `msoaName` TEXT, `ltlaCode` TEXT NOT NULL, `ltlaName` TEXT NOT NULL, `utlaCode` TEXT NOT NULL, `utlaName` TEXT NOT NULL, `nhsRegionCode` TEXT, `nhsRegionName` TEXT, `regionCode` TEXT NOT NULL, `regionName` TEXT, `nationCode` TEXT NOT NULL, `nationName` TEXT NOT NULL, PRIMARY KEY(`lsoaCode`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lsoaCode` TEXT NOT NULL, `lsoaName` TEXT, `msoaCode` TEXT NOT NULL, `msoaName` TEXT, `ltlaCode` TEXT NOT NULL, `ltlaName` TEXT NOT NULL, `utlaCode` TEXT NOT NULL, `utlaName` TEXT NOT NULL, `nhsRegionCode` TEXT, `nhsRegionName` TEXT, `regionCode` TEXT, `regionName` TEXT, `nationCode` TEXT NOT NULL, `nationName` TEXT NOT NULL, PRIMARY KEY(`lsoaCode`))",
         "fields": [
           {
             "fieldPath": "lsoaCode",
@@ -482,7 +482,7 @@
             "fieldPath": "regionCode",
             "columnName": "regionCode",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "regionName",
@@ -516,7 +516,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0024e8dfeb6ba96f6c96079452c027c8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd7eb6d83291a47b77b83f015e75c8f19')"
     ]
   }
 }

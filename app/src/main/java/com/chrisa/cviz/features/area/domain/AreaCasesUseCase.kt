@@ -18,33 +18,34 @@ package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.features.area.data.AreaDeathsDataSource
+import com.chrisa.cviz.features.area.data.AreaCasesDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import javax.inject.Inject
 
-class AreaDeathsUseCase constructor(
+class AreaCasesUseCase @Inject constructor(
     private val areaLookupUseCase: AreaLookupUseCase,
-    private val deathsDataSource: AreaDeathsDataSource
+    private val areaCasesDataSource: AreaCasesDataSource
 ) {
-    fun deaths(areaCode: String, areaType: AreaType): AreaDailyDataDto {
+    fun cases(areaCode: String, areaType: AreaType): AreaDailyDataDto {
         val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
         if (areaLookup != null) {
-            val areaDeaths = deathsDataSource.deaths(areaCode)
+            val areaDeaths = areaCasesDataSource.cases(areaCode)
             if (areaDeaths.isNotEmpty()) {
                 val areaName = areaLookupUseCase.areaName(areaType, areaLookup)
                 return AreaDailyDataDto(areaName, areaDeaths)
             }
             if (areaLookup.regionCode != null) {
-                val regionDeaths = deathsDataSource.deaths(areaLookup.regionCode)
+                val regionDeaths = areaCasesDataSource.cases(areaLookup.regionCode)
                 if (regionDeaths.isNotEmpty()) {
                     return AreaDailyDataDto(areaLookup.regionName!!, regionDeaths)
                 }
             }
-            val nationDeaths = deathsDataSource.deaths(areaLookup.nationCode)
+            val nationDeaths = areaCasesDataSource.cases(areaLookup.nationCode)
             if (nationDeaths.isNotEmpty()) {
                 return AreaDailyDataDto(areaLookup.nationName, nationDeaths)
             }
         }
-        val overviewDeaths = deathsDataSource.deaths(Constants.UK_AREA_CODE)
+        val overviewDeaths = areaCasesDataSource.cases(Constants.UK_AREA_CODE)
         return AreaDailyDataDto("United Kingdom", overviewDeaths)
     }
 }

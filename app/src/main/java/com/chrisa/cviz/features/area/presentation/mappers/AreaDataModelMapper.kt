@@ -61,7 +61,7 @@ class AreaDataModelMapper @Inject constructor(
             canDisplayOnsDeathsByRegistrationDate = false,
             onsDeathsByRegistrationDateChartData = emptyList(),
             showHospitalAdmissions = canDisplayHospitalAdmissions,
-            hospitalAdmissionsRegion = areaDetailModel.hospitalAdmissionsRegion,
+            hospitalAdmissionsRegion = areaDetailModel.hospitalAdmissionsRegionName,
             hospitalAdmissionsSummary = weeklySummary(areaDetailModel.hospitalAdmissions),
             hospitalAdmissionsChartData = hospitalAdmissionsChartData
         )

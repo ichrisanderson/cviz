@@ -19,7 +19,7 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.DailyData
-import com.chrisa.cviz.features.area.data.AreaDeathsDataSource
+import com.chrisa.cviz.features.area.data.AreaCasesDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.google.common.truth.Truth.assertThat
@@ -29,56 +29,56 @@ import java.time.LocalDate
 import org.junit.Before
 import org.junit.Test
 
-class AreaDeathsUseCaseTest {
+class AreaCasesUseCaseTest {
 
     private val areaLookupUseCase: AreaLookupUseCase = mockk()
-    private val areaDeathsDataSource: AreaDeathsDataSource = mockk()
+    private val areaCasesDataSource: AreaCasesDataSource = mockk()
 
-    private val sut = AreaDeathsUseCase(areaLookupUseCase, areaDeathsDataSource)
+    private val sut = AreaCasesUseCase(areaLookupUseCase, areaCasesDataSource)
 
     @Before
     fun init() {
         every { areaLookupUseCase.areaLookup(any(), any()) } returns areaLookupDto
-        every { areaDeathsDataSource.deaths(any()) } returns emptyList()
+        every { areaCasesDataSource.cases(any()) } returns emptyList()
     }
 
     @Test
-    fun `WHEN areaLookup not found THEN uk deaths returned`() {
+    fun `WHEN areaLookup not found THEN uk cases returned`() {
         every { areaLookupUseCase.areaLookup(any(), any()) } returns null
-        every { areaDeathsDataSource.deaths(Constants.UK_AREA_CODE) } returns dailyData
+        every { areaCasesDataSource.cases(Constants.UK_AREA_CODE) } returns dailyData
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA)
 
-        assertThat(deaths).isEqualTo(
+        assertThat(cases).isEqualTo(
             AreaDailyDataDto("United Kingdom", dailyData)
         )
     }
 
     @Test
-    fun `WHEN nation has deaths THEN nation deaths returned`() {
-        every { areaDeathsDataSource.deaths(areaLookupDto.nationCode) } returns dailyData
+    fun `WHEN nation has cases THEN nation cases returned`() {
+        every { areaCasesDataSource.cases(areaLookupDto.nationCode) } returns dailyData
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA)
 
-        assertThat(deaths).isEqualTo(
+        assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.nationName, dailyData)
         )
     }
 
     @Test
-    fun `WHEN region has deaths THEN region deaths returned`() {
-        every { areaDeathsDataSource.deaths(areaLookupDto.regionCode!!) } returns dailyData
+    fun `WHEN region has cases THEN region cases returned`() {
+        every { areaCasesDataSource.cases(areaLookupDto.regionCode!!) } returns dailyData
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA)
 
-        assertThat(deaths).isEqualTo(
+        assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.regionName!!, dailyData)
         )
     }
 
     @Test
-    fun `WHEN utla area has deaths THEN utla deaths returned`() {
-        every { areaDeathsDataSource.deaths("E1") } returns dailyData
+    fun `WHEN utla area has cases THEN utla cases returned`() {
+        every { areaCasesDataSource.cases("E1") } returns dailyData
         every {
             areaLookupUseCase.areaName(
                 AreaType.UTLA,
@@ -86,16 +86,16 @@ class AreaDeathsUseCaseTest {
             )
         } returns areaLookupDto.utlaName
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA)
 
-        assertThat(deaths).isEqualTo(
+        assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.utlaName, dailyData)
         )
     }
 
     @Test
-    fun `WHEN ltla area has deaths THEN ltla deaths returned`() {
-        every { areaDeathsDataSource.deaths("E1") } returns dailyData
+    fun `WHEN ltla area has cases THEN ltla cases returned`() {
+        every { areaCasesDataSource.cases("E1") } returns dailyData
         every {
             areaLookupUseCase.areaName(
                 AreaType.LTLA,
@@ -103,9 +103,9 @@ class AreaDeathsUseCaseTest {
             )
         } returns areaLookupDto.utlaName
 
-        val deaths = sut.deaths("E1", AreaType.LTLA)
+        val cases = sut.cases("E1", AreaType.LTLA)
 
-        assertThat(deaths).isEqualTo(
+        assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.utlaName, dailyData)
         )
     }

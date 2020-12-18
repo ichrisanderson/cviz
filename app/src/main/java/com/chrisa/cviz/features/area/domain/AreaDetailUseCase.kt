@@ -20,16 +20,19 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser,
     private val areaDataSource: AreaDataSource,
     private val areaLookupUseCase: AreaLookupUseCase,
+    private val areaCasesUseCase: AreaCasesUseCase,
+    @PublishedDeaths private val publishedDeathsUseCase: AreaDeathsUseCase,
+    @OnsDeaths private val onsDeathsUseCase: AreaDeathsUseCase,
     private val healthcareUseCase: HealthcareUseCase
 ) {
 
@@ -42,20 +45,22 @@ class AreaDetailUseCase @Inject constructor(
             } else {
                 val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
 
+                val areaCases = areaCasesUseCase.cases(areaCode, areaType)
+                val publishedDeaths = publishedDeathsUseCase.deaths(areaCode, areaType)
+                val onsDeaths = onsDeathsUseCase.deaths(areaCode, areaType)
                 val healthcareData = healthcareUseCase.healthcareData(areaCode, areaLookup)
-                val areaData = areaDataSource.loadAreaData(areaCode)
-                val caseDailyData = areaData.cases
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
-                        areaType = areaData.areaType,
                         lastUpdatedAt = metadata.lastUpdatedAt,
                         lastSyncedAt = metadata.lastSyncTime,
-                        cases = caseDailyData,
-                        deathsByPublishedDateArea = "",
-                        deathsByPublishedDate = areaData.deathsByPublishedDate,
-                        onsDeathsByRegistrationDate = areaData.onsDeathsByRegistrationDate,
-                        hospitalAdmissionsRegion = healthcareData.name,
+                        casesAreaName = areaCases.name,
+                        cases = areaCases.data,
+                        deathsByPublishedDateAreaName = publishedDeaths.name,
+                        deathsByPublishedDate = publishedDeaths.data,
+                        onsDeathAreaName = onsDeaths.name,
+                        onsDeathsByRegistrationDate = onsDeaths.data,
+                        hospitalAdmissionsRegionName = healthcareData.name,
                         hospitalAdmissions = healthcareData.data
                     )
                 )

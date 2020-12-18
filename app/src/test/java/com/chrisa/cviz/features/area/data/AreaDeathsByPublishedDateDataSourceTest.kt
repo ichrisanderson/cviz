@@ -23,9 +23,9 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDateTime
 
 class AreaDeathsByPublishedDateDataSourceTest {
 
@@ -88,5 +88,3 @@ class AreaDeathsByPublishedDateDataSourceTest {
         )
     }
 }
-
-

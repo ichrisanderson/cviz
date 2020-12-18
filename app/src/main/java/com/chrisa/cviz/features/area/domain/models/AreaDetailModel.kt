@@ -20,28 +20,14 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import java.time.LocalDateTime
 
 data class AreaDetailModel(
-    val areaType: String?,
     val lastUpdatedAt: LocalDateTime?,
     val lastSyncedAt: LocalDateTime?,
     val cases: List<DailyData>,
-    val deathsByPublishedDateArea: String,
+    val casesAreaName: String,
+    val deathsByPublishedDateAreaName: String,
     val deathsByPublishedDate: List<DailyData>,
+    val onsDeathAreaName: String,
     val onsDeathsByRegistrationDate: List<DailyData>,
-    val hospitalAdmissionsRegion: String,
+    val hospitalAdmissionsRegionName: String,
     val hospitalAdmissions: List<DailyData>
-) {
-    companion object {
-        val EMPTY =
-            AreaDetailModel(
-                areaType = null,
-                lastUpdatedAt = null,
-                lastSyncedAt = null,
-                cases = emptyList(),
-                deathsByPublishedDateArea = "",
-                deathsByPublishedDate = emptyList(),
-                onsDeathsByRegistrationDate = emptyList(),
-                hospitalAdmissionsRegion = "",
-                hospitalAdmissions = emptyList()
-            )
-    }
-}
+)

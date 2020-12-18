@@ -453,7 +453,7 @@ data class AreaLookupEntity(
     @ColumnInfo(name = "nhsRegionName")
     val nhsRegionName: String?,
     @ColumnInfo(name = "regionCode")
-    val regionCode: String,
+    val regionCode: String?,
     @ColumnInfo(name = "regionName")
     val regionName: String?,
     @ColumnInfo(name = "nationCode")

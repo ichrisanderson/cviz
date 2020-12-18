@@ -44,5 +44,3 @@ class AreaOnsDeathsDataSource @Inject constructor(
     private fun allDeaths(areaCode: String) =
         appDatabase.areaDataDao().allAreaDeathsByAreaCode(areaCode)
 }
-
-
