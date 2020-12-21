@@ -16,6 +16,7 @@
 
 package com.chrisa.cviz.features.area.presentation.mappers
 
+import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverage
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
@@ -42,6 +43,7 @@ class ChartBuilderTest {
 
     private val combinedChartDataBuilder = mockk<CombinedChartDataBuilder>()
     private val sut = ChartBuilder(formatter, combinedChartDataBuilder)
+    private val monthlyData = dailyData(30)
     private val monthlyDataWithRollingAverage = dailyDataWithRollingAverage(30)
 
     @Before
@@ -100,8 +102,7 @@ class ChartBuilderTest {
     }
 
     @Test
-    fun `WHEN data is not empty THEN chart data is built`() {
-
+    fun `WHEN data is not empty THEN bar chart data is built`() {
         val data = sut.allChartData(
             allChartLabel,
             latestChartLabel,
@@ -117,6 +118,20 @@ class ChartBuilderTest {
         )
     }
 
+    private fun dailyData(total: Int): List<DailyData> {
+        var cumulativeValue = 0
+        val date = LocalDate.of(2020, 1, 1)
+        return (1..total).map {
+            cumulativeValue += it
+            DailyData(
+                newValue = it,
+                cumulativeValue = cumulativeValue,
+                rate = 10.0 + it.toDouble(),
+                date = date.plusDays(it.toLong())
+            )
+        }
+    }
+
     private fun dailyDataWithRollingAverage(total: Int): List<DailyDataWithRollingAverage> {
         var cumulativeValue = 0
         val date = LocalDate.of(2020, 1, 1)
@@ -130,6 +145,29 @@ class ChartBuilderTest {
                 date = date.plusDays(it.toLong())
             )
         }
+    }
+
+    @Test
+    fun `WHEN data is not empty THEN chart data is built`() {
+        val data = sut.barChartData(
+            listOf(
+                DailyData(
+                    newValue = 100,
+                    cumulativeValue = 100,
+                    rate = 10.0,
+                    date = LocalDate.of(2020, 2, 2)
+                )
+            )
+        )
+
+        assertThat(data).isEqualTo(
+            listOf(
+                BarChartItem(
+                    100.0f,
+                    "02-Feb"
+                )
+            )
+        )
     }
 
     companion object {

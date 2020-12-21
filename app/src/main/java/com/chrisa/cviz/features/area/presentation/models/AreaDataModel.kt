@@ -17,19 +17,29 @@
 package com.chrisa.cviz.features.area.presentation.models
 
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class AreaDataModel(
-    val areaMetadata: AreaMetadata,
+    val lastUpdatedDate: LocalDateTime?,
+    val lastCaseDate: LocalDate?,
+    val caseAreaName: String,
     val caseSummary: WeeklySummary,
-    val deathsByPublishedDateSummary: WeeklySummary,
     val caseChartData: List<CombinedChartData>,
-    val canDisplayDeathsByPublishedDate: Boolean,
+    val showDeathsByPublishedDate: Boolean,
+    val lastDeathPublishedDate: LocalDate?,
+    val deathsByPublishedDateAreaName: String,
+    val deathsByPublishedDateSummary: WeeklySummary,
     val deathsByPublishedDateChartData: List<CombinedChartData>,
-    val canDisplayOnsDeathsByRegistrationDate: Boolean,
-    val onsDeathsByRegistrationDateChartData: List<CombinedChartData>,
+    val showOnsDeaths: Boolean,
+    val lastOnsDeathRegisteredDate: LocalDate?,
+    val onsDeathsAreaName: String,
+    val onsDeathsByRegistrationDateChartData: List<BarChartItem>,
     val showHospitalAdmissions: Boolean,
-    val hospitalAdmissionsRegion: String,
+    val lastHospitalAdmissionDate: LocalDate?,
+    val hospitalAdmissionsRegionName: String,
     val hospitalAdmissionsSummary: WeeklySummary,
     val hospitalAdmissionsChartData: List<CombinedChartData>
 )

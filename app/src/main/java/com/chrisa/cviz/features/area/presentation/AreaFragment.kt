@@ -132,13 +132,13 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     private fun observeCases() {
         viewModel.areaDataModel.observe(viewLifecycleOwner, Observer {
             val areaDataModel = it ?: return@Observer
-            val lastCaseDate = dateLabel(areaDataModel.areaMetadata.lastCaseDate)
-            val lastDeathDate = dateLabel(areaDataModel.areaMetadata.lastDeathDate)
+            val lastCaseDate = dateLabel(areaDataModel.lastCaseDate)
+            val lastDeathDate = dateLabel(areaDataModel.lastDeathPublishedDate)
             val lastHospitalAdmissionDate =
-                dateLabel(areaDataModel.areaMetadata.lastHospitalAdmissionDate)
+                dateLabel(areaDataModel.lastHospitalAdmissionDate)
             val lastUpdated = binding.recyclerView.context.getString(
                 R.string.updated_label,
-                DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.areaMetadata.lastUpdatedDate)
+                DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.lastUpdatedDate)
             )
             binding.recyclerView.withModels {
                 areaSectionHeader {
@@ -165,7 +165,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     id("caseChartData")
                     chartData(areaDataModel.caseChartData)
                 }
-                if (areaDataModel.canDisplayDeathsByPublishedDate) {
+                if (areaDataModel.showDeathsByPublishedDate) {
                     areaSectionHeader {
                         id("deathSummaryTitle")
                         title(getString(R.string.deaths_title))
@@ -189,27 +189,10 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         chartData(areaDataModel.deathsByPublishedDateChartData)
                     }
                 }
-                if (areaDataModel.canDisplayOnsDeathsByRegistrationDate) {
-                    areaSectionHeader {
-                        id("onsDeathsByRegistrationDateSummaryTitle")
-                        title(getString(R.string.weekly_deaths_title))
-                        subtitle1(
-                            binding.toolbar.context.getString(
-                                R.string.latest_data_label,
-                                lastDeathDate
-                            )
-                        )
-                        subtitle2(lastUpdated)
-                    }
-                    chartTabCard {
-                        id("onsDeathsByRegistrationDateChartData")
-                        chartData(areaDataModel.onsDeathsByRegistrationDateChartData)
-                    }
-                }
                 if (areaDataModel.showHospitalAdmissions) {
                     areaSectionHeader {
                         id("hospitalAdmissionsSummaryTitle")
-                        title(getString(R.string.hospital_admissions_title, areaDataModel.hospitalAdmissionsRegion))
+                        title(getString(R.string.hospital_admissions_title, areaDataModel.hospitalAdmissionsRegionName))
                         subtitle1(
                             binding.toolbar.context.getString(
                                 R.string.latest_data_label,

@@ -31,7 +31,6 @@ import com.chrisa.cviz.features.area.domain.IsSavedUseCase
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.mappers.AreaDataModelMapper
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
-import com.chrisa.cviz.features.area.presentation.models.AreaMetadata
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -267,25 +266,25 @@ class AreaViewModelTest {
             )
         }
 
-        private val areaMetadata = AreaMetadata(
-            lastUpdatedDate = syncTime,
-            lastDeathDate = lastData.date,
-            lastHospitalAdmissionDate = lastData.date,
-            lastCaseDate = lastData.date
-        )
-
         private fun areaData(): AreaDataModel {
             return AreaDataModel(
-                areaMetadata = areaMetadata,
+                lastUpdatedDate = syncTime,
+                lastCaseDate = lastData.date,
+                caseAreaName = "",
                 caseSummary = WeeklySummary.EMPTY,
-                deathsByPublishedDateSummary = WeeklySummary.EMPTY,
                 caseChartData = emptyList(),
-                canDisplayDeathsByPublishedDate = false,
+                showDeathsByPublishedDate = false,
+                lastDeathPublishedDate = lastData.date,
+                deathsByPublishedDateAreaName = "",
+                deathsByPublishedDateSummary = WeeklySummary.EMPTY,
                 deathsByPublishedDateChartData = emptyList(),
-                canDisplayOnsDeathsByRegistrationDate = false,
+                showOnsDeaths = false,
+                lastOnsDeathRegisteredDate = null,
+                onsDeathsAreaName = "",
                 onsDeathsByRegistrationDateChartData = emptyList(),
                 showHospitalAdmissions = false,
-                hospitalAdmissionsRegion = "",
+                lastHospitalAdmissionDate = lastData.date,
+                hospitalAdmissionsRegionName = "",
                 hospitalAdmissionsSummary = WeeklySummary.EMPTY,
                 hospitalAdmissionsChartData = emptyList()
             )

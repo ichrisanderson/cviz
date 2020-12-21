@@ -16,6 +16,7 @@
 
 package com.chrisa.cviz.features.area.presentation.mappers
 
+import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverage
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
@@ -67,6 +68,22 @@ class ChartBuilder @Inject constructor(
     private fun mapDailyDataToLineChartItem(dailyData: DailyDataWithRollingAverage): LineChartItem {
         return LineChartItem(
             dailyData.rollingAverage.toFloat(),
+            dailyData.date.format(formatter)
+        )
+    }
+
+    fun barChartData(
+        data: List<DailyData>
+    ): List<BarChartItem> {
+        return when {
+            data.isEmpty() -> emptyList()
+            else -> data.map(::mapDailyDataToBarChartItem)
+        }
+    }
+
+    private fun mapDailyDataToBarChartItem(dailyData: DailyData): BarChartItem {
+        return BarChartItem(
+            dailyData.newValue.toFloat(),
             dailyData.date.format(formatter)
         )
     }
