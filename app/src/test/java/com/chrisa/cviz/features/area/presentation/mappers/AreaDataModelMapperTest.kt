@@ -65,10 +65,16 @@ class AreaDataModelMapperTest {
         every { weeklySummaryBuilder.buildWeeklySummary(emptyList()) } returns
             WeeklySummary.EMPTY
 
-        every { chartBuilder.barChartData(emptyList()) } returns emptyList()
+        every {
+            chartBuilder.allBarChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                emptyList()
+            )
+        } returns emptyList()
 
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allCombinedChartData(
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
@@ -77,7 +83,7 @@ class AreaDataModelMapperTest {
         } returns emptyList()
 
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allCombinedChartData(
                 allDeathsLabel,
                 latestDeathsLabel,
                 rollingAverageLabel,
@@ -86,7 +92,7 @@ class AreaDataModelMapperTest {
         } returns emptyList()
 
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allCombinedChartData(
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
@@ -113,7 +119,7 @@ class AreaDataModelMapperTest {
         } returns
             casesWithRollingAverage
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allCombinedChartData(
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
@@ -153,7 +159,7 @@ class AreaDataModelMapperTest {
         } returns
             deathsWithRollingAverage
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allCombinedChartData(
                 allDeathsLabel,
                 latestDeathsLabel,
                 rollingAverageLabel,
@@ -186,9 +192,12 @@ class AreaDataModelMapperTest {
             onsDeathAreaName = areaName
         )
         every {
-            chartBuilder.barChartData(deaths)
-        } returns
-            chartData
+            chartBuilder.allBarChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                deaths
+            )
+        } returns listOf(chartData)
 
         val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases)
 
@@ -198,7 +207,7 @@ class AreaDataModelMapperTest {
                 showOnsDeaths = true,
                 lastOnsDeathRegisteredDate = deaths.last().date,
                 onsDeathsAreaName = areaName,
-                onsDeathsByRegistrationDateChartData = chartData
+                onsDeathsByRegistrationDateChartData = listOf(chartData)
             )
         )
     }
@@ -222,7 +231,7 @@ class AreaDataModelMapperTest {
         } returns
             admissionsWithRollingAverage
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allCombinedChartData(
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
@@ -317,10 +326,13 @@ class AreaDataModelMapperTest {
             )
 
         private fun barChartData(labelPrefix: String) =
-            listOf(
-                BarChartItem(
-                    value = 10.0f,
-                    label = "${labelPrefix}_BarChartItem"
+            BarChartData(
+                label = barChartLabel,
+                values = listOf(
+                    BarChartItem(
+                        value = 10.0f,
+                        label = "${labelPrefix}_BarChartItem"
+                    )
                 )
             )
     }

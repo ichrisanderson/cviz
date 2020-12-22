@@ -17,7 +17,7 @@
 package com.chrisa.cviz.features.area.presentation.models
 
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
-import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -36,7 +36,7 @@ data class AreaDataModel(
     val showOnsDeaths: Boolean,
     val lastOnsDeathRegisteredDate: LocalDate?,
     val onsDeathsAreaName: String,
-    val onsDeathsByRegistrationDateChartData: List<BarChartItem>,
+    val onsDeathsByRegistrationDateChartData: List<BarChartData>,
     val showHospitalAdmissions: Boolean,
     val lastHospitalAdmissionDate: LocalDate?,
     val hospitalAdmissionsRegionName: String,

@@ -14,7 +14,7 @@
     <string name="total_cases">Total cases</string>
     <string name="cases_this_week">Cases this week</string>
     <string name="daily_cases">Daily cases</string>
-    <string name="cases_title">Cases</string>L 19 October
+    <string name="cases_title">People tested positive in %s</string>s
     <string name="latest_data_label">Last data provided on %s</string>
     <string name="updated_label">Last updated: %s</string>
     <string name="all_cases_chart_label">All cases</string>
@@ -22,14 +22,15 @@
 
     <string name="change_this_week">On last week</string>
 
-    <string name="deaths_title">Deaths</string>
+    <string name="deaths_title">Deaths within 28 days of positive test in %s</string>
+    <string name="ons_deaths_title">Weekly deaths in %s</string>
     <string name="total_deaths">Total deaths</string>
     <string name="deaths_this_week">Deaths this week</string>
     <string name="daily_deaths">Daily deaths</string>
     <string name="all_deaths_chart_label">All deaths</string>
     <string name="latest_deaths_chart_label">Latest deaths</string>
 
-    <string name="hospital_admissions_title">Hospital admissions for %s</string>
+    <string name="hospital_admissions_title">Hospital admissions in %s</string>
     <string name="total_hospital_admissions">Total admissions</string>
     <string name="hospital_admissions_this_week">Admissions this week</string>
     <string name="daily_hospital_admissions">Daily admissions</string>

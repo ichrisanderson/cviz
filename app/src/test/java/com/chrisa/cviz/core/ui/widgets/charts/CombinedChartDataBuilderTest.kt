@@ -25,7 +25,7 @@ class CombinedChartDataBuilderTest {
 
     @Test
     fun `WHEN chart data provided THEN bar and line charts are combined`() {
-        val chartData = combinedChartBuilder.combinedChartData(
+        val chartData = combinedChartBuilder.build(
             barChartLabel,
             listOf(barChartItem),
             lineChartLabel,

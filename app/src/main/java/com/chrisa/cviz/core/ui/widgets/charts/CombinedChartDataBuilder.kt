@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 class CombinedChartDataBuilder @Inject constructor() {
 
-    fun combinedChartData(
+    fun build(
         barChartLabel: String,
         barChartValues: List<BarChartItem>,
         lineChartLabel: String,

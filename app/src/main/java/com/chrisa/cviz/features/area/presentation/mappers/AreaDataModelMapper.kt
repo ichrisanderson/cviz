@@ -22,7 +22,7 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
-import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
@@ -77,7 +77,7 @@ class AreaDataModelMapper @Inject constructor(
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
 
     private fun caseChartData(dailyData: List<DailyData>): List<CombinedChartData> {
-        return chartBuilder.allChartData(
+        return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_cases_chart_label),
             context.getString(R.string.latest_cases_chart_label),
             context.getString(R.string.rolling_average_chart_label),
@@ -86,7 +86,7 @@ class AreaDataModelMapper @Inject constructor(
     }
 
     private fun deathsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
-        return chartBuilder.allChartData(
+        return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
             context.getString(R.string.rolling_average_chart_label),
@@ -94,11 +94,16 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
-    private fun onsDeathsChartData(dailyData: List<DailyData>): List<BarChartItem> =
-        chartBuilder.barChartData(dailyData)
+    private fun onsDeathsChartData(dailyData: List<DailyData>): List<BarChartData> {
+        return chartBuilder.allBarChartData(
+            context.getString(R.string.all_deaths_chart_label),
+            context.getString(R.string.latest_deaths_chart_label),
+            dailyData
+        )
+    }
 
     private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
-        return chartBuilder.allChartData(
+        return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_hospital_admissions_chart_label),
             context.getString(R.string.latest_hospital_admissions_chart_label),
             context.getString(R.string.rolling_average_chart_label),

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.recyclerview.chart
+package com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar
 
 import android.view.LayoutInflater
 import android.view.View
@@ -22,29 +22,27 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChart
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.BarChart
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 
-class ChartAdapter : ListAdapter<CombinedChartData, ChartAdapter.ViewHolder>(
-    ChartDataDiffCallback()
+class BarChartAdapter : ListAdapter<BarChartData, BarChartAdapter.ViewHolder>(
+    BarChartDataDiffCallback()
 ) {
 
-    fun getItemTitle(position: Int): String = getItem(position).title
+    fun getItemTitle(position: Int): String = getItem(position).label
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val root = inflater.inflate(R.layout.area_combined_chart_item, parent, false)
-        return ViewHolder(
-            root
-        )
+        val root = inflater.inflate(R.layout.core_bar_chart_holder, parent, false)
+        return ViewHolder(root)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val chartData = getItem(position)
-        holder.chart.setData(chartData.barChartData, chartData.lineChartData)
+        holder.chart.setData(chartData)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val chart: CombinedChart = itemView.findViewById(R.id.chart_container)
+        val chart: BarChart = itemView.findViewById(R.id.chart_container)
     }
 }

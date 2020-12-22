@@ -18,6 +18,8 @@ package com.chrisa.cviz.features.area.presentation.mappers
 
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverage
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartDataBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartDataBuilder
@@ -27,10 +29,11 @@ import javax.inject.Inject
 
 class ChartBuilder @Inject constructor(
     private val formatter: DateTimeFormatter,
-    private val combinedChartDataBuilder: CombinedChartDataBuilder
+    private val combinedChartDataBuilder: CombinedChartDataBuilder,
+    private val barChartDataBuilder: BarChartDataBuilder
 ) {
 
-    fun allChartData(
+    fun allCombinedChartData(
         allChartLabel: String,
         latestChartLabel: String,
         rollingAverageChartLabel: String,
@@ -50,7 +53,7 @@ class ChartBuilder @Inject constructor(
         lineChartLabel: String,
         data: List<DailyDataWithRollingAverage>
     ): CombinedChartData {
-        return combinedChartDataBuilder.combinedChartData(
+        return combinedChartDataBuilder.build(
             barChartLabel,
             data.map(::mapDailyDataToBarChartItem),
             lineChartLabel,
@@ -72,14 +75,28 @@ class ChartBuilder @Inject constructor(
         )
     }
 
-    fun barChartData(
+    fun allBarChartData(
+        allChartLabel: String,
+        latestChartLabel: String,
         data: List<DailyData>
-    ): List<BarChartItem> {
+    ): List<BarChartData> {
         return when {
             data.isEmpty() -> emptyList()
-            else -> data.map(::mapDailyDataToBarChartItem)
+            else -> listOf(
+                barChartData(allChartLabel, data),
+                barChartData(latestChartLabel, data.takeLast(14))
+            )
         }
     }
+
+    private fun barChartData(
+        label: String,
+        data: List<DailyData>
+    ): BarChartData =
+        barChartDataBuilder.build(
+            label,
+            values = data.map(::mapDailyDataToBarChartItem)
+        )
 
     private fun mapDailyDataToBarChartItem(dailyData: DailyData): BarChartItem {
         return BarChartItem(

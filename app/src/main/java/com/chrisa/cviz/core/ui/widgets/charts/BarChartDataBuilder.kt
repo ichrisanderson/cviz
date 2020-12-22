@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.recyclerview.chart
+package com.chrisa.cviz.core.ui.widgets.charts
 
-import androidx.recyclerview.widget.DiffUtil
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import javax.inject.Inject
 
-class ChartDataDiffCallback : DiffUtil.ItemCallback<CombinedChartData>() {
+class BarChartDataBuilder @Inject constructor() {
 
-    override fun areItemsTheSame(oldItem: CombinedChartData, newItem: CombinedChartData): Boolean {
-        return oldItem.title == newItem.title
-    }
-
-    override fun areContentsTheSame(oldItem: CombinedChartData, newItem: CombinedChartData): Boolean {
-        return oldItem == newItem
-    }
+    fun build(
+        label: String,
+        values: List<BarChartItem>
+    ): BarChartData =
+        BarChartData(
+            label = label,
+            values = values
+        )
 }
