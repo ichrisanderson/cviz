@@ -344,6 +344,8 @@ class AreaDetailUseCaseTest {
             utlaName = "",
             nhsRegionCode = null,
             nhsRegionName = null,
+            nhsTrustCode = null,
+            nhsTrustName = null,
             regionCode = "",
             regionName = null,
             nationCode = "",

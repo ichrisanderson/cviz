@@ -72,6 +72,8 @@ class AreaLookupDataSourceTest {
             ltlaName = "",
             utlaCode = "",
             utlaName = "",
+            nhsTrustCode = null,
+            nhsTrustName = null,
             nhsRegionCode = null,
             nhsRegionName = null,
             regionCode = "",

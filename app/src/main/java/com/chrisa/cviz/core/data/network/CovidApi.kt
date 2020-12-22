@@ -170,6 +170,8 @@ data class AreaLookupData(
     val utlaName: String,
     val region: String?,
     val regionName: String?,
+    val nhsTrust: String?,
+    val nhsTrustName: String?,
     val nhsRegion: String?,
     val nhsRegionName: String?,
     val nation: String,

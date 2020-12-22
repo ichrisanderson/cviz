@@ -19,7 +19,7 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.HealthcareDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaCodeResolver
-import com.chrisa.cviz.features.area.data.AreaDataSource
+import com.chrisa.cviz.features.area.data.HealthcareDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
@@ -27,19 +27,22 @@ import javax.inject.Inject
 
 class HealthcareUseCase @Inject constructor(
     private val healthcareDataSynchroniser: HealthcareDataSynchroniser,
-    private val areaDataSource: AreaDataSource,
+    private val healthcareDataSource: HealthcareDataSource,
     private val areaCodeResolver: AreaCodeResolver
 ) {
 
     fun healthcareData(areaCode: String, areaLookup: AreaLookupDto?): AreaDailyDataDto {
         val nhsRegion = healthCareRegion(areaCode, areaLookup)
-        val healthCareData = areaDataSource.healthcareData(nhsRegion.code)
+        val healthCareData = healthcareDataSource.healthcareData(nhsRegion.code)
         return AreaDailyDataDto(nhsRegion.name, healthCareData)
     }
 
     fun healthCareRegion(areaCode: String, areaLookup: AreaLookupDto?): AreaDto {
+        val nhsTrustCode = areaLookup?.nhsTrustCode
         val nhsRegionCode = areaLookup?.nhsRegionCode
-        return if (nhsRegionCode != null) {
+        return if (nhsTrustCode != null) {
+            AreaDto(nhsTrustCode, areaLookup.nhsTrustName.orEmpty(), AreaType.NHS_TRUST)
+        } else if (nhsRegionCode != null) {
             AreaDto(nhsRegionCode, areaLookup.nhsRegionName.orEmpty(), AreaType.NHS_REGION)
         } else {
             areaCodeResolver.defaultAreaDto(areaCode)

@@ -25,6 +25,8 @@ data class AreaLookupDto(
     val ltlaName: String,
     val utlaCode: String,
     val utlaName: String,
+    val nhsTrustCode: String?,
+    val nhsTrustName: String?,
     val nhsRegionCode: String?,
     val nhsRegionName: String?,
     val regionCode: String?,

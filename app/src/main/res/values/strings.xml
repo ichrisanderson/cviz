@@ -14,7 +14,7 @@
     <string name="total_cases">Total cases</string>
     <string name="cases_this_week">Cases this week</string>
     <string name="daily_cases">Daily cases</string>
-    <string name="cases_title">People tested positive in %s</string>s
+    <string name="cases_title">Positive cases in %s</string>s
     <string name="latest_data_label">Last data provided on %s</string>
     <string name="updated_label">Last updated: %s</string>
     <string name="all_cases_chart_label">All cases</string>

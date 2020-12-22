@@ -33,6 +33,7 @@ class AreaLookupUseCase @Inject constructor(
             AreaType.UTLA -> areaLookupDataSource.areaLookupByUtla(areaCode)
             AreaType.REGION -> areaLookupDataSource.areaLookupByRegion(areaCode)
             AreaType.NHS_REGION -> areaLookupDataSource.areaLookupByNhsRegion(areaCode)
+            AreaType.NHS_TRUST -> areaLookupDataSource.areaLookupByNhsTrust(areaCode)
             AreaType.NATION,
             AreaType.OVERVIEW -> null
         }
@@ -52,6 +53,7 @@ class AreaLookupUseCase @Inject constructor(
             AreaType.UTLA -> areaLookupDto.utlaName
             AreaType.REGION -> areaLookupDto.regionName!!
             AreaType.NHS_REGION -> areaLookupDto.nhsRegionName!!
+            AreaType.NHS_TRUST -> areaLookupDto.nhsTrustName!!
             AreaType.NATION -> areaLookupDto.nationName
             AreaType.OVERVIEW -> "United Kingdom"
         }

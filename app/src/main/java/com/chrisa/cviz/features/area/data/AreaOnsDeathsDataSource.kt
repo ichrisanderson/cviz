@@ -35,12 +35,12 @@ class AreaOnsDeathsDataSource @Inject constructor(
             )
         }
 
+    private fun allDeaths(areaCode: String) =
+        appDatabase.areaDataDao().allAreaDeathsByAreaCode(areaCode)
+
     private fun hasOnsDeathData(it: AreaDeathData): Boolean {
         return it.cumulativeOnsDeathsByRegistrationDate != null &&
             it.newOnsDeathsByRegistrationDate != null &&
             it.cumulativeOnsDeathsByRegistrationDateRate != null
     }
-
-    private fun allDeaths(areaCode: String) =
-        appDatabase.areaDataDao().allAreaDeathsByAreaCode(areaCode)
 }

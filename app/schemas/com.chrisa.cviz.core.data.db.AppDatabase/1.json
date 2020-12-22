@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d7eb6d83291a47b77b83f015e75c8f19",
+    "identityHash": "9b60abd422eedaf1a38e0b58b8a1f153",
     "entities": [
       {
         "tableName": "area",
@@ -416,7 +416,7 @@
       },
       {
         "tableName": "areaLookup",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lsoaCode` TEXT NOT NULL, `lsoaName` TEXT, `msoaCode` TEXT NOT NULL, `msoaName` TEXT, `ltlaCode` TEXT NOT NULL, `ltlaName` TEXT NOT NULL, `utlaCode` TEXT NOT NULL, `utlaName` TEXT NOT NULL, `nhsRegionCode` TEXT, `nhsRegionName` TEXT, `regionCode` TEXT, `regionName` TEXT, `nationCode` TEXT NOT NULL, `nationName` TEXT NOT NULL, PRIMARY KEY(`lsoaCode`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`lsoaCode` TEXT NOT NULL, `lsoaName` TEXT, `msoaCode` TEXT NOT NULL, `msoaName` TEXT, `ltlaCode` TEXT NOT NULL, `ltlaName` TEXT NOT NULL, `utlaCode` TEXT NOT NULL, `utlaName` TEXT NOT NULL, `nhsTrustCode` TEXT, `nhsTrustName` TEXT, `nhsRegionCode` TEXT, `nhsRegionName` TEXT, `regionCode` TEXT, `regionName` TEXT, `nationCode` TEXT NOT NULL, `nationName` TEXT NOT NULL, PRIMARY KEY(`lsoaCode`))",
         "fields": [
           {
             "fieldPath": "lsoaCode",
@@ -465,6 +465,18 @@
             "columnName": "utlaName",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "nhsTrustCode",
+            "columnName": "nhsTrustCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nhsTrustName",
+            "columnName": "nhsTrustName",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "nhsRegionCode",
@@ -516,7 +528,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd7eb6d83291a47b77b83f015e75c8f19')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9b60abd422eedaf1a38e0b58b8a1f153')"
     ]
   }
 }

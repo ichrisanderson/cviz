@@ -128,6 +128,8 @@ class AreaCasesUseCaseTest {
             ltlaName = "Westminster",
             utlaCode = "E1101",
             utlaName = "Westminster",
+            nhsTrustCode = "GUYS",
+            nhsTrustName = "St Guys",
             nhsRegionCode = "E110",
             nhsRegionName = "London",
             regionCode = Constants.ENGLAND_AREA_CODE,

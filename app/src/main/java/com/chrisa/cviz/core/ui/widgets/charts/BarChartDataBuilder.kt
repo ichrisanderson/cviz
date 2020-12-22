@@ -19,7 +19,6 @@ package com.chrisa.cviz.core.ui.widgets.charts
 import javax.inject.Inject
 
 class BarChartDataBuilder @Inject constructor() {
-
     fun build(
         label: String,
         values: List<BarChartItem>

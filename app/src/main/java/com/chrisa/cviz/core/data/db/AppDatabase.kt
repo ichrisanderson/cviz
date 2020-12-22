@@ -114,6 +114,7 @@ enum class AreaType(val value: String) {
     NATION("nation"),
     REGION("region"),
     NHS_REGION("nhsRegion"),
+    NHS_TRUST("nhsTrust"),
     UTLA("utla"),
     LTLA("ltla");
 
@@ -124,6 +125,7 @@ enum class AreaType(val value: String) {
                 NATION.value -> NATION
                 REGION.value -> REGION
                 NHS_REGION.value -> NHS_REGION
+                NHS_TRUST.value -> NHS_TRUST
                 UTLA.value -> UTLA
                 LTLA.value -> LTLA
                 else -> null
@@ -448,6 +450,10 @@ data class AreaLookupEntity(
     val utlaCode: String,
     @ColumnInfo(name = "utlaName")
     val utlaName: String,
+    @ColumnInfo(name = "nhsTrustCode")
+    val nhsTrustCode: String?,
+    @ColumnInfo(name = "nhsTrustName")
+    val nhsTrustName: String?,
     @ColumnInfo(name = "nhsRegionCode")
     val nhsRegionCode: String?,
     @ColumnInfo(name = "nhsRegionName")
@@ -482,6 +488,9 @@ interface AreaLookupDao {
 
     @Query("SELECT * FROM areaLookup WHERE nhsRegionCode = :code LIMIT 1")
     fun byNhsRegion(code: String): AreaLookupEntity?
+
+    @Query("SELECT * FROM areaLookup WHERE nhsTrustCode = :code LIMIT 1")
+    fun byNhsTrustCode(code: String): AreaLookupEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaLookupEntities: List<AreaLookupEntity>)

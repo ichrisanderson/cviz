@@ -36,6 +36,9 @@ class AreaLookupDataSource @Inject constructor(
 
     fun areaLookupByNhsRegion(areaCode: String): AreaLookupDto? =
         appDatabase.areaLookupDao().byNhsRegion(areaCode)?.toAreaLookupDto()
+
+    fun areaLookupByNhsTrust(areaCode: String): AreaLookupDto? =
+        appDatabase.areaLookupDao().byNhsTrustCode(areaCode)?.toAreaLookupDto()
 }
 
 fun AreaLookupEntity.toAreaLookupDto(): AreaLookupDto? {
@@ -48,6 +51,8 @@ fun AreaLookupEntity.toAreaLookupDto(): AreaLookupDto? {
         ltlaCode = this.ltlaCode,
         utlaName = this.utlaName,
         utlaCode = this.utlaCode,
+        nhsTrustName = this.nhsTrustName,
+        nhsTrustCode = this.nhsTrustCode,
         nhsRegionName = this.nhsRegionName,
         nhsRegionCode = this.nhsRegionCode,
         regionCode = this.regionCode,

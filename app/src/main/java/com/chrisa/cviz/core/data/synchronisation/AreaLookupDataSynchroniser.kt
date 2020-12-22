@@ -79,6 +79,8 @@ internal class AreaLookupDataSynchroniserImpl @Inject constructor(
                     ltlaName = areaLookupData.ltlaName,
                     utlaCode = areaLookupData.utla,
                     utlaName = areaLookupData.utlaName,
+                    nhsTrustCode = areaLookupData.nhsTrust,
+                    nhsTrustName = areaLookupData.nhsTrustName,
                     nhsRegionCode = areaLookupData.nhsRegion,
                     nhsRegionName = areaLookupData.nhsRegionName,
                     regionCode = areaLookupData.region,
