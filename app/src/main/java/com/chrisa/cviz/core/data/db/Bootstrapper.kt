@@ -16,14 +16,32 @@
 
 package com.chrisa.cviz.core.data.db
 
+import com.chrisa.cviz.core.data.db.legacy.LegacyAppDatabaseHelper
 import javax.inject.Inject
 
 class Bootstrapper @Inject constructor(
-    val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper
 ) {
     fun execute() {
+        copyOldData()
         insertAreaData()
     }
+
+    private fun copyOldData() {
+        if (legacyAppDatabaseHelper.hasDatabase()) {
+            val items = appDatabase.savedAreaDao().countAll()
+            if (items == 0) {
+                val savedAreas =
+                    legacyAppDatabaseHelper.savedAreaCodes().map(::mapToSavedAreaEntity)
+                appDatabase.savedAreaDao().insertAll(savedAreas)
+            }
+            legacyAppDatabaseHelper.deleteDatabase()
+        }
+    }
+
+    private fun mapToSavedAreaEntity(areaCode: String) =
+        SavedAreaEntity(areaCode = areaCode)
 
     private fun insertAreaData() {
         val items = appDatabase.areaDao().count()

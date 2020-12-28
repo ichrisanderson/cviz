@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.data.db
+package com.chrisa.cviz.core.data.db.legacy
 
 import android.content.Context
 import androidx.room.ColumnInfo
@@ -41,32 +41,28 @@ import kotlinx.coroutines.flow.Flow
         AreaDataEntity::class,
         AreaSummaryEntity::class,
         MetadataEntity::class,
-        SavedAreaEntity::class,
-        HealthcareEntity::class,
-        AreaLookupEntity::class
+        SavedAreaEntity::class
     ],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
 @TypeConverters(
     AreTypeConverter::class,
     LocalDateConverter::class,
     LocalDateTimeConverter::class
 )
-abstract class AppDatabase : RoomDatabase() {
+abstract class LegacyAppDatabase : RoomDatabase() {
 
     abstract fun areaDao(): AreaDao
     abstract fun areaDataDao(): AreaDataDao
     abstract fun areaSummaryEntityDao(): AreaSummaryEntityDao
     abstract fun metadataDao(): MetadataDao
     abstract fun savedAreaDao(): SavedAreaDao
-    abstract fun areaLookupDao(): AreaLookupDao
-    abstract fun healthcareDao(): HealthcareDao
 
     companion object {
-        private const val databaseName = "cviz-db"
-        fun buildDatabase(context: Context): AppDatabase {
-            return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
+        const val databaseName = "cron19-uk-db"
+        fun buildDatabase(context: Context): LegacyAppDatabase {
+            return Room.databaseBuilder(context, LegacyAppDatabase::class.java, databaseName)
                 .fallbackToDestructiveMigration()
                 .build()
         }
@@ -113,8 +109,6 @@ enum class AreaType(val value: String) {
     OVERVIEW("overview"),
     NATION("nation"),
     REGION("region"),
-    NHS_REGION("nhsRegion"),
-    NHS_TRUST("nhsTrust"),
     UTLA("utla"),
     LTLA("ltla");
 
@@ -124,8 +118,6 @@ enum class AreaType(val value: String) {
                 OVERVIEW.value -> OVERVIEW
                 NATION.value -> NATION
                 REGION.value -> REGION
-                NHS_REGION.value -> NHS_REGION
-                NHS_TRUST.value -> NHS_TRUST
                 UTLA.value -> UTLA
                 LTLA.value -> LTLA
                 else -> null
@@ -196,12 +188,12 @@ data class AreaDataEntity(
     val cumulativeDeathsByDeathDate: Int?,
     @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
     val cumulativeDeathsByDeathDateRate: Double?,
-    @ColumnInfo(name = "newOnsDeathsByRegistrationDate")
-    val newOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDate")
-    val cumulativeOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDateRate")
-    val cumulativeOnsDeathsByRegistrationDateRate: Double?
+    @ColumnInfo(name = "newAdmissions")
+    val newAdmissions: Int?,
+    @ColumnInfo(name = "cumulativeAdmissions")
+    val cumulativeAdmissions: Int?,
+    @ColumnInfo(name = "occupiedBeds")
+    val occupiedBeds: Int?
 )
 
 data class AreaDataMetadataTuple(
@@ -221,40 +213,6 @@ data class AreaDataMetadataTuple(
     val cumulativeCases: Int,
     @ColumnInfo(name = "date")
     val date: LocalDate
-)
-
-data class AreaCaseData(
-    @ColumnInfo(name = "date")
-    val date: LocalDate,
-    @ColumnInfo(name = "newCases")
-    val newCases: Int,
-    @ColumnInfo(name = "infectionRate")
-    val infectionRate: Double,
-    @ColumnInfo(name = "cumulativeCases")
-    val cumulativeCases: Int
-)
-
-data class AreaDeathData(
-    @ColumnInfo(name = "date")
-    val date: LocalDate,
-    @ColumnInfo(name = "newDeathsByPublishedDate")
-    val newDeathsByPublishedDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByPublishedDate")
-    val cumulativeDeathsByPublishedDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByPublishedDateRate")
-    val cumulativeDeathsByPublishedDateRate: Double?,
-    @ColumnInfo(name = "newDeathsByDeathDate")
-    val newDeathsByDeathDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByDeathDate")
-    val cumulativeDeathsByDeathDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
-    val cumulativeDeathsByDeathDateRate: Double?,
-    @ColumnInfo(name = "newOnsDeathsByRegistrationDate")
-    val newOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDate")
-    val cumulativeOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDateRate")
-    val cumulativeOnsDeathsByRegistrationDateRate: Double?
 )
 
 @Dao
@@ -277,12 +235,6 @@ interface AreaDataDao {
 
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allByAreaCode(areaCode: String): List<AreaDataEntity>
-
-    @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
-    fun allAreaCasesByAreaCode(areaCode: String): List<AreaCaseData>
-
-    @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
-    fun allAreaDeathsByAreaCode(areaCode: String): List<AreaDeathData>
 
     @Query("SELECT * FROM areaData INNER JOIN metadata on areaData.metadataId = metadata.id WHERE areaCode IN (:areaCodes) ORDER BY date DESC LIMIT :limit")
     fun latestWithMetadataByAreaCodeAsFlow(
@@ -338,9 +290,6 @@ data class SavedAreaEntity(
 @Dao
 interface SavedAreaDao {
 
-    @Query("SELECT COUNT(areaCode) FROM savedArea")
-    fun countAll(): Int
-
     @Query("SELECT * FROM savedArea")
     fun all(): List<SavedAreaEntity>
 
@@ -349,9 +298,6 @@ interface SavedAreaDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(savedAreaEntity: SavedAreaEntity)
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertAll(savedAreaEntities: List<SavedAreaEntity>)
 
     @Query("SELECT COUNT(areaCode) > 0 FROM savedArea WHERE areaCode = :areaCode")
     fun isSaved(areaCode: String): Flow<Boolean>
@@ -366,9 +312,9 @@ object Constants {
 }
 
 object MetaDataIds {
+    fun areaListId(): String = "AREA_LIST_METADATA"
     fun areaSummaryId(): String = "AREA_SUMMARY_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
-    fun healthcareId(areaCode: String) = "HEALTHCARE_${areaCode}_METADATA"
 }
 
 @Entity(
@@ -433,116 +379,4 @@ interface AreaSummaryEntityDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaSummaries: List<AreaSummaryEntity>)
-}
-
-@Entity(
-    tableName = "areaLookup",
-    primaryKeys = ["lsoaCode"]
-)
-data class AreaLookupEntity(
-    @ColumnInfo(name = "lsoaCode")
-    val lsoaCode: String,
-    @ColumnInfo(name = "lsoaName")
-    val lsoaName: String?,
-    @ColumnInfo(name = "msoaCode")
-    val msoaCode: String,
-    @ColumnInfo(name = "msoaName")
-    val msoaName: String?,
-    @ColumnInfo(name = "ltlaCode")
-    val ltlaCode: String,
-    @ColumnInfo(name = "ltlaName")
-    val ltlaName: String,
-    @ColumnInfo(name = "utlaCode")
-    val utlaCode: String,
-    @ColumnInfo(name = "utlaName")
-    val utlaName: String,
-    @ColumnInfo(name = "nhsTrustCode")
-    val nhsTrustCode: String?,
-    @ColumnInfo(name = "nhsTrustName")
-    val nhsTrustName: String?,
-    @ColumnInfo(name = "nhsRegionCode")
-    val nhsRegionCode: String?,
-    @ColumnInfo(name = "nhsRegionName")
-    val nhsRegionName: String?,
-    @ColumnInfo(name = "regionCode")
-    val regionCode: String?,
-    @ColumnInfo(name = "regionName")
-    val regionName: String?,
-    @ColumnInfo(name = "nationCode")
-    val nationCode: String,
-    @ColumnInfo(name = "nationName")
-    val nationName: String
-)
-
-@Dao
-interface AreaLookupDao {
-
-    @Query("SELECT COUNT(msoaCode) FROM areaLookup")
-    fun countAll(): Int
-
-    @Query("SELECT * FROM areaLookup WHERE ltlaCode = :code LIMIT 1")
-    fun byLtla(code: String): AreaLookupEntity?
-
-    @Query("SELECT * FROM areaLookup WHERE utlaCode = :code LIMIT 1")
-    fun byUtla(code: String): AreaLookupEntity?
-
-    @Query("SELECT * FROM areaLookup WHERE regionCode = :code LIMIT 1")
-    fun byRegion(code: String): AreaLookupEntity?
-
-    @Query("SELECT * FROM areaLookup WHERE nationCode = :code LIMIT 1")
-    fun byNation(code: String): AreaLookupEntity?
-
-    @Query("SELECT * FROM areaLookup WHERE nhsRegionCode = :code LIMIT 1")
-    fun byNhsRegion(code: String): AreaLookupEntity?
-
-    @Query("SELECT * FROM areaLookup WHERE nhsTrustCode = :code LIMIT 1")
-    fun byNhsTrustCode(code: String): AreaLookupEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(areaLookupEntities: List<AreaLookupEntity>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(areaLookupEntity: AreaLookupEntity)
-}
-
-@Entity(
-    tableName = "healthcare",
-    primaryKeys = ["areaCode", "date"]
-)
-data class HealthcareEntity(
-    @ColumnInfo(name = "areaCode")
-    val areaCode: String,
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "areaType")
-    val areaType: AreaType,
-    @ColumnInfo(name = "date")
-    val date: LocalDate,
-    @ColumnInfo(name = "newAdmissions")
-    val newAdmissions: Int?,
-    @ColumnInfo(name = "cumulativeAdmissions")
-    val cumulativeAdmissions: Int?,
-    @ColumnInfo(name = "occupiedBeds")
-    val occupiedBeds: Int?,
-    @ColumnInfo(name = "transmissionRateMin")
-    val transmissionRateMin: Double?,
-    @ColumnInfo(name = "transmissionRateMax")
-    val transmissionRateMax: Double?,
-    @ColumnInfo(name = "transmissionRateGrowthRateMin")
-    val transmissionRateGrowthRateMin: Double?,
-    @ColumnInfo(name = "transmissionRateGrowthRateMax")
-    val transmissionRateGrowthRateMax: Double?
-)
-
-@Dao
-interface HealthcareDao {
-
-    @Query("DELETE FROM healthcare WHERE :areaCode = areaCode")
-    fun deleteAllByAreaCode(areaCode: String)
-
-    @Query("SELECT * FROM healthcare WHERE areaCode = :code")
-    fun byAreaCode(code: String): List<HealthcareEntity>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(healthcareData: List<HealthcareEntity>)
 }
