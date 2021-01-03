@@ -40,8 +40,6 @@ class HealthcareDataSource @Inject constructor(
     private fun allAdmissions(areaCode: String) =
         appDatabase.healthcareDao().byAreaCode(areaCode)
 
-    private fun hasHealthcareData(it: HealthcareEntity): Boolean {
-        return it.cumulativeAdmissions != null &&
-            it.newAdmissions != null
-    }
+    private fun hasHealthcareData(it: HealthcareEntity): Boolean =
+        it.cumulativeAdmissions != null && it.newAdmissions != null
 }

@@ -1,0 +1,2638 @@
+[
+    {
+        "areaCode": "E09000002",
+        "trustCode": "RF4"
+    },
+    {
+        "areaCode": "E09000002",
+        "trustCode": "RAT"
+    },
+    {
+        "areaCode": "E09000002",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E09000002",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "RRP"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "RYX"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "R1K"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000003",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E08000016",
+        "trustCode": "RXG"
+    },
+    {
+        "areaCode": "E08000016",
+        "trustCode": "RFF"
+    },
+    {
+        "areaCode": "E08000016",
+        "trustCode": "RFR"
+    },
+    {
+        "areaCode": "E06000022",
+        "trustCode": "RD1"
+    },
+    {
+        "areaCode": "E06000022",
+        "trustCode": "RVN"
+    },
+    {
+        "areaCode": "E06000022",
+        "trustCode": "RA7"
+    },
+    {
+        "areaCode": "E06000055",
+        "trustCode": "RWH"
+    },
+    {
+        "areaCode": "E06000055",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E06000055",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E09000004",
+        "trustCode": "RPG"
+    },
+    {
+        "areaCode": "E09000004",
+        "trustCode": "RN7"
+    },
+    {
+        "areaCode": "E09000004",
+        "trustCode": "RJ2"
+    },
+    {
+        "areaCode": "E09000004",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E09000004",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E08000025",
+        "trustCode": "RRK"
+    },
+    {
+        "areaCode": "E08000025",
+        "trustCode": "RYW"
+    },
+    {
+        "areaCode": "E08000025",
+        "trustCode": "RXT"
+    },
+    {
+        "areaCode": "E08000025",
+        "trustCode": "RXK"
+    },
+    {
+        "areaCode": "E08000025",
+        "trustCode": "RYG"
+    },
+    {
+        "areaCode": "E06000008",
+        "trustCode": "RXR"
+    },
+    {
+        "areaCode": "E06000008",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E06000009",
+        "trustCode": "RXL"
+    },
+    {
+        "areaCode": "E06000009",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E06000009",
+        "trustCode": "RW5"
+    },
+    {
+        "areaCode": "E08000001",
+        "trustCode": "RMC"
+    },
+    {
+        "areaCode": "E08000001",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E08000001",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E08000001",
+        "trustCode": "RXV"
+    },
+    {
+        "areaCode": "E06000029",
+        "trustCode": "RDY"
+    },
+    {
+        "areaCode": "E06000029",
+        "trustCode": "RDY"
+    },
+    {
+        "areaCode": "E06000036",
+        "trustCode": "RDU"
+    },
+    {
+        "areaCode": "E06000036",
+        "trustCode": "RHW"
+    },
+    {
+        "areaCode": "E06000036",
+        "trustCode": "RWX"
+    },
+    {
+        "areaCode": "E08000032",
+        "trustCode": "RAE"
+    },
+    {
+        "areaCode": "E08000032",
+        "trustCode": "RCF"
+    },
+    {
+        "areaCode": "E09000005",
+        "trustCode": "R1K"
+    },
+    {
+        "areaCode": "E09000005",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000005",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E09000005",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000005",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E09000005",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000005",
+        "trustCode": "RYX"
+    },
+    {
+        "areaCode": "E06000043",
+        "trustCode": "RXH"
+    },
+    {
+        "areaCode": "E06000043",
+        "trustCode": "RX2"
+    },
+    {
+        "areaCode": "E06000023",
+        "trustCode": "RA7"
+    },
+    {
+        "areaCode": "E06000023",
+        "trustCode": "RVJ"
+    },
+    {
+        "areaCode": "E06000023",
+        "trustCode": "RVN"
+    },
+    {
+        "areaCode": "E09000006",
+        "trustCode": "RPG"
+    },
+    {
+        "areaCode": "E09000006",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E09000006",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E09000006",
+        "trustCode": "RJ6"
+    },
+    {
+        "areaCode": "E09000006",
+        "trustCode": "RJ2"
+    },
+    {
+        "areaCode": "E09000006",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000006",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E10000002",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E10000002",
+        "trustCode": "RDU"
+    },
+    {
+        "areaCode": "E10000002",
+        "trustCode": "RNU"
+    },
+    {
+        "areaCode": "E10000002",
+        "trustCode": "RD8"
+    },
+    {
+        "areaCode": "E10000002",
+        "trustCode": "RTH"
+    },
+    {
+        "areaCode": "E10000002",
+        "trustCode": "RC9"
+    },
+    {
+        "areaCode": "E08000002",
+        "trustCode": "RW6"
+    },
+    {
+        "areaCode": "E08000002",
+        "trustCode": "RT2"
+    },
+    {
+        "areaCode": "E08000002",
+        "trustCode": "RMC"
+    },
+    {
+        "areaCode": "E08000002",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E08000002",
+        "trustCode": "RXV"
+    },
+    {
+        "areaCode": "E08000033",
+        "trustCode": "RWY"
+    },
+    {
+        "areaCode": "E08000033",
+        "trustCode": "RXG"
+    },
+    {
+        "areaCode": "E08000033",
+        "trustCode": "RXE"
+    },
+    {
+        "areaCode": "E08000033",
+        "trustCode": "RAE"
+    },
+    {
+        "areaCode": "E10000003",
+        "trustCode": "RGT"
+    },
+    {
+        "areaCode": "E10000003",
+        "trustCode": "RGN"
+    },
+    {
+        "areaCode": "E10000003",
+        "trustCode": "RT1"
+    },
+    {
+        "areaCode": "E10000003",
+        "trustCode": "RCX"
+    },
+    {
+        "areaCode": "E10000003",
+        "trustCode": "RGR"
+    },
+    {
+        "areaCode": "E09000007",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000007",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E09000007",
+        "trustCode": "TAF"
+    },
+    {
+        "areaCode": "E09000007",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000007",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000007",
+        "trustCode": "RKE"
+    },
+    {
+        "areaCode": "E06000056",
+        "trustCode": "RC9"
+    },
+    {
+        "areaCode": "E06000056",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E06000056",
+        "trustCode": "RD8"
+    },
+    {
+        "areaCode": "E06000049",
+        "trustCode": "RJN"
+    },
+    {
+        "areaCode": "E06000049",
+        "trustCode": "RBT"
+    },
+    {
+        "areaCode": "E06000049",
+        "trustCode": "RWJ"
+    },
+    {
+        "areaCode": "E06000049",
+        "trustCode": "RXA"
+    },
+    {
+        "areaCode": "E06000049",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E06000050",
+        "trustCode": "RJR"
+    },
+    {
+        "areaCode": "E06000050",
+        "trustCode": "RBT"
+    },
+    {
+        "areaCode": "E06000050",
+        "trustCode": "RBL"
+    },
+    {
+        "areaCode": "E06000050",
+        "trustCode": "RXA"
+    },
+    {
+        "areaCode": "E06000050",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E06000050",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E06000050",
+        "trustCode": "RWW"
+    },
+    {
+        "areaCode": "E09000001",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E06000052",
+        "trustCode": "RJ8"
+    },
+    {
+        "areaCode": "E06000052",
+        "trustCode": "REF"
+    },
+    {
+        "areaCode": "E06000052",
+        "trustCode": "RK9"
+    },
+    {
+        "areaCode": "E06000047",
+        "trustCode": "RXP"
+    },
+    {
+        "areaCode": "E06000047",
+        "trustCode": "RX3"
+    },
+    {
+        "areaCode": "E06000047",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E06000047",
+        "trustCode": "RVW"
+    },
+    {
+        "areaCode": "E06000047",
+        "trustCode": "RR7"
+    },
+    {
+        "areaCode": "E08000026",
+        "trustCode": "RKB"
+    },
+    {
+        "areaCode": "E08000026",
+        "trustCode": "RYG"
+    },
+    {
+        "areaCode": "E08000026",
+        "trustCode": "RJC"
+    },
+    {
+        "areaCode": "E08000026",
+        "trustCode": "RL1"
+    },
+    {
+        "areaCode": "E09000008",
+        "trustCode": "RV5"
+    },
+    {
+        "areaCode": "E09000008",
+        "trustCode": "RJ6"
+    },
+    {
+        "areaCode": "E09000008",
+        "trustCode": "RJ7"
+    },
+    {
+        "areaCode": "E09000008",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E10000006",
+        "trustCode": "RNN"
+    },
+    {
+        "areaCode": "E10000006",
+        "trustCode": "RTX"
+    },
+    {
+        "areaCode": "E10000006",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E06000005",
+        "trustCode": "RXP"
+    },
+    {
+        "areaCode": "E06000005",
+        "trustCode": "RX3"
+    },
+    {
+        "areaCode": "E06000005",
+        "trustCode": "RTR"
+    },
+    {
+        "areaCode": "E06000015",
+        "trustCode": "RTG"
+    },
+    {
+        "areaCode": "E06000015",
+        "trustCode": "RXM"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RTG"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RY8"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RFS"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RWJ"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RK5"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RHQ"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RXM"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RX1"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RJN"
+    },
+    {
+        "areaCode": "E10000007",
+        "trustCode": "RP5"
+    },
+    {
+        "areaCode": "E10000008",
+        "trustCode": "RH8"
+    },
+    {
+        "areaCode": "E10000008",
+        "trustCode": "RBZ"
+    },
+    {
+        "areaCode": "E10000008",
+        "trustCode": "RWV"
+    },
+    {
+        "areaCode": "E10000008",
+        "trustCode": "RA9"
+    },
+    {
+        "areaCode": "E10000008",
+        "trustCode": "RK9"
+    },
+    {
+        "areaCode": "E08000017",
+        "trustCode": "RXE"
+    },
+    {
+        "areaCode": "E08000017",
+        "trustCode": "RP5"
+    },
+    {
+        "areaCode": "E08000017",
+        "trustCode": "RHQ"
+    },
+    {
+        "areaCode": "E08000017",
+        "trustCode": "RFR"
+    },
+    {
+        "areaCode": "E08000017",
+        "trustCode": "RHA"
+    },
+    {
+        "areaCode": "E10000009",
+        "trustCode": "RDY"
+    },
+    {
+        "areaCode": "E10000009",
+        "trustCode": "RBD"
+    },
+    {
+        "areaCode": "E10000009",
+        "trustCode": "RA4"
+    },
+    {
+        "areaCode": "E10000009",
+        "trustCode": "RNZ"
+    },
+    {
+        "areaCode": "E08000027",
+        "trustCode": "RNA"
+    },
+    {
+        "areaCode": "E08000027",
+        "trustCode": "RRK"
+    },
+    {
+        "areaCode": "E08000027",
+        "trustCode": "RL4"
+    },
+    {
+        "areaCode": "E08000027",
+        "trustCode": "TAJ"
+    },
+    {
+        "areaCode": "E08000027",
+        "trustCode": "RRJ"
+    },
+    {
+        "areaCode": "E08000027",
+        "trustCode": "RXK"
+    },
+    {
+        "areaCode": "E08000027",
+        "trustCode": "RYK"
+    },
+    {
+        "areaCode": "E09000009",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E09000009",
+        "trustCode": "R1K"
+    },
+    {
+        "areaCode": "E09000009",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000009",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E06000011",
+        "trustCode": "RWA"
+    },
+    {
+        "areaCode": "E06000011",
+        "trustCode": "RV9"
+    },
+    {
+        "areaCode": "E06000011",
+        "trustCode": "RCB"
+    },
+    {
+        "areaCode": "E06000011",
+        "trustCode": "RJL"
+    },
+    {
+        "areaCode": "E10000011",
+        "trustCode": "RXC"
+    },
+    {
+        "areaCode": "E10000011",
+        "trustCode": "RXH"
+    },
+    {
+        "areaCode": "E10000011",
+        "trustCode": "RDR"
+    },
+    {
+        "areaCode": "E10000011",
+        "trustCode": "RWF"
+    },
+    {
+        "areaCode": "E10000011",
+        "trustCode": "RX2"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "RRP"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "RAP"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "R1K"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "RAN"
+    },
+    {
+        "areaCode": "E09000010",
+        "trustCode": "RKE"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "RDE"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "RQW"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "RAJ"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "RGT"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "NQ1"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "RF4"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "NQA"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "RWR"
+    },
+    {
+        "areaCode": "E10000012",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E08000037",
+        "trustCode": "RR7"
+    },
+    {
+        "areaCode": "E08000037",
+        "trustCode": "RX4"
+    },
+    {
+        "areaCode": "E08000037",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E10000013",
+        "trustCode": "RTE"
+    },
+    {
+        "areaCode": "E10000013",
+        "trustCode": "RN3"
+    },
+    {
+        "areaCode": "E10000013",
+        "trustCode": "RVN"
+    },
+    {
+        "areaCode": "E10000013",
+        "trustCode": "RTQ"
+    },
+    {
+        "areaCode": "E09000011",
+        "trustCode": "RPG"
+    },
+    {
+        "areaCode": "E09000011",
+        "trustCode": "RJ2"
+    },
+    {
+        "areaCode": "E09000011",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E09000011",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E09000012",
+        "trustCode": "RQX"
+    },
+    {
+        "areaCode": "E09000012",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E09000012",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000012",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000012",
+        "trustCode": "RKE"
+    },
+    {
+        "areaCode": "E09000012",
+        "trustCode": "RD8"
+    },
+    {
+        "areaCode": "E06000006",
+        "trustCode": "RWW"
+    },
+    {
+        "areaCode": "E06000006",
+        "trustCode": "RBN"
+    },
+    {
+        "areaCode": "E06000006",
+        "trustCode": "RTV"
+    },
+    {
+        "areaCode": "E06000006",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E06000006",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E06000006",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E09000013",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E09000013",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000013",
+        "trustCode": "RQM"
+    },
+    {
+        "areaCode": "E09000013",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E10000014",
+        "trustCode": "RHM"
+    },
+    {
+        "areaCode": "E10000014",
+        "trustCode": "RN5"
+    },
+    {
+        "areaCode": "E10000014",
+        "trustCode": "RW1"
+    },
+    {
+        "areaCode": "E10000014",
+        "trustCode": "RHU"
+    },
+    {
+        "areaCode": "E10000014",
+        "trustCode": "RDU"
+    },
+    {
+        "areaCode": "E10000014",
+        "trustCode": "RNZ"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RRP"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RKE"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RAP"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RQX"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RAN"
+    },
+    {
+        "areaCode": "E09000014",
+        "trustCode": "RYX"
+    },
+    {
+        "areaCode": "E09000015",
+        "trustCode": "R1K"
+    },
+    {
+        "areaCode": "E09000015",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000015",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E09000015",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E06000001",
+        "trustCode": "RVW"
+    },
+    {
+        "areaCode": "E06000001",
+        "trustCode": "RTR"
+    },
+    {
+        "areaCode": "E09000016",
+        "trustCode": "RF4"
+    },
+    {
+        "areaCode": "E09000016",
+        "trustCode": "RAT"
+    },
+    {
+        "areaCode": "E09000016",
+        "trustCode": "RAN"
+    },
+    {
+        "areaCode": "E06000019",
+        "trustCode": "RLQ"
+    },
+    {
+        "areaCode": "E06000019",
+        "trustCode": "RJC"
+    },
+    {
+        "areaCode": "E06000019",
+        "trustCode": "RTQ"
+    },
+    {
+        "areaCode": "E06000019",
+        "trustCode": "R1D"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RY4"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RWG"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RWR"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RQW"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RWH"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RC9"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RGT"
+    },
+    {
+        "areaCode": "E10000015",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E09000017",
+        "trustCode": "RAS"
+    },
+    {
+        "areaCode": "E09000017",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000017",
+        "trustCode": "R1K"
+    },
+    {
+        "areaCode": "E09000017",
+        "trustCode": "RWG"
+    },
+    {
+        "areaCode": "E09000017",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000018",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E09000018",
+        "trustCode": "RQM"
+    },
+    {
+        "areaCode": "E09000018",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E06000046",
+        "trustCode": "R1F"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "RKE"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "TAF"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "RWV"
+    },
+    {
+        "areaCode": "E09000019",
+        "trustCode": "RAP"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "RQM"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "RYX"
+    },
+    {
+        "areaCode": "E09000020",
+        "trustCode": "RJ7"
+    },
+    {
+        "areaCode": "E10000016",
+        "trustCode": "RVV"
+    },
+    {
+        "areaCode": "E10000016",
+        "trustCode": "RWF"
+    },
+    {
+        "areaCode": "E10000016",
+        "trustCode": "RXY"
+    },
+    {
+        "areaCode": "E10000016",
+        "trustCode": "RN7"
+    },
+    {
+        "areaCode": "E10000016",
+        "trustCode": "RYY"
+    },
+    {
+        "areaCode": "E10000016",
+        "trustCode": "RPA"
+    },
+    {
+        "areaCode": "E06000010",
+        "trustCode": "RWA"
+    },
+    {
+        "areaCode": "E06000010",
+        "trustCode": "RV9"
+    },
+    {
+        "areaCode": "E09000021",
+        "trustCode": "RAX"
+    },
+    {
+        "areaCode": "E09000021",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E09000021",
+        "trustCode": "RAN"
+    },
+    {
+        "areaCode": "E08000034",
+        "trustCode": "RXF"
+    },
+    {
+        "areaCode": "E08000034",
+        "trustCode": "RWY"
+    },
+    {
+        "areaCode": "E08000034",
+        "trustCode": "RXG"
+    },
+    {
+        "areaCode": "E08000034",
+        "trustCode": "RFF"
+    },
+    {
+        "areaCode": "E08000034",
+        "trustCode": "RAE"
+    },
+    {
+        "areaCode": "E08000011",
+        "trustCode": "RBN"
+    },
+    {
+        "areaCode": "E08000011",
+        "trustCode": "REM"
+    },
+    {
+        "areaCode": "E08000011",
+        "trustCode": "RTV"
+    },
+    {
+        "areaCode": "E08000011",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E08000011",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E09000022",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E09000022",
+        "trustCode": "RV5"
+    },
+    {
+        "areaCode": "E09000022",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E09000022",
+        "trustCode": "RJ7"
+    },
+    {
+        "areaCode": "E09000022",
+        "trustCode": "RJ2"
+    },
+    {
+        "areaCode": "E09000022",
+        "trustCode": "RJ6"
+    },
+    {
+        "areaCode": "E09000022",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E10000017",
+        "trustCode": "RXN"
+    },
+    {
+        "areaCode": "E10000017",
+        "trustCode": "RXR"
+    },
+    {
+        "areaCode": "E10000017",
+        "trustCode": "RXL"
+    },
+    {
+        "areaCode": "E10000017",
+        "trustCode": "RTX"
+    },
+    {
+        "areaCode": "E10000017",
+        "trustCode": "RW5"
+    },
+    {
+        "areaCode": "E10000017",
+        "trustCode": "RCF"
+    },
+    {
+        "areaCode": "E10000017",
+        "trustCode": "RVY"
+    },
+    {
+        "areaCode": "E08000035",
+        "trustCode": "RR8"
+    },
+    {
+        "areaCode": "E08000035",
+        "trustCode": "RGD"
+    },
+    {
+        "areaCode": "E08000035",
+        "trustCode": "RXF"
+    },
+    {
+        "areaCode": "E08000035",
+        "trustCode": "RCD"
+    },
+    {
+        "areaCode": "E06000016",
+        "trustCode": "RWE"
+    },
+    {
+        "areaCode": "E06000016",
+        "trustCode": "RT5"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RT5"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RWE"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RNQ"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RX1"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RKB"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RTG"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RLT"
+    },
+    {
+        "areaCode": "E10000018",
+        "trustCode": "RWD"
+    },
+    {
+        "areaCode": "E09000023",
+        "trustCode": "RV5"
+    },
+    {
+        "areaCode": "E09000023",
+        "trustCode": "RJ2"
+    },
+    {
+        "areaCode": "E09000023",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E09000023",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E10000019",
+        "trustCode": "RWD"
+    },
+    {
+        "areaCode": "E10000019",
+        "trustCode": "RP7"
+    },
+    {
+        "areaCode": "E10000019",
+        "trustCode": "RY5"
+    },
+    {
+        "areaCode": "E10000019",
+        "trustCode": "RGN"
+    },
+    {
+        "areaCode": "E10000019",
+        "trustCode": "RJL"
+    },
+    {
+        "areaCode": "E10000019",
+        "trustCode": "RCX"
+    },
+    {
+        "areaCode": "E08000012",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E08000012",
+        "trustCode": "REM"
+    },
+    {
+        "areaCode": "E08000012",
+        "trustCode": "RBN"
+    },
+    {
+        "areaCode": "E08000012",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E08000012",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E08000012",
+        "trustCode": "RTV"
+    },
+    {
+        "areaCode": "E06000032",
+        "trustCode": "RC9"
+    },
+    {
+        "areaCode": "E06000032",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E08000003",
+        "trustCode": "RW6"
+    },
+    {
+        "areaCode": "E08000003",
+        "trustCode": "RWJ"
+    },
+    {
+        "areaCode": "E08000003",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E08000003",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E08000003",
+        "trustCode": "RMP"
+    },
+    {
+        "areaCode": "E06000035",
+        "trustCode": "RPA"
+    },
+    {
+        "areaCode": "E06000035",
+        "trustCode": "RXY"
+    },
+    {
+        "areaCode": "E06000035",
+        "trustCode": "NQ7"
+    },
+    {
+        "areaCode": "E06000035",
+        "trustCode": "RVV"
+    },
+    {
+        "areaCode": "E06000035",
+        "trustCode": "RAN"
+    },
+    {
+        "areaCode": "E09000024",
+        "trustCode": "RJ7"
+    },
+    {
+        "areaCode": "E09000024",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E09000024",
+        "trustCode": "RAX"
+    },
+    {
+        "areaCode": "E09000024",
+        "trustCode": "RVR"
+    },
+    {
+        "areaCode": "E06000002",
+        "trustCode": "RTR"
+    },
+    {
+        "areaCode": "E06000002",
+        "trustCode": "RX3"
+    },
+    {
+        "areaCode": "E06000042",
+        "trustCode": "RD8"
+    },
+    {
+        "areaCode": "E06000042",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E08000021",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E08000021",
+        "trustCode": "RX4"
+    },
+    {
+        "areaCode": "E09000025",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000025",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E09000025",
+        "trustCode": "RF4"
+    },
+    {
+        "areaCode": "E09000025",
+        "trustCode": "RAN"
+    },
+    {
+        "areaCode": "E10000020",
+        "trustCode": "RM1"
+    },
+    {
+        "areaCode": "E10000020",
+        "trustCode": "RY3"
+    },
+    {
+        "areaCode": "E10000020",
+        "trustCode": "RCX"
+    },
+    {
+        "areaCode": "E10000020",
+        "trustCode": "RGP"
+    },
+    {
+        "areaCode": "E10000020",
+        "trustCode": "RWR"
+    },
+    {
+        "areaCode": "E10000020",
+        "trustCode": "RMY"
+    },
+    {
+        "areaCode": "E10000020",
+        "trustCode": "RGR"
+    },
+    {
+        "areaCode": "E06000012",
+        "trustCode": "RJL"
+    },
+    {
+        "areaCode": "E06000012",
+        "trustCode": "NQL"
+    },
+    {
+        "areaCode": "E06000012",
+        "trustCode": "RWA"
+    },
+    {
+        "areaCode": "E06000013",
+        "trustCode": "RJL"
+    },
+    {
+        "areaCode": "E06000013",
+        "trustCode": "RXE"
+    },
+    {
+        "areaCode": "E06000013",
+        "trustCode": "RWA"
+    },
+    {
+        "areaCode": "E06000013",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E06000024",
+        "trustCode": "RVJ"
+    },
+    {
+        "areaCode": "E06000024",
+        "trustCode": "RA7"
+    },
+    {
+        "areaCode": "E06000024",
+        "trustCode": "RVN"
+    },
+    {
+        "areaCode": "E08000022",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E08000022",
+        "trustCode": "RX4"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RCB"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RX3"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RTR"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RCD"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RCF"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RV9"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RWA"
+    },
+    {
+        "areaCode": "E10000023",
+        "trustCode": "RXF"
+    },
+    {
+        "areaCode": "E10000021",
+        "trustCode": "RNS"
+    },
+    {
+        "areaCode": "E10000021",
+        "trustCode": "RNQ"
+    },
+    {
+        "areaCode": "E10000021",
+        "trustCode": "RP1"
+    },
+    {
+        "areaCode": "E10000021",
+        "trustCode": "RTH"
+    },
+    {
+        "areaCode": "E10000021",
+        "trustCode": "RJC"
+    },
+    {
+        "areaCode": "E10000021",
+        "trustCode": "RGN"
+    },
+    {
+        "areaCode": "E10000021",
+        "trustCode": "RD8"
+    },
+    {
+        "areaCode": "E06000057",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E06000057",
+        "trustCode": "RX4"
+    },
+    {
+        "areaCode": "E06000057",
+        "trustCode": "RTF"
+    },
+    {
+        "areaCode": "E06000018",
+        "trustCode": "RX1"
+    },
+    {
+        "areaCode": "E06000018",
+        "trustCode": "RHA"
+    },
+    {
+        "areaCode": "E06000018",
+        "trustCode": "NR3"
+    },
+    {
+        "areaCode": "E10000024",
+        "trustCode": "RK5"
+    },
+    {
+        "areaCode": "E10000024",
+        "trustCode": "RX1"
+    },
+    {
+        "areaCode": "E10000024",
+        "trustCode": "RHA"
+    },
+    {
+        "areaCode": "E10000024",
+        "trustCode": "RP5"
+    },
+    {
+        "areaCode": "E10000024",
+        "trustCode": "RWD"
+    },
+    {
+        "areaCode": "E08000004",
+        "trustCode": "RW6"
+    },
+    {
+        "areaCode": "E08000004",
+        "trustCode": "RT2"
+    },
+    {
+        "areaCode": "E08000004",
+        "trustCode": "RMP"
+    },
+    {
+        "areaCode": "E08000004",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E10000025",
+        "trustCode": "RTH"
+    },
+    {
+        "areaCode": "E10000025",
+        "trustCode": "RNU"
+    },
+    {
+        "areaCode": "E10000025",
+        "trustCode": "RHW"
+    },
+    {
+        "areaCode": "E10000025",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E06000031",
+        "trustCode": "RGN"
+    },
+    {
+        "areaCode": "E06000031",
+        "trustCode": "RT1"
+    },
+    {
+        "areaCode": "E06000026",
+        "trustCode": "RK9"
+    },
+    {
+        "areaCode": "E06000044",
+        "trustCode": "RHU"
+    },
+    {
+        "areaCode": "E06000044",
+        "trustCode": "R1C"
+    },
+    {
+        "areaCode": "E06000038",
+        "trustCode": "RWX"
+    },
+    {
+        "areaCode": "E06000038",
+        "trustCode": "RHW"
+    },
+    {
+        "areaCode": "E09000026",
+        "trustCode": "RF4"
+    },
+    {
+        "areaCode": "E09000026",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000026",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E09000026",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000026",
+        "trustCode": "RAT"
+    },
+    {
+        "areaCode": "E06000003",
+        "trustCode": "RTR"
+    },
+    {
+        "areaCode": "E06000003",
+        "trustCode": "RX3"
+    },
+    {
+        "areaCode": "E06000003",
+        "trustCode": "RX4"
+    },
+    {
+        "areaCode": "E06000003",
+        "trustCode": "RR7"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RAX"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RQM"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RY9"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RJ7"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E09000027",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E08000005",
+        "trustCode": "RT2"
+    },
+    {
+        "areaCode": "E08000005",
+        "trustCode": "RW6"
+    },
+    {
+        "areaCode": "E08000005",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E08000018",
+        "trustCode": "RFR"
+    },
+    {
+        "areaCode": "E08000018",
+        "trustCode": "RXE"
+    },
+    {
+        "areaCode": "E08000018",
+        "trustCode": "RHQ"
+    },
+    {
+        "areaCode": "E08000018",
+        "trustCode": "RP5"
+    },
+    {
+        "areaCode": "E08000018",
+        "trustCode": "RV9"
+    },
+    {
+        "areaCode": "E06000017",
+        "trustCode": "RGN"
+    },
+    {
+        "areaCode": "E06000017",
+        "trustCode": "RT5"
+    },
+    {
+        "areaCode": "E08000006",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E08000006",
+        "trustCode": "RMC"
+    },
+    {
+        "areaCode": "E08000006",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E08000028",
+        "trustCode": "TAJ"
+    },
+    {
+        "areaCode": "E08000028",
+        "trustCode": "RNA"
+    },
+    {
+        "areaCode": "E08000028",
+        "trustCode": "RRK"
+    },
+    {
+        "areaCode": "E08000028",
+        "trustCode": "RYW"
+    },
+    {
+        "areaCode": "E08000028",
+        "trustCode": "RBK"
+    },
+    {
+        "areaCode": "E08000028",
+        "trustCode": "RRJ"
+    },
+    {
+        "areaCode": "E08000028",
+        "trustCode": "RXT"
+    },
+    {
+        "areaCode": "E08000014",
+        "trustCode": "REM"
+    },
+    {
+        "areaCode": "E08000014",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E08000014",
+        "trustCode": "RVY"
+    },
+    {
+        "areaCode": "E08000014",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E08000014",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E08000019",
+        "trustCode": "RHQ"
+    },
+    {
+        "areaCode": "E08000019",
+        "trustCode": "TAH"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "RXW"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "R1D"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "RRE"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "RL1"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "RLQ"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "RYG"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "RL4"
+    },
+    {
+        "areaCode": "E06000051",
+        "trustCode": "R1A"
+    },
+    {
+        "areaCode": "E06000039",
+        "trustCode": "RDU"
+    },
+    {
+        "areaCode": "E06000039",
+        "trustCode": "RWX"
+    },
+    {
+        "areaCode": "E06000039",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E06000039",
+        "trustCode": "RKL"
+    },
+    {
+        "areaCode": "E06000039",
+        "trustCode": "RHW"
+    },
+    {
+        "areaCode": "E08000029",
+        "trustCode": "RJC"
+    },
+    {
+        "areaCode": "E08000029",
+        "trustCode": "RRK"
+    },
+    {
+        "areaCode": "E08000029",
+        "trustCode": "RYG"
+    },
+    {
+        "areaCode": "E08000029",
+        "trustCode": "RYW"
+    },
+    {
+        "areaCode": "E08000029",
+        "trustCode": "RXT"
+    },
+    {
+        "areaCode": "E10000027",
+        "trustCode": "RA4"
+    },
+    {
+        "areaCode": "E10000027",
+        "trustCode": "RH5"
+    },
+    {
+        "areaCode": "E10000027",
+        "trustCode": "RD1"
+    },
+    {
+        "areaCode": "E06000025",
+        "trustCode": "RVJ"
+    },
+    {
+        "areaCode": "E06000025",
+        "trustCode": "RVN"
+    },
+    {
+        "areaCode": "E06000025",
+        "trustCode": "RA7"
+    },
+    {
+        "areaCode": "E06000025",
+        "trustCode": "NLX"
+    },
+    {
+        "areaCode": "E06000025",
+        "trustCode": "RD1"
+    },
+    {
+        "areaCode": "E08000023",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E08000023",
+        "trustCode": "RX4"
+    },
+    {
+        "areaCode": "E08000023",
+        "trustCode": "RR7"
+    },
+    {
+        "areaCode": "E06000045",
+        "trustCode": "RHM"
+    },
+    {
+        "areaCode": "E06000045",
+        "trustCode": "R1C"
+    },
+    {
+        "areaCode": "E06000033",
+        "trustCode": "RAJ"
+    },
+    {
+        "areaCode": "E06000033",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E09000028",
+        "trustCode": "RV5"
+    },
+    {
+        "areaCode": "E09000028",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E09000028",
+        "trustCode": "RJZ"
+    },
+    {
+        "areaCode": "E08000013",
+        "trustCode": "RTV"
+    },
+    {
+        "areaCode": "E08000013",
+        "trustCode": "RBN"
+    },
+    {
+        "areaCode": "E08000013",
+        "trustCode": "RWW"
+    },
+    {
+        "areaCode": "E08000013",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E08000013",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E08000013",
+        "trustCode": "RY2"
+    },
+    {
+        "areaCode": "E10000028",
+        "trustCode": "RJE"
+    },
+    {
+        "areaCode": "E10000028",
+        "trustCode": "RL4"
+    },
+    {
+        "areaCode": "E10000028",
+        "trustCode": "RRE"
+    },
+    {
+        "areaCode": "E10000028",
+        "trustCode": "RNA"
+    },
+    {
+        "areaCode": "E10000028",
+        "trustCode": "RLY"
+    },
+    {
+        "areaCode": "E10000028",
+        "trustCode": "RBK"
+    },
+    {
+        "areaCode": "E10000028",
+        "trustCode": "RTG"
+    },
+    {
+        "areaCode": "E08000007",
+        "trustCode": "RWJ"
+    },
+    {
+        "areaCode": "E08000007",
+        "trustCode": "RT2"
+    },
+    {
+        "areaCode": "E06000004",
+        "trustCode": "RVW"
+    },
+    {
+        "areaCode": "E06000004",
+        "trustCode": "RTR"
+    },
+    {
+        "areaCode": "E06000004",
+        "trustCode": "RX3"
+    },
+    {
+        "areaCode": "E06000021",
+        "trustCode": "RJE"
+    },
+    {
+        "areaCode": "E06000021",
+        "trustCode": "RLY"
+    },
+    {
+        "areaCode": "E10000029",
+        "trustCode": "RGR"
+    },
+    {
+        "areaCode": "E10000029",
+        "trustCode": "RMY"
+    },
+    {
+        "areaCode": "E10000029",
+        "trustCode": "RGT"
+    },
+    {
+        "areaCode": "E10000029",
+        "trustCode": "RGP"
+    },
+    {
+        "areaCode": "E10000029",
+        "trustCode": "NAX"
+    },
+    {
+        "areaCode": "E10000029",
+        "trustCode": "RDE"
+    },
+    {
+        "areaCode": "E08000024",
+        "trustCode": "RTD"
+    },
+    {
+        "areaCode": "E08000024",
+        "trustCode": "RR7"
+    },
+    {
+        "areaCode": "E08000024",
+        "trustCode": "RX4"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RTK"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RDU"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RTP"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RA2"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RXX"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RAX"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RVR"
+    },
+    {
+        "areaCode": "E10000030",
+        "trustCode": "RDR"
+    },
+    {
+        "areaCode": "E09000029",
+        "trustCode": "RVR"
+    },
+    {
+        "areaCode": "E09000029",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E09000029",
+        "trustCode": "RJ7"
+    },
+    {
+        "areaCode": "E09000029",
+        "trustCode": "RXQ"
+    },
+    {
+        "areaCode": "E09000029",
+        "trustCode": "RAX"
+    },
+    {
+        "areaCode": "E06000030",
+        "trustCode": "RN3"
+    },
+    {
+        "areaCode": "E06000030",
+        "trustCode": "RVN"
+    },
+    {
+        "areaCode": "E06000030",
+        "trustCode": "RTE"
+    },
+    {
+        "areaCode": "E08000008",
+        "trustCode": "RMP"
+    },
+    {
+        "areaCode": "E08000008",
+        "trustCode": "RT2"
+    },
+    {
+        "areaCode": "E08000008",
+        "trustCode": "RWJ"
+    },
+    {
+        "areaCode": "E06000020",
+        "trustCode": "RXW"
+    },
+    {
+        "areaCode": "E06000020",
+        "trustCode": "RRE"
+    },
+    {
+        "areaCode": "E06000020",
+        "trustCode": "R1D"
+    },
+    {
+        "areaCode": "E06000020",
+        "trustCode": "RL1"
+    },
+    {
+        "areaCode": "E06000034",
+        "trustCode": "RAT"
+    },
+    {
+        "areaCode": "E06000027",
+        "trustCode": "RA9"
+    },
+    {
+        "areaCode": "E06000027",
+        "trustCode": "RWV"
+    },
+    {
+        "areaCode": "E09000030",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000030",
+        "trustCode": "R1K"
+    },
+    {
+        "areaCode": "E09000030",
+        "trustCode": "RWK"
+    },
+    {
+        "areaCode": "E08000009",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E08000009",
+        "trustCode": "RXV"
+    },
+    {
+        "areaCode": "E08000036",
+        "trustCode": "RXF"
+    },
+    {
+        "areaCode": "E08000036",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E08000036",
+        "trustCode": "RXG"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RBK"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RL4"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RXK"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "TAJ"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RYW"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RNA"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RYK"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RRJ"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RXT"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RYG"
+    },
+    {
+        "areaCode": "E08000030",
+        "trustCode": "RL1"
+    },
+    {
+        "areaCode": "E09000031",
+        "trustCode": "R1H"
+    },
+    {
+        "areaCode": "E09000031",
+        "trustCode": "RAT"
+    },
+    {
+        "areaCode": "E09000031",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000032",
+        "trustCode": "RJ7"
+    },
+    {
+        "areaCode": "E09000032",
+        "trustCode": "RQY"
+    },
+    {
+        "areaCode": "E09000032",
+        "trustCode": "RAX"
+    },
+    {
+        "areaCode": "E09000032",
+        "trustCode": "RQM"
+    },
+    {
+        "areaCode": "E09000032",
+        "trustCode": "RP6"
+    },
+    {
+        "areaCode": "E09000032",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E06000007",
+        "trustCode": "RWW"
+    },
+    {
+        "areaCode": "E06000007",
+        "trustCode": "RTV"
+    },
+    {
+        "areaCode": "E06000007",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E06000007",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E06000007",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E10000031",
+        "trustCode": "RJC"
+    },
+    {
+        "areaCode": "E10000031",
+        "trustCode": "RKB"
+    },
+    {
+        "areaCode": "E10000031",
+        "trustCode": "RLT"
+    },
+    {
+        "areaCode": "E10000031",
+        "trustCode": "RWP"
+    },
+    {
+        "areaCode": "E10000031",
+        "trustCode": "RYG"
+    },
+    {
+        "areaCode": "E10000031",
+        "trustCode": "RTH"
+    },
+    {
+        "areaCode": "E06000037",
+        "trustCode": "RHW"
+    },
+    {
+        "areaCode": "E06000037",
+        "trustCode": "RWX"
+    },
+    {
+        "areaCode": "E06000037",
+        "trustCode": "RN5"
+    },
+    {
+        "areaCode": "E06000037",
+        "trustCode": "RN3"
+    },
+    {
+        "areaCode": "E06000037",
+        "trustCode": "RTH"
+    },
+    {
+        "areaCode": "E10000032",
+        "trustCode": "RYR"
+    },
+    {
+        "areaCode": "E10000032",
+        "trustCode": "RDR"
+    },
+    {
+        "areaCode": "E10000032",
+        "trustCode": "RXH"
+    },
+    {
+        "areaCode": "E10000032",
+        "trustCode": "RX2"
+    },
+    {
+        "areaCode": "E10000032",
+        "trustCode": "RTP"
+    },
+    {
+        "areaCode": "E09000033",
+        "trustCode": "RV3"
+    },
+    {
+        "areaCode": "E09000033",
+        "trustCode": "RYJ"
+    },
+    {
+        "areaCode": "E09000033",
+        "trustCode": "RRV"
+    },
+    {
+        "areaCode": "E09000033",
+        "trustCode": "RJ1"
+    },
+    {
+        "areaCode": "E09000033",
+        "trustCode": "RWF"
+    },
+    {
+        "areaCode": "E09000033",
+        "trustCode": "RAL"
+    },
+    {
+        "areaCode": "E09000033",
+        "trustCode": "RYX"
+    },
+    {
+        "areaCode": "E08000010",
+        "trustCode": "RMC"
+    },
+    {
+        "areaCode": "E08000010",
+        "trustCode": "RTV"
+    },
+    {
+        "areaCode": "E08000010",
+        "trustCode": "RM3"
+    },
+    {
+        "areaCode": "E08000010",
+        "trustCode": "RW4"
+    },
+    {
+        "areaCode": "E08000010",
+        "trustCode": "RWW"
+    },
+    {
+        "areaCode": "E08000010",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E06000054",
+        "trustCode": "RNZ"
+    },
+    {
+        "areaCode": "E06000054",
+        "trustCode": "RN3"
+    },
+    {
+        "areaCode": "E06000054",
+        "trustCode": "RD1"
+    },
+    {
+        "areaCode": "E06000054",
+        "trustCode": "AXG"
+    },
+    {
+        "areaCode": "E06000054",
+        "trustCode": "RVN"
+    },
+    {
+        "areaCode": "E06000040",
+        "trustCode": "RDU"
+    },
+    {
+        "areaCode": "E06000040",
+        "trustCode": "RWX"
+    },
+    {
+        "areaCode": "E06000040",
+        "trustCode": "RBK"
+    },
+    {
+        "areaCode": "E08000015",
+        "trustCode": "RBL"
+    },
+    {
+        "areaCode": "E08000015",
+        "trustCode": "RET"
+    },
+    {
+        "areaCode": "E08000015",
+        "trustCode": "RXA"
+    },
+    {
+        "areaCode": "E08000015",
+        "trustCode": "RBQ"
+    },
+    {
+        "areaCode": "E08000015",
+        "trustCode": "RJR"
+    },
+    {
+        "areaCode": "E06000041",
+        "trustCode": "RHW"
+    },
+    {
+        "areaCode": "E06000041",
+        "trustCode": "RWX"
+    },
+    {
+        "areaCode": "E08000031",
+        "trustCode": "RL4"
+    },
+    {
+        "areaCode": "E08000031",
+        "trustCode": "TAJ"
+    },
+    {
+        "areaCode": "E08000031",
+        "trustCode": "RNA"
+    },
+    {
+        "areaCode": "E08000031",
+        "trustCode": "RL1"
+    },
+    {
+        "areaCode": "E08000031",
+        "trustCode": "RRE"
+    },
+    {
+        "areaCode": "E10000034",
+        "trustCode": "R1A"
+    },
+    {
+        "areaCode": "E10000034",
+        "trustCode": "RWP"
+    },
+    {
+        "areaCode": "E10000034",
+        "trustCode": "RRK"
+    },
+    {
+        "areaCode": "E10000034",
+        "trustCode": "RLQ"
+    },
+    {
+        "areaCode": "E10000034",
+        "trustCode": "RNA"
+    },
+    {
+        "areaCode": "E10000034",
+        "trustCode": "RTE"
+    },
+    {
+        "areaCode": "E10000034",
+        "trustCode": "RJC"
+    },
+    {
+        "areaCode": "E06000014",
+        "trustCode": "RCB"
+    },
+    {
+        "areaCode": "E06000014",
+        "trustCode": "RX3"
+    }
+]

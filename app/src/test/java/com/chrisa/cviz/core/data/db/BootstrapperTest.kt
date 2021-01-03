@@ -16,6 +16,7 @@
 
 package com.chrisa.cviz.core.data.db
 
+import com.chrisa.cviz.core.data.db.hospitallookups.HospitalLookupHelper
 import com.chrisa.cviz.core.data.db.legacy.LegacyAppDatabaseHelper
 import io.mockk.every
 import io.mockk.mockk
@@ -29,7 +30,8 @@ class BootstrapperTest {
     private val areaLookupDao: AreaLookupDao = mockk(relaxed = true)
     private val savedAreaDao: SavedAreaDao = mockk(relaxed = true)
     private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper = mockk(relaxed = true)
-    private val sut = Bootstrapper(appDatabase, legacyAppDatabaseHelper)
+    private val hospitalLookupHelper: HospitalLookupHelper = mockk(relaxed = true)
+    private val sut = Bootstrapper(appDatabase, legacyAppDatabaseHelper, hospitalLookupHelper)
 
     @Before
     fun setup() {
@@ -97,5 +99,12 @@ class BootstrapperTest {
         sut.execute()
 
         verify(exactly = 1) { areaDao.insertAll(BootstrapData.areaData()) }
+    }
+
+    @Test
+    fun `WHEN execute called THEN hospital lookups inserted`() {
+        sut.execute()
+
+        verify(exactly = 1) { hospitalLookupHelper.insertHospitalLookupData() }
     }
 }

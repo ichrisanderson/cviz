@@ -43,7 +43,8 @@ import kotlinx.coroutines.flow.Flow
         MetadataEntity::class,
         SavedAreaEntity::class,
         HealthcareEntity::class,
-        AreaLookupEntity::class
+        AreaLookupEntity::class,
+        HealthcareLookupEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -62,6 +63,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun savedAreaDao(): SavedAreaDao
     abstract fun areaLookupDao(): AreaLookupDao
     abstract fun healthcareDao(): HealthcareDao
+    abstract fun healthcareLookupDao(): HealthcareLookupDao
 
     companion object {
         private const val databaseName = "cviz-db"
@@ -545,4 +547,31 @@ interface HealthcareDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(healthcareData: List<HealthcareEntity>)
+}
+
+@Entity(
+    tableName = "healthcareLookup",
+    primaryKeys = ["areaCode", "nhsTrustCode"]
+)
+data class HealthcareLookupEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "nhsTrustCode")
+    val nhsTrustCode: String
+)
+
+@Dao
+interface HealthcareLookupDao {
+
+    @Query("SELECT COUNT(nhsTrustCode) FROM healthcareLookup")
+    fun countAll(): Int
+
+    @Query("SELECT * FROM healthcareLookup WHERE areaCode = :code")
+    fun byAreaCode(code: String): List<HealthcareLookupEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(item: HealthcareLookupEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(items: List<HealthcareLookupEntity>)
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9b60abd422eedaf1a38e0b58b8a1f153",
+    "identityHash": "ca0053f072f0ef0a8a22b487c7a193fc",
     "entities": [
       {
         "tableName": "area",
@@ -523,12 +523,39 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "healthcareLookup",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `nhsTrustCode` TEXT NOT NULL, PRIMARY KEY(`areaCode`, `nhsTrustCode`))",
+        "fields": [
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nhsTrustCode",
+            "columnName": "nhsTrustCode",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode",
+            "nhsTrustCode"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9b60abd422eedaf1a38e0b58b8a1f153')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ca0053f072f0ef0a8a22b487c7a193fc')"
     ]
   }
 }

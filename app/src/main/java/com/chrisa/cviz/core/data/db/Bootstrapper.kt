@@ -16,16 +16,19 @@
 
 package com.chrisa.cviz.core.data.db
 
+import com.chrisa.cviz.core.data.db.hospitallookups.HospitalLookupHelper
 import com.chrisa.cviz.core.data.db.legacy.LegacyAppDatabaseHelper
 import javax.inject.Inject
 
 class Bootstrapper @Inject constructor(
     private val appDatabase: AppDatabase,
-    private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper
+    private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper,
+    private val hospitalLookupHelper: HospitalLookupHelper
 ) {
     fun execute() {
         copyOldData()
         insertAreaData()
+        hospitalLookupHelper.insertHospitalLookupData()
     }
 
     private fun copyOldData() {
