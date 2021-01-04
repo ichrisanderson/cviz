@@ -47,7 +47,7 @@ class AreaCasesUseCaseTest {
         every { areaLookupUseCase.areaLookup(any(), any()) } returns null
         every { areaCasesDataSource.cases(Constants.UK_AREA_CODE) } returns dailyData
 
-        val cases = sut.cases("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA, areaLookupDto)
 
         assertThat(cases).isEqualTo(
             AreaDailyDataDto("United Kingdom", dailyData)
@@ -58,7 +58,7 @@ class AreaCasesUseCaseTest {
     fun `WHEN nation has cases THEN nation cases returned`() {
         every { areaCasesDataSource.cases(areaLookupDto.nationCode) } returns dailyData
 
-        val cases = sut.cases("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA, areaLookupDto)
 
         assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.nationName, dailyData)
@@ -69,7 +69,7 @@ class AreaCasesUseCaseTest {
     fun `WHEN region has cases THEN region cases returned`() {
         every { areaCasesDataSource.cases(areaLookupDto.regionCode!!) } returns dailyData
 
-        val cases = sut.cases("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA, areaLookupDto)
 
         assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.regionName!!, dailyData)
@@ -86,7 +86,7 @@ class AreaCasesUseCaseTest {
             )
         } returns areaLookupDto.utlaName
 
-        val cases = sut.cases("E1", AreaType.UTLA)
+        val cases = sut.cases("E1", AreaType.UTLA, areaLookupDto)
 
         assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.utlaName, dailyData)
@@ -103,7 +103,7 @@ class AreaCasesUseCaseTest {
             )
         } returns areaLookupDto.utlaName
 
-        val cases = sut.cases("E1", AreaType.LTLA)
+        val cases = sut.cases("E1", AreaType.LTLA, areaLookupDto)
 
         assertThat(cases).isEqualTo(
             AreaDailyDataDto(areaLookupDto.utlaName, dailyData)

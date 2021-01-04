@@ -17,9 +17,12 @@
 package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.HealthcareLookupEntity
 import com.chrisa.cviz.core.data.synchronisation.HealthcareDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaCodeResolver
 import com.chrisa.cviz.features.area.data.HealthcareDataSource
+import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
@@ -28,19 +31,51 @@ import javax.inject.Inject
 class HealthcareUseCase @Inject constructor(
     private val healthcareDataSynchroniser: HealthcareDataSynchroniser,
     private val healthcareDataSource: HealthcareDataSource,
-    private val areaCodeResolver: AreaCodeResolver
+    private val areaCodeResolver: AreaCodeResolver,
+    private val healthcareLookupDataSource: HealthcareLookupDataSource
 ) {
 
-    fun healthcareData(areaCode: String, areaLookup: AreaLookupDto?): AreaDailyDataDto {
-        val nhsRegion = healthCareRegion(areaCode, areaLookup)
-        val healthCareData = healthcareDataSource.healthcareData(nhsRegion.code)
-        return AreaDailyDataDto(nhsRegion.name, healthCareData)
+    fun healthcareData(
+        areaCode: String,
+        areaType: AreaType,
+        areaLookup: AreaLookupDto?
+    ): AreaDailyDataCollection {
+        val healthcareLookups = healthcareLookupDataSource.healthcareLookups(areaCode)
+        return when {
+            healthcareLookups.isEmpty() || areaLookup == null -> {
+                val nhsRegion = healthCareRegion(areaCode, areaType, areaLookup)
+                singleTrustData(nhsRegion)
+            }
+            else -> {
+                multiTrustData(areaLookup, healthcareLookups)
+            }
+        }
     }
 
-    fun healthCareRegion(areaCode: String, areaLookup: AreaLookupDto?): AreaDto {
+    private fun multiTrustData(
+        areaLookupDto: AreaLookupDto,
+        healthcareLookups: List<HealthcareLookupEntity>
+    ): AreaDailyDataCollection {
+        val data = healthcareData(healthcareLookups.map { it.nhsTrustCode })
+        return AreaDailyDataCollection(areaLookupDto.utlaName, data)
+    }
+
+    private fun singleTrustData(nhsRegion: AreaDto): AreaDailyDataCollection {
+        val healthCareData = healthcareDataSource.healthcareData(nhsRegion.code)
+        return AreaDailyDataCollection(
+            nhsRegion.name,
+            listOf(AreaDailyDataDto(nhsRegion.name, healthCareData))
+        )
+    }
+
+    fun healthCareRegion(
+        areaCode: String,
+        areaType: AreaType,
+        areaLookup: AreaLookupDto?
+    ): AreaDto {
         val nhsTrustCode = areaLookup?.nhsTrustCode
         val nhsRegionCode = areaLookup?.nhsRegionCode
-        return if (nhsTrustCode != null) {
+        return if (canUseNhsTrust(areaType) && nhsTrustCode != null) {
             AreaDto(nhsTrustCode, areaLookup.nhsTrustName.orEmpty(), AreaType.NHS_TRUST)
         } else if (nhsRegionCode != null) {
             AreaDto(nhsRegionCode, areaLookup.nhsRegionName.orEmpty(), AreaType.NHS_REGION)
@@ -49,6 +84,9 @@ class HealthcareUseCase @Inject constructor(
         }
     }
 
+    private fun canUseNhsTrust(areaType: AreaType) =
+        areaType == AreaType.UTLA || areaType == AreaType.LTLA || areaType == AreaType.NHS_TRUST
+
     suspend fun syncHospitalData(areaCode: String, areaType: AreaType) {
         try {
             healthcareDataSynchroniser.performSync(areaCode, areaType)
@@ -56,4 +94,7 @@ class HealthcareUseCase @Inject constructor(
             error.printStackTrace()
         }
     }
+
+    fun healthcareData(areaCodes: List<String>): List<AreaDailyDataDto> =
+        healthcareDataSource.healthcareDataFoAreaCodes(areaCodes)
 }

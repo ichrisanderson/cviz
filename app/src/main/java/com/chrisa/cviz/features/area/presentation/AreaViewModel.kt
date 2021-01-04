@@ -75,6 +75,8 @@ class AreaViewModel @ViewModelInject constructor(
     private val areaType: AreaType
         get() = AreaType.from(savedStateHandle.get<String>("areaType")!!)!!
 
+    private var hospitalAdmissionFilter: List<String> = emptyList()
+
     init {
         loadAreaSavedState(areaCode)
         loadAreaDetail(areCode = areaCode, isLoading = true, isRefreshing = false)
@@ -135,6 +137,6 @@ class AreaViewModel @ViewModelInject constructor(
     private fun postAreaDetailModel(areaDetailModel: AreaDetailModel) {
         _isRefreshing.postValue(false)
         _isLoading.postValue(false)
-        _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel))
+        _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel, hospitalAdmissionFilter))
     }
 }

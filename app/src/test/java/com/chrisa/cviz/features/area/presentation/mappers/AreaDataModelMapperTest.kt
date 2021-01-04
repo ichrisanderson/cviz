@@ -27,14 +27,15 @@ import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 
 class AreaDataModelMapperTest {
 
@@ -128,7 +129,7 @@ class AreaDataModelMapperTest {
         } returns
             listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases)
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -168,7 +169,7 @@ class AreaDataModelMapperTest {
         } returns
             listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases)
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -199,7 +200,7 @@ class AreaDataModelMapperTest {
             )
         } returns listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases)
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -220,8 +221,8 @@ class AreaDataModelMapperTest {
             SynchronisationTestData.dailyDataWithRollingAverage(1, 23)
         val chartData = combinedChartData("admissions")
         val areaDetailWithCases = areaDetail.copy(
-            hospitalAdmissions = admissions,
-            hospitalAdmissionsRegionName = areaName
+            hospitalAdmissions = listOf(AreaDailyDataDto(areaName, admissions)),
+            hospitalAdmissionsAreaName = areaName
         )
         val admissionsWeeklySummary = SynchronisationTestData.weeklySummary(currentTotal = 233)
         every { weeklySummaryBuilder.buildWeeklySummary(admissions) } returns
@@ -240,7 +241,7 @@ class AreaDataModelMapperTest {
         } returns
             listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases)
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -249,7 +250,8 @@ class AreaDataModelMapperTest {
                 lastHospitalAdmissionDate = admissions.last().date,
                 hospitalAdmissionsRegionName = areaName,
                 hospitalAdmissionsSummary = admissionsWeeklySummary,
-                hospitalAdmissionsChartData = listOf(chartData)
+                hospitalAdmissionsChartData = listOf(chartData),
+                hospitalAdmissionsAreas = areaDetailWithCases.hospitalAdmissions.map { it.name }
             )
         )
     }
@@ -270,13 +272,13 @@ class AreaDataModelMapperTest {
         private val areaDetail = AreaDetailModel(
             lastUpdatedAt = syncDateTime,
             lastSyncedAt = syncDateTime,
-            cases = emptyList(),
             casesAreaName = "",
+            cases = emptyList(),
             deathsByPublishedDateAreaName = "",
             deathsByPublishedDate = emptyList(),
             onsDeathAreaName = "",
             onsDeathsByRegistrationDate = emptyList(),
-            hospitalAdmissionsRegionName = "",
+            hospitalAdmissionsAreaName = "",
             hospitalAdmissions = emptyList()
         )
 
@@ -299,7 +301,8 @@ class AreaDataModelMapperTest {
             lastHospitalAdmissionDate = null,
             hospitalAdmissionsRegionName = "",
             hospitalAdmissionsSummary = WeeklySummary.EMPTY,
-            hospitalAdmissionsChartData = emptyList()
+            hospitalAdmissionsChartData = emptyList(),
+            hospitalAdmissionsAreas = emptyList()
         )
 
         private fun combinedChartData(labelPrefix: String) =

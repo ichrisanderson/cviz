@@ -29,11 +29,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [
@@ -544,6 +544,9 @@ interface HealthcareDao {
 
     @Query("SELECT * FROM healthcare WHERE areaCode = :code")
     fun byAreaCode(code: String): List<HealthcareEntity>
+
+    @Query("SELECT * FROM healthcare WHERE areaCode IN (:areaCodes)")
+    fun byAreaCodes(areaCodes: List<String>): List<HealthcareEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(healthcareData: List<HealthcareEntity>)

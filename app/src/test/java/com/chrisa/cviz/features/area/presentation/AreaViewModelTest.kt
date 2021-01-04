@@ -75,7 +75,10 @@ class AreaViewModelTest {
                 )
                 coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
                     listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
-                every { areaUiModelMapper.mapAreaDetailModel(areaDetailModel) } returns
+                every { areaUiModelMapper.mapAreaDetailModel(
+                    eq(areaDetailModel),
+                    any()
+                ) } returns
                     areaCasesModel
 
                 val sut = areaViewModel()
@@ -255,13 +258,13 @@ class AreaViewModelTest {
             return AreaDetailModel(
                 lastUpdatedAt = null,
                 lastSyncedAt = null,
-                cases = emptyList(),
                 casesAreaName = "",
+                cases = emptyList(),
                 deathsByPublishedDateAreaName = "",
                 deathsByPublishedDate = emptyList(),
                 onsDeathAreaName = "",
                 onsDeathsByRegistrationDate = emptyList(),
-                hospitalAdmissionsRegionName = "",
+                hospitalAdmissionsAreaName = "",
                 hospitalAdmissions = emptyList()
             )
         }
@@ -286,7 +289,8 @@ class AreaViewModelTest {
                 lastHospitalAdmissionDate = lastData.date,
                 hospitalAdmissionsRegionName = "",
                 hospitalAdmissionsSummary = WeeklySummary.EMPTY,
-                hospitalAdmissionsChartData = emptyList()
+                hospitalAdmissionsChartData = emptyList(),
+                hospitalAdmissionsAreas = emptyList()
             )
         }
     }

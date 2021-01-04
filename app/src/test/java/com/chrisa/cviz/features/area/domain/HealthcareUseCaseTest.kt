@@ -21,6 +21,7 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.HealthcareDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaCodeResolver
 import com.chrisa.cviz.features.area.data.HealthcareDataSource
+import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.google.common.truth.Truth.assertThat
@@ -29,30 +30,32 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
+import java.io.IOException
 
 @ExperimentalCoroutinesApi
 class HealthcareUseCaseTest {
 
     private val healthcareDataSynchroniser: HealthcareDataSynchroniser = mockk()
     private val healthcareDataSource: HealthcareDataSource = mockk()
+    private val healthcareLookupDataSource: HealthcareLookupDataSource = mockk()
     private val areaCodeResolver: AreaCodeResolver = mockk()
     private val testDispatcher = TestCoroutineDispatcher()
 
     private val sut = HealthcareUseCase(
         healthcareDataSynchroniser,
         healthcareDataSource,
-        areaCodeResolver
+        areaCodeResolver,
+        healthcareLookupDataSource
     )
 
     @Test
     fun `GIVEN nhsTrustCode present WHEN healthCareRegion called THEN nhs region returned`() {
         val lookup = areaLookupDto
-        val result = sut.healthCareRegion("E1", lookup)
+        val result = sut.healthCareRegion("E1", AreaType.UTLA, lookup)
 
         assertThat(result).isEqualTo(
             AreaDto(
@@ -66,7 +69,7 @@ class HealthcareUseCaseTest {
     @Test
     fun `GIVEN nhsRegionCode present WHEN healthCareRegion called THEN nhs region returned`() {
         val lookup = areaLookupDto.copy(nhsTrustCode = null)
-        val result = sut.healthCareRegion("E1", lookup)
+        val result = sut.healthCareRegion("E1", AreaType.UTLA, lookup)
 
         assertThat(result).isEqualTo(
             AreaDto(
@@ -83,7 +86,7 @@ class HealthcareUseCaseTest {
         val defaultArea = AreaDto("E1", "England", AreaType.NATION)
         every { areaCodeResolver.defaultAreaDto("E1") } returns defaultArea
 
-        val result = sut.healthCareRegion("E1", lookup)
+        val result = sut.healthCareRegion("E1", AreaType.UTLA, lookup)
 
         assertThat(result).isEqualTo(defaultArea)
     }

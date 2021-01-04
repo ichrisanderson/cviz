@@ -19,11 +19,13 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
+import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
@@ -33,7 +35,8 @@ class AreaDetailUseCase @Inject constructor(
     private val areaCasesUseCase: AreaCasesUseCase,
     @PublishedDeaths private val publishedDeathsUseCase: AreaDeathsUseCase,
     @OnsDeaths private val onsDeathsUseCase: AreaDeathsUseCase,
-    private val healthcareUseCase: HealthcareUseCase
+    private val healthcareUseCase: HealthcareUseCase,
+    private val healthcareLookupDataSource: HealthcareLookupDataSource
 ) {
 
     suspend fun execute(areaCode: String, areaType: AreaType): Flow<AreaDetailModelResult> {
@@ -45,10 +48,11 @@ class AreaDetailUseCase @Inject constructor(
             } else {
                 val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
 
-                val areaCases = areaCasesUseCase.cases(areaCode, areaType)
+                val areaCases = areaCasesUseCase.cases(areaCode, areaType, areaLookup)
                 val publishedDeaths = publishedDeathsUseCase.deaths(areaCode, areaType)
                 val onsDeaths = onsDeathsUseCase.deaths(areaCode, areaType)
-                val healthcareData = healthcareUseCase.healthcareData(areaCode, areaLookup)
+                val healthcareData: AreaDailyDataCollection =
+                    healthcareUseCase.healthcareData(areaCode, areaType, areaLookup)
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
@@ -60,7 +64,7 @@ class AreaDetailUseCase @Inject constructor(
                         deathsByPublishedDate = publishedDeaths.data,
                         onsDeathAreaName = onsDeaths.name,
                         onsDeathsByRegistrationDate = onsDeaths.data,
-                        hospitalAdmissionsRegionName = healthcareData.name,
+                        hospitalAdmissionsAreaName = healthcareData.name,
                         hospitalAdmissions = healthcareData.data
                     )
                 )
@@ -76,9 +80,17 @@ class AreaDetailUseCase @Inject constructor(
         when (areaType) {
             AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
                 areaLookupUseCase.syncAreaLookup(areaCode, areaType)
-                val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
-                val nhsRegion = healthcareUseCase.healthCareRegion(areaCode, areaLookup)
-                healthcareUseCase.syncHospitalData(nhsRegion.code, nhsRegion.regionType)
+                val healthcareLookups = healthcareLookupDataSource.healthcareLookups(areaCode)
+                if (healthcareLookups.isEmpty()) {
+                    val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
+                    val nhsRegion =
+                        healthcareUseCase.healthCareRegion(areaCode, areaType, areaLookup)
+                    healthcareUseCase.syncHospitalData(nhsRegion.code, nhsRegion.regionType)
+                } else {
+                    healthcareLookups.forEach { lookup ->
+                        healthcareUseCase.syncHospitalData(lookup.nhsTrustCode, AreaType.NHS_TRUST)
+                    }
+                }
             }
             else -> {
                 healthcareUseCase.syncHospitalData(areaCode, areaType)

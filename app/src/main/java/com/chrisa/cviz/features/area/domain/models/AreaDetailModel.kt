@@ -17,17 +17,20 @@
 package com.chrisa.cviz.features.area.domain.models
 
 import com.chrisa.cviz.core.data.synchronisation.DailyData
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import java.time.LocalDateTime
 
 data class AreaDetailModel(
     val lastUpdatedAt: LocalDateTime?,
     val lastSyncedAt: LocalDateTime?,
-    val cases: List<DailyData>,
     val casesAreaName: String,
+    val cases: List<DailyData>,
     val deathsByPublishedDateAreaName: String,
     val deathsByPublishedDate: List<DailyData>,
     val onsDeathAreaName: String,
     val onsDeathsByRegistrationDate: List<DailyData>,
-    val hospitalAdmissionsRegionName: String,
-    val hospitalAdmissions: List<DailyData>
+    val hospitalAdmissionsAreaName: String,
+    val hospitalAdmissions: List<AreaDailyDataDto>
 )
+
+data class AreaDailyDataModel(val name: String, val data: List<DailyData>)

@@ -23,6 +23,8 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.RollingAverageHelper
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.features.area.data.AreaDataSource
+import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDetailDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
@@ -36,7 +38,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
@@ -44,6 +45,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 @InternalCoroutinesApi
@@ -57,6 +59,7 @@ class AreaDetailUseCaseTest {
     private val areaCasesUseCase = mockk<AreaCasesUseCase>()
     private val areaPublishedDeathsUseCase = mockk<AreaDeathsUseCase>()
     private val areaOnsDeathsUseCase = mockk<AreaDeathsUseCase>()
+    private val healthcareLookupDataSource = mockk<HealthcareLookupDataSource>()
 
     private val sut = AreaDetailUseCase(
         areaDataSynchroniser,
@@ -65,7 +68,8 @@ class AreaDetailUseCaseTest {
         areaCasesUseCase,
         areaPublishedDeathsUseCase,
         areaOnsDeathsUseCase,
-        healthcareUseCase
+        healthcareUseCase,
+        healthcareLookupDataSource
     )
 
     @Before
@@ -74,13 +78,25 @@ class AreaDetailUseCaseTest {
         coEvery { areaLookupUseCase.syncAreaLookup(any(), any()) } just Runs
         coEvery { healthcareUseCase.syncHospitalData(any(), any()) } just Runs
         every { areaLookupUseCase.areaLookup(any(), any()) } returns areaLookupDto
-        every { healthcareUseCase.healthCareRegion(any(), any()) } returns ukArea
+        every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns ukArea
         every { areaDataSource.healthcareData(ukArea.code) } returns emptyList()
         every { rollingAverageHelper.average(any(), any()) } returns 1.0
-        every { healthcareUseCase.healthcareData(any(), any()) } returns ukAreaDailyDataDto
-        every { areaCasesUseCase.cases(any(), any()) } returns ukAreaCaseDataDto
-        every { areaPublishedDeathsUseCase.deaths(any(), any()) } returns ukAreaPublishedDeathsDataDto
+        every {
+            healthcareUseCase.healthcareData(
+                any(),
+                any(),
+                any()
+            )
+        } returns ukAreaDailyDataCollection
+        every { areaCasesUseCase.cases(any(), any(), any()) } returns ukAreaCaseDataDto
+        every {
+            areaPublishedDeathsUseCase.deaths(
+                any(),
+                any()
+            )
+        } returns ukAreaPublishedDeathsDataDto
         every { areaOnsDeathsUseCase.deaths(any(), any()) } returns ukAreaOnsDeathsDataDto
+        every { healthcareLookupDataSource.healthcareLookups(any()) } returns emptyList()
     }
 
     @Test
@@ -172,7 +188,7 @@ class AreaDetailUseCaseTest {
     fun `GIVEN region area WHEN execute called THEN hospital synced`() =
         runBlocking {
             every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-            every { healthcareUseCase.healthCareRegion(any(), any()) } returns
+            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.REGION)
 
             sut.execute("1", AreaType.REGION)
@@ -184,7 +200,7 @@ class AreaDetailUseCaseTest {
     fun `GIVEN ltla area WHEN execute called THEN hospital synced`() =
         runBlocking {
             every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-            every { healthcareUseCase.healthCareRegion(any(), any()) } returns
+            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.LTLA)
 
             sut.execute("1", AreaType.LTLA)
@@ -196,7 +212,7 @@ class AreaDetailUseCaseTest {
     fun `GIVEN utla area WHEN execute called THEN hospital synced`() =
         runBlocking {
             every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-            every { healthcareUseCase.healthCareRegion(any(), any()) } returns
+            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.UTLA)
 
             sut.execute("1", AreaType.UTLA)
@@ -234,13 +250,13 @@ class AreaDetailUseCaseTest {
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
                             lastSyncedAt = syncDateTime,
-                            cases = ukAreaCaseDataDto.data,
                             casesAreaName = ukAreaCaseDataDto.name,
+                            cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
                             deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
                             onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
                             onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
-                            hospitalAdmissionsRegionName = "United Kingdom",
+                            hospitalAdmissionsAreaName = "United Kingdom",
                             hospitalAdmissions = emptyList()
                         )
                     )
@@ -265,13 +281,13 @@ class AreaDetailUseCaseTest {
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
                             lastSyncedAt = syncDateTime,
-                            cases = ukAreaCaseDataDto.data,
                             casesAreaName = ukAreaCaseDataDto.name,
+                            cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
                             deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
                             onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
                             onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
-                            hospitalAdmissionsRegionName = "United Kingdom",
+                            hospitalAdmissionsAreaName = "United Kingdom",
                             hospitalAdmissions = emptyList()
                         )
                     )
@@ -286,16 +302,20 @@ class AreaDetailUseCaseTest {
                 listOf(metadata).asFlow()
             every { areaDataSource.loadAreaData(areaWithHospitalAdmissions.areaCode) } returns
                 areaWithHospitalAdmissions
-            every { healthcareUseCase.healthCareRegion(any(), any()) } returns
+            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
                 AreaDto(
                     areaWithHospitalAdmissions.areaCode,
                     areaWithHospitalAdmissions.areaName,
                     areaWithHospitalAdmissions.areaType.toAreaType()
                 )
-            every { healthcareUseCase.healthcareData(any(), any()) } returns
-                AreaDailyDataDto(
-                    areaWithHospitalAdmissions.areaName,
-                    SynchronisationTestData.dailyData()
+            every { healthcareUseCase.healthcareData(any(), any(), any()) } returns
+                ukAreaDailyDataCollection.copy(
+                    data = listOf(
+                        AreaDailyDataDto(
+                            areaWithHospitalAdmissions.areaName,
+                            SynchronisationTestData.dailyData()
+                        )
+                    )
                 )
 
             val areaDetailModelFlow = sut.execute(
@@ -309,14 +329,19 @@ class AreaDetailUseCaseTest {
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
                             lastSyncedAt = syncDateTime,
-                            cases = ukAreaCaseDataDto.data,
                             casesAreaName = ukAreaCaseDataDto.name,
+                            cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
                             deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
                             onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
                             onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
-                            hospitalAdmissionsRegionName = areaWithHospitalAdmissions.areaName,
-                            hospitalAdmissions = SynchronisationTestData.dailyData()
+                            hospitalAdmissionsAreaName = areaWithHospitalAdmissions.areaName,
+                            hospitalAdmissions = listOf(
+                                AreaDailyDataDto(
+                                    areaWithHospitalAdmissions.areaName,
+                                    SynchronisationTestData.dailyData()
+                                )
+                            )
                         )
                     )
                 )
@@ -360,7 +385,8 @@ class AreaDetailUseCaseTest {
             deathsByPublishedDate = emptyList(),
             onsDeathsByRegistrationDate = emptyList()
         )
-        private val ukAreaDailyDataDto = AreaDailyDataDto("United Kingdom", emptyList())
+        private val ukAreaDailyDataCollection =
+            AreaDailyDataCollection("United Kingdom", emptyList())
         private val ukAreaCaseDataDto = AreaDailyDataDto(
             "United Kingdom", listOf(
                 DailyData(

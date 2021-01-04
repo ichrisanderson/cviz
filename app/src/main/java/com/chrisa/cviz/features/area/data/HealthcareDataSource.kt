@@ -19,27 +19,37 @@ package com.chrisa.cviz.features.area.data
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.synchronisation.DailyData
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import javax.inject.Inject
 
 class HealthcareDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
-    fun healthcareData(areaCode: String): List<DailyData> {
-        return allAdmissions(areaCode).filter(::hasHealthcareData)
-            .map { areaData ->
-                DailyData(
-                    newValue = areaData.newAdmissions!!,
-                    cumulativeValue = areaData.cumulativeAdmissions!!,
-                    rate = 0.0,
-                    date = areaData.date
-                )
-            }
-    }
+    fun healthcareData(areaCode: String): List<DailyData> =
+        allAdmissions(areaCode).filter(::hasHealthcareData).map(::mapDailyData)
 
     private fun allAdmissions(areaCode: String) =
         appDatabase.healthcareDao().byAreaCode(areaCode)
 
     private fun hasHealthcareData(it: HealthcareEntity): Boolean =
         it.cumulativeAdmissions != null && it.newAdmissions != null
+
+    fun healthcareDataFoAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
+        allAdmissionsInAreaCodes(areaCodes)
+            .filter(::hasHealthcareData)
+            .groupBy { it.areaName }
+            .map { AreaDailyDataDto(it.key, it.value.map(::mapDailyData)) }
+
+    private fun mapDailyData(areaData: HealthcareEntity): DailyData {
+        return DailyData(
+            newValue = areaData.newAdmissions!!,
+            cumulativeValue = areaData.cumulativeAdmissions!!,
+            rate = 0.0,
+            date = areaData.date
+        )
+    }
+
+    private fun allAdmissionsInAreaCodes(areaCodes: List<String>) =
+        appDatabase.healthcareDao().byAreaCodes(areaCodes)
 }

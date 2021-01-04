@@ -20,14 +20,14 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.area.data.AreaCasesDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import javax.inject.Inject
 
 class AreaCasesUseCase @Inject constructor(
     private val areaLookupUseCase: AreaLookupUseCase,
     private val areaCasesDataSource: AreaCasesDataSource
 ) {
-    fun cases(areaCode: String, areaType: AreaType): AreaDailyDataDto {
-        val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
+    fun cases(areaCode: String, areaType: AreaType, areaLookup: AreaLookupDto?): AreaDailyDataDto {
         if (areaLookup != null) {
             val areaDeaths = areaCasesDataSource.cases(areaCode)
             if (areaDeaths.isNotEmpty()) {

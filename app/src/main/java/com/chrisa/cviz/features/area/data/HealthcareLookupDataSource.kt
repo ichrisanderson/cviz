@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.data.dtos
+package com.chrisa.cviz.features.area.data
 
-import com.chrisa.cviz.core.data.synchronisation.DailyData
+import com.chrisa.cviz.core.data.db.AppDatabase
+import javax.inject.Inject
 
-data class AreaDailyDataDto(val name: String, val data: List<DailyData>)
+class HealthcareLookupDataSource @Inject constructor(
+    private val appDatabase: AppDatabase
+) {
 
-data class AreaDailyDataCollection(val name: String, val data: List<AreaDailyDataDto>)
+    fun healthcareLookups(areaCode: String) =
+        appDatabase.healthcareLookupDao().byAreaCode(areaCode)
+}
