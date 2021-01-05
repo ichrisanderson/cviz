@@ -40,7 +40,7 @@ class HealthcareUseCase @Inject constructor(
         areaType: AreaType,
         areaLookup: AreaLookupDto?
     ): AreaDailyDataCollection {
-        val healthcareLookups = healthcareLookupDataSource.healthcareLookups(areaCode)
+        val healthcareLookups = healthcareLookups(areaType, areaLookup)
         return when {
             healthcareLookups.isEmpty() || areaLookup == null -> {
                 val nhsRegion = healthCareRegion(areaCode, areaType, areaLookup)
@@ -51,6 +51,16 @@ class HealthcareUseCase @Inject constructor(
             }
         }
     }
+
+    private fun healthcareLookups(
+        areaType: AreaType,
+        areaLookup: AreaLookupDto?
+    ) =
+        if (areaLookup != null && (areaType == AreaType.UTLA || areaType == AreaType.LTLA)) {
+            healthcareLookupDataSource.healthcareLookups(areaLookup.utlaCode)
+        } else {
+            emptyList()
+        }
 
     private fun multiTrustData(
         areaLookupDto: AreaLookupDto,

@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -234,6 +235,9 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                             )
                         )
                         subtitle2(lastUpdated)
+                        isCtaButtonVisible(true)
+                        ctaDrawable(R.drawable.ic_filter)
+                        ctaClickListener { _ -> Toast.makeText(requireContext(), "Apply Filter", Toast.LENGTH_SHORT).show() }
                     }
                     areaHospitalSummaryCard {
                         id("hospitalAdmissionsSummary")

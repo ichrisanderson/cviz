@@ -3,6 +3,8 @@
 
     <data>
 
+        <import type="androidx.core.content.ContextCompat" />
+
         <variable
             name="title"
             type="String" />
@@ -14,6 +16,18 @@
         <variable
             name="subtitle2"
             type="String" />
+
+        <variable
+            name="isCtaButtonVisible"
+            type="Boolean" />
+
+        <variable
+            name="ctaDrawable"
+            type="Integer" />
+
+        <variable
+            name="ctaClickListener"
+            type="android.view.View.OnClickListener" />
 
     </data>
 
@@ -29,10 +43,32 @@
             android:layout_height="wrap_content"
             android:text="@{title}"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ctaButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Title" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/ctaButton"
+            style="@style/Widget.Cviz.Filter.Button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:onClick="@{ctaClickListener}"
+            android:visibility="gone"
+            app:iconDrawable="@{ctaDrawable}"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:isVisible="@{isCtaButtonVisible}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/title_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="ctaButton, title" />
 
         <TextView
             android:id="@+id/subtitle1"
@@ -46,7 +82,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/subtitle2"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/title_barrier"
             tools:text="Data label" />
 
         <TextView
@@ -60,7 +96,7 @@
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/title_barrier"
             tools:text="Data label" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

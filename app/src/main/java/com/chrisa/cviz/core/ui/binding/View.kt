@@ -24,6 +24,7 @@ import androidx.databinding.BindingAdapter
 import com.chrisa.cviz.R
 import com.chrisa.cviz.core.ui.NumberFormatter
 import com.chrisa.cviz.core.util.DateFormatter
+import com.google.android.material.button.MaterialButton
 
 @BindingAdapter("isVisible")
 fun isVisible(view: View, isVisible: Boolean) {
@@ -67,4 +68,9 @@ fun lastUpdatedDate(textView: TextView, date: java.time.LocalDateTime?) {
         R.string.last_updated_date,
         DateFormatter.getLocalRelativeTimeSpanString(date)
     )
+}
+
+@BindingAdapter("iconDrawable")
+fun iconDrawable(button: MaterialButton, drawableId: Int?) {
+    button.icon = drawableId?.let { ContextCompat.getDrawable(button.context, drawableId) }
 }

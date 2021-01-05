@@ -49,4 +49,19 @@
         <item name="allowDividerBelow">true</item>
         <item name="iconSpaceReserved">false</item>
     </style>
+
+    <style name="Widget.Cviz.Filter.Button" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlay.Cviz.Filter.Button</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.Cviz.Filter.Button" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
 </resources>
