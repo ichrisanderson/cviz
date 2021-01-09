@@ -39,6 +39,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import okio.IOException
 import org.junit.Rule
 import org.junit.Test
 
@@ -124,5 +125,23 @@ class DashboardViewModelTest {
 
                 assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
                 assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
+        }
+
+    @Test
+    fun `WHEN viewmodel refresh fails THEN is refreshing set to false`() =
+        testDispatcher.runBlockingTest {
+            every { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
+            coEvery { refreshDataUseCase.execute() } throws IOException()
+            val sut = DashboardViewModel(
+                loadHomeDataUseCase,
+                refreshDataUseCase,
+                coroutineDispatchers
+            )
+            val isRefreshingObserver = sut.isRefreshing.test()
+
+            sut.refresh()
+
+            assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
+            assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
         }
 }

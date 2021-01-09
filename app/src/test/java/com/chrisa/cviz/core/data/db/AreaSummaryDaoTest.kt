@@ -32,7 +32,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [27])
-class AreaSummaryEntityDaoTest {
+class AreaSummaryDaoTest {
 
     private lateinit var db: AppDatabase
     private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
@@ -71,9 +71,9 @@ class AreaSummaryEntityDaoTest {
                 cumulativeCaseInfectionRateWeek4 = 75.0
             )
 
-            db.areaSummaryEntityDao().insertAll(listOf(areaSummaryEntity))
+            db.areaSummaryDao().insertAll(listOf(areaSummaryEntity))
 
-            assertThat(db.areaSummaryEntityDao().countAll()).isEqualTo(1)
+            assertThat(db.areaSummaryDao().countAll()).isEqualTo(1)
         }
 
     @Test
@@ -103,11 +103,11 @@ class AreaSummaryEntityDaoTest {
             )
 
             val updatedArea = areaSummaryEntity.copy(date = areaSummaryEntity.date.plusDays(1))
-            db.areaSummaryEntityDao().insertAll(listOf(areaSummaryEntity))
-            db.areaSummaryEntityDao().insertAll(listOf(updatedArea))
+            db.areaSummaryDao().insertAll(listOf(areaSummaryEntity))
+            db.areaSummaryDao().insertAll(listOf(updatedArea))
 
-            assertThat(db.areaSummaryEntityDao().countAll()).isEqualTo(1)
-            assertThat(db.areaSummaryEntityDao().byAreaCode(areaSummaryEntity.areaCode)).isEqualTo(
+            assertThat(db.areaSummaryDao().countAll()).isEqualTo(1)
+            assertThat(db.areaSummaryDao().byAreaCode(areaSummaryEntity.areaCode)).isEqualTo(
                 updatedArea
             )
         }
@@ -118,12 +118,12 @@ class AreaSummaryEntityDaoTest {
 
             val toInsert = buildAreaSummaryList()
 
-            db.areaSummaryEntityDao().insertAll(toInsert)
-            assertThat(db.areaSummaryEntityDao().countAll()).isEqualTo(toInsert.size)
+            db.areaSummaryDao().insertAll(toInsert)
+            assertThat(db.areaSummaryDao().countAll()).isEqualTo(toInsert.size)
 
-            db.areaSummaryEntityDao().deleteAll()
+            db.areaSummaryDao().deleteAll()
 
-            assertThat(db.areaSummaryEntityDao().countAll()).isEqualTo(0)
+            assertThat(db.areaSummaryDao().countAll()).isEqualTo(0)
         }
 
     @Test
@@ -132,11 +132,11 @@ class AreaSummaryEntityDaoTest {
 
             val toInsert = buildAreaSummaryList()
 
-            db.areaSummaryEntityDao().allAsFlow().test {
+            db.areaSummaryDao().allAsFlow().test {
 
                 expectNoEvents()
 
-                db.areaSummaryEntityDao().insertAll(toInsert)
+                db.areaSummaryDao().insertAll(toInsert)
                 val emittedItems = expectItem()
 
                 assertThat(emittedItems).isEqualTo(

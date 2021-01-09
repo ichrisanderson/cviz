@@ -59,8 +59,8 @@ internal class AreaSummaryDataSynchroniser @Inject constructor(
         areaEntityList: List<AreaSummaryEntity>
     ) {
         appDatabase.withTransaction {
-            appDatabase.areaSummaryEntityDao().deleteAll()
-            appDatabase.areaSummaryEntityDao().insertAll(areaEntityList)
+            appDatabase.areaSummaryDao().deleteAll()
+            appDatabase.areaSummaryDao().insertAll(areaEntityList)
             appDatabase.metadataDao().insert(
                 MetadataEntity(
                     id = MetaDataIds.areaSummaryId(),

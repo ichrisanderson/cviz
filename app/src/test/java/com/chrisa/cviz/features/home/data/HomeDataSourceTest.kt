@@ -270,7 +270,7 @@ class HomeDataSourceTest {
                 )
             }
             every {
-                appDatabase.areaSummaryEntityDao().allAsFlow()
+                appDatabase.areaSummaryDao().allAsFlow()
             } returns allAreaSummaryEntities
             val emittedItems = mutableListOf<List<AreaSummaryDto>>()
 

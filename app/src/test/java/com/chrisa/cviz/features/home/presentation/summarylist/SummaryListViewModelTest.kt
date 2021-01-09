@@ -30,6 +30,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -95,6 +96,27 @@ class SummaryListViewModelTest {
             val sortOption = SortOption.RisingCases
             every { loadAreaSummariesUseCase.execute(sortOption) } returns emptyList<List<SummaryModel>>().asFlow()
             coEvery { refreshDataUseCase.execute() } just Runs
+            val savedStateHandle = SavedStateHandle(mapOf("sortOption" to sortOption))
+            val sut = SummaryListViewModel(
+                loadAreaSummariesUseCase,
+                refreshDataUseCase,
+                TestCoroutineDispatchersImpl(testDispatcher),
+                savedStateHandle
+            )
+            val isRefreshingObserver = sut.isRefreshing.test()
+
+            sut.refresh()
+
+            assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
+            assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
+        }
+
+    @Test
+    fun `WHEN viewmodel refresh fails THEN is refreshing set to false`() =
+        testDispatcher.runBlockingTest {
+            val sortOption = SortOption.RisingCases
+            every { loadAreaSummariesUseCase.execute(sortOption) } returns emptyList<List<SummaryModel>>().asFlow()
+            coEvery { refreshDataUseCase.execute() } throws IOException()
             val savedStateHandle = SavedStateHandle(mapOf("sortOption" to sortOption))
             val sut = SummaryListViewModel(
                 loadAreaSummariesUseCase,

@@ -25,7 +25,7 @@ class StartupDataSource @Inject constructor(
     fun dataCount(): AreaData {
         return AreaData(
             appDatabase.areaDataDao().countAll(),
-            appDatabase.areaSummaryEntityDao().countAll()
+            appDatabase.areaSummaryDao().countAll()
         )
     }
 }

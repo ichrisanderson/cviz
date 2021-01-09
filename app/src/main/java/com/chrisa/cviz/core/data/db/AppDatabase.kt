@@ -58,7 +58,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun areaDao(): AreaDao
     abstract fun areaDataDao(): AreaDataDao
-    abstract fun areaSummaryEntityDao(): AreaSummaryEntityDao
+    abstract fun areaSummaryDao(): AreaSummaryDao
     abstract fun metadataDao(): MetadataDao
     abstract fun savedAreaDao(): SavedAreaDao
     abstract fun areaLookupDao(): AreaLookupDao
@@ -419,7 +419,7 @@ data class AreaSummaryEntity(
 )
 
 @Dao
-interface AreaSummaryEntityDao {
+interface AreaSummaryDao {
 
     @Query("SELECT COUNT(areaCode) FROM areaSummary")
     fun countAll(): Int

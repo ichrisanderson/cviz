@@ -23,6 +23,7 @@ import com.chrisa.cviz.features.startup.domain.StartupResult
 import com.chrisa.cviz.features.startup.domain.StartupUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,10 +50,12 @@ class StartupViewModelTest {
                 coEvery { startupUseCase.execute() } returns StartupResult.ShowHomeScreen
                 val sut = StartupViewModel(startupUseCase, dispatchers)
                 val navigateHomeObserver = sut.navigateHome.test()
+                val isLoadingObserver = sut.isLoading.test()
 
                 runCurrent()
 
                 assertThat(navigateHomeObserver.values[0]).isEqualTo(Event(Unit))
+                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
             }
         }
 
@@ -63,10 +66,24 @@ class StartupViewModelTest {
                 coEvery { startupUseCase.execute() } returns StartupResult.ShowFatalError
                 val sut = StartupViewModel(startupUseCase, dispatchers)
                 val syncErrorObserver = sut.syncError.test()
+                val isLoadingObserver = sut.isLoading.test()
 
                 runCurrent()
 
                 assertThat(syncErrorObserver.values[0]).isEqualTo(Event(Unit))
+                assertThat(isLoadingObserver.values[0]).isEqualTo(true)
+                assertThat(isLoadingObserver.values[1]).isEqualTo(false)
             }
+        }
+
+    @Test
+    fun `WHEN refresh called THEN startupUseCase executed`() =
+        testDispatcher.runBlockingTest {
+            coEvery { startupUseCase.execute() } returns StartupResult.ShowFatalError
+            val sut = StartupViewModel(startupUseCase, dispatchers)
+
+            sut.refresh()
+
+            coVerify(exactly = 2) { startupUseCase.execute() }
         }
 }

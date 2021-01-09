@@ -46,10 +46,19 @@ class LoadSavedAreasUseCaseTest {
     fun `WHEN execute called THEN daily record list is emitted`() =
         runBlockingTest {
             val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
-            val savedAreaCaseDto = SavedAreaCaseDto(
+            val ukAreaCaseDto = SavedAreaCaseDto(
                 areaName = "UK",
                 areaCode = Constants.UK_AREA_CODE,
                 areaType = AreaType.OVERVIEW,
+                newCases = 10,
+                cumulativeCases = 100,
+                infectionRate = 10.0,
+                date = syncDate.toLocalDate()
+            )
+            val englandAreaCaseDto = SavedAreaCaseDto(
+                areaName = "England",
+                areaCode = Constants.ENGLAND_AREA_CODE,
+                areaType = AreaType.NATION,
                 newCases = 10,
                 cumulativeCases = 100,
                 infectionRate = 10.0,
@@ -64,7 +73,7 @@ class LoadSavedAreasUseCaseTest {
                 weeklyRate = 40.0,
                 changeInRate = 10.0
             )
-            val newCases = listOf(savedAreaCaseDto)
+            val newCases = listOf(ukAreaCaseDto, englandAreaCaseDto)
             every { areaSummaryMapper.buildWeeklySummary(any()) } returns weeklySummary
             every { homeDataSource.savedAreaCases() } returns listOf(newCases).asFlow()
             val emittedItems = mutableListOf<List<SummaryModel>>()
@@ -78,9 +87,19 @@ class LoadSavedAreasUseCaseTest {
                     listOf(
                         SummaryModel(
                             position = 1,
-                            areaCode = savedAreaCaseDto.areaCode,
-                            areaName = savedAreaCaseDto.areaName,
-                            areaType = savedAreaCaseDto.areaType.value,
+                            areaCode = englandAreaCaseDto.areaCode,
+                            areaName = englandAreaCaseDto.areaName,
+                            areaType = englandAreaCaseDto.areaType.value,
+                            changeInCases = weeklySummary.changeInTotal,
+                            currentNewCases = weeklySummary.weeklyTotal,
+                            currentInfectionRate = weeklySummary.weeklyRate,
+                            changeInInfectionRate = weeklySummary.changeInRate
+                        ),
+                        SummaryModel(
+                            position = 2,
+                            areaCode = ukAreaCaseDto.areaCode,
+                            areaName = ukAreaCaseDto.areaName,
+                            areaType = ukAreaCaseDto.areaType.value,
                             changeInCases = weeklySummary.changeInTotal,
                             currentNewCases = weeklySummary.weeklyTotal,
                             currentInfectionRate = weeklySummary.weeklyRate,
