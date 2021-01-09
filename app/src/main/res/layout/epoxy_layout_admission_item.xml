@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="title"
+            type="String" />
+
+        <variable
+            name="isSelected"
+            type="Boolean" />
+
+        <variable
+            name="onCheckedChanged"
+            type="android.widget.CompoundButton.OnCheckedChangeListener" />
+    </data>
+
+    <CheckBox
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="@{isSelected}"
+        android:text="@{title}"
+        android:onCheckedChanged="@{onCheckedChanged}"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Title" />
+
+</layout>

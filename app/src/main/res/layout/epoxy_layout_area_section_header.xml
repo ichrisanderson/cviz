@@ -27,7 +27,7 @@
 
         <variable
             name="ctaClickListener"
-            type="android.view.View.OnClickListener" />
+            type="com.chrisa.cviz.core.ui.binding.KeyedClickListener" />
 
     </data>
 
@@ -61,7 +61,6 @@
             app:isVisible="@{isCtaButtonVisible}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/title_barrier"

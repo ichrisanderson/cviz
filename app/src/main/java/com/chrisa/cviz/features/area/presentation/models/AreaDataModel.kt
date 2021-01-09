@@ -42,6 +42,13 @@ data class AreaDataModel(
     val lastHospitalAdmissionDate: LocalDate?,
     val hospitalAdmissionsRegionName: String,
     val hospitalAdmissionsSummary: WeeklySummary,
+    val hospitalAdmissions: List<AreaDailyDataDto>,
     val hospitalAdmissionsChartData: List<CombinedChartData>,
-    val hospitalAdmissionsAreas: List<String>
+    val canFilterHospitalAdmissionsAreas: Boolean,
+    val hospitalAdmissionsAreas: List<HospitalAdmissionsAreaModel>
+)
+
+data class HospitalAdmissionsAreaModel(
+    val areaName: String,
+    val isSelected: Boolean
 )

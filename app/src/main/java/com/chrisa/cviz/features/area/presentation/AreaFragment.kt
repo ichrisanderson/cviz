@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -33,6 +32,7 @@ import com.chrisa.cviz.areaCaseSummaryCard
 import com.chrisa.cviz.areaDeathSummaryCard
 import com.chrisa.cviz.areaHospitalSummaryCard
 import com.chrisa.cviz.areaSectionHeader
+import com.chrisa.cviz.core.ui.binding.KeyedClickListener
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar.barChartTabCard
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined.combinedChartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
@@ -143,6 +143,17 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                 R.string.updated_label,
                 DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.lastUpdatedDate)
             )
+            val hospitalAdmissionsFilterClickListener =
+                KeyedClickListener(areaDataModel.hashCode().toString()) {
+                    AdmissionAreaFilterDialog(requireContext()).apply {
+                        bind(
+                            areaDataModel.hospitalAdmissionsRegionName,
+                            areaDataModel.hospitalAdmissionsAreas
+                        ) { selectedItems ->
+                            viewModel.setHospitalAdmissionFilter(selectedItems)
+                        }
+                    }.show()
+                }
             binding.recyclerView.withModels {
                 areaSectionHeader {
                     id("caseSummaryTitle")
@@ -235,9 +246,9 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                             )
                         )
                         subtitle2(lastUpdated)
-                        isCtaButtonVisible(true)
+                        isCtaButtonVisible(areaDataModel.canFilterHospitalAdmissionsAreas)
                         ctaDrawable(R.drawable.ic_filter)
-                        ctaClickListener { _ -> Toast.makeText(requireContext(), "Apply Filter", Toast.LENGTH_SHORT).show() }
+                        ctaClickListener(hospitalAdmissionsFilterClickListener)
                     }
                     areaHospitalSummaryCard {
                         id("hospitalAdmissionsSummary")

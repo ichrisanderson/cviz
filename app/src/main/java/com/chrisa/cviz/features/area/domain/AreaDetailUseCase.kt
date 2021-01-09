@@ -22,10 +22,10 @@ import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(

@@ -74,3 +74,10 @@ fun lastUpdatedDate(textView: TextView, date: java.time.LocalDateTime?) {
 fun iconDrawable(button: MaterialButton, drawableId: Int?) {
     button.icon = drawableId?.let { ContextCompat.getDrawable(button.context, drawableId) }
 }
+
+data class KeyedClickListener(val key: String, val listener: (View) -> Unit) :
+    View.OnClickListener {
+    override fun onClick(v: View) {
+        listener.invoke(v)
+    }
+}

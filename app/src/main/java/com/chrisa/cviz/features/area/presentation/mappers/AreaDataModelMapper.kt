@@ -27,8 +27,8 @@ import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
+import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.time.LocalDate
 import javax.inject.Inject
 
 class AreaDataModelMapper @Inject constructor(
@@ -40,11 +40,11 @@ class AreaDataModelMapper @Inject constructor(
 
     fun mapAreaDetailModel(
         areaDetailModel: AreaDetailModel,
-        hospitalAdmissionFilter: List<String>
+        hospitalAdmissionFilter: Set<String>
     ): AreaDataModel {
 
         val filteredHospitalData =
-            filterHospitalData(areaDetailModel.hospitalAdmissions, hospitalAdmissionFilter.toSet())
+            filterHospitalData(areaDetailModel.hospitalAdmissions, hospitalAdmissionFilter)
 
         val caseChartData = caseChartData(areaDetailModel.cases)
         val deathsByPublishedDateChartData =
@@ -53,10 +53,13 @@ class AreaDataModelMapper @Inject constructor(
             onsDeathsChartData(areaDetailModel.onsDeathsByRegistrationDate)
         val hospitalAdmissionsChartData =
             hospitalAdmissionsChartData(filteredHospitalData)
+        val hospitalAdmissionsAreas =
+            hospitalAdmissionAreas(areaDetailModel, hospitalAdmissionFilter)
 
         val canDisplayHospitalAdmissions = filteredHospitalData.isNotEmpty()
         val canDisplayDeathsByPublishedDate = deathsByPublishedDateChartData.isNotEmpty()
         val canDisplayOnsDeaths = onsDeathsChartData.isNotEmpty()
+        val canFilterHospitalAdmissionsAreas = hospitalAdmissionsAreas.size > 1
 
         return AreaDataModel(
             lastUpdatedDate = areaDetailModel.lastUpdatedAt,
@@ -76,29 +79,83 @@ class AreaDataModelMapper @Inject constructor(
             showHospitalAdmissions = canDisplayHospitalAdmissions,
             lastHospitalAdmissionDate = filteredHospitalData.lastOrNull()?.date,
             hospitalAdmissionsRegionName = areaDetailModel.hospitalAdmissionsAreaName,
+            hospitalAdmissions = areaDetailModel.hospitalAdmissions,
             hospitalAdmissionsSummary = weeklySummary(filteredHospitalData),
             hospitalAdmissionsChartData = hospitalAdmissionsChartData,
-            hospitalAdmissionsAreas = areaDetailModel.hospitalAdmissions.map { it.name }
+            canFilterHospitalAdmissionsAreas = canFilterHospitalAdmissionsAreas,
+            hospitalAdmissionsAreas = hospitalAdmissionsAreas
         )
     }
+
+    private fun hospitalAdmissionAreas(
+        areaDetailModel: AreaDetailModel,
+        hospitalAdmissionFilter: Set<String>
+    ): List<HospitalAdmissionsAreaModel> {
+        return areaDetailModel.hospitalAdmissions.map {
+            hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
+        }
+    }
+
+    private fun hospitalAdmissionsAreaModel(
+        it: AreaDailyDataDto,
+        hospitalAdmissionFilter: Set<String>
+    ): HospitalAdmissionsAreaModel {
+        return HospitalAdmissionsAreaModel(
+            areaName = it.name,
+            isSelected = hospitalAdmissionFilter.isEmpty() || hospitalAdmissionFilter.contains(
+                it.name
+            )
+        )
+    }
+
+    fun updateHospitalAdmissionFilters(
+        areaDataModel: AreaDataModel,
+        hospitalAdmissionFilter: Set<String>
+    ): AreaDataModel {
+
+        val filteredHospitalData =
+            filterHospitalData(areaDataModel.hospitalAdmissions, hospitalAdmissionFilter)
+        val hospitalAdmissionsChartData =
+            hospitalAdmissionsChartData(filteredHospitalData)
+        val admissionAreas =
+            hospitalAdmissionAreas(areaDataModel, hospitalAdmissionFilter)
+        val weeklySummary =
+            weeklySummary(filteredHospitalData)
+
+        return areaDataModel.copy(
+            hospitalAdmissionsSummary = weeklySummary,
+            hospitalAdmissionsChartData = hospitalAdmissionsChartData,
+            hospitalAdmissionsAreas = admissionAreas
+        )
+    }
+
+    private fun hospitalAdmissionAreas(
+        areaDataModel: AreaDataModel,
+        hospitalAdmissionFilter: Set<String>
+    ): List<HospitalAdmissionsAreaModel> =
+        areaDataModel.hospitalAdmissions.map {
+            hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
+        }
 
     private fun filterHospitalData(
         hospitalAdmissions: List<AreaDailyDataDto>,
         hospitalAdmissionFilter: Set<String>
-    ): List<DailyData> =
-        hospitalAdmissions
+    ): List<DailyData> {
+        var total = 0
+        return hospitalAdmissions
             .filter { hospitalAdmissionFilter.isEmpty() || hospitalAdmissionFilter.contains(it.name) }
             .flatMap { it.data }
             .groupBy { it.date }
-            .map(::mapDailyData)
-
-    private fun mapDailyData(it: Map.Entry<LocalDate, List<DailyData>>): DailyData {
-        return DailyData(
-            date = it.key,
-            cumulativeValue = it.value.sumOf { it.cumulativeValue },
-            newValue = it.value.sumOf { it.newValue },
-            rate = 0.0
-        )
+            .map { data ->
+                val newAdmissions = data.value.sumOf { it.newValue }
+                total += newAdmissions
+                DailyData(
+                    date = data.key,
+                    cumulativeValue = total,
+                    newValue = newAdmissions,
+                    rate = 0.0
+                )
+            }
     }
 
     private fun weeklySummary(dailyData: List<DailyData>): WeeklySummary =

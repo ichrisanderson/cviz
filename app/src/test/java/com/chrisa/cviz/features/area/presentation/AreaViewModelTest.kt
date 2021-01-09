@@ -289,7 +289,9 @@ class AreaViewModelTest {
                 lastHospitalAdmissionDate = lastData.date,
                 hospitalAdmissionsRegionName = "",
                 hospitalAdmissionsSummary = WeeklySummary.EMPTY,
+                hospitalAdmissions = emptyList(),
                 hospitalAdmissionsChartData = emptyList(),
+                canFilterHospitalAdmissionsAreas = false,
                 hospitalAdmissionsAreas = emptyList()
             )
         }

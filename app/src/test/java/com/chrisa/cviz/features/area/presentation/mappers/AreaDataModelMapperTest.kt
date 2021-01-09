@@ -30,12 +30,13 @@ import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
+import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDateTime
 
 class AreaDataModelMapperTest {
 
@@ -129,7 +130,7 @@ class AreaDataModelMapperTest {
         } returns
             listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -169,7 +170,7 @@ class AreaDataModelMapperTest {
         } returns
             listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -200,7 +201,7 @@ class AreaDataModelMapperTest {
             )
         } returns listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -241,7 +242,7 @@ class AreaDataModelMapperTest {
         } returns
             listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptyList())
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
@@ -249,9 +250,15 @@ class AreaDataModelMapperTest {
                 showHospitalAdmissions = true,
                 lastHospitalAdmissionDate = admissions.last().date,
                 hospitalAdmissionsRegionName = areaName,
+                hospitalAdmissions = areaDetailWithCases.hospitalAdmissions,
                 hospitalAdmissionsSummary = admissionsWeeklySummary,
                 hospitalAdmissionsChartData = listOf(chartData),
-                hospitalAdmissionsAreas = areaDetailWithCases.hospitalAdmissions.map { it.name }
+                hospitalAdmissionsAreas = areaDetailWithCases.hospitalAdmissions.map {
+                    HospitalAdmissionsAreaModel(
+                        it.name,
+                        true
+                    )
+                }
             )
         )
     }
@@ -301,7 +308,9 @@ class AreaDataModelMapperTest {
             lastHospitalAdmissionDate = null,
             hospitalAdmissionsRegionName = "",
             hospitalAdmissionsSummary = WeeklySummary.EMPTY,
+            hospitalAdmissions = emptyList(),
             hospitalAdmissionsChartData = emptyList(),
+            canFilterHospitalAdmissionsAreas = false,
             hospitalAdmissionsAreas = emptyList()
         )
 

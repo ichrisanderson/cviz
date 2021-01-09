@@ -55,4 +55,6 @@
     <string name="sync_notification_success_content_title">New data</string>
     <string name="sync_notification_success_content_text">New data available</string>
     <string name="view_all">View all</string>
+    <string name="amissions_area_filter_subtitle">Select trust(s) to display</string>
+    <string name="admission_area_filter_cta">Apply</string>
 </resources>

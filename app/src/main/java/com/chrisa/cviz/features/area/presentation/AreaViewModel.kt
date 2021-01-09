@@ -33,6 +33,7 @@ import com.chrisa.cviz.features.area.domain.IsSavedUseCase
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.mappers.AreaDataModelMapper
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
+import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -102,6 +103,18 @@ class AreaViewModel @ViewModelInject constructor(
         }
     }
 
+    fun setHospitalAdmissionFilter(admissionsAreas: List<HospitalAdmissionsAreaModel>) {
+        hospitalAdmissionFilter = admissionsAreas.filter { it.isSelected }.map { it.areaName }
+        _areaData.value?.let { areaDataModel ->
+            _areaData.postValue(
+                areaDataModelMapper.updateHospitalAdmissionFilters(
+                    areaDataModel,
+                    hospitalAdmissionFilter.toSet()
+                )
+            )
+        }
+    }
+
     private fun loadAreaSavedState(areCode: String) {
         viewModelScope.launch(dispatchers.io) {
             val isSavedFlow = isSavedUseCase.execute(areCode)
@@ -137,6 +150,11 @@ class AreaViewModel @ViewModelInject constructor(
     private fun postAreaDetailModel(areaDetailModel: AreaDetailModel) {
         _isRefreshing.postValue(false)
         _isLoading.postValue(false)
-        _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel, hospitalAdmissionFilter))
+        _areaData.postValue(
+            areaDataModelMapper.mapAreaDetailModel(
+                areaDetailModel,
+                hospitalAdmissionFilter.toSet()
+            )
+        )
     }
 }

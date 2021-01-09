@@ -20,6 +20,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 
 class StringValueAxisFormatter(private val labels: List<String>) : ValueFormatter() {
     override fun getFormattedValue(value: Float): String {
-        return labels[value.toInt()]
+        val index = value.toInt()
+        return labels.getOrNull(index) ?: ""
     }
 }
