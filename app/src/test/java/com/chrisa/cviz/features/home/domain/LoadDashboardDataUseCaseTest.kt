@@ -21,7 +21,6 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.home.data.HomeDataSource
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
-import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
@@ -29,11 +28,13 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
 import java.time.LocalDateTime
+import kotlin.random.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
@@ -43,26 +44,17 @@ class LoadDashboardDataUseCaseTest {
     private val homeDataSource = mockk<HomeDataSource>()
     private val sut = LoadDashboardDataUseCase(homeDataSource)
 
+    @Before
+    fun setup() {
+        every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
+        every { homeDataSource.areaSummaries() } returns listOf(emptyList<AreaSummaryDto>()).asFlow()
+    }
+
     @Test
     fun `WHEN execute called THEN daily record list is emitted`() =
         runBlockingTest {
-
-            val dailyRecordDto = DailyRecordDto(
-                areaCode = Constants.UK_AREA_CODE,
-                areaType = AreaType.OVERVIEW.value,
-                areaName = "United Kingdom",
-                cumulativeCases = 122,
-                newCases = 22,
-                lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
-            )
-
-            val dailyRecords = listOf(dailyRecordDto)
-
-            every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
-            every { homeDataSource.areaSummaries() } returns listOf(emptyList<AreaSummaryDto>()).asFlow()
-            every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
-
             val emittedItems = mutableListOf<DashboardDataModel>()
+            every { homeDataSource.ukOverview() } returns listOf(dailyRecords).asFlow()
 
             sut.execute().collect { emittedItems.add(it) }
 
@@ -82,42 +74,110 @@ class LoadDashboardDataUseCaseTest {
         }
 
     @Test
-    fun `WHEN execute called THEN new cases list is emitted`() =
+    fun `WHEN execute called THEN topNewCases emitted`() =
         runBlockingTest {
-
-            val newCaseDto = AreaSummaryDto(
-                areaName = "UK",
-                areaCode = Constants.UK_AREA_CODE,
-                areaType = AreaType.OVERVIEW.value,
-                changeInCases = 10,
-                currentNewCases = 100,
-                changeInInfectionRate = 10.0,
-                currentInfectionRate = 100.0
-            )
-
-            val newCases = listOf(newCaseDto)
-
-            every { homeDataSource.areaSummaries() } returns listOf(newCases).asFlow()
-            every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
-            every { homeDataSource.savedAreaCases() } returns listOf(emptyList<SavedAreaCaseDto>()).asFlow()
-
+            val dailyData = dailyData()
             val emittedItems = mutableListOf<DashboardDataModel>()
+            every { homeDataSource.areaSummaries() } returns listOf(dailyData).asFlow()
 
             sut.execute().collect { emittedItems.add(it) }
 
             val dashboardDataModel = emittedItems.first()
-
-            assertThat(dashboardDataModel.topNewCases).isEqualTo(newCases.mapIndexed { index, areaSummary ->
-                SummaryModel(
-                    position = index + 1,
-                    areaCode = areaSummary.areaCode,
-                    areaName = areaSummary.areaName,
-                    areaType = areaSummary.areaType,
-                    changeInCases = areaSummary.changeInCases,
-                    currentNewCases = areaSummary.currentNewCases,
-                    changeInInfectionRate = areaSummary.changeInInfectionRate,
-                    currentInfectionRate = areaSummary.currentInfectionRate
-                )
-            })
+            val sortedDailyData = dailyData.summaryBy { it.currentNewCases }
+            assertThat(dashboardDataModel.topNewCases).isEqualTo(sortedDailyData)
         }
+
+    @Test
+    fun `WHEN execute called THEN changeInCases emitted`() =
+        runBlockingTest {
+            val dailyData = dailyData()
+            val emittedItems = mutableListOf<DashboardDataModel>()
+            every { homeDataSource.areaSummaries() } returns listOf(dailyData).asFlow()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val dashboardDataModel = emittedItems.first()
+            val sortedDailyData = dailyData.summaryBy { it.changeInCases }
+            assertThat(dashboardDataModel.risingNewCases).isEqualTo(sortedDailyData)
+        }
+
+    @Test
+    fun `WHEN execute called THEN topInfectionRates emitted`() =
+        runBlockingTest {
+            val dailyData = dailyData()
+            val emittedItems = mutableListOf<DashboardDataModel>()
+            every { homeDataSource.areaSummaries() } returns listOf(dailyData).asFlow()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val dashboardDataModel = emittedItems.first()
+            val sortedDailyData = dailyData.summaryBy { it.currentInfectionRate }
+            assertThat(dashboardDataModel.topInfectionRates).isEqualTo(sortedDailyData)
+        }
+
+    @Test
+    fun `WHEN execute called THEN risingInfectionRates emitted`() =
+        runBlockingTest {
+            val dailyData = dailyData()
+            val emittedItems = mutableListOf<DashboardDataModel>()
+            every { homeDataSource.areaSummaries() } returns listOf(dailyData).asFlow()
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val dashboardDataModel = emittedItems.first()
+            val sortedDailyData = dailyData.summaryBy { it.changeInInfectionRate }
+            assertThat(dashboardDataModel.risingInfectionRates).isEqualTo(sortedDailyData)
+        }
+
+    companion object {
+
+        private val dailyRecordDto = DailyRecordDto(
+            areaCode = Constants.UK_AREA_CODE,
+            areaType = AreaType.OVERVIEW.value,
+            areaName = "United Kingdom",
+            cumulativeCases = 122,
+            newCases = 22,
+            lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
+        )
+
+        private val dailyRecords = listOf(dailyRecordDto)
+
+        private val random = Random(0)
+        private fun dailyData(start: Int = 1, end: Int = 100): List<AreaSummaryDto> {
+            var cumulativeCases = 0
+            var infectionRate = 0.0
+            return (start..end).map {
+                val newCases = random.nextInt(100)
+                val currentInfectionRate = random.nextDouble(100.0, 150.0)
+                val changeInInfectionRate = currentInfectionRate - infectionRate
+                infectionRate = currentInfectionRate
+                cumulativeCases += newCases
+                AreaSummaryDto(
+                    areaCode = Constants.UK_AREA_CODE,
+                    areaType = AreaType.OVERVIEW.value,
+                    areaName = "United Kingdom",
+                    changeInCases = newCases,
+                    currentNewCases = cumulativeCases,
+                    changeInInfectionRate = changeInInfectionRate,
+                    currentInfectionRate = infectionRate
+                )
+            }
+        }
+
+        inline fun <R : Comparable<R>> List<AreaSummaryDto>.summaryBy(crossinline selector: (AreaSummaryDto) -> R?): List<SummaryModel> =
+            this.sortedByDescending(selector)
+                .take(10)
+                .mapIndexed { index, areaSummary ->
+                    SummaryModel(
+                        position = index + 1,
+                        areaCode = areaSummary.areaCode,
+                        areaName = areaSummary.areaName,
+                        areaType = areaSummary.areaType,
+                        changeInCases = areaSummary.changeInCases,
+                        currentNewCases = areaSummary.currentNewCases,
+                        changeInInfectionRate = areaSummary.changeInInfectionRate,
+                        currentInfectionRate = areaSummary.currentInfectionRate
+                    )
+                }
+    }
 }

@@ -19,8 +19,8 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
-import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
+import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,8 +35,7 @@ class AreaDetailUseCase @Inject constructor(
     private val areaCasesUseCase: AreaCasesUseCase,
     @PublishedDeaths private val publishedDeathsUseCase: AreaDeathsUseCase,
     @OnsDeaths private val onsDeathsUseCase: AreaDeathsUseCase,
-    private val healthcareUseCase: HealthcareUseCase,
-    private val healthcareLookupDataSource: HealthcareLookupDataSource
+    private val healthcareUseCaseFacade: HealthcareUseCaseFacade
 ) {
 
     suspend fun execute(areaCode: String, areaType: AreaType): Flow<AreaDetailModelResult> {
@@ -52,7 +51,7 @@ class AreaDetailUseCase @Inject constructor(
                 val publishedDeaths = publishedDeathsUseCase.deaths(areaCode, areaType)
                 val onsDeaths = onsDeathsUseCase.deaths(areaCode, areaType)
                 val healthcareData: AreaDailyDataCollection =
-                    healthcareUseCase.healthcareData(areaCode, areaType, areaLookup)
+                    healthcareUseCaseFacade.healthcareData(areaCode, areaType, areaLookup)
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
@@ -80,20 +79,23 @@ class AreaDetailUseCase @Inject constructor(
         when (areaType) {
             AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
                 areaLookupUseCase.syncAreaLookup(areaCode, areaType)
-                val healthcareLookups = healthcareLookupDataSource.healthcareLookups(areaCode)
+                val healthcareLookups = healthcareUseCaseFacade.healthcareLookups(areaCode)
                 if (healthcareLookups.isEmpty()) {
                     val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
                     val nhsRegion =
-                        healthcareUseCase.healthCareRegion(areaCode, areaType, areaLookup)
-                    healthcareUseCase.syncHospitalData(nhsRegion.code, nhsRegion.regionType)
+                        healthcareUseCaseFacade.healthcareArea(areaCode, areaType, areaLookup)
+                    healthcareUseCaseFacade.syncHospitalData(nhsRegion.code, nhsRegion.regionType)
                 } else {
                     healthcareLookups.forEach { lookup ->
-                        healthcareUseCase.syncHospitalData(lookup.nhsTrustCode, AreaType.NHS_TRUST)
+                        healthcareUseCaseFacade.syncHospitalData(
+                            lookup.nhsTrustCode,
+                            AreaType.NHS_TRUST
+                        )
                     }
                 }
             }
             else -> {
-                healthcareUseCase.syncHospitalData(areaCode, areaType)
+                healthcareUseCaseFacade.syncHospitalData(areaCode, areaType)
             }
         }
     }

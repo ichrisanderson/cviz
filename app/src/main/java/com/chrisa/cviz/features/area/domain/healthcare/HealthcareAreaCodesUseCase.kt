@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,15 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.data
+package com.chrisa.cviz.features.area.domain.healthcare
 
-import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.features.area.data.dtos.HealthcareLookupDto
+import com.chrisa.cviz.features.area.data.HealthcareDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import javax.inject.Inject
 
-class HealthcareLookupDataSource @Inject constructor(
-    private val appDatabase: AppDatabase
+class HealthcareAreaCodesUseCase @Inject constructor(
+    private val healthcareDataSource: HealthcareDataSource
 ) {
-
-    fun healthcareLookups(areaCode: String): List<HealthcareLookupDto> =
-        appDatabase.healthcareLookupDao()
-            .byAreaCode(areaCode).map {
-                HealthcareLookupDto(
-                    it.areaCode,
-                    it.nhsTrustCode
-                )
-            }
+    fun healthcareDataFoAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
+        healthcareDataSource.healthcareDataFoAreaCodes(areaCodes)
 }

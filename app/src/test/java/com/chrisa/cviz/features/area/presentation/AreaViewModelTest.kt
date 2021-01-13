@@ -23,6 +23,7 @@ import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.cviz.core.util.test
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.AreaDetailModelResult
 import com.chrisa.cviz.features.area.domain.AreaDetailUseCase
 import com.chrisa.cviz.features.area.domain.DeleteSavedAreaUseCase
@@ -31,6 +32,7 @@ import com.chrisa.cviz.features.area.domain.IsSavedUseCase
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.mappers.AreaDataModelMapper
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
+import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -75,10 +77,12 @@ class AreaViewModelTest {
                 )
                 coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
                     listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
-                every { areaUiModelMapper.mapAreaDetailModel(
-                    eq(areaDetailModel),
-                    any()
-                ) } returns
+                every {
+                    areaUiModelMapper.mapAreaDetailModel(
+                        eq(areaDetailModel),
+                        any()
+                    )
+                } returns
                     areaCasesModel
 
                 val sut = areaViewModel()
@@ -95,7 +99,7 @@ class AreaViewModelTest {
         }
 
     @Test
-    fun `GIVEN areaDetailUseCase returns No Data WHEN viewmodel initialized THEN error state emitted`() =
+    fun `GIVEN areaDetailUseCase returns no data WHEN viewmodel initialized THEN error state emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
                 coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
@@ -232,6 +236,60 @@ class AreaViewModelTest {
 
             assertThat(isRefreshingObserver.values[0]).isEqualTo(false)
             assertThat(isRefreshingObserver.values[1]).isEqualTo(true)
+        }
+
+    @Test
+    fun `WHEN viewmodel initialized THEN success state emitted`() =
+        testDispatcher.runBlockingTest {
+            pauseDispatcher {
+                val admissions = SynchronisationTestData.dailyData(1, 23)
+                val hospitalAdmissions = listOf(
+                    AreaDailyDataDto("T1", admissions),
+                    AreaDailyDataDto("T2", admissions),
+                    AreaDailyDataDto("T3", admissions)
+                )
+                val areaCasesModel = areaData().copy(
+                    hospitalAdmissions = hospitalAdmissions
+                )
+                val filteredAreaCasesModel = areaData().copy(
+                    hospitalAdmissions = emptyList()
+                )
+                val areaDetailModel = areaDetailModel().copy(
+                    lastSyncedAt = syncTime
+                )
+                val filteredHospitalAdmissionsAreaModels = hospitalAdmissions.map {
+                    HospitalAdmissionsAreaModel(it.name, true)
+                }
+                val filteredHospitalAdmissionsAreaNames = filteredHospitalAdmissionsAreaModels.map {
+                    it.areaName
+                }.toSet()
+                val sut = areaViewModel()
+                coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
+                    listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
+                every {
+                    areaUiModelMapper.mapAreaDetailModel(
+                        eq(areaDetailModel),
+                        any()
+                    )
+                } returns
+                    areaCasesModel
+                every {
+                    areaUiModelMapper.updateHospitalAdmissionFilters(
+                        areaCasesModel,
+                        filteredHospitalAdmissionsAreaNames
+                    )
+                } returns
+                    filteredAreaCasesModel
+
+                runCurrent()
+
+                val statesObserver = sut.areaDataModel.test()
+
+                sut.setHospitalAdmissionFilter(filteredHospitalAdmissionsAreaModels)
+
+                assertThat(statesObserver.values[0]).isEqualTo(areaCasesModel)
+                assertThat(statesObserver.values[1]).isEqualTo(filteredAreaCasesModel)
+            }
         }
 
     private fun areaViewModel(): AreaViewModel {

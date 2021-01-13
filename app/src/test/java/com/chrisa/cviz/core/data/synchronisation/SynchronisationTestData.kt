@@ -43,7 +43,7 @@ object SynchronisationTestData {
 
     fun dailyData(start: Int = 1, end: Int = 100): List<DailyData> {
         var cumulativeCases = 0
-        return (start until end).map {
+        return (start..end).map {
             cumulativeCases += it
             DailyData(
                 newValue = it,

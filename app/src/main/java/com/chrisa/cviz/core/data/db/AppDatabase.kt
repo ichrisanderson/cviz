@@ -491,9 +491,6 @@ interface AreaLookupDao {
     @Query("SELECT * FROM areaLookup WHERE regionCode = :code LIMIT 1")
     fun byRegion(code: String): AreaLookupEntity?
 
-    @Query("SELECT * FROM areaLookup WHERE nationCode = :code LIMIT 1")
-    fun byNation(code: String): AreaLookupEntity?
-
     @Query("SELECT * FROM areaLookup WHERE nhsRegionCode = :code LIMIT 1")
     fun byNhsRegion(code: String): AreaLookupEntity?
 

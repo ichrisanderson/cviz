@@ -44,11 +44,13 @@ class AreaDataModelMapperTest {
     private val dailyDataWithRollingAverageBuilder = mockk<DailyDataWithRollingAverageBuilder>()
     private val chartBuilder = mockk<ChartBuilder>()
     private val weeklySummaryBuilder = mockk<WeeklySummaryBuilder>()
+    private val admissionsFilter = mockk<AdmissionsFilter>()
     private val sut = AreaDataModelMapper(
         context,
         dailyDataWithRollingAverageBuilder,
         weeklySummaryBuilder,
-        chartBuilder
+        chartBuilder,
+        admissionsFilter
     )
 
     @Before
@@ -101,6 +103,9 @@ class AreaDataModelMapperTest {
                 emptyList()
             )
         } returns emptyList()
+
+        every { admissionsFilter.filterHospitalData(any(), any()) } returns
+            emptyList()
     }
 
     @Test
@@ -221,15 +226,23 @@ class AreaDataModelMapperTest {
         val admissionsWithRollingAverage =
             SynchronisationTestData.dailyDataWithRollingAverage(1, 23)
         val chartData = combinedChartData("admissions")
-        val areaDetailWithCases = areaDetail.copy(
-            hospitalAdmissions = listOf(AreaDailyDataDto(areaName, admissions)),
+        val combinedAdmissions = SynchronisationTestData.dailyData(100, 123)
+        val hospitalAdmissions = listOf(
+            AreaDailyDataDto("T3", admissions),
+            AreaDailyDataDto("T2", admissions),
+            AreaDailyDataDto("T1", admissions)
+        )
+        val areaDetail = areaDetail.copy(
+            hospitalAdmissions = hospitalAdmissions,
             hospitalAdmissionsAreaName = areaName
         )
         val admissionsWeeklySummary = SynchronisationTestData.weeklySummary(currentTotal = 233)
-        every { weeklySummaryBuilder.buildWeeklySummary(admissions) } returns
+        every { admissionsFilter.filterHospitalData(hospitalAdmissions, emptySet()) } returns
+            combinedAdmissions
+        every { weeklySummaryBuilder.buildWeeklySummary(combinedAdmissions) } returns
             admissionsWeeklySummary
         every {
-            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(admissions)
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(combinedAdmissions)
         } returns
             admissionsWithRollingAverage
         every {
@@ -242,24 +255,73 @@ class AreaDataModelMapperTest {
         } returns
             listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
+        val mappedModel = sut.mapAreaDetailModel(areaDetail, emptySet())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
                 lastUpdatedDate = syncDateTime,
                 showHospitalAdmissions = true,
-                lastHospitalAdmissionDate = admissions.last().date,
+                lastHospitalAdmissionDate = combinedAdmissions.last().date,
+                canFilterHospitalAdmissionsAreas = true,
                 hospitalAdmissionsRegionName = areaName,
-                hospitalAdmissions = areaDetailWithCases.hospitalAdmissions,
+                hospitalAdmissions = hospitalAdmissions,
                 hospitalAdmissionsSummary = admissionsWeeklySummary,
                 hospitalAdmissionsChartData = listOf(chartData),
-                hospitalAdmissionsAreas = areaDetailWithCases.hospitalAdmissions.map {
+                hospitalAdmissionsAreas = hospitalAdmissions.sortedBy { it.name }.map {
                     HospitalAdmissionsAreaModel(
                         it.name,
                         true
                     )
                 }
             )
+        )
+    }
+
+    @Test
+    fun `WHEN updateHospitalAdmissionFilters THEN hospital data shown`() {
+        val admissionsWithRollingAverage =
+            SynchronisationTestData.dailyDataWithRollingAverage(1, 23)
+        val chartData = combinedChartData("admissions")
+        val combinedAdmissions = SynchronisationTestData.dailyData(100, 123)
+        val admissions = SynchronisationTestData.dailyData(1, 23)
+        val hospitalAdmissions = listOf(
+            AreaDailyDataDto("T3", admissions),
+            AreaDailyDataDto("T2", admissions),
+            AreaDailyDataDto("T1", admissions)
+        )
+        val areaDataModel = defaultModel.copy(
+            hospitalAdmissions = hospitalAdmissions
+        )
+        val admissionsWeeklySummary = SynchronisationTestData.weeklySummary(currentTotal = 233)
+        every { admissionsFilter.filterHospitalData(hospitalAdmissions, emptySet()) } returns
+            combinedAdmissions
+        every { weeklySummaryBuilder.buildWeeklySummary(combinedAdmissions) } returns
+            admissionsWeeklySummary
+        every {
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(combinedAdmissions)
+        } returns
+            admissionsWithRollingAverage
+        every {
+            chartBuilder.allCombinedChartData(
+                allHospitalAdmissionsLabel,
+                latestHospitalAdmissionsLabel,
+                rollingAverageLabel,
+                admissionsWithRollingAverage
+            )
+        } returns
+            listOf(chartData)
+
+        val mappedModel = sut.updateHospitalAdmissionFilters(areaDataModel, emptySet())
+
+        assertThat(mappedModel.hospitalAdmissionsSummary).isEqualTo(admissionsWeeklySummary)
+        assertThat(mappedModel.hospitalAdmissionsChartData).isEqualTo(listOf(chartData))
+        assertThat(mappedModel.hospitalAdmissionsAreas).isEqualTo(
+            hospitalAdmissions.map {
+                HospitalAdmissionsAreaModel(
+                    it.name,
+                    true
+                )
+            }
         )
     }
 

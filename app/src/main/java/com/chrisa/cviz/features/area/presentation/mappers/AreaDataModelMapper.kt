@@ -35,17 +35,19 @@ class AreaDataModelMapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dailyDataWithRollingAverageBuilder: DailyDataWithRollingAverageBuilder,
     private val weeklySummaryBuilder: WeeklySummaryBuilder,
-    private val chartBuilder: ChartBuilder
+    private val chartBuilder: ChartBuilder,
+    private val admissionsFilter: AdmissionsFilter
 ) {
 
     fun mapAreaDetailModel(
         areaDetailModel: AreaDetailModel,
         hospitalAdmissionFilter: Set<String>
     ): AreaDataModel {
-
         val filteredHospitalData =
-            filterHospitalData(areaDetailModel.hospitalAdmissions, hospitalAdmissionFilter)
-
+            admissionsFilter.filterHospitalData(
+                areaDetailModel.hospitalAdmissions,
+                hospitalAdmissionFilter
+            )
         val caseChartData = caseChartData(areaDetailModel.cases)
         val deathsByPublishedDateChartData =
             deathsChartData(areaDetailModel.deathsByPublishedDate)
@@ -90,20 +92,21 @@ class AreaDataModelMapper @Inject constructor(
     private fun hospitalAdmissionAreas(
         areaDetailModel: AreaDetailModel,
         hospitalAdmissionFilter: Set<String>
-    ): List<HospitalAdmissionsAreaModel> {
-        return areaDetailModel.hospitalAdmissions.map {
-            hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
-        }
-    }
+    ): List<HospitalAdmissionsAreaModel> =
+        areaDetailModel.hospitalAdmissions
+            .sortedBy { it.name }
+            .map {
+                hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
+            }
 
     private fun hospitalAdmissionsAreaModel(
-        it: AreaDailyDataDto,
+        areaDailyData: AreaDailyDataDto,
         hospitalAdmissionFilter: Set<String>
     ): HospitalAdmissionsAreaModel {
         return HospitalAdmissionsAreaModel(
-            areaName = it.name,
+            areaName = areaDailyData.name,
             isSelected = hospitalAdmissionFilter.isEmpty() || hospitalAdmissionFilter.contains(
-                it.name
+                areaDailyData.name
             )
         )
     }
@@ -114,7 +117,10 @@ class AreaDataModelMapper @Inject constructor(
     ): AreaDataModel {
 
         val filteredHospitalData =
-            filterHospitalData(areaDataModel.hospitalAdmissions, hospitalAdmissionFilter)
+            admissionsFilter.filterHospitalData(
+                areaDataModel.hospitalAdmissions,
+                hospitalAdmissionFilter
+            )
         val hospitalAdmissionsChartData =
             hospitalAdmissionsChartData(filteredHospitalData)
         val admissionAreas =
@@ -136,27 +142,6 @@ class AreaDataModelMapper @Inject constructor(
         areaDataModel.hospitalAdmissions.map {
             hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
         }
-
-    private fun filterHospitalData(
-        hospitalAdmissions: List<AreaDailyDataDto>,
-        hospitalAdmissionFilter: Set<String>
-    ): List<DailyData> {
-        var total = 0
-        return hospitalAdmissions
-            .filter { hospitalAdmissionFilter.isEmpty() || hospitalAdmissionFilter.contains(it.name) }
-            .flatMap { it.data }
-            .groupBy { it.date }
-            .map { data ->
-                val newAdmissions = data.value.sumOf { it.newValue }
-                total += newAdmissions
-                DailyData(
-                    date = data.key,
-                    cumulativeValue = total,
-                    newValue = newAdmissions,
-                    rate = 0.0
-                )
-            }
-    }
 
     private fun weeklySummary(dailyData: List<DailyData>): WeeklySummary =
         weeklySummaryBuilder.buildWeeklySummary(dailyData)

@@ -22,6 +22,7 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
 import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.synchronisation.DailyData
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -62,6 +63,30 @@ class HealthcareDataSourceTest {
                     newValue = areaData.newAdmissions!!,
                     cumulativeValue = areaData.cumulativeAdmissions!!,
                     rate = 0.0
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `GIVEN area has healthcare deaths WHEN healthcareDataFoAreaCodes called THEN healthcare data emitted`() {
+        val areaCodes = listOf("1", "2", "3")
+        every { healthcareDao.byAreaCodes(areaCodes) } returns listOf(areaData)
+
+        val healthcareData = sut.healthcareDataFoAreaCodes(areaCodes)
+
+        assertThat(healthcareData).isEqualTo(
+            listOf(
+                AreaDailyDataDto(
+                    areaData.areaName,
+                    listOf(
+                        DailyData(
+                            date = syncDate.toLocalDate(),
+                            newValue = areaData.newAdmissions!!,
+                            cumulativeValue = areaData.cumulativeAdmissions!!,
+                            rate = 0.0
+                        )
+                    )
                 )
             )
         )

@@ -38,28 +38,67 @@ class AreaLookupDataSourceTest {
 
     @Test
     fun `WHEN areaLookupByLtla called THEN ltla data returned`() {
-        val ltlaArea = lookupEntity.copy(
-            ltlaCode = "ltlaCode",
-            ltlaName = "ltlaName"
+        val area = lookupEntity.copy(
+            ltlaCode = "code",
+            ltlaName = "name"
         )
-        every { areaLookupDao.byLtla("1") } returns ltlaArea
+        every { areaLookupDao.byLtla("1") } returns area
 
         val areaLookup = sut.areaLookupByLtla("1")
 
-        assertThat(areaLookup).isEqualTo(ltlaArea.toAreaLookupDto())
+        assertThat(areaLookup).isEqualTo(area.toAreaLookupDto())
     }
 
     @Test
     fun `WHEN areaLookupByUtla called THEN utla data returned`() {
-        val utlaArea = lookupEntity.copy(
-            utlaCode = "utlaCode",
-            utlaName = "utlaName"
+        val area = lookupEntity.copy(
+            utlaCode = "code",
+            utlaName = "name"
         )
-        every { areaLookupDao.byUtla("1") } returns utlaArea
+        every { areaLookupDao.byUtla("1") } returns area
 
         val areaLookup = sut.areaLookupByUtla("1")
 
-        assertThat(areaLookup).isEqualTo(utlaArea.toAreaLookupDto())
+        assertThat(areaLookup).isEqualTo(area.toAreaLookupDto())
+    }
+
+    @Test
+    fun `WHEN areaLookupByRegion called THEN region data returned`() {
+        val area = lookupEntity.copy(
+            regionCode = "code",
+            regionName = "name"
+        )
+        every { areaLookupDao.byRegion("1") } returns area
+
+        val areaLookup = sut.areaLookupByRegion("1")
+
+        assertThat(areaLookup).isEqualTo(area.toAreaLookupDto())
+    }
+
+    @Test
+    fun `WHEN areaLookupByNhsRegion called THEN region data returned`() {
+        val area = lookupEntity.copy(
+            nhsRegionCode = "code",
+            nhsRegionName = "name"
+        )
+        every { areaLookupDao.byNhsRegion("1") } returns area
+
+        val areaLookup = sut.areaLookupByNhsRegion("1")
+
+        assertThat(areaLookup).isEqualTo(area.toAreaLookupDto())
+    }
+
+    @Test
+    fun `WHEN areaLookupByNhsTrust called THEN region data returned`() {
+        val area = lookupEntity.copy(
+            nhsTrustCode = "nhsTrustCode",
+            nhsTrustName = "nhsTrustName    "
+        )
+        every { areaLookupDao.byNhsTrustCode("1") } returns area
+
+        val areaLookup = sut.areaLookupByNhsTrust("1")
+
+        assertThat(areaLookup).isEqualTo(area.toAreaLookupDto())
     }
 
     companion object {
