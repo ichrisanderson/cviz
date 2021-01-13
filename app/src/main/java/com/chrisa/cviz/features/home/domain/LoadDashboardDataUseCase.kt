@@ -45,24 +45,16 @@ class LoadDashboardDataUseCase @Inject constructor(
             DashboardDataModel(
                 latestUkData = latestUkData(overview),
                 topInfectionRates = mapSummaryModel(
-                    areaSummaries
-                        .sortedByDescending { it.currentInfectionRate }
-                        .take(10)
+                    areaSummaries.summaryBy { it.currentInfectionRate }
                 ),
                 risingInfectionRates = mapSummaryModel(
-                    areaSummaries
-                        .sortedByDescending { it.changeInInfectionRate }
-                        .take(10)
+                    areaSummaries.summaryBy { it.changeInInfectionRate }
                 ),
                 topNewCases = mapSummaryModel(
-                    areaSummaries
-                        .sortedByDescending { it.currentNewCases }
-                        .take(10)
+                    areaSummaries.summaryBy { it.currentNewCases }
                 ),
                 risingNewCases = mapSummaryModel(
-                    areaSummaries
-                        .sortedByDescending { it.changeInCases }
-                        .take(10)
+                    areaSummaries.summaryBy { it.changeInCases }
                 )
             )
         }
@@ -97,4 +89,8 @@ class LoadDashboardDataUseCase @Inject constructor(
             )
         }
     }
+
+    inline fun <R : Comparable<R>> List<AreaSummaryDto>.summaryBy(crossinline selector: (AreaSummaryDto) -> R?): List<AreaSummaryDto> =
+        this.sortedByDescending(selector)
+            .take(10)
 }

@@ -23,13 +23,13 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.RollingAverageHelper
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.features.area.data.AreaDataSource
-import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDetailDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
+import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
@@ -54,12 +54,11 @@ class AreaDetailUseCaseTest {
     private val areaDataSynchroniser = mockk<AreaDataSynchroniser>()
     private val areaDataSource = mockk<AreaDataSource>()
     private val areaLookupUseCase = mockk<AreaLookupUseCase>()
-    private val healthcareUseCase = mockk<HealthcareUseCase>()
+    private val healthcareUseCase = mockk<HealthcareUseCaseFacade>()
     private val rollingAverageHelper = mockk<RollingAverageHelper>()
     private val areaCasesUseCase = mockk<AreaCasesUseCase>()
     private val areaPublishedDeathsUseCase = mockk<AreaDeathsUseCase>()
     private val areaOnsDeathsUseCase = mockk<AreaDeathsUseCase>()
-    private val healthcareLookupDataSource = mockk<HealthcareLookupDataSource>()
 
     private val sut = AreaDetailUseCase(
         areaDataSynchroniser,
@@ -68,8 +67,7 @@ class AreaDetailUseCaseTest {
         areaCasesUseCase,
         areaPublishedDeathsUseCase,
         areaOnsDeathsUseCase,
-        healthcareUseCase,
-        healthcareLookupDataSource
+        healthcareUseCase
     )
 
     @Before
@@ -78,7 +76,7 @@ class AreaDetailUseCaseTest {
         coEvery { areaLookupUseCase.syncAreaLookup(any(), any()) } just Runs
         coEvery { healthcareUseCase.syncHospitalData(any(), any()) } just Runs
         every { areaLookupUseCase.areaLookup(any(), any()) } returns areaLookupDto
-        every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns ukArea
+        every { healthcareUseCase.healthcareArea(any(), any(), any()) } returns ukArea
         every { areaDataSource.healthcareData(ukArea.code) } returns emptyList()
         every { rollingAverageHelper.average(any(), any()) } returns 1.0
         every {
@@ -96,7 +94,7 @@ class AreaDetailUseCaseTest {
             )
         } returns ukAreaPublishedDeathsDataDto
         every { areaOnsDeathsUseCase.deaths(any(), any()) } returns ukAreaOnsDeathsDataDto
-        every { healthcareLookupDataSource.healthcareLookups(any()) } returns emptyList()
+        every { healthcareUseCase.healthcareLookups(any()) } returns emptyList()
     }
 
     @Test
@@ -188,7 +186,7 @@ class AreaDetailUseCaseTest {
     fun `GIVEN region area WHEN execute called THEN hospital synced`() =
         runBlocking {
             every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
+            every { healthcareUseCase.healthcareArea(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.REGION)
 
             sut.execute("1", AreaType.REGION)
@@ -200,7 +198,7 @@ class AreaDetailUseCaseTest {
     fun `GIVEN ltla area WHEN execute called THEN hospital synced`() =
         runBlocking {
             every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
+            every { healthcareUseCase.healthcareArea(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.LTLA)
 
             sut.execute("1", AreaType.LTLA)
@@ -212,7 +210,7 @@ class AreaDetailUseCaseTest {
     fun `GIVEN utla area WHEN execute called THEN hospital synced`() =
         runBlocking {
             every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
+            every { healthcareUseCase.healthcareArea(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.UTLA)
 
             sut.execute("1", AreaType.UTLA)
@@ -302,7 +300,7 @@ class AreaDetailUseCaseTest {
                 listOf(metadata).asFlow()
             every { areaDataSource.loadAreaData(areaWithHospitalAdmissions.areaCode) } returns
                 areaWithHospitalAdmissions
-            every { healthcareUseCase.healthCareRegion(any(), any(), any()) } returns
+            every { healthcareUseCase.healthcareArea(any(), any(), any()) } returns
                 AreaDto(
                     areaWithHospitalAdmissions.areaCode,
                     areaWithHospitalAdmissions.areaName,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.domain.models
+package com.chrisa.cviz.features.area.domain.healthcare
 
-import com.chrisa.cviz.core.data.synchronisation.DailyData
+import com.chrisa.cviz.features.area.data.HealthcareDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
-import java.time.LocalDateTime
+import javax.inject.Inject
 
-data class AreaDetailModel(
-    val lastUpdatedAt: LocalDateTime?,
-    val lastSyncedAt: LocalDateTime?,
-    val casesAreaName: String,
-    val cases: List<DailyData>,
-    val deathsByPublishedDateAreaName: String,
-    val deathsByPublishedDate: List<DailyData>,
-    val onsDeathAreaName: String,
-    val onsDeathsByRegistrationDate: List<DailyData>,
-    val hospitalAdmissionsAreaName: String,
-    val hospitalAdmissions: List<AreaDailyDataDto>
-)
+class SingleAreaHealthcareDataUseCase @Inject constructor(
+    private val healthcareDataSource: HealthcareDataSource
+) {
+    fun trustData(areaName: String, areaCode: String): AreaDailyDataCollection =
+        AreaDailyDataCollection(
+            areaName,
+            listOf(AreaDailyDataDto(areaName, healthcareDataSource.healthcareData(areaCode)))
+        )
+}

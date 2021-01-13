@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.home.domain.models
+package com.chrisa.cviz.features.area.domain.healthcare
 
-data class PastTwoWeekCaseBreakdownModel(
-    val weekOneData: WeeklyCaseBreakdownModel,
-    val weekTwoData: WeeklyCaseBreakdownModel
-)
+import com.chrisa.cviz.features.area.data.HealthcareDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import javax.inject.Inject
+
+class HealthcareAreaCodesUseCase @Inject constructor(
+    private val healthcareDataSource: HealthcareDataSource
+) {
+    fun healthcareDataFoAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
+        healthcareDataSource.healthcareDataFoAreaCodes(areaCodes)
+}

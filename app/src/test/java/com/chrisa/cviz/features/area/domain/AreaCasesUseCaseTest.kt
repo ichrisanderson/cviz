@@ -43,6 +43,17 @@ class AreaCasesUseCaseTest {
     }
 
     @Test
+    fun `WHEN areaLookup null THEN uk cases returned`() {
+        every { areaCasesDataSource.cases(Constants.UK_AREA_CODE) } returns dailyData
+
+        val cases = sut.cases("E1", AreaType.UTLA, null)
+
+        assertThat(cases).isEqualTo(
+            AreaDailyDataDto("United Kingdom", dailyData)
+        )
+    }
+
+    @Test
     fun `WHEN areaLookup not found THEN uk cases returned`() {
         every { areaLookupUseCase.areaLookup(any(), any()) } returns null
         every { areaCasesDataSource.cases(Constants.UK_AREA_CODE) } returns dailyData

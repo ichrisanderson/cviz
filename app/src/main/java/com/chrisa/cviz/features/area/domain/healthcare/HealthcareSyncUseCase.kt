@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.data
+package com.chrisa.cviz.features.area.domain.healthcare
 
-import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.features.area.data.dtos.HealthcareLookupDto
+import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.synchronisation.HealthcareDataSynchroniser
 import javax.inject.Inject
+import timber.log.Timber
 
-class HealthcareLookupDataSource @Inject constructor(
-    private val appDatabase: AppDatabase
+class HealthcareSyncUseCase @Inject constructor(
+    private val healthcareDataSynchroniser: HealthcareDataSynchroniser
 ) {
-
-    fun healthcareLookups(areaCode: String): List<HealthcareLookupDto> =
-        appDatabase.healthcareLookupDao()
-            .byAreaCode(areaCode).map {
-                HealthcareLookupDto(
-                    it.areaCode,
-                    it.nhsTrustCode
-                )
-            }
+    suspend fun syncHospitalData(areaCode: String, areaType: AreaType) =
+        try {
+            healthcareDataSynchroniser.performSync(areaCode, areaType)
+        } catch (error: Throwable) {
+            Timber.e(error)
+        }
 }

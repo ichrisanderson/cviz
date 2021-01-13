@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.home.domain.models
+package com.chrisa.cviz.features.area.data.dtos
 
-data class WeeklyCaseDifferenceModel(
-    val changeInWeeklyLabConfirmedCases: Int,
-    val changeInTotalLabConfirmedCasesRate: Double
+data class HealthcareLookupDto(
+    val areaCode: String,
+    val nhsTrustCode: String
 )

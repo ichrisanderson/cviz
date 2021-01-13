@@ -18,9 +18,11 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.HealthcareLookupDao
+import com.chrisa.cviz.core.data.db.HealthcareLookupEntity
+import com.chrisa.cviz.features.area.data.dtos.HealthcareLookupDto
+import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 
@@ -38,9 +40,18 @@ class HealthcareLookupDataSourceTest {
     @Test
     fun `WHEN healthcareLookups called THEN healthcareLookupDao queried`() {
         val areaCode = "E1"
+        val healthcareLookupEntity = HealthcareLookupEntity(
+            areaCode = "Foo",
+            nhsTrustCode = "Ba"
+        )
+        val healthcareLookupDto = HealthcareLookupDto(
+            areaCode = "Foo",
+            nhsTrustCode = "Ba"
+        )
+        every { healthcareLookupDao.byAreaCode(areaCode) } returns listOf(healthcareLookupEntity)
 
-        sut.healthcareLookups(areaCode)
+        val data = sut.healthcareLookups(areaCode)
 
-        verify(exactly = 1) { healthcareLookupDao.byAreaCode(areaCode) }
+        assertThat(data).isEqualTo(listOf(healthcareLookupDto))
     }
 }
