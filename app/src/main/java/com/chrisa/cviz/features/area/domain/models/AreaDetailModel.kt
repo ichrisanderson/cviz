@@ -17,25 +17,18 @@
 package com.chrisa.cviz.features.area.domain.models
 
 import com.chrisa.cviz.core.data.synchronisation.DailyData
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import java.time.LocalDateTime
 
 data class AreaDetailModel(
-    val areaType: String?,
     val lastUpdatedAt: LocalDateTime?,
     val lastSyncedAt: LocalDateTime?,
+    val casesAreaName: String,
     val cases: List<DailyData>,
-    val deaths: List<DailyData>,
-    val hospitalAdmissions: List<DailyData>
-) {
-    companion object {
-        val EMPTY =
-            AreaDetailModel(
-                areaType = null,
-                lastUpdatedAt = null,
-                lastSyncedAt = null,
-                cases = emptyList(),
-                deaths = emptyList(),
-                hospitalAdmissions = emptyList()
-            )
-    }
-}
+    val deathsByPublishedDateAreaName: String,
+    val deathsByPublishedDate: List<DailyData>,
+    val onsDeathAreaName: String,
+    val onsDeathsByRegistrationDate: List<DailyData>,
+    val hospitalAdmissionsAreaName: String,
+    val hospitalAdmissions: List<AreaDailyDataDto>
+)

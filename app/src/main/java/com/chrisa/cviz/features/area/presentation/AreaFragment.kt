@@ -32,7 +32,9 @@ import com.chrisa.cviz.areaCaseSummaryCard
 import com.chrisa.cviz.areaDeathSummaryCard
 import com.chrisa.cviz.areaHospitalSummaryCard
 import com.chrisa.cviz.areaSectionHeader
-import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.chartTabCard
+import com.chrisa.cviz.core.ui.binding.KeyedClickListener
+import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar.barChartTabCard
+import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined.combinedChartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
 import com.chrisa.cviz.databinding.AreaFragmentBinding
 import com.google.android.material.snackbar.Snackbar
@@ -132,18 +134,30 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
     private fun observeCases() {
         viewModel.areaDataModel.observe(viewLifecycleOwner, Observer {
             val areaDataModel = it ?: return@Observer
-            val lastCaseDate = dateLabel(areaDataModel.areaMetadata.lastCaseDate)
-            val lastDeathDate = dateLabel(areaDataModel.areaMetadata.lastDeathDate)
+            val lastCaseDate = dateLabel(areaDataModel.lastCaseDate)
+            val lastDeathDate = dateLabel(areaDataModel.lastDeathPublishedDate)
+            val lastOnsDeathDate = dateLabel(areaDataModel.lastOnsDeathRegisteredDate)
             val lastHospitalAdmissionDate =
-                dateLabel(areaDataModel.areaMetadata.lastHospitalAdmissionDate)
+                dateLabel(areaDataModel.lastHospitalAdmissionDate)
             val lastUpdated = binding.recyclerView.context.getString(
                 R.string.updated_label,
-                DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.areaMetadata.lastUpdatedDate)
+                DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.lastUpdatedDate)
             )
+            val hospitalAdmissionsFilterClickListener =
+                KeyedClickListener(areaDataModel.hashCode().toString()) {
+                    AdmissionAreaFilterDialog(requireContext()).apply {
+                        bind(
+                            areaDataModel.hospitalAdmissionsRegionName,
+                            areaDataModel.hospitalAdmissionsAreas
+                        ) { selectedItems ->
+                            viewModel.setHospitalAdmissionFilter(selectedItems)
+                        }
+                    }.show()
+                }
             binding.recyclerView.withModels {
                 areaSectionHeader {
                     id("caseSummaryTitle")
-                    title(getString(R.string.cases_title))
+                    title(getString(R.string.cases_title, areaDataModel.caseAreaName))
                     subtitle1(
                         binding.toolbar.context.getString(
                             R.string.latest_data_label,
@@ -161,14 +175,41 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     currentInfectionRate(areaDataModel.caseSummary.weeklyRate.toInt())
                     changeInInfectionRateThisWeek(areaDataModel.caseSummary.changeInRate.toInt())
                 }
-                chartTabCard {
+                combinedChartTabCard {
                     id("caseChartData")
                     chartData(areaDataModel.caseChartData)
                 }
-                if (areaDataModel.showDeaths) {
+                if (areaDataModel.showOnsDeaths) {
+                    areaSectionHeader {
+                        id("onsDeathSummaryTitle")
+                        title(
+                            getString(
+                                R.string.ons_deaths_title,
+                                areaDataModel.onsDeathsAreaName
+                            )
+                        )
+                        subtitle1(
+                            binding.toolbar.context.getString(
+                                R.string.latest_data_label,
+                                lastOnsDeathDate
+                            )
+                        )
+                        subtitle2(lastUpdated)
+                    }
+                    barChartTabCard {
+                        id("onsBarChart")
+                        chartData(areaDataModel.onsDeathsByRegistrationDateChartData)
+                    }
+                }
+                if (areaDataModel.showDeathsByPublishedDate) {
                     areaSectionHeader {
                         id("deathSummaryTitle")
-                        title(getString(R.string.deaths_title))
+                        title(
+                            getString(
+                                R.string.deaths_title,
+                                areaDataModel.deathsByPublishedDateAreaName
+                            )
+                        )
                         subtitle1(
                             binding.toolbar.context.getString(
                                 R.string.latest_data_label,
@@ -179,20 +220,25 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     areaDeathSummaryCard {
                         id("deathSummary")
-                        totalDeaths(areaDataModel.deathSummary.currentTotal)
-                        dailyDeaths(areaDataModel.deathSummary.dailyTotal)
-                        currentNewDeaths(areaDataModel.deathSummary.weeklyTotal)
-                        changeInNewDeathsThisWeek(areaDataModel.deathSummary.changeInTotal)
+                        totalDeaths(areaDataModel.deathsByPublishedDateSummary.currentTotal)
+                        dailyDeaths(areaDataModel.deathsByPublishedDateSummary.dailyTotal)
+                        currentNewDeaths(areaDataModel.deathsByPublishedDateSummary.weeklyTotal)
+                        changeInNewDeathsThisWeek(areaDataModel.deathsByPublishedDateSummary.changeInTotal)
                     }
-                    chartTabCard {
+                    combinedChartTabCard {
                         id("deathsChartData")
-                        chartData(areaDataModel.deathsChartData)
+                        chartData(areaDataModel.deathsByPublishedDateChartData)
                     }
                 }
                 if (areaDataModel.showHospitalAdmissions) {
                     areaSectionHeader {
                         id("hospitalAdmissionsSummaryTitle")
-                        title(getString(R.string.hospital_admissions_title))
+                        title(
+                            getString(
+                                R.string.hospital_admissions_title,
+                                areaDataModel.hospitalAdmissionsRegionName
+                            )
+                        )
                         subtitle1(
                             binding.toolbar.context.getString(
                                 R.string.latest_data_label,
@@ -200,6 +246,9 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                             )
                         )
                         subtitle2(lastUpdated)
+                        isCtaButtonVisible(areaDataModel.canFilterHospitalAdmissionsAreas)
+                        ctaDrawable(R.drawable.ic_filter)
+                        ctaClickListener(hospitalAdmissionsFilterClickListener)
                     }
                     areaHospitalSummaryCard {
                         id("hospitalAdmissionsSummary")
@@ -208,7 +257,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         currentNewHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.weeklyTotal)
                         changeInNewHospitalAdmissionsThisWeek(areaDataModel.hospitalAdmissionsSummary.changeInTotal)
                     }
-                    chartTabCard {
+                    combinedChartTabCard {
                         id("hospitalAdmissionsChartData")
                         chartData(areaDataModel.hospitalAdmissionsChartData)
                     }

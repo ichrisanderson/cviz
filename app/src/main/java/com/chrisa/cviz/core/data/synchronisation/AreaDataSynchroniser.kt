@@ -35,7 +35,7 @@ import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
 import retrofit2.HttpException
 import retrofit2.Response
 
@@ -58,6 +58,10 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
+        val now = timeProvider.currentTime()
+        if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
+            return
+        }
 
         val casesFromNetwork = api.pagedAreaDataResponse(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
@@ -77,8 +81,8 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         } else {
             throw HttpException(
                 Response.error<Page<AreaDataModel>>(
-                    casesFromNetwork.errorBody() ?: ResponseBody.create(
-                        "application/json".toMediaType(), ""
+                    casesFromNetwork.errorBody() ?: "".toResponseBody(
+                        "application/json".toMediaType()
                     ),
                     casesFromNetwork.raw()
                 )
@@ -111,9 +115,9 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
                     newDeathsByDeathDate = it.newDeathsByDeathDate,
                     cumulativeDeathsByDeathDate = it.cumulativeDeathsByDeathDate,
                     cumulativeDeathsByDeathDateRate = it.cumulativeDeathsByDeathDateRate,
-                    newAdmissions = it.newAdmissions,
-                    cumulativeAdmissions = it.cumulativeAdmissions,
-                    occupiedBeds = it.occupiedBeds
+                    newOnsDeathsByRegistrationDate = it.newOnsDeathsByRegistrationDate,
+                    cumulativeOnsDeathsByRegistrationDate = it.cumulativeOnsDeathsByRegistrationDate,
+                    cumulativeOnsDeathsByRegistrationDateRate = it.cumulativeOnsDeathsByRegistrationDateRate
                 )
             })
             appDatabase.metadataDao().insert(

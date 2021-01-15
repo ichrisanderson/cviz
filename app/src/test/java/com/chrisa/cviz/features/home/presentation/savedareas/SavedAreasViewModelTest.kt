@@ -31,6 +31,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import java.io.IOException
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -104,6 +105,24 @@ class SavedAreasViewModelTest {
         testDispatcher.runBlockingTest {
             every { loadSavedAreasUseCase.execute() } returns emptyList<List<SummaryModel>>().asFlow()
             coEvery { refreshDataUseCase.execute() } just Runs
+            val sut = SavedAreasViewModel(
+                loadSavedAreasUseCase,
+                refreshDataUseCase,
+                coroutineDispatchers
+            )
+            val isRefreshingObserver = sut.isRefreshing.test()
+
+            sut.refresh()
+
+            assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
+            assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
+        }
+
+    @Test
+    fun `WHEN viewmodel refresh fails THEN is refreshing set to false`() =
+        testDispatcher.runBlockingTest {
+            every { loadSavedAreasUseCase.execute() } returns emptyList<List<SummaryModel>>().asFlow()
+            coEvery { refreshDataUseCase.execute() } throws IOException()
             val sut = SavedAreasViewModel(
                 loadSavedAreasUseCase,
                 refreshDataUseCase,

@@ -16,8 +16,10 @@
 
 package com.chrisa.cviz.features.area.presentation.mappers
 
+import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverage
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartDataBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartDataBuilder
@@ -41,13 +43,15 @@ class ChartBuilderTest {
         .withZone(ZoneId.of("GMT"))
 
     private val combinedChartDataBuilder = mockk<CombinedChartDataBuilder>()
-    private val sut = ChartBuilder(formatter, combinedChartDataBuilder)
+    private val barChartDataBuilder = mockk<BarChartDataBuilder>()
+    private val sut = ChartBuilder(formatter, combinedChartDataBuilder, barChartDataBuilder)
+    private val monthlyData = dailyData(10)
     private val monthlyDataWithRollingAverage = dailyDataWithRollingAverage(30)
 
     @Before
     fun setup() {
         every {
-            combinedChartDataBuilder.combinedChartData(
+            combinedChartDataBuilder.build(
                 allChartLabel,
                 monthlyDataWithRollingAverage.map {
                     BarChartItem(
@@ -67,7 +71,7 @@ class ChartBuilderTest {
         } returns allChartData
 
         every {
-            combinedChartDataBuilder.combinedChartData(
+            combinedChartDataBuilder.build(
                 latestChartLabel,
                 monthlyDataWithRollingAverage.takeLast(14).map {
                     BarChartItem(
@@ -85,11 +89,32 @@ class ChartBuilderTest {
 
             )
         } returns latestChartData
+
+        every {
+            barChartDataBuilder.build(allChartLabel,
+                monthlyData.map {
+                    BarChartItem(
+                        value = it.newValue.toFloat(),
+                        label = it.date.format(formatter)
+                    )
+                })
+        } returns allBarChartData
+
+        every {
+            barChartDataBuilder.build(
+                latestChartLabel,
+                monthlyData.takeLast(14).map {
+                    BarChartItem(
+                        value = it.newValue.toFloat(),
+                        label = it.date.format(formatter)
+                    )
+                })
+        } returns latestBarChartData
     }
 
     @Test
     fun `WHEN data is empty THEN empty chart data returned`() {
-        val data = sut.allChartData(
+        val data = sut.allCombinedChartData(
             allChartLabel,
             latestChartLabel,
             rollingAverageChartLabel,
@@ -100,9 +125,8 @@ class ChartBuilderTest {
     }
 
     @Test
-    fun `WHEN data is not empty THEN chart data is built`() {
-
-        val data = sut.allChartData(
+    fun `WHEN data is not empty THEN bar chart data is built`() {
+        val data = sut.allCombinedChartData(
             allChartLabel,
             latestChartLabel,
             rollingAverageChartLabel,
@@ -115,6 +139,20 @@ class ChartBuilderTest {
                 latestChartData
             )
         )
+    }
+
+    private fun dailyData(total: Int): List<DailyData> {
+        var cumulativeValue = 0
+        val date = LocalDate.of(2020, 1, 1)
+        return (1..total).map {
+            cumulativeValue += it
+            DailyData(
+                newValue = it,
+                cumulativeValue = cumulativeValue,
+                rate = 10.0 + it.toDouble(),
+                date = date.plusDays(it.toLong())
+            )
+        }
     }
 
     private fun dailyDataWithRollingAverage(total: Int): List<DailyDataWithRollingAverage> {
@@ -130,6 +168,22 @@ class ChartBuilderTest {
                 date = date.plusDays(it.toLong())
             )
         }
+    }
+
+    @Test
+    fun `WHEN data is not empty THEN chart data is built`() {
+        val data = sut.allBarChartData(
+            allChartLabel,
+            latestChartLabel,
+            monthlyData
+        )
+
+        assertThat(data).isEqualTo(
+            listOf(
+                allBarChartData,
+                latestBarChartData
+            )
+        )
     }
 
     companion object {
@@ -177,6 +231,26 @@ class ChartBuilderTest {
                         value = 3.0f,
                         label = "$latestChartLabel line chart value"
                     )
+                )
+            )
+        )
+
+        val allBarChartData = BarChartData(
+            label = allChartLabel,
+            values = listOf(
+                BarChartItem(
+                    value = 100.0f,
+                    label = "$allChartLabel bar chart value"
+                )
+            )
+        )
+
+        val latestBarChartData = BarChartData(
+            label = latestChartLabel,
+            values = listOf(
+                BarChartItem(
+                    value = 100.0f,
+                    label = "$latestChartLabel bar chart value"
                 )
             )
         )

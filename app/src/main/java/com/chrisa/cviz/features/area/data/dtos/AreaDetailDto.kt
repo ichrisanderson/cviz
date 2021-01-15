@@ -23,6 +23,6 @@ data class AreaDetailDto(
     val areaName: String,
     val areaType: String,
     val cases: List<DailyData>,
-    val deaths: List<DailyData>,
-    val hospitalAdmissions: List<DailyData>
+    val deathsByPublishedDate: List<DailyData>,
+    val onsDeathsByRegistrationDate: List<DailyData>
 )

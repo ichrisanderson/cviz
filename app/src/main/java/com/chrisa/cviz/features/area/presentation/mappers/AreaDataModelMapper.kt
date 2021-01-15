@@ -18,15 +18,16 @@ package com.chrisa.cviz.features.area.presentation.mappers
 
 import android.content.Context
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
-import com.chrisa.cviz.features.area.presentation.models.AreaMetadata
+import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -34,52 +35,119 @@ class AreaDataModelMapper @Inject constructor(
     @ApplicationContext private val context: Context,
     private val dailyDataWithRollingAverageBuilder: DailyDataWithRollingAverageBuilder,
     private val weeklySummaryBuilder: WeeklySummaryBuilder,
-    private val chartBuilder: ChartBuilder
+    private val chartBuilder: ChartBuilder,
+    private val admissionsFilter: AdmissionsFilter
 ) {
 
-    private val supportedAreaTypesForDeaths =
-        setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
-
-    private val supportedAreaTypesForHospitalAdmissions =
-        setOf(AreaType.OVERVIEW.value, AreaType.REGION.value, AreaType.NATION.value)
-
-    fun mapAreaDetailModel(areaDetailModel: AreaDetailModel): AreaDataModel {
-        val areaMetadata = AreaMetadata(
-            lastUpdatedDate = areaDetailModel.lastUpdatedAt,
-            lastCaseDate = areaDetailModel.cases.lastOrNull()?.date,
-            lastDeathDate = areaDetailModel.deaths.lastOrNull()?.date,
-            lastHospitalAdmissionDate = areaDetailModel.hospitalAdmissions.lastOrNull()?.date
-        )
+    fun mapAreaDetailModel(
+        areaDetailModel: AreaDetailModel,
+        hospitalAdmissionFilter: Set<String>
+    ): AreaDataModel {
+        val filteredHospitalData =
+            admissionsFilter.filterHospitalData(
+                areaDetailModel.hospitalAdmissions,
+                hospitalAdmissionFilter
+            )
         val caseChartData = caseChartData(areaDetailModel.cases)
-        val deathChartData = deathChartData(areaDetailModel.deaths)
+        val deathsByPublishedDateChartData =
+            deathsChartData(areaDetailModel.deathsByPublishedDate)
+        val onsDeathsChartData =
+            onsDeathsChartData(areaDetailModel.onsDeathsByRegistrationDate)
         val hospitalAdmissionsChartData =
-            hospitalAdmissionsChartData(areaDetailModel.hospitalAdmissions)
+            hospitalAdmissionsChartData(filteredHospitalData)
+        val hospitalAdmissionsAreas =
+            hospitalAdmissionAreas(areaDetailModel, hospitalAdmissionFilter)
 
-        val canDisplayDeaths =
-            canDisplayDeaths(areaDetailModel.areaType) && deathChartData.isNotEmpty()
-
-        val canDisplayHospitalAdmissions =
-            canDisplayHospitalAdmissions(areaDetailModel.areaType) &&
-                areaDetailModel.hospitalAdmissions.isNotEmpty()
+        val canDisplayHospitalAdmissions = filteredHospitalData.isNotEmpty()
+        val canDisplayDeathsByPublishedDate = deathsByPublishedDateChartData.isNotEmpty()
+        val canDisplayOnsDeaths = onsDeathsChartData.isNotEmpty()
+        val canFilterHospitalAdmissionsAreas = hospitalAdmissionsAreas.size > 1
 
         return AreaDataModel(
-            areaMetadata = areaMetadata,
+            lastUpdatedDate = areaDetailModel.lastUpdatedAt,
+            caseAreaName = areaDetailModel.casesAreaName,
             caseSummary = weeklySummary(areaDetailModel.cases),
+            lastCaseDate = areaDetailModel.cases.lastOrNull()?.date,
             caseChartData = caseChartData,
-            showDeaths = canDisplayDeaths,
-            deathSummary = weeklySummary(areaDetailModel.deaths),
-            deathsChartData = deathChartData,
+            showDeathsByPublishedDate = canDisplayDeathsByPublishedDate,
+            lastDeathPublishedDate = areaDetailModel.deathsByPublishedDate.lastOrNull()?.date,
+            deathsByPublishedDateAreaName = areaDetailModel.deathsByPublishedDateAreaName,
+            deathsByPublishedDateSummary = weeklySummary(areaDetailModel.deathsByPublishedDate),
+            deathsByPublishedDateChartData = deathsByPublishedDateChartData,
+            showOnsDeaths = canDisplayOnsDeaths,
+            lastOnsDeathRegisteredDate = areaDetailModel.onsDeathsByRegistrationDate.lastOrNull()?.date,
+            onsDeathsAreaName = areaDetailModel.onsDeathAreaName,
+            onsDeathsByRegistrationDateChartData = onsDeathsChartData,
             showHospitalAdmissions = canDisplayHospitalAdmissions,
-            hospitalAdmissionsSummary = weeklySummary(areaDetailModel.hospitalAdmissions),
-            hospitalAdmissionsChartData = hospitalAdmissionsChartData
+            lastHospitalAdmissionDate = filteredHospitalData.lastOrNull()?.date,
+            hospitalAdmissionsRegionName = areaDetailModel.hospitalAdmissionsAreaName,
+            hospitalAdmissions = areaDetailModel.hospitalAdmissions,
+            hospitalAdmissionsSummary = weeklySummary(filteredHospitalData),
+            hospitalAdmissionsChartData = hospitalAdmissionsChartData,
+            canFilterHospitalAdmissionsAreas = canFilterHospitalAdmissionsAreas,
+            hospitalAdmissionsAreas = hospitalAdmissionsAreas
         )
     }
+
+    private fun hospitalAdmissionAreas(
+        areaDetailModel: AreaDetailModel,
+        hospitalAdmissionFilter: Set<String>
+    ): List<HospitalAdmissionsAreaModel> =
+        areaDetailModel.hospitalAdmissions
+            .sortedBy { it.name }
+            .map {
+                hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
+            }
+
+    private fun hospitalAdmissionsAreaModel(
+        areaDailyData: AreaDailyDataDto,
+        hospitalAdmissionFilter: Set<String>
+    ): HospitalAdmissionsAreaModel {
+        return HospitalAdmissionsAreaModel(
+            areaName = areaDailyData.name,
+            isSelected = hospitalAdmissionFilter.isEmpty() || hospitalAdmissionFilter.contains(
+                areaDailyData.name
+            )
+        )
+    }
+
+    fun updateHospitalAdmissionFilters(
+        areaDataModel: AreaDataModel,
+        hospitalAdmissionFilter: Set<String>
+    ): AreaDataModel {
+
+        val filteredHospitalData =
+            admissionsFilter.filterHospitalData(
+                areaDataModel.hospitalAdmissions,
+                hospitalAdmissionFilter
+            )
+        val hospitalAdmissionsChartData =
+            hospitalAdmissionsChartData(filteredHospitalData)
+        val admissionAreas =
+            hospitalAdmissionAreas(areaDataModel, hospitalAdmissionFilter)
+        val weeklySummary =
+            weeklySummary(filteredHospitalData)
+
+        return areaDataModel.copy(
+            hospitalAdmissionsSummary = weeklySummary,
+            hospitalAdmissionsChartData = hospitalAdmissionsChartData,
+            hospitalAdmissionsAreas = admissionAreas
+        )
+    }
+
+    private fun hospitalAdmissionAreas(
+        areaDataModel: AreaDataModel,
+        hospitalAdmissionFilter: Set<String>
+    ): List<HospitalAdmissionsAreaModel> =
+        areaDataModel.hospitalAdmissions.map {
+            hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
+        }
 
     private fun weeklySummary(dailyData: List<DailyData>): WeeklySummary =
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
 
     private fun caseChartData(dailyData: List<DailyData>): List<CombinedChartData> {
-        return chartBuilder.allChartData(
+        return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_cases_chart_label),
             context.getString(R.string.latest_cases_chart_label),
             context.getString(R.string.rolling_average_chart_label),
@@ -87,8 +155,8 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
-    private fun deathChartData(dailyData: List<DailyData>): List<CombinedChartData> {
-        return chartBuilder.allChartData(
+    private fun deathsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
+        return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
             context.getString(R.string.rolling_average_chart_label),
@@ -96,18 +164,20 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
+    private fun onsDeathsChartData(dailyData: List<DailyData>): List<BarChartData> {
+        return chartBuilder.allBarChartData(
+            context.getString(R.string.all_deaths_chart_label),
+            context.getString(R.string.latest_deaths_chart_label),
+            dailyData
+        )
+    }
+
     private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
-        return chartBuilder.allChartData(
+        return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_hospital_admissions_chart_label),
             context.getString(R.string.latest_hospital_admissions_chart_label),
             context.getString(R.string.rolling_average_chart_label),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
-
-    private fun canDisplayDeaths(areaType: String?): Boolean =
-        supportedAreaTypesForDeaths.contains(areaType)
-
-    private fun canDisplayHospitalAdmissions(areaType: String?): Boolean =
-        supportedAreaTypesForHospitalAdmissions.contains(areaType)
 }

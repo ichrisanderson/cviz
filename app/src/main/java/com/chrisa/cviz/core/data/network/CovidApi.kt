@@ -48,9 +48,21 @@ interface CovidApi {
         @Query(encoded = true, value = "filters") filters: String,
         @Query(value = "structure") structure: String
     ): Page<AreaDataModel>
+
+    @GET("v1/code")
+    suspend fun areaLookupData(
+        @Query(value = "category") category: String,
+        @Query(value = "search") search: String
+    ): AreaLookupData
+
+    @GET("v1/data")
+    suspend fun pagedHealthcareDataResponse(
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @Query(encoded = true, value = "filters") filters: String,
+        @Query(value = "structure") structure: String
+    ): Response<Page<HealthcareData>>
 }
 
-val AREA_FILTER = "areaType=nation;areaType=region;areaType=utla;areaType=ltla"
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
 fun DAILY_AREA_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
 
@@ -82,30 +94,20 @@ data class AreaDataModel(
     val areaName: String,
     val areaType: String,
     val date: LocalDate,
-    @Json(name = "newCases")
     val newCases: Int?,
-    @Json(name = "cumulativeCases")
     val cumulativeCases: Int?,
-    @Json(name = "infectionRate")
     val infectionRate: Double?,
-    @Json(name = "newDeathsByPublishedDate")
     val newDeathsByPublishedDate: Int?,
-    @Json(name = "cumulativeDeathsByPublishedDate")
     val cumulativeDeathsByPublishedDate: Int?,
-    @Json(name = "cumulativeDeathsByPublishedDateRate")
     val cumulativeDeathsByPublishedDateRate: Double?,
-    @Json(name = "newDeathsByDeathDate")
     val newDeathsByDeathDate: Int?,
-    @Json(name = "cumulativeDeathsByDeathDate")
     val cumulativeDeathsByDeathDate: Int?,
-    @Json(name = "cumulativeDeathsByDeathDateRate")
     val cumulativeDeathsByDeathDateRate: Double?,
-    @Json(name = "newAdmissions")
-    val newAdmissions: Int?,
-    @Json(name = "cumulativeAdmissions")
-    val cumulativeAdmissions: Int?,
-    @Json(name = "occupiedBeds")
-    val occupiedBeds: Int?
+    val newOnsDeathsByRegistrationDate: Int?,
+    @Json(name = "cumOnsDeathsByRegistrationDate")
+    val cumulativeOnsDeathsByRegistrationDate: Int?,
+    @Json(name = "cumOnsDeathsByRegistrationDateRate")
+    val cumulativeOnsDeathsByRegistrationDateRate: Double?
 ) {
     companion object {
 
@@ -123,9 +125,9 @@ data class AreaDataModel(
             put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
-            put("newAdmissions", "newAdmissions")
-            put("cumulativeAdmissions", "cumAdmissions")
-            put("occupiedBeds", "covidOccupiedMVBeds")
+            put("newOnsDeathsByRegistrationDate", "newOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDate", "cumOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDateRate", "cumOnsDeathsByRegistrationDateRate")
         }.toString()
 
         val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
@@ -142,19 +144,9 @@ data class AreaDataModel(
             put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
-            put("newAdmissions", "newAdmissions")
-            put("cumulativeAdmissions", "cumAdmissions")
-            put("occupiedBeds", "covidOccupiedMVBeds")
-        }.toString()
-
-        val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE_NO_DEATHS = JSONObject().apply {
-            put("areaCode", "areaCode")
-            put("areaName", "areaName")
-            put("areaType", "areaType")
-            put("date", "date")
-            put("newCases", "newCasesBySpecimenDate")
-            put("cumulativeCases", "cumCasesBySpecimenDate")
-            put("infectionRate", "cumCasesBySpecimenDateRate")
+            put("newOnsDeathsByRegistrationDate", "newOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDate", "cumOnsDeathsByRegistrationDate")
+            put("cumOnsDeathsByRegistrationDateRate", "cumOnsDeathsByRegistrationDateRate")
         }.toString()
     }
 }
@@ -163,3 +155,56 @@ data class AreaDataModel(
 data class MetadataModel(
     val lastUpdatedAt: LocalDateTime
 )
+
+@JsonClass(generateAdapter = true)
+data class AreaLookupData(
+    val postcode: String,
+    val trimmedPostcode: String,
+    val lsoa: String,
+    val lsoaName: String,
+    val msoa: String,
+    val msoaName: String,
+    val ltla: String,
+    val ltlaName: String,
+    val utla: String,
+    val utlaName: String,
+    val region: String?,
+    val regionName: String?,
+    val nhsTrust: String?,
+    val nhsTrustName: String?,
+    val nhsRegion: String?,
+    val nhsRegionName: String?,
+    val nation: String,
+    val nationName: String
+)
+
+@JsonClass(generateAdapter = true)
+data class HealthcareData(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val date: LocalDate,
+    val newAdmissions: Int?,
+    val cumulativeAdmissions: Int?,
+    val occupiedBeds: Int?,
+    val transmissionRateMin: Double?,
+    val transmissionRateMax: Double?,
+    val transmissionRateGrowthRateMin: Double?,
+    val transmissionRateGrowthRateMax: Double?
+) {
+    companion object {
+        val STRUCTURE = JSONObject().apply {
+            put("areaCode", "areaCode")
+            put("areaName", "areaName")
+            put("areaType", "areaType")
+            put("date", "date")
+            put("newAdmissions", "newAdmissions")
+            put("cumulativeAdmissions", "cumAdmissions")
+            put("occupiedBeds", "covidOccupiedMVBeds")
+            put("transmissionRateMin", "transmissionRateMin")
+            put("transmissionRateMax", "transmissionRateMax")
+            put("transmissionRateGrowthRateMin", "transmissionRateGrowthRateMin")
+            put("transmissionRateGrowthRateMax", "transmissionRateGrowthRateMax")
+        }.toString()
+    }
+}

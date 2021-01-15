@@ -23,26 +23,49 @@ object SynchronisationTestData {
 
     private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
 
-    val weeklySummary =
+    fun weeklySummary(
+        currentTotal: Int = 12220,
+        dailyTotal: Int = 320,
+        weeklyTotal: Int = 1000,
+        changeInTotal: Int = 10,
+        weeklyRate: Double = 100.0,
+        changeInRate: Double = 20.0
+    ) =
         WeeklySummary(
             lastDate = syncDate.toLocalDate(),
-            currentTotal = 12220,
-            dailyTotal = 320,
-            weeklyTotal = 1000,
-            changeInTotal = 10,
-            weeklyRate = 100.0,
-            changeInRate = 20.0
+            currentTotal = currentTotal,
+            dailyTotal = dailyTotal,
+            weeklyTotal = weeklyTotal,
+            changeInTotal = changeInTotal,
+            weeklyRate = weeklyRate,
+            changeInRate = changeInRate
         )
 
-    fun dailyData(): List<DailyData> {
+    fun dailyData(start: Int = 1, end: Int = 100): List<DailyData> {
         var cumulativeCases = 0
-        return (1 until 100).map {
+        return (start..end).map {
             cumulativeCases += it
             DailyData(
                 newValue = it,
                 cumulativeValue = cumulativeCases,
                 date = LocalDate.ofEpochDay(it.toLong()),
                 rate = 0.0
+            )
+        }
+    }
+
+    fun dailyDataWithRollingAverage(
+        start: Int = 1,
+        end: Int = 100
+    ): List<DailyDataWithRollingAverage> {
+        var cumulativeCases = 0
+        return (1 until 100).map {
+            DailyDataWithRollingAverage(
+                newValue = it,
+                cumulativeValue = cumulativeCases,
+                rollingAverage = 1.0,
+                rate = 100.0,
+                date = LocalDate.of(2020, 1, 1)
             )
         }
     }

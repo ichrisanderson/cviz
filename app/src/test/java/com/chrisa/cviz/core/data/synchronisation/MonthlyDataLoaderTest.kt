@@ -22,6 +22,7 @@ import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.cviz.core.data.network.CovidApi
 import com.chrisa.cviz.core.data.network.DAILY_AREA_DATA_FILTER
 import com.chrisa.cviz.core.data.network.Page
+import com.chrisa.cviz.core.data.synchronisation.MonthlyDataLoader.Companion.AREA_SUMMARY_STRUCTURE
 import com.chrisa.cviz.core.util.DateUtils.formatAsIso8601
 import com.chrisa.cviz.core.util.NetworkUtils
 import com.google.common.truth.Truth.assertThat
@@ -43,7 +44,6 @@ class MonthlyDataLoaderTest {
     private val networkUtils = mockk<NetworkUtils>()
     private val areaDataModelStructureMapper = mockk<AreaDataModelStructureMapper>()
     private val testDispatcher = TestCoroutineDispatcher()
-    private val areaDataModel = "{}"
     private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
     private val syncDate = syncTime.toLocalDate()
     private val lastDate = syncDate.minusDays(3)
@@ -62,9 +62,9 @@ class MonthlyDataLoaderTest {
         newDeathsByDeathDate = 40,
         cumulativeDeathsByDeathDate = 50,
         cumulativeDeathsByDeathDateRate = 60.0,
-        newAdmissions = 70,
-        cumulativeAdmissions = 80,
-        occupiedBeds = 90
+        newOnsDeathsByRegistrationDate = 10,
+        cumulativeOnsDeathsByRegistrationDate = 53,
+        cumulativeOnsDeathsByRegistrationDateRate = 62.0
     )
     private val week2Data = week1Data.copy(
         date = week1Data.date.minusDays(7),
@@ -90,7 +90,6 @@ class MonthlyDataLoaderTest {
     @Before
     fun setup() {
         every { networkUtils.hasNetworkConnection() } returns true
-        every { areaDataModelStructureMapper.mapAreaTypeToDataModel(any()) } returns areaDataModel
 
         sut = MonthlyDataLoader(covidApi, areaDataModelStructureMapper)
     }
@@ -102,7 +101,7 @@ class MonthlyDataLoaderTest {
                 covidApi.pagedAreaData(
                     null,
                     DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), AreaType.LTLA.value),
-                    areaDataModel
+                    AREA_SUMMARY_STRUCTURE
                 )
             } throws IOException()
 
@@ -116,7 +115,7 @@ class MonthlyDataLoaderTest {
                 covidApi.pagedAreaData(
                     null,
                     DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), AreaType.LTLA.value),
-                    areaDataModel
+                    AREA_SUMMARY_STRUCTURE
                 )
             } returns emptyPage
 
@@ -131,7 +130,7 @@ class MonthlyDataLoaderTest {
                 covidApi.pagedAreaData(
                     null,
                     DAILY_AREA_DATA_FILTER(lastDate.formatAsIso8601(), AreaType.LTLA.value),
-                    areaDataModel
+                    AREA_SUMMARY_STRUCTURE
                 )
             } returns Page(length = 1, maxPageLimit = null, data = listOf(week1Data))
 
@@ -142,7 +141,7 @@ class MonthlyDataLoaderTest {
                         lastDate.minusDays(7).formatAsIso8601(),
                         AreaType.LTLA.value
                     ),
-                    areaDataModel
+                    AREA_SUMMARY_STRUCTURE
                 )
             } returns Page(length = 1, maxPageLimit = null, data = listOf(week2Data))
 
@@ -153,7 +152,7 @@ class MonthlyDataLoaderTest {
                         lastDate.minusDays(14).formatAsIso8601(),
                         AreaType.LTLA.value
                     ),
-                    areaDataModel
+                    AREA_SUMMARY_STRUCTURE
                 )
             } returns Page(length = 1, maxPageLimit = null, data = listOf(week3Data))
 
@@ -164,7 +163,7 @@ class MonthlyDataLoaderTest {
                         lastDate.minusDays(21).formatAsIso8601(),
                         AreaType.LTLA.value
                     ),
-                    areaDataModel
+                    AREA_SUMMARY_STRUCTURE
                 )
             } returns Page(length = 1, maxPageLimit = null, data = listOf(week4Data))
 

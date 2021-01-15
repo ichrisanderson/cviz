@@ -19,8 +19,8 @@ package com.chrisa.cviz.core.data.synchronisation
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaEntity
+import com.chrisa.cviz.core.data.db.AreaSummaryDao
 import com.chrisa.cviz.core.data.db.AreaSummaryEntity
-import com.chrisa.cviz.core.data.db.AreaSummaryEntityDao
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.MetaDataIds
@@ -50,7 +50,7 @@ import org.junit.Test
 class AreaSummaryDataSynchroniserTest {
 
     private val appDatabase = mockk<AppDatabase>()
-    private val areaSummaryEntityDao = mockk<AreaSummaryEntityDao>()
+    private val areaSummaryEntityDao = mockk<AreaSummaryDao>()
     private val areaDao = mockk<AreaDao>()
     private val metadataDao = mockk<MetadataDao>()
     private val networkUtils = mockk<NetworkUtils>()
@@ -71,7 +71,7 @@ class AreaSummaryDataSynchroniserTest {
         every { networkUtils.hasNetworkConnection() } returns true
         every { appDatabase.areaDao() } returns areaDao
         every { appDatabase.metadataDao() } returns metadataDao
-        every { appDatabase.areaSummaryEntityDao() } returns areaSummaryEntityDao
+        every { appDatabase.areaSummaryDao() } returns areaSummaryEntityDao
         every { timeProvider.currentDate() } returns syncDate
         every { areaSummaryEntityDao.deleteAll() } just Runs
         every { areaSummaryEntityDao.insertAll(any()) } just Runs
@@ -103,7 +103,7 @@ class AreaSummaryDataSynchroniserTest {
         }
 
     @Test
-    fun `GIVEN data for day exists WHEN performSync THEN api is not called`() =
+    fun `GIVEN data can be loaded from the api WHEN performSync THEN data is cached`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
                 id = MetaDataIds.areaSummaryId(),

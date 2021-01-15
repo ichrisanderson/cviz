@@ -43,9 +43,9 @@ class AreaEntityListBuilderTest {
         newDeathsByDeathDate = 40,
         cumulativeDeathsByDeathDate = 50,
         cumulativeDeathsByDeathDateRate = 60.0,
-        newAdmissions = 70,
-        cumulativeAdmissions = 80,
-        occupiedBeds = 90
+        newOnsDeathsByRegistrationDate = 10,
+        cumulativeOnsDeathsByRegistrationDate = 53,
+        cumulativeOnsDeathsByRegistrationDateRate = 62.0
     )
     private val week2Data = week1Data.copy(
         date = week1Data.date.minusDays(7),

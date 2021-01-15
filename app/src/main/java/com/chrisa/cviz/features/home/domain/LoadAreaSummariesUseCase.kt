@@ -17,7 +17,6 @@
 package com.chrisa.cviz.features.home.domain
 
 import com.chrisa.cviz.features.home.data.HomeDataSource
-import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.domain.models.SortOption
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import javax.inject.Inject
@@ -49,14 +48,4 @@ class LoadAreaSummariesUseCase @Inject constructor(
                 }
         }
     }
-}
-
-class AreaSummaryListSorter @Inject constructor() {
-    fun sort(list: List<AreaSummaryDto>, sortOption: SortOption): List<AreaSummaryDto> =
-        when (sortOption) {
-            SortOption.RisingCases -> list.sortedByDescending { it.changeInCases }
-            SortOption.RisingInfectionRate -> list.sortedByDescending { it.changeInInfectionRate }
-            SortOption.InfectionRate -> list.sortedByDescending { it.currentInfectionRate }
-            SortOption.NewCases -> list.sortedByDescending { it.currentNewCases }
-        }
 }

@@ -17,16 +17,38 @@
 package com.chrisa.cviz.features.area.presentation.models
 
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class AreaDataModel(
-    val areaMetadata: AreaMetadata,
+    val lastUpdatedDate: LocalDateTime?,
+    val lastCaseDate: LocalDate?,
+    val caseAreaName: String,
     val caseSummary: WeeklySummary,
-    val deathSummary: WeeklySummary,
     val caseChartData: List<CombinedChartData>,
-    val showDeaths: Boolean,
-    val deathsChartData: List<CombinedChartData>,
+    val showDeathsByPublishedDate: Boolean,
+    val lastDeathPublishedDate: LocalDate?,
+    val deathsByPublishedDateAreaName: String,
+    val deathsByPublishedDateSummary: WeeklySummary,
+    val deathsByPublishedDateChartData: List<CombinedChartData>,
+    val showOnsDeaths: Boolean,
+    val lastOnsDeathRegisteredDate: LocalDate?,
+    val onsDeathsAreaName: String,
+    val onsDeathsByRegistrationDateChartData: List<BarChartData>,
     val showHospitalAdmissions: Boolean,
+    val lastHospitalAdmissionDate: LocalDate?,
+    val hospitalAdmissionsRegionName: String,
     val hospitalAdmissionsSummary: WeeklySummary,
-    val hospitalAdmissionsChartData: List<CombinedChartData>
+    val hospitalAdmissions: List<AreaDailyDataDto>,
+    val hospitalAdmissionsChartData: List<CombinedChartData>,
+    val canFilterHospitalAdmissionsAreas: Boolean,
+    val hospitalAdmissionsAreas: List<HospitalAdmissionsAreaModel>
+)
+
+data class HospitalAdmissionsAreaModel(
+    val areaName: String,
+    val isSelected: Boolean
 )

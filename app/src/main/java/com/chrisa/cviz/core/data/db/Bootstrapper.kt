@@ -16,14 +16,39 @@
 
 package com.chrisa.cviz.core.data.db
 
+import com.chrisa.cviz.core.data.db.hospitallookups.HospitalLookupHelper
+import com.chrisa.cviz.core.data.db.legacy.LegacyAppDatabaseHelper
 import javax.inject.Inject
 
 class Bootstrapper @Inject constructor(
-    val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper,
+    private val hospitalLookupHelper: HospitalLookupHelper
 ) {
     fun execute() {
+        copyOldData()
+        insertAreaData()
+        hospitalLookupHelper.insertHospitalLookupData()
+    }
+
+    private fun copyOldData() {
+        if (legacyAppDatabaseHelper.hasDatabase()) {
+            val items = appDatabase.savedAreaDao().countAll()
+            if (items == 0) {
+                val savedAreas =
+                    legacyAppDatabaseHelper.savedAreaCodes().map(::mapToSavedAreaEntity)
+                appDatabase.savedAreaDao().insertAll(savedAreas)
+            }
+            legacyAppDatabaseHelper.deleteDatabase()
+        }
+    }
+
+    private fun mapToSavedAreaEntity(areaCode: String) =
+        SavedAreaEntity(areaCode = areaCode)
+
+    private fun insertAreaData() {
         val items = appDatabase.areaDao().count()
         if (items > 0) return
-        appDatabase.areaDao().insertAll(BootstrapData.areas())
+        appDatabase.areaDao().insertAll(BootstrapData.areaData())
     }
 }

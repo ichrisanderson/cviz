@@ -18,23 +18,22 @@ package com.chrisa.cviz.features.area.presentation.mappers
 
 import android.content.Context
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverage
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
+import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
+import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
-import com.chrisa.cviz.features.area.presentation.models.AreaMetadata
+import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
 import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
@@ -45,11 +44,13 @@ class AreaDataModelMapperTest {
     private val dailyDataWithRollingAverageBuilder = mockk<DailyDataWithRollingAverageBuilder>()
     private val chartBuilder = mockk<ChartBuilder>()
     private val weeklySummaryBuilder = mockk<WeeklySummaryBuilder>()
+    private val admissionsFilter = mockk<AdmissionsFilter>()
     private val sut = AreaDataModelMapper(
         context,
         dailyDataWithRollingAverageBuilder,
         weeklySummaryBuilder,
-        chartBuilder
+        chartBuilder,
+        admissionsFilter
     )
 
     @Before
@@ -61,136 +62,271 @@ class AreaDataModelMapperTest {
         every { context.getString(R.string.all_hospital_admissions_chart_label) } returns allHospitalAdmissionsLabel
         every { context.getString(R.string.latest_hospital_admissions_chart_label) } returns latestHospitalAdmissionsLabel
         every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
-
-        every { dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(any()) } returns dailyData
-        every { weeklySummaryBuilder.buildWeeklySummary(any()) } returns weeklySummary
+        every {
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(emptyList())
+        } returns
+            emptyList()
+        every { weeklySummaryBuilder.buildWeeklySummary(emptyList()) } returns
+            WeeklySummary.EMPTY
 
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allBarChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                emptyList()
+            )
+        } returns emptyList()
+
+        every {
+            chartBuilder.allCombinedChartData(
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
-                any()
-            )
-        } returns listOf(combinedChartData)
-
-        every {
-            chartBuilder.allChartData(
-                allDeathsLabel,
-                latestDeathsLabel,
-                rollingAverageLabel,
-                any()
+                emptyList()
             )
         } returns emptyList()
 
         every {
-            chartBuilder.allChartData(
+            chartBuilder.allCombinedChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                rollingAverageLabel,
+                emptyList()
+            )
+        } returns emptyList()
+
+        every {
+            chartBuilder.allCombinedChartData(
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
-                any()
+                emptyList()
             )
         } returns emptyList()
+
+        every { admissionsFilter.filterHospitalData(any(), any()) } returns
+            emptyList()
     }
 
     @Test
-    fun `WHEN mapAreaDetailModel called without death data THEN deaths are hidden`() {
-        val mappedModel = sut.mapAreaDetailModel(areaDetail)
-
-        assertThat(mappedModel).isEqualTo(
-            AreaDataModel(
-                areaMetadata = areaMetadata,
-                caseChartData = listOf(combinedChartData),
-                caseSummary = weeklySummary,
-                showDeaths = false,
-                deathsChartData = emptyList(),
-                deathSummary = weeklySummary,
-                showHospitalAdmissions = false,
-                hospitalAdmissionsSummary = weeklySummary,
-                hospitalAdmissionsChartData = emptyList()
-            )
+    fun `WHEN mapAreaDetailModel called with case data THEN cases shown`() {
+        val areaName = "London"
+        val cases = SynchronisationTestData.dailyData(1, 100)
+        val casesWithRollingAverage = SynchronisationTestData.dailyDataWithRollingAverage(1, 100)
+        val chartData = combinedChartData("cases")
+        val areaDetailWithCases = areaDetail.copy(
+            casesAreaName = areaName,
+            cases = cases
         )
-    }
-
-    @Test
-    fun `WHEN mapAreaDetailModel called with death data THEN deaths are shown`() {
+        val casesWeeklySummary = SynchronisationTestData.weeklySummary(currentTotal = 1000)
+        every { weeklySummaryBuilder.buildWeeklySummary(cases) } returns
+            casesWeeklySummary
         every {
-            chartBuilder.allChartData(
-                allDeathsLabel,
-                latestDeathsLabel,
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(cases)
+        } returns
+            casesWithRollingAverage
+        every {
+            chartBuilder.allCombinedChartData(
+                allCasesLabel,
+                latestCasesLabel,
                 rollingAverageLabel,
-                any()
+                casesWithRollingAverage
             )
         } returns
-            listOf(combinedChartData)
+            listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithDeaths)
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
 
         assertThat(mappedModel).isEqualTo(
-            AreaDataModel(
-                areaMetadata = areaMetadataWithDeaths,
-                caseChartData = listOf(combinedChartData),
-                caseSummary = weeklySummary,
-                showDeaths = true,
-                deathsChartData = listOf(combinedChartData),
-                deathSummary = weeklySummary,
-                showHospitalAdmissions = false,
-                hospitalAdmissionsSummary = weeklySummary,
-                hospitalAdmissionsChartData = emptyList()
+            defaultModel.copy(
+                lastUpdatedDate = syncDateTime,
+                caseAreaName = areaName,
+                lastCaseDate = cases.last().date,
+                caseSummary = casesWeeklySummary,
+                caseChartData = listOf(chartData)
             )
         )
     }
 
     @Test
-    fun `WHEN mapAreaDetailModel called without hospital admission data THEN hospital admissions hidden`() {
-        val mappedModel = sut.mapAreaDetailModel(areaDetail)
-
-        assertThat(mappedModel).isEqualTo(
-            AreaDataModel(
-                areaMetadata = areaMetadata,
-                caseChartData = listOf(combinedChartData),
-                caseSummary = weeklySummary,
-                showDeaths = false,
-                deathsChartData = emptyList(),
-                deathSummary = weeklySummary,
-                showHospitalAdmissions = false,
-                hospitalAdmissionsSummary = weeklySummary,
-                hospitalAdmissionsChartData = emptyList()
-            )
+    fun `WHEN mapAreaDetailModel called with published death data THEN published deaths shown`() {
+        val areaName = "London"
+        val deaths = SynchronisationTestData.dailyData(1, 50)
+        val deathsWithRollingAverage = SynchronisationTestData.dailyDataWithRollingAverage(1, 50)
+        val chartData = combinedChartData("deaths")
+        val areaDetailWithCases = areaDetail.copy(
+            deathsByPublishedDate = deaths,
+            deathsByPublishedDateAreaName = areaName
         )
-    }
-
-    @Test
-    fun `WHEN mapAreaDetailModel called with hospital admission data THEN hospital admissions shown`() {
+        val deathsWeeklySummary = SynchronisationTestData.weeklySummary(currentTotal = 500)
+        every { weeklySummaryBuilder.buildWeeklySummary(deaths) } returns
+            deathsWeeklySummary
         every {
-            chartBuilder.allChartData(
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(deaths)
+        } returns
+            deathsWithRollingAverage
+        every {
+            chartBuilder.allCombinedChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                rollingAverageLabel,
+                deathsWithRollingAverage
+            )
+        } returns
+            listOf(chartData)
+
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
+
+        assertThat(mappedModel).isEqualTo(
+            defaultModel.copy(
+                lastUpdatedDate = syncDateTime,
+                lastDeathPublishedDate = deaths.last().date,
+                showDeathsByPublishedDate = true,
+                deathsByPublishedDateAreaName = areaName,
+                deathsByPublishedDateSummary = deathsWeeklySummary,
+                deathsByPublishedDateChartData = listOf(chartData)
+            )
+        )
+    }
+
+    @Test
+    fun `WHEN mapAreaDetailModel called with ons death data THEN ons deaths shown`() {
+        val areaName = "London"
+        val deaths = SynchronisationTestData.dailyData(1, 75)
+        val chartData = barChartData("onsDeaths")
+        val areaDetailWithCases = areaDetail.copy(
+            onsDeathsByRegistrationDate = deaths,
+            onsDeathAreaName = areaName
+        )
+        every {
+            chartBuilder.allBarChartData(
+                allDeathsLabel,
+                latestDeathsLabel,
+                deaths
+            )
+        } returns listOf(chartData)
+
+        val mappedModel = sut.mapAreaDetailModel(areaDetailWithCases, emptySet())
+
+        assertThat(mappedModel).isEqualTo(
+            defaultModel.copy(
+                lastUpdatedDate = syncDateTime,
+                showOnsDeaths = true,
+                lastOnsDeathRegisteredDate = deaths.last().date,
+                onsDeathsAreaName = areaName,
+                onsDeathsByRegistrationDateChartData = listOf(chartData)
+            )
+        )
+    }
+
+    @Test
+    fun `WHEN mapAreaDetailModel called with admission data THEN hospital data shown`() {
+        val areaName = "London"
+        val admissions = SynchronisationTestData.dailyData(1, 23)
+        val admissionsWithRollingAverage =
+            SynchronisationTestData.dailyDataWithRollingAverage(1, 23)
+        val chartData = combinedChartData("admissions")
+        val combinedAdmissions = SynchronisationTestData.dailyData(100, 123)
+        val hospitalAdmissions = listOf(
+            AreaDailyDataDto("T3", admissions),
+            AreaDailyDataDto("T2", admissions),
+            AreaDailyDataDto("T1", admissions)
+        )
+        val areaDetail = areaDetail.copy(
+            hospitalAdmissions = hospitalAdmissions,
+            hospitalAdmissionsAreaName = areaName
+        )
+        val admissionsWeeklySummary = SynchronisationTestData.weeklySummary(currentTotal = 233)
+        every { admissionsFilter.filterHospitalData(hospitalAdmissions, emptySet()) } returns
+            combinedAdmissions
+        every { weeklySummaryBuilder.buildWeeklySummary(combinedAdmissions) } returns
+            admissionsWeeklySummary
+        every {
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(combinedAdmissions)
+        } returns
+            admissionsWithRollingAverage
+        every {
+            chartBuilder.allCombinedChartData(
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
-                any()
+                admissionsWithRollingAverage
             )
-        } returns listOf(combinedChartData)
+        } returns
+            listOf(chartData)
 
-        val mappedModel = sut.mapAreaDetailModel(areaDetailWithHospitalAdmissions)
+        val mappedModel = sut.mapAreaDetailModel(areaDetail, emptySet())
 
         assertThat(mappedModel).isEqualTo(
-            AreaDataModel(
-                areaMetadata = areaMetadataWithHospitalAdmissions,
-                caseChartData = listOf(combinedChartData),
-                caseSummary = weeklySummary,
-                showDeaths = false,
-                deathsChartData = emptyList(),
-                deathSummary = weeklySummary,
+            defaultModel.copy(
+                lastUpdatedDate = syncDateTime,
                 showHospitalAdmissions = true,
-                hospitalAdmissionsSummary = weeklySummary,
-                hospitalAdmissionsChartData = listOf(combinedChartData)
+                lastHospitalAdmissionDate = combinedAdmissions.last().date,
+                canFilterHospitalAdmissionsAreas = true,
+                hospitalAdmissionsRegionName = areaName,
+                hospitalAdmissions = hospitalAdmissions,
+                hospitalAdmissionsSummary = admissionsWeeklySummary,
+                hospitalAdmissionsChartData = listOf(chartData),
+                hospitalAdmissionsAreas = hospitalAdmissions.sortedBy { it.name }.map {
+                    HospitalAdmissionsAreaModel(
+                        it.name,
+                        true
+                    )
+                }
             )
+        )
+    }
+
+    @Test
+    fun `WHEN updateHospitalAdmissionFilters THEN hospital data shown`() {
+        val admissionsWithRollingAverage =
+            SynchronisationTestData.dailyDataWithRollingAverage(1, 23)
+        val chartData = combinedChartData("admissions")
+        val combinedAdmissions = SynchronisationTestData.dailyData(100, 123)
+        val admissions = SynchronisationTestData.dailyData(1, 23)
+        val hospitalAdmissions = listOf(
+            AreaDailyDataDto("T3", admissions),
+            AreaDailyDataDto("T2", admissions),
+            AreaDailyDataDto("T1", admissions)
+        )
+        val areaDataModel = defaultModel.copy(
+            hospitalAdmissions = hospitalAdmissions
+        )
+        val admissionsWeeklySummary = SynchronisationTestData.weeklySummary(currentTotal = 233)
+        every { admissionsFilter.filterHospitalData(hospitalAdmissions, emptySet()) } returns
+            combinedAdmissions
+        every { weeklySummaryBuilder.buildWeeklySummary(combinedAdmissions) } returns
+            admissionsWeeklySummary
+        every {
+            dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(combinedAdmissions)
+        } returns
+            admissionsWithRollingAverage
+        every {
+            chartBuilder.allCombinedChartData(
+                allHospitalAdmissionsLabel,
+                latestHospitalAdmissionsLabel,
+                rollingAverageLabel,
+                admissionsWithRollingAverage
+            )
+        } returns
+            listOf(chartData)
+
+        val mappedModel = sut.updateHospitalAdmissionFilters(areaDataModel, emptySet())
+
+        assertThat(mappedModel.hospitalAdmissionsSummary).isEqualTo(admissionsWeeklySummary)
+        assertThat(mappedModel.hospitalAdmissionsChartData).isEqualTo(listOf(chartData))
+        assertThat(mappedModel.hospitalAdmissionsAreas).isEqualTo(
+            hospitalAdmissions.map {
+                HospitalAdmissionsAreaModel(
+                    it.name,
+                    true
+                )
+            }
         )
     }
 
     companion object {
         private val syncDateTime = LocalDateTime.of(2020, 1, 1, 0, 0)
-        private val weeklySummary = SynchronisationTestData.weeklySummary
 
         private const val allCasesLabel = "All cases"
         private const val latestCasesLabel = "Latest cases"
@@ -202,50 +338,45 @@ class AreaDataModelMapperTest {
         private const val barChartLabel = "bar chart"
         private const val lineChartLabel = "line chart"
 
-        private val dailyDataWithRollingAverage = DailyDataWithRollingAverage(
-            newValue = 1,
-            cumulativeValue = 101,
-            rollingAverage = 1.0,
-            rate = 100.0,
-            date = LocalDate.of(2020, 1, 1)
-        )
-
-        private val dailyData = listOf(dailyDataWithRollingAverage)
-
-        private val lastData = SynchronisationTestData.dailyData().last()
-        private val areaMetadata = AreaMetadata(
-            lastUpdatedDate = syncDateTime,
-            lastCaseDate = lastData.date,
-            lastHospitalAdmissionDate = null,
-            lastDeathDate = null
-        )
-
-        private val areaMetadataWithDeaths = areaMetadata.copy(
-            lastDeathDate = lastData.date
-        )
-
-        private val areaMetadataWithHospitalAdmissions = areaMetadata.copy(
-            lastHospitalAdmissionDate = lastData.date
-        )
-
         private val areaDetail = AreaDetailModel(
-            areaType = AreaType.OVERVIEW.value,
             lastUpdatedAt = syncDateTime,
             lastSyncedAt = syncDateTime,
-            cases = SynchronisationTestData.dailyData(),
-            deaths = emptyList(),
+            casesAreaName = "",
+            cases = emptyList(),
+            deathsByPublishedDateAreaName = "",
+            deathsByPublishedDate = emptyList(),
+            onsDeathAreaName = "",
+            onsDeathsByRegistrationDate = emptyList(),
+            hospitalAdmissionsAreaName = "",
             hospitalAdmissions = emptyList()
         )
 
-        private val areaDetailWithDeaths = areaDetail.copy(
-            deaths = SynchronisationTestData.dailyData()
+        private val defaultModel = AreaDataModel(
+            lastUpdatedDate = null,
+            lastCaseDate = null,
+            caseAreaName = "",
+            caseSummary = WeeklySummary.EMPTY,
+            caseChartData = emptyList(),
+            showDeathsByPublishedDate = false,
+            lastDeathPublishedDate = null,
+            deathsByPublishedDateAreaName = "",
+            deathsByPublishedDateSummary = WeeklySummary.EMPTY,
+            deathsByPublishedDateChartData = emptyList(),
+            showOnsDeaths = false,
+            lastOnsDeathRegisteredDate = null,
+            onsDeathsAreaName = "",
+            onsDeathsByRegistrationDateChartData = emptyList(),
+            showHospitalAdmissions = false,
+            lastHospitalAdmissionDate = null,
+            hospitalAdmissionsRegionName = "",
+            hospitalAdmissionsSummary = WeeklySummary.EMPTY,
+            hospitalAdmissions = emptyList(),
+            hospitalAdmissionsChartData = emptyList(),
+            canFilterHospitalAdmissionsAreas = false,
+            hospitalAdmissionsAreas = emptyList()
         )
 
-        private val areaDetailWithHospitalAdmissions = areaDetail.copy(
-            hospitalAdmissions = SynchronisationTestData.dailyData()
-        )
-
-        private val combinedChartData =
+        private fun combinedChartData(labelPrefix: String) =
             CombinedChartData(
                 title = barChartLabel,
                 barChartData = BarChartData(
@@ -253,7 +384,7 @@ class AreaDataModelMapperTest {
                     values = listOf(
                         BarChartItem(
                             value = 10.0f,
-                            label = "BarChartItem"
+                            label = "${labelPrefix}_BarChartItem"
                         )
                     )
                 ),
@@ -262,8 +393,19 @@ class AreaDataModelMapperTest {
                     values = listOf(
                         LineChartItem(
                             value = 10.0f,
-                            label = "LineChartItem"
+                            label = "${labelPrefix}_LineChartItem"
                         )
+                    )
+                )
+            )
+
+        private fun barChartData(labelPrefix: String) =
+            BarChartData(
+                label = barChartLabel,
+                values = listOf(
+                    BarChartItem(
+                        value = 10.0f,
+                        label = "${labelPrefix}_BarChartItem"
                     )
                 )
             )

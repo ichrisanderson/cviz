@@ -58,7 +58,7 @@ class AreaDataSource @Inject constructor(
                     date = areaData.date
                 )
             },
-            deaths = allData.filter {
+            deathsByPublishedDate = allData.filter {
                 it.cumulativeDeathsByPublishedDate != null &&
                     it.newDeathsByPublishedDate != null &&
                     it.cumulativeDeathsByPublishedDateRate != null
@@ -71,15 +71,16 @@ class AreaDataSource @Inject constructor(
                         date = areaData.date
                     )
                 },
-            hospitalAdmissions = allData.filter {
-                it.cumulativeAdmissions != null &&
-                    it.newAdmissions != null
+            onsDeathsByRegistrationDate = allData.filter {
+                it.cumulativeOnsDeathsByRegistrationDate != null &&
+                    it.newOnsDeathsByRegistrationDate != null &&
+                    it.cumulativeOnsDeathsByRegistrationDateRate != null
             }
                 .map { areaData ->
                     DailyData(
-                        newValue = areaData.newAdmissions!!,
-                        cumulativeValue = areaData.cumulativeAdmissions!!,
-                        rate = 0.0,
+                        newValue = areaData.newOnsDeathsByRegistrationDate!!,
+                        cumulativeValue = areaData.cumulativeOnsDeathsByRegistrationDate!!,
+                        rate = areaData.cumulativeOnsDeathsByRegistrationDateRate!!,
                         date = areaData.date
                     )
                 }
@@ -96,6 +97,20 @@ class AreaDataSource @Inject constructor(
                         lastSyncTime = it.lastSyncTime
                     )
                 }
+            }
+    }
+
+    fun healthcareData(areaCode: String): List<DailyData> {
+        return appDatabase.healthcareDao().byAreaCode(areaCode).filter {
+            it.cumulativeAdmissions != null && it.newAdmissions != null
+        }
+            .map { areaData ->
+                DailyData(
+                    newValue = areaData.newAdmissions!!,
+                    cumulativeValue = areaData.cumulativeAdmissions!!,
+                    rate = 0.0,
+                    date = areaData.date
+                )
             }
     }
 }

@@ -19,7 +19,6 @@ package com.chrisa.cviz.core.data.network
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.network.AreaDataModel.Companion.AREA_DATA_MODEL_BY_PUBLISH_DATE_STRUCTURE
 import com.chrisa.cviz.core.data.network.AreaDataModel.Companion.AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE
-import com.chrisa.cviz.core.data.network.AreaDataModel.Companion.AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE_NO_DEATHS
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -56,7 +55,7 @@ class AreaDataModelStructureMapperTest {
 
         val modelStructure = sut.mapAreaTypeToDataModel(AreaType.UTLA)
 
-        assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE_NO_DEATHS)
+        assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE)
     }
 
     @Test
@@ -64,6 +63,6 @@ class AreaDataModelStructureMapperTest {
 
         val modelStructure = sut.mapAreaTypeToDataModel(AreaType.LTLA)
 
-        assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE_NO_DEATHS)
+        assertThat(modelStructure).isEqualTo(AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE)
     }
 }

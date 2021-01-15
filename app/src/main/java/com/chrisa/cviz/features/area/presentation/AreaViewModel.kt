@@ -23,32 +23,30 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.chrisa.cviz.core.data.time.TimeProvider
+import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
+import com.chrisa.cviz.features.area.domain.AreaDetailModelResult
 import com.chrisa.cviz.features.area.domain.AreaDetailUseCase
 import com.chrisa.cviz.features.area.domain.DeleteSavedAreaUseCase
 import com.chrisa.cviz.features.area.domain.InsertSavedAreaUseCase
 import com.chrisa.cviz.features.area.domain.IsSavedUseCase
-import com.chrisa.cviz.features.area.domain.SyncAreaDetailUseCase
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.mappers.AreaDataModelMapper
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
+import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 @ExperimentalCoroutinesApi
 class AreaViewModel @ViewModelInject constructor(
-    private val syncAreaDetailUseCase: SyncAreaDetailUseCase,
     private val areaDetailUseCase: AreaDetailUseCase,
     private val isSavedUseCase: IsSavedUseCase,
     private val insertSavedAreaUseCase: InsertSavedAreaUseCase,
     private val deleteSavedAreaUseCase: DeleteSavedAreaUseCase,
     private val dispatchers: CoroutineDispatchers,
     private val areaDataModelMapper: AreaDataModelMapper,
-    private val timeProvider: TimeProvider,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -75,8 +73,10 @@ class AreaViewModel @ViewModelInject constructor(
     private val areaCode: String
         get() = savedStateHandle.get<String>("areaCode")!!
 
-    private val areaType: String
-        get() = savedStateHandle.get<String>("areaType")!!
+    private val areaType: AreaType
+        get() = AreaType.from(savedStateHandle.get<String>("areaType")!!)!!
+
+    private var hospitalAdmissionFilter: List<String> = emptyList()
 
     init {
         loadAreaSavedState(areaCode)
@@ -103,6 +103,18 @@ class AreaViewModel @ViewModelInject constructor(
         }
     }
 
+    fun setHospitalAdmissionFilter(admissionsAreas: List<HospitalAdmissionsAreaModel>) {
+        hospitalAdmissionFilter = admissionsAreas.filter { it.isSelected }.map { it.areaName }
+        _areaData.value?.let { areaDataModel ->
+            _areaData.postValue(
+                areaDataModelMapper.updateHospitalAdmissionFilters(
+                    areaDataModel,
+                    hospitalAdmissionFilter.toSet()
+                )
+            )
+        }
+    }
+
     private fun loadAreaSavedState(areCode: String) {
         viewModelScope.launch(dispatchers.io) {
             val isSavedFlow = isSavedUseCase.execute(areCode)
@@ -115,37 +127,16 @@ class AreaViewModel @ViewModelInject constructor(
         _isRefreshing.postValue(isRefreshing)
         viewModelScope.launch(dispatchers.io) {
             runCatching {
-                areaDetailUseCase.execute(areCode)
+                areaDetailUseCase.execute(areCode, areaType)
             }.onSuccess { areaDetail ->
-                areaDetail.collect { areaDetailModel ->
-                    val now = timeProvider.currentTime()
-                    if (areaDetailModel.lastSyncedAt == null ||
-                        areaDetailModel.lastSyncedAt.plusMinutes(5).isBefore(now)
-                    ) {
-                        syncAreaCases(areaDetailModel)
-                    } else {
-                        postAreaDetailModel(areaDetailModel)
+                areaDetail.collect { result ->
+                    when (result) {
+                        is AreaDetailModelResult.Success -> postAreaDetailModel(result.data)
+                        is AreaDetailModelResult.NoData -> postError()
                     }
                 }
             }.onFailure {
                 postError()
-            }
-        }
-    }
-
-    private suspend fun syncAreaCases(areaDetailModel: AreaDetailModel) {
-        viewModelScope.launch(dispatchers.io) {
-            runCatching {
-                syncAreaDetailUseCase.execute(areaCode, areaType)
-            }.onFailure { error ->
-                if (error is HttpException && error.code() == 304) {
-                    postAreaDetailModel(areaDetailModel)
-                } else if (areaDetailModel.lastSyncedAt == null) {
-                    postError()
-                } else {
-                    postAreaDetailModel(areaDetailModel)
-                    _syncAreaError.postValue(Event(false))
-                }
             }
         }
     }
@@ -159,6 +150,11 @@ class AreaViewModel @ViewModelInject constructor(
     private fun postAreaDetailModel(areaDetailModel: AreaDetailModel) {
         _isRefreshing.postValue(false)
         _isLoading.postValue(false)
-        _areaData.postValue(areaDataModelMapper.mapAreaDetailModel(areaDetailModel))
+        _areaData.postValue(
+            areaDataModelMapper.mapAreaDetailModel(
+                areaDetailModel,
+                hospitalAdmissionFilter.toSet()
+            )
+        )
     }
 }
