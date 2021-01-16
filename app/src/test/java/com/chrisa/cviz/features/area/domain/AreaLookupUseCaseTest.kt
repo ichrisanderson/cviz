@@ -23,8 +23,11 @@ import com.chrisa.cviz.features.area.data.AreaLookupDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.google.common.truth.Truth.assertThat
+import io.mockk.Runs
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -121,6 +124,7 @@ class AreaLookupUseCaseTest {
         testDispatcher.runBlockingTest {
             val areaCode = "E1"
             val areaType = AreaType.OVERVIEW
+            coEvery { areaLookupDataSynchroniser.performSync(areaCode, areaType) } just Runs
 
             sut.syncAreaLookup(areaCode, areaType)
 
