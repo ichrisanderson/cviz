@@ -40,11 +40,7 @@ class AreaLookupUseCase @Inject constructor(
     }
 
     suspend fun syncAreaLookup(areaCode: String, areaType: AreaType) {
-        try {
-            areaLookupDataSynchroniser.performSync(areaCode, areaType)
-        } catch (error: Throwable) {
-            error.printStackTrace()
-        }
+        areaLookupDataSynchroniser.performSync(areaCode, areaType)
     }
 
     fun areaName(areaType: AreaType, areaLookupDto: AreaLookupDto): String {
