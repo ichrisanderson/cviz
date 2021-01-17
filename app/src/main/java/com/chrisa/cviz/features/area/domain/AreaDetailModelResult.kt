@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 
 package com.chrisa.cviz.features.area.domain
 
-import com.chrisa.cviz.features.area.data.AreaCasesDataSource
-import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
-import javax.inject.Inject
+import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 
-class AreaCasesUseCase @Inject constructor(
-    private val areaCasesDataSource: AreaCasesDataSource
-) {
-    fun cases(areaCode: String): AreaDailyDataDto {
-        val areaName = areaCasesDataSource.areaName(areaCode)
-        val cases = areaCasesDataSource.cases(areaCode)
-        return AreaDailyDataDto(areaName, cases)
-    }
+sealed class AreaDetailModelResult {
+    object NoData : AreaDetailModelResult()
+    data class Success(val data: AreaDetailModel) : AreaDetailModelResult()
 }

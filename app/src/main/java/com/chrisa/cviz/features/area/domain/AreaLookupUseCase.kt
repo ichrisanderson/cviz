@@ -17,6 +17,7 @@
 package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.AreaLookupDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaLookupDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
@@ -51,7 +52,7 @@ class AreaLookupUseCase @Inject constructor(
             AreaType.NHS_REGION -> areaLookupDto.nhsRegionName!!
             AreaType.NHS_TRUST -> areaLookupDto.nhsTrustName!!
             AreaType.NATION -> areaLookupDto.nationName
-            AreaType.OVERVIEW -> "United Kingdom"
+            AreaType.OVERVIEW -> Constants.UK_AREA_NAME
         }
     }
 }

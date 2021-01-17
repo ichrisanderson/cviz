@@ -45,8 +45,8 @@ class LoadAreaSummariesUseCaseTest {
         runBlockingTest {
             val sortOption = SortOption.RisingCases
             val newCaseDto = AreaSummaryDto(
-                areaName = "UK",
                 areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW.value,
                 changeInCases = 10,
                 currentNewCases = 100,

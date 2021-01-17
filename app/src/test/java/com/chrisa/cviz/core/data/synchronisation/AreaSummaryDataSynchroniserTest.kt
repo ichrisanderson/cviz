@@ -120,8 +120,8 @@ class AreaSummaryDataSynchroniserTest {
             )
             val areaSummaryEntity = AreaSummaryEntity(
                 areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW,
-                areaName = "UK",
                 date = syncTime.toLocalDate(),
                 baseInfectionRate = 100.0,
                 cumulativeCasesWeek1 = 100,

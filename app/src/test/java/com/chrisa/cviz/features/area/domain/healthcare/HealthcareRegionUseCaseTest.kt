@@ -33,7 +33,7 @@ class HealthcareRegionUseCaseTest {
 
     @Test
     fun `GIVEN lookup is null WHEN healthcareArea called THEN default area returned`() {
-        val defaultArea = AreaDto("E1", "England", AreaType.NATION)
+        val defaultArea = AreaDto("E1", Constants.ENGLAND_AREA_NAME, AreaType.NATION)
         every { areaCodeResolver.defaultAreaDto("") } returns defaultArea
 
         val areaTypes = AreaType.values()
@@ -50,7 +50,7 @@ class HealthcareRegionUseCaseTest {
 
     @Test
     fun `GIVEN overview area type WHEN healthcareArea called THEN default area returned`() {
-        val defaultArea = AreaDto("E1", "England", AreaType.OVERVIEW)
+        val defaultArea = AreaDto("E1", Constants.ENGLAND_AREA_NAME, AreaType.OVERVIEW)
         every { areaCodeResolver.defaultAreaDto("") } returns defaultArea
 
         val area = sut.healthcareArea(
@@ -64,7 +64,7 @@ class HealthcareRegionUseCaseTest {
 
     @Test
     fun `GIVEN nation area type WHEN healthcareArea called THEN default area returned`() {
-        val defaultArea = AreaDto("E1", "England", AreaType.NATION)
+        val defaultArea = AreaDto("E1", Constants.ENGLAND_AREA_NAME, AreaType.NATION)
         every { areaCodeResolver.defaultAreaDto("") } returns defaultArea
 
         val area = sut.healthcareArea(
@@ -78,7 +78,7 @@ class HealthcareRegionUseCaseTest {
 
     @Test
     fun `GIVEN nhs region lookup is null WHEN healthcareArea called THEN default area returned`() {
-        val defaultArea = AreaDto("E1", "England", AreaType.NATION)
+        val defaultArea = AreaDto("E1", Constants.ENGLAND_AREA_NAME, AreaType.NATION)
         val lookup = areaLookup.copy(
             nhsTrustCode = null,
             nhsRegionCode = null
@@ -164,10 +164,10 @@ class HealthcareRegionUseCaseTest {
             nhsRegionName = "London",
             nhsTrustCode = "GUYS",
             nhsTrustName = "St Guys",
-            regionCode = Constants.ENGLAND_AREA_CODE,
-            regionName = "England",
-            nationCode = Constants.UK_AREA_CODE,
-            nationName = "United Kingdom"
+            regionCode = "London",
+            regionName = "E12000007",
+            nationCode = Constants.ENGLAND_AREA_CODE,
+            nationName = Constants.ENGLAND_AREA_NAME
         )
     }
 }

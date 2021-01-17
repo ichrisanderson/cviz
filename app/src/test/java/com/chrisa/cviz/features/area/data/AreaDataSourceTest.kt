@@ -166,7 +166,7 @@ class AreaDataSourceTest {
 
         private val areaData = AreaDataEntity(
             areaCode = Constants.UK_AREA_CODE,
-            areaName = "United Kingdom",
+            areaName = Constants.UK_AREA_NAME,
             areaType = AreaType.OVERVIEW,
             metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
             date = syncDate.toLocalDate(),

@@ -18,6 +18,7 @@ package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
 import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.db.MetaDataIds
@@ -183,9 +184,9 @@ class HealthcareDataSynchroniserImplTest {
                 lastSyncTime = syncTime.minusMinutes(6)
             )
             val healthcareData = HealthcareData(
-                areaCode = "001",
-                areaName = "UK",
-                areaType = "overview",
+                areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
+                areaType = AreaType.OVERVIEW.value,
                 date = LocalDate.now(),
                 newAdmissions = 10,
                 cumulativeAdmissions = 60,

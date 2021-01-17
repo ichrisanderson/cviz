@@ -26,15 +26,15 @@ class AreaCodeResolver @Inject constructor() {
     fun defaultAreaDto(areaCode: String): AreaDto {
         return when {
             areaCode.startsWith("S") ->
-                AreaDto(Constants.SCOTLAND_AREA_CODE, "Scotland", AreaType.NATION)
+                AreaDto(Constants.SCOTLAND_AREA_CODE, Constants.SCOTLAND_AREA_NAME, AreaType.NATION)
             areaCode.startsWith("W") ->
-                AreaDto(Constants.WALES_AREA_CODE, "Wales", AreaType.NATION)
+                AreaDto(Constants.WALES_AREA_CODE, Constants.WALES_AREA_NAME, AreaType.NATION)
             areaCode.startsWith("E") ->
-                AreaDto(Constants.ENGLAND_AREA_CODE, "England", AreaType.NATION)
+                AreaDto(Constants.ENGLAND_AREA_CODE, Constants.ENGLAND_AREA_NAME, AreaType.NATION)
             areaCode.startsWith("N") ->
-                AreaDto(Constants.NORTHERN_IRELAND_AREA_CODE, "Northern Ireland", AreaType.NATION)
+                AreaDto(Constants.NORTHERN_IRELAND_AREA_CODE, Constants.NORTHERN_IRELAND_AREA_NAME, AreaType.NATION)
             else ->
-                AreaDto(Constants.UK_AREA_CODE, "United Kingdom", AreaType.OVERVIEW)
+                AreaDto(Constants.UK_AREA_CODE, Constants.UK_AREA_NAME, AreaType.OVERVIEW)
         }
     }
 }

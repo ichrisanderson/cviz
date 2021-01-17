@@ -64,7 +64,7 @@ class DashboardViewModelTest {
 
                 val latestUkData = LatestUkDataModel(
                     areaCode = Constants.UK_AREA_CODE,
-                    areaName = "UK",
+                    areaName = Constants.UK_AREA_NAME,
                     areaType = AreaType.OVERVIEW.value,
                     cumulativeCases = 22,
                     newCases = 33,

@@ -58,7 +58,7 @@ class HomeDataSourceTest {
         )
         val allCases = listOf(
             caseEntity,
-            caseEntity.copy(areaCode = "1111", areaName = "England")
+            caseEntity.copy(areaCode = "1111", areaName = Constants.ENGLAND_AREA_NAME)
         )
         val allCasesFlow = flow { emit(allCases) }
         val allDailyRecordDtos = allCases.map {
@@ -96,7 +96,7 @@ class HomeDataSourceTest {
             val ukData = AreaDataMetadataTuple(
                 lastUpdatedAt = LocalDateTime.now(),
                 areaCode = Constants.UK_AREA_CODE,
-                areaName = "UK",
+                areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW,
                 date = syncTime.toLocalDate(),
                 cumulativeCases = 222,
@@ -105,25 +105,25 @@ class HomeDataSourceTest {
             )
             val englandData = ukData.copy(
                 areaCode = Constants.ENGLAND_AREA_CODE,
-                areaName = "England",
+                areaName = Constants.ENGLAND_AREA_NAME,
                 areaType = AreaType.NATION,
                 lastUpdatedAt = ukData.lastUpdatedAt.minusDays(4)
             )
             val northernIrelandData = ukData.copy(
                 areaCode = Constants.NORTHERN_IRELAND_AREA_CODE,
-                areaName = "Northern Ireland",
+                areaName = Constants.NORTHERN_IRELAND_AREA_NAME,
                 areaType = AreaType.NATION,
                 lastUpdatedAt = ukData.lastUpdatedAt.minusDays(3)
             )
             val scotlandData = ukData.copy(
                 areaCode = Constants.SCOTLAND_AREA_CODE,
-                areaName = "Scotland",
+                areaName = Constants.SCOTLAND_AREA_NAME,
                 areaType = AreaType.NATION,
                 lastUpdatedAt = ukData.lastUpdatedAt.minusDays(2)
             )
             val walesData = ukData.copy(
                 areaCode = Constants.WALES_AREA_CODE,
-                areaName = "Wales",
+                areaName = Constants.WALES_AREA_NAME,
                 areaType = AreaType.NATION,
                 lastUpdatedAt = ukData.lastUpdatedAt.minusDays(1)
             )
@@ -207,7 +207,7 @@ class HomeDataSourceTest {
         runBlockingTest {
             val allCases = listOf(
                 areaData,
-                areaData.copy(areaCode = "1111", areaName = "England")
+                areaData.copy(areaCode = "1111", areaName = Constants.ENGLAND_AREA_NAME)
             )
             val allCasesFlow = flow { emit(allCases) }
             val allSavedAreaDtos = allCases.map {
@@ -237,8 +237,8 @@ class HomeDataSourceTest {
         runBlockingTest {
             val areaSummaryEntity = AreaSummaryEntity(
                 areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW,
-                areaName = "UK",
                 date = syncTime.toLocalDate(),
                 baseInfectionRate = 100.0,
                 cumulativeCasesWeek1 = 100,
@@ -285,7 +285,7 @@ class HomeDataSourceTest {
 
         private val areaData = AreaDataEntity(
             areaCode = Constants.UK_AREA_CODE,
-            areaName = "United Kingdom",
+            areaName = Constants.UK_AREA_NAME,
             areaType = AreaType.OVERVIEW,
             metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
             date = syncDate.toLocalDate(),

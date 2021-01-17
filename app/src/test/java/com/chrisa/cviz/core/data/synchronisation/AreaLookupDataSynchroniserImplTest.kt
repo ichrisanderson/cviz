@@ -20,6 +20,7 @@ import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDataDao
 import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
@@ -187,9 +188,9 @@ class AreaLookupDataSynchroniserImplTest {
                 lastSyncTime = syncTime.minusMinutes(6)
             )
             val areaModel = AreaDataModel(
-                areaCode = "001",
-                areaName = "UK",
-                areaType = "overview",
+                areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
+                areaType = AreaType.OVERVIEW.value,
                 cumulativeCases = 100,
                 date = LocalDate.now(),
                 newCases = 10,

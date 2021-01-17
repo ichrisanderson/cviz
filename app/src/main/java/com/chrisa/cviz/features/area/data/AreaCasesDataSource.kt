@@ -17,6 +17,7 @@
 package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaCaseData
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import javax.inject.Inject
 
@@ -24,16 +25,21 @@ class AreaCasesDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
+    fun areaName(areaCode: String): String =
+        appDatabase.areaDao().byAreaCode(areaCode)!!.areaName
+
     fun cases(areaCode: String): List<DailyData> =
-        allCases(areaCode).map { areaData ->
-            DailyData(
-                newValue = areaData.newCases,
-                cumulativeValue = areaData.cumulativeCases,
-                rate = areaData.infectionRate,
-                date = areaData.date
-            )
-        }
+        allCases(areaCode).map(::mapDailyData)
 
     private fun allCases(areaCode: String) =
         appDatabase.areaDataDao().allAreaCasesByAreaCode(areaCode)
+
+    private fun mapDailyData(areaData: AreaCaseData): DailyData {
+        return DailyData(
+            newValue = areaData.newCases,
+            cumulativeValue = areaData.cumulativeCases,
+            rate = areaData.infectionRate,
+            date = areaData.date
+        )
+    }
 }

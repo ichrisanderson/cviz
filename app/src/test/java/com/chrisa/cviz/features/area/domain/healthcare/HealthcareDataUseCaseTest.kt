@@ -142,9 +142,9 @@ class HealthcareDataUseCaseTest {
             nhsTrustCode = "GUYS",
             nhsTrustName = "St Guys",
             regionCode = Constants.ENGLAND_AREA_CODE,
-            regionName = "England",
+            regionName = Constants.ENGLAND_AREA_NAME,
             nationCode = Constants.UK_AREA_CODE,
-            nationName = "United Kingdom"
+            nationName = Constants.UK_AREA_NAME
         )
         val dailyData = DailyData(
             newValue = 0,

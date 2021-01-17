@@ -20,6 +20,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
+import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import javax.inject.Inject
@@ -33,8 +34,7 @@ class AreaDetailUseCase @Inject constructor(
     private val areaDataSource: AreaDataSource,
     private val areaLookupUseCase: AreaLookupUseCase,
     private val areaCasesUseCase: AreaCasesUseCase,
-    @PublishedDeaths private val publishedDeathsUseCase: AreaDeathsUseCase,
-    @OnsDeaths private val onsDeathsUseCase: AreaDeathsUseCase,
+    private val areaDeathsFacade: AreaDeathsFacade,
     private val healthcareUseCaseFacade: HealthcareUseCaseFacade
 ) {
 
@@ -47,9 +47,9 @@ class AreaDetailUseCase @Inject constructor(
             } else {
                 val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
 
-                val areaCases = areaCasesUseCase.cases(areaCode, areaType, areaLookup)
-                val publishedDeaths = publishedDeathsUseCase.deaths(areaCode, areaType)
-                val onsDeaths = onsDeathsUseCase.deaths(areaCode, areaType)
+                val areaCases = areaCasesUseCase.cases(areaCode)
+                val publishedDeaths = areaDeathsFacade.publishedDeaths(areaCode, areaType, areaLookup)
+                val onsDeaths = areaDeathsFacade.onsDeaths(areaCode, areaType, areaLookup)
                 val healthcareData: AreaDailyDataCollection =
                     healthcareUseCaseFacade.healthcareData(areaCode, areaType, areaLookup)
 
@@ -108,9 +108,4 @@ class AreaDetailUseCase @Inject constructor(
             false
         }
     }
-}
-
-sealed class AreaDetailModelResult {
-    object NoData : AreaDetailModelResult()
-    data class Success(val data: AreaDetailModel) : AreaDetailModelResult()
 }

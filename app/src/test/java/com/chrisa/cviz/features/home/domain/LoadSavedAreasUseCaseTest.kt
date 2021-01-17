@@ -47,8 +47,8 @@ class LoadSavedAreasUseCaseTest {
         runBlockingTest {
             val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
             val ukAreaCaseDto = SavedAreaCaseDto(
-                areaName = "UK",
                 areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW,
                 newCases = 10,
                 cumulativeCases = 100,
@@ -56,7 +56,7 @@ class LoadSavedAreasUseCaseTest {
                 date = syncDate.toLocalDate()
             )
             val englandAreaCaseDto = SavedAreaCaseDto(
-                areaName = "England",
+                areaName = Constants.ENGLAND_AREA_NAME,
                 areaCode = Constants.ENGLAND_AREA_CODE,
                 areaType = AreaType.NATION,
                 newCases = 10,

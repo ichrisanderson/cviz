@@ -40,7 +40,7 @@ class AreaCodeResolverTest {
         val areaDto = sut.defaultAreaDto("N1")
 
         assertThat(areaDto).isEqualTo(
-            AreaDto(Constants.NORTHERN_IRELAND_AREA_CODE, "Northern Ireland", AreaType.NATION)
+            AreaDto(Constants.NORTHERN_IRELAND_AREA_CODE, Constants.NORTHERN_IRELAND_AREA_NAME, AreaType.NATION)
         )
     }
 
@@ -49,7 +49,7 @@ class AreaCodeResolverTest {
         val areaDto = sut.defaultAreaDto("S1")
 
         assertThat(areaDto).isEqualTo(
-            AreaDto(Constants.SCOTLAND_AREA_CODE, "Scotland", AreaType.NATION)
+            AreaDto(Constants.SCOTLAND_AREA_CODE, Constants.SCOTLAND_AREA_NAME, AreaType.NATION)
         )
     }
 
@@ -58,7 +58,7 @@ class AreaCodeResolverTest {
         val areaDto = sut.defaultAreaDto("W1")
 
         assertThat(areaDto).isEqualTo(
-            AreaDto(Constants.WALES_AREA_CODE, "Wales", AreaType.NATION)
+            AreaDto(Constants.WALES_AREA_CODE, Constants.WALES_AREA_NAME, AreaType.NATION)
         )
     }
 
@@ -67,7 +67,7 @@ class AreaCodeResolverTest {
         val areaDto = sut.defaultAreaDto("K1")
 
         assertThat(areaDto).isEqualTo(
-            AreaDto(Constants.UK_AREA_CODE, "United Kingdom", AreaType.OVERVIEW)
+            AreaDto(Constants.UK_AREA_CODE, Constants.UK_AREA_NAME, AreaType.OVERVIEW)
         )
     }
 }

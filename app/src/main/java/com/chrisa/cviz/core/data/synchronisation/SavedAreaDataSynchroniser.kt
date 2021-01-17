@@ -29,11 +29,11 @@ internal class SavedAreaDataSynchroniser @Inject constructor(
 
     suspend fun performSync() {
         val areas = listOf(
-            AreaEntity(Constants.UK_AREA_CODE, "UK", AreaType.OVERVIEW),
-            AreaEntity(Constants.ENGLAND_AREA_CODE, "England", AreaType.NATION),
-            AreaEntity(Constants.NORTHERN_IRELAND_AREA_CODE, "Northern Ireland", AreaType.NATION),
-            AreaEntity(Constants.SCOTLAND_AREA_CODE, "Scotland", AreaType.NATION),
-            AreaEntity(Constants.WALES_AREA_CODE, "Wales", AreaType.NATION)
+            AreaEntity(Constants.UK_AREA_CODE, Constants.UK_AREA_NAME, AreaType.OVERVIEW),
+            AreaEntity(Constants.ENGLAND_AREA_CODE, Constants.ENGLAND_AREA_NAME, AreaType.NATION),
+            AreaEntity(Constants.NORTHERN_IRELAND_AREA_CODE, Constants.NORTHERN_IRELAND_AREA_NAME, AreaType.NATION),
+            AreaEntity(Constants.SCOTLAND_AREA_CODE, Constants.SCOTLAND_AREA_NAME, AreaType.NATION),
+            AreaEntity(Constants.WALES_AREA_CODE, Constants.WALES_AREA_NAME, AreaType.NATION)
         )
             .plus(appDatabase.areaDao().allSavedAreas())
 
