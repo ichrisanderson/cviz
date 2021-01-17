@@ -41,5 +41,6 @@ class AdmissionsFilter @Inject constructor() {
                     rate = 0.0
                 )
             }
+            .sortedBy { it.date }
     }
 }

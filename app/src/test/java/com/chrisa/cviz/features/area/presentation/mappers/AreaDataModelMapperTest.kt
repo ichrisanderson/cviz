@@ -267,12 +267,13 @@ class AreaDataModelMapperTest {
                 hospitalAdmissions = hospitalAdmissions,
                 hospitalAdmissionsSummary = admissionsWeeklySummary,
                 hospitalAdmissionsChartData = listOf(chartData),
-                hospitalAdmissionsAreas = hospitalAdmissions.sortedBy { it.name }.map {
-                    HospitalAdmissionsAreaModel(
-                        it.name,
-                        true
-                    )
-                }
+                hospitalAdmissionsAreas = hospitalAdmissions
+                    .sortedBy { it.name }.map {
+                        HospitalAdmissionsAreaModel(
+                            it.name,
+                            true
+                        )
+                    }
             )
         )
     }
@@ -316,12 +317,13 @@ class AreaDataModelMapperTest {
         assertThat(mappedModel.hospitalAdmissionsSummary).isEqualTo(admissionsWeeklySummary)
         assertThat(mappedModel.hospitalAdmissionsChartData).isEqualTo(listOf(chartData))
         assertThat(mappedModel.hospitalAdmissionsAreas).isEqualTo(
-            hospitalAdmissions.map {
-                HospitalAdmissionsAreaModel(
-                    it.name,
-                    true
-                )
-            }
+            hospitalAdmissions.sortedBy { it.name }
+                .map {
+                    HospitalAdmissionsAreaModel(
+                        it.name,
+                        true
+                    )
+                }
         )
     }
 
