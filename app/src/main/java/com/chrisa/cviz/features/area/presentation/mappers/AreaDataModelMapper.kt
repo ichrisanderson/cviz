@@ -56,7 +56,7 @@ class AreaDataModelMapper @Inject constructor(
         val hospitalAdmissionsChartData =
             hospitalAdmissionsChartData(filteredHospitalData)
         val hospitalAdmissionsAreas =
-            hospitalAdmissionAreas(areaDetailModel, hospitalAdmissionFilter)
+            hospitalAdmissionAreas(areaDetailModel.hospitalAdmissions, hospitalAdmissionFilter)
 
         val canDisplayHospitalAdmissions = filteredHospitalData.isNotEmpty()
         val canDisplayDeathsByPublishedDate = deathsByPublishedDateChartData.isNotEmpty()
@@ -89,16 +89,6 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
-    private fun hospitalAdmissionAreas(
-        areaDetailModel: AreaDetailModel,
-        hospitalAdmissionFilter: Set<String>
-    ): List<HospitalAdmissionsAreaModel> =
-        areaDetailModel.hospitalAdmissions
-            .sortedBy { it.name }
-            .map {
-                hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
-            }
-
     private fun hospitalAdmissionsAreaModel(
         areaDailyData: AreaDailyDataDto,
         hospitalAdmissionFilter: Set<String>
@@ -124,11 +114,12 @@ class AreaDataModelMapper @Inject constructor(
         val hospitalAdmissionsChartData =
             hospitalAdmissionsChartData(filteredHospitalData)
         val admissionAreas =
-            hospitalAdmissionAreas(areaDataModel, hospitalAdmissionFilter)
+            hospitalAdmissionAreas(areaDataModel.hospitalAdmissions, hospitalAdmissionFilter)
         val weeklySummary =
             weeklySummary(filteredHospitalData)
 
         return areaDataModel.copy(
+            lastHospitalAdmissionDate = filteredHospitalData.lastOrNull()?.date,
             hospitalAdmissionsSummary = weeklySummary,
             hospitalAdmissionsChartData = hospitalAdmissionsChartData,
             hospitalAdmissionsAreas = admissionAreas
@@ -136,12 +127,14 @@ class AreaDataModelMapper @Inject constructor(
     }
 
     private fun hospitalAdmissionAreas(
-        areaDataModel: AreaDataModel,
+        hospitalAdmissions: List<AreaDailyDataDto>,
         hospitalAdmissionFilter: Set<String>
     ): List<HospitalAdmissionsAreaModel> =
-        areaDataModel.hospitalAdmissions.map {
-            hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
-        }
+        hospitalAdmissions
+            .sortedBy { it.name }
+            .map {
+                hospitalAdmissionsAreaModel(it, hospitalAdmissionFilter)
+            }
 
     private fun weeklySummary(dailyData: List<DailyData>): WeeklySummary =
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
