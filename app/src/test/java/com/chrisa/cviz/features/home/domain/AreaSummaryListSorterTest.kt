@@ -17,6 +17,7 @@
 package com.chrisa.cviz.features.home.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.domain.models.SortOption
 import com.google.common.truth.Truth.assertThat
@@ -105,7 +106,7 @@ class AreaSummaryListSorterTest {
     companion object {
         val areaSummary = AreaSummaryDto(
             areaCode = "E1",
-            areaName = "England",
+            areaName = Constants.ENGLAND_AREA_NAME,
             areaType = AreaType.NATION.value,
             changeInCases = 0,
             currentNewCases = 0,

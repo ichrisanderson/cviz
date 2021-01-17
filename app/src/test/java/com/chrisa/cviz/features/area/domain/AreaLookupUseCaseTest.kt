@@ -195,7 +195,7 @@ class AreaLookupUseCaseTest {
     fun `WHEN areaName called with OVERVIEW THEN overview name is returned`() {
         val lookupAreaName = sut.areaName(AreaType.OVERVIEW, lookupEntity)
 
-        assertThat(lookupAreaName).isEqualTo("United Kingdom")
+        assertThat(lookupAreaName).isEqualTo(Constants.UK_AREA_NAME)
     }
 
     companion object {
@@ -223,7 +223,7 @@ class AreaLookupUseCaseTest {
         )
         val defaultArea = AreaDto(
             code = Constants.UK_AREA_CODE,
-            name = "United Kingdom",
+            name = Constants.UK_AREA_NAME,
             regionType = AreaType.OVERVIEW
         )
     }

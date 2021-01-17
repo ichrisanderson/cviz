@@ -17,13 +17,10 @@
 package com.chrisa.cviz.features.home.presentation.savedareas
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.cviz.core.util.test
 import com.chrisa.cviz.features.home.domain.LoadSavedAreasUseCase
 import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
-import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
@@ -32,7 +29,6 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import java.io.IOException
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -60,15 +56,6 @@ class SavedAreasViewModelTest {
     fun `GIVEN load home data cases succeeds WHEN viewmodel initialized THEN home screen data is emitted`() =
         testDispatcher.runBlockingTest {
             pauseDispatcher {
-
-                val latestUkData = LatestUkDataModel(
-                    areaCode = Constants.UK_AREA_CODE,
-                    areaName = "UK",
-                    areaType = AreaType.OVERVIEW.value,
-                    cumulativeCases = 22,
-                    newCases = 33,
-                    lastUpdated = LocalDateTime.of(2020, 1, 1, 1, 1)
-                )
 
                 val summaryModel = SummaryModel(
                     position = 1,

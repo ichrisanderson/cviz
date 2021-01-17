@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.domain
+package com.chrisa.cviz.features.area.domain.deaths
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.DailyData
+import com.chrisa.cviz.features.area.data.AreaCodeResolver
 import com.chrisa.cviz.features.area.data.AreaDeathsDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
+import com.chrisa.cviz.features.area.domain.AreaLookupUseCase
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -33,24 +36,37 @@ class AreaDeathsUseCaseTest {
 
     private val areaLookupUseCase: AreaLookupUseCase = mockk()
     private val areaDeathsDataSource: AreaDeathsDataSource = mockk()
+    private val areaCodeResolver: AreaCodeResolver = mockk()
 
-    private val sut = AreaDeathsUseCase(areaLookupUseCase, areaDeathsDataSource)
+    private val sut = AreaDeathsUseCase(areaLookupUseCase, areaDeathsDataSource, areaCodeResolver)
 
     @Before
     fun init() {
         every { areaLookupUseCase.areaLookup(any(), any()) } returns areaLookupDto
         every { areaDeathsDataSource.deaths(any()) } returns emptyList()
+        every { areaCodeResolver.defaultAreaDto(any()) } returns defaultAreaDto
     }
 
     @Test
-    fun `WHEN areaLookup not found THEN uk deaths returned`() {
-        every { areaLookupUseCase.areaLookup(any(), any()) } returns null
+    fun `WHEN areaLookup null AND default area has no deaths THEN uk deaths returned`() {
+        every { areaDeathsDataSource.deaths(defaultAreaDto.code) } returns emptyList()
         every { areaDeathsDataSource.deaths(Constants.UK_AREA_CODE) } returns dailyData
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val deaths = sut.deaths("E1", AreaType.UTLA, null)
 
         assertThat(deaths).isEqualTo(
-            AreaDailyDataDto("United Kingdom", dailyData)
+            AreaDailyDataDto(Constants.UK_AREA_NAME, dailyData)
+        )
+    }
+
+    @Test
+    fun `WHEN areaLookup null AND default area has deaths THEN default area deaths returned`() {
+        every { areaDeathsDataSource.deaths(defaultAreaDto.code) } returns dailyData
+
+        val deaths = sut.deaths("E1", AreaType.UTLA, null)
+
+        assertThat(deaths).isEqualTo(
+            AreaDailyDataDto(defaultAreaDto.name, dailyData)
         )
     }
 
@@ -58,7 +74,7 @@ class AreaDeathsUseCaseTest {
     fun `WHEN nation has deaths THEN nation deaths returned`() {
         every { areaDeathsDataSource.deaths(areaLookupDto.nationCode) } returns dailyData
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val deaths = sut.deaths("E1", AreaType.UTLA, areaLookupDto)
 
         assertThat(deaths).isEqualTo(
             AreaDailyDataDto(areaLookupDto.nationName, dailyData)
@@ -69,7 +85,7 @@ class AreaDeathsUseCaseTest {
     fun `WHEN region has deaths THEN region deaths returned`() {
         every { areaDeathsDataSource.deaths(areaLookupDto.regionCode!!) } returns dailyData
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val deaths = sut.deaths("E1", AreaType.UTLA, areaLookupDto)
 
         assertThat(deaths).isEqualTo(
             AreaDailyDataDto(areaLookupDto.regionName!!, dailyData)
@@ -86,7 +102,7 @@ class AreaDeathsUseCaseTest {
             )
         } returns areaLookupDto.utlaName
 
-        val deaths = sut.deaths("E1", AreaType.UTLA)
+        val deaths = sut.deaths("E1", AreaType.UTLA, areaLookupDto)
 
         assertThat(deaths).isEqualTo(
             AreaDailyDataDto(areaLookupDto.utlaName, dailyData)
@@ -103,7 +119,7 @@ class AreaDeathsUseCaseTest {
             )
         } returns areaLookupDto.utlaName
 
-        val deaths = sut.deaths("E1", AreaType.LTLA)
+        val deaths = sut.deaths("E1", AreaType.LTLA, areaLookupDto)
 
         assertThat(deaths).isEqualTo(
             AreaDailyDataDto(areaLookupDto.utlaName, dailyData)
@@ -132,10 +148,16 @@ class AreaDeathsUseCaseTest {
             nhsRegionName = "London11",
             nhsTrustCode = "GUYS",
             nhsTrustName = "St Guys",
-            regionCode = Constants.ENGLAND_AREA_CODE,
-            regionName = "England",
-            nationCode = Constants.UK_AREA_CODE,
-            nationName = "United Kingdom"
+            regionCode = "E12000007",
+            regionName = "London",
+            nationCode = Constants.ENGLAND_AREA_CODE,
+            nationName = Constants.ENGLAND_AREA_NAME
+        )
+
+        val defaultAreaDto = AreaDto(
+            code = Constants.ENGLAND_AREA_CODE,
+            name = Constants.ENGLAND_AREA_NAME,
+            AreaType.NATION
         )
     }
 }

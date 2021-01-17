@@ -18,7 +18,11 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaCaseData
+import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaDataDao
+import com.chrisa.cviz.core.data.db.AreaEntity
+import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -30,12 +34,14 @@ import org.junit.Test
 class AreaCasesDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
+    private val areaDao = mockk<AreaDao>()
     private val areaDataDao = mockk<AreaDataDao>()
     private val sut = AreaCasesDataSource(appDatabase)
 
     @Before
     fun setup() {
         every { appDatabase.areaDataDao() } returns areaDataDao
+        every { appDatabase.areaDao() } returns areaDao
     }
 
     @Test
@@ -56,9 +62,23 @@ class AreaCasesDataSourceTest {
         )
     }
 
+    @Test
+    fun `WHEN areaName called THEN cases are emitted`() {
+        every { areaDao.byAreaCode("") } returns areaEntity
+
+        val areaName = sut.areaName("")
+
+        assertThat(areaName).isEqualTo(Constants.ENGLAND_AREA_NAME)
+    }
+
     companion object {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
 
+        private val areaEntity = AreaEntity(
+            Constants.ENGLAND_AREA_CODE,
+            Constants.ENGLAND_AREA_NAME,
+            AreaType.NATION
+        )
         private val areaData = AreaCaseData(
             date = syncDate.toLocalDate(),
             newCases = 10,

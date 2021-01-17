@@ -158,6 +158,9 @@ interface AreaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(area: List<AreaEntity>)
 
+    @Query("SELECT * FROM area WHERE areaCode = :areaCode LIMIT 1")
+    fun byAreaCode(areaCode: String): AreaEntity?
+
     @Query("SELECT * FROM area WHERE areaName LIKE '%' || :areaName || '%' ORDER BY areaName ASC")
     fun search(areaName: String): List<AreaEntity>
 
@@ -365,6 +368,12 @@ object Constants {
     const val NORTHERN_IRELAND_AREA_CODE = "N92000002"
     const val SCOTLAND_AREA_CODE = "S92000003"
     const val WALES_AREA_CODE = "W92000004"
+
+    const val ENGLAND_AREA_NAME = "England"
+    const val SCOTLAND_AREA_NAME = "Scotland"
+    const val WALES_AREA_NAME = "Wales"
+    const val NORTHERN_IRELAND_AREA_NAME = "Northern Ireland"
+    const val UK_AREA_NAME = "United Kingdom"
 }
 
 object MetaDataIds {

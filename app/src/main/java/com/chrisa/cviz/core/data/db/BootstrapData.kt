@@ -22,27 +22,27 @@ object BootstrapData {
         return listOf(
             AreaEntity(
                 areaCode = Constants.UK_AREA_CODE,
-                areaName = "United Kingdom",
+                areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW
             ),
             AreaEntity(
                 areaCode = Constants.ENGLAND_AREA_CODE,
-                areaName = "England",
+                areaName = Constants.ENGLAND_AREA_NAME,
                 areaType = AreaType.NATION
             ),
             AreaEntity(
                 areaCode = Constants.NORTHERN_IRELAND_AREA_CODE,
-                areaName = "Northern Ireland",
+                areaName = Constants.NORTHERN_IRELAND_AREA_NAME,
                 areaType = AreaType.NATION
             ),
             AreaEntity(
                 areaCode = Constants.SCOTLAND_AREA_CODE,
-                areaName = "Scotland",
+                areaName = Constants.SCOTLAND_AREA_NAME,
                 areaType = AreaType.NATION
             ),
             AreaEntity(
                 areaCode = Constants.WALES_AREA_CODE,
-                areaName = "Wales",
+                areaName = Constants.WALES_AREA_NAME,
                 areaType = AreaType.NATION
             ),
             AreaEntity(

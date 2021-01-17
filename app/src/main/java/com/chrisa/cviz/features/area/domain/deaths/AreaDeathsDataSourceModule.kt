@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.domain
+package com.chrisa.cviz.features.area.domain.deaths
 
+import com.chrisa.cviz.features.area.data.AreaCodeResolver
 import com.chrisa.cviz.features.area.data.AreaDeathsByPublishedDateDataSource
 import com.chrisa.cviz.features.area.data.AreaOnsDeathsDataSource
+import com.chrisa.cviz.features.area.domain.AreaLookupUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,17 +41,23 @@ class AreaDeathsDataSourceModule {
     @Provides
     fun areaDeathsByPublishedDateUseCase(
         areaLookupUseCase: AreaLookupUseCase,
-        areaDeathsByPublishedDateDataSource: AreaDeathsByPublishedDateDataSource
+        areaDeathsByPublishedDateDataSource: AreaDeathsByPublishedDateDataSource,
+        areaCodeResolver: AreaCodeResolver
     ): AreaDeathsUseCase {
-        return AreaDeathsUseCase(areaLookupUseCase, areaDeathsByPublishedDateDataSource)
+        return AreaDeathsUseCase(
+            areaLookupUseCase,
+            areaDeathsByPublishedDateDataSource,
+            areaCodeResolver
+        )
     }
 
     @OnsDeaths
     @Provides
     fun areaOnsDeathsUseCase(
         areaLookupUseCase: AreaLookupUseCase,
-        areaOnsDeathsDataSource: AreaOnsDeathsDataSource
+        areaOnsDeathsDataSource: AreaOnsDeathsDataSource,
+        areaCodeResolver: AreaCodeResolver
     ): AreaDeathsUseCase {
-        return AreaDeathsUseCase(areaLookupUseCase, areaOnsDeathsDataSource)
+        return AreaDeathsUseCase(areaLookupUseCase, areaOnsDeathsDataSource, areaCodeResolver)
     }
 }

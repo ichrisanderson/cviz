@@ -98,7 +98,7 @@ class HealthcareDataSourceTest {
         private val areaData = HealthcareEntity(
             date = syncDate.toLocalDate(),
             areaCode = Constants.ENGLAND_AREA_CODE,
-            areaName = "England",
+            areaName = Constants.ENGLAND_AREA_NAME,
             areaType = AreaType.NATION,
             newAdmissions = 10,
             cumulativeAdmissions = 100,

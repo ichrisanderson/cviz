@@ -124,7 +124,7 @@ class AreaDataDaoTest {
         runBlocking {
             val toAdd = listOf(
                 areaData,
-                areaData.copy(areaCode = "002", areaName = "England")
+                areaData.copy(areaCode = "002", areaName = Constants.ENGLAND_AREA_NAME)
             )
 
             db.areaDataDao().allByAreaCodeAsFlow(areaData.areaCode).test {
@@ -210,7 +210,7 @@ class AreaDataDaoTest {
         runBlocking {
             val insertedCases = listOf(
                 areaData,
-                areaData.copy(areaCode = "002", areaName = "England")
+                areaData.copy(areaCode = "002", areaName = Constants.ENGLAND_AREA_NAME)
             )
 
             db.areaDataDao().allSavedAreaDataAsFlow().test {
@@ -236,7 +236,7 @@ class AreaDataDaoTest {
         runBlocking {
             val toInsert = listOf(
                 areaData,
-                areaData.copy(areaCode = "002", areaName = "England")
+                areaData.copy(areaCode = "002", areaName = Constants.ENGLAND_AREA_NAME)
             )
 
             val insertedCasesAsSavedAreaEntities =
@@ -281,7 +281,7 @@ class AreaDataDaoTest {
             val englandArea = areaData.copy(
                 metadataId = englandMetadataEntity.id,
                 areaCode = Constants.ENGLAND_AREA_CODE,
-                areaName = "England",
+                areaName = Constants.ENGLAND_AREA_NAME,
                 areaType = AreaType.REGION,
                 date = englandMetadataEntity.lastUpdatedAt.toLocalDate()
             )
@@ -343,7 +343,7 @@ class AreaDataDaoTest {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
         private val areaData = AreaDataEntity(
             areaCode = Constants.UK_AREA_CODE,
-            areaName = "United Kingdom",
+            areaName = Constants.UK_AREA_NAME,
             areaType = AreaType.OVERVIEW,
             metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
             date = syncDate.toLocalDate(),

@@ -52,7 +52,7 @@ class AreaSummaryDaoTest {
             val areaSummaryEntity = AreaSummaryEntity(
                 areaCode = Constants.UK_AREA_CODE,
                 areaType = AreaType.OVERVIEW,
-                areaName = "UK",
+                areaName = Constants.UK_AREA_NAME,
                 date = syncTime.toLocalDate(),
                 baseInfectionRate = 100.0,
                 cumulativeCasesWeek1 = 100,
@@ -83,7 +83,7 @@ class AreaSummaryDaoTest {
             val areaSummaryEntity = AreaSummaryEntity(
                 areaCode = Constants.UK_AREA_CODE,
                 areaType = AreaType.OVERVIEW,
-                areaName = "UK",
+                areaName = Constants.UK_AREA_NAME,
                 date = syncTime.toLocalDate(),
                 baseInfectionRate = 100.0,
                 cumulativeCasesWeek1 = 100,

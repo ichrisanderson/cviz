@@ -134,7 +134,7 @@ class LoadDashboardDataUseCaseTest {
         private val dailyRecordDto = DailyRecordDto(
             areaCode = Constants.UK_AREA_CODE,
             areaType = AreaType.OVERVIEW.value,
-            areaName = "United Kingdom",
+            areaName = Constants.UK_AREA_NAME,
             cumulativeCases = 122,
             newCases = 22,
             lastUpdated = LocalDateTime.of(2020, 5, 6, 1, 1)
@@ -155,7 +155,7 @@ class LoadDashboardDataUseCaseTest {
                 AreaSummaryDto(
                     areaCode = Constants.UK_AREA_CODE,
                     areaType = AreaType.OVERVIEW.value,
-                    areaName = "United Kingdom",
+                    areaName = Constants.UK_AREA_NAME,
                     changeInCases = newCases,
                     currentNewCases = cumulativeCases,
                     changeInInfectionRate = changeInInfectionRate,

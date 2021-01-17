@@ -54,7 +54,7 @@ class AreaDaoTest {
             listOf(
                 AreaEntity(
                     areaCode = "1234",
-                    areaName = "UK",
+                    areaName = Constants.UK_AREA_NAME,
                     areaType = AreaType.OVERVIEW
                 )
             )
@@ -70,7 +70,7 @@ class AreaDaoTest {
             listOf(
                 AreaEntity(
                     areaCode = "1234",
-                    areaName = "UK",
+                    areaName = Constants.UK_AREA_NAME,
                     areaType = AreaType.OVERVIEW
                 )
             )
@@ -85,8 +85,8 @@ class AreaDaoTest {
 
         val allAreas = listOf(
             AreaEntity(
-                areaCode = "1234",
-                areaName = "UK",
+                areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW
             )
         )

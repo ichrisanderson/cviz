@@ -77,10 +77,10 @@ class HealthcareLookupsUseCaseTest {
             nhsRegionName = "London",
             nhsTrustCode = "GUYS",
             nhsTrustName = "St Guys",
-            regionCode = Constants.ENGLAND_AREA_CODE,
-            regionName = "England",
-            nationCode = Constants.UK_AREA_CODE,
-            nationName = "United Kingdom"
+            regionCode = "London",
+            regionName = "E12000007",
+            nationCode = Constants.ENGLAND_AREA_CODE,
+            nationName = Constants.ENGLAND_AREA_NAME
         )
         val healthcareLookups = listOf(
             HealthcareLookupDto("1", "Area 1"),
