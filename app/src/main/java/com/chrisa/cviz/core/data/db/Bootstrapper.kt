@@ -26,29 +26,37 @@ class Bootstrapper @Inject constructor(
     private val hospitalLookupHelper: HospitalLookupHelper
 ) {
     fun execute() {
-        copyOldData()
-        insertAreaData()
+        val didCopyOldData = copyOldData()
+        insertAreaData(didCopyOldData)
         hospitalLookupHelper.insertHospitalLookupData()
     }
 
-    private fun copyOldData() {
+    private fun copyOldData(): Boolean {
+        var copiedOldData = false
         if (legacyAppDatabaseHelper.hasDatabase()) {
             val items = appDatabase.savedAreaDao().countAll()
             if (items == 0) {
                 val savedAreas =
-                    legacyAppDatabaseHelper.savedAreaCodes().map(::mapToSavedAreaEntity)
-                appDatabase.savedAreaDao().insertAll(savedAreas)
+                    legacyAppDatabaseHelper.savedAreas()
+                appDatabase.areaDao().insertAll(savedAreas.map {
+                    AreaEntity(
+                        it.areaCode,
+                        it.areaName,
+                        AreaType.from(it.areaType)!!
+                    )
+                })
+                appDatabase.savedAreaDao().insertAll(savedAreas
+                    .map { SavedAreaEntity(it.areaCode) }
+                )
+                copiedOldData = true
             }
             legacyAppDatabaseHelper.deleteDatabase()
         }
+        return copiedOldData
     }
 
-    private fun mapToSavedAreaEntity(areaCode: String) =
-        SavedAreaEntity(areaCode = areaCode)
-
-    private fun insertAreaData() {
-        val items = appDatabase.areaDao().count()
-        if (items > 0) return
+    private fun insertAreaData(forceRefresh: Boolean) {
+        if (!forceRefresh && appDatabase.areaDao().count() > 0) return
         appDatabase.areaDao().insertAll(BootstrapData.areaData())
     }
 }

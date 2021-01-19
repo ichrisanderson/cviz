@@ -26,12 +26,25 @@ class LegacyAppDatabaseHelper @Inject constructor(
     fun hasDatabase() =
         context.getDatabasePath(LegacyAppDatabase.databaseName).exists()
 
-    fun savedAreaCodes(): List<String> =
+    fun savedAreas(): List<LegacySavedArea> =
         LegacyAppDatabase.buildDatabase(context)
-            .savedAreaDao()
-            .all()
-            .map { it.areaCode }
+            .areaDao()
+            .allSavedAreas()
+            .map(::mapLegacySavedArea)
 
     fun deleteDatabase() =
         context.deleteDatabase(LegacyAppDatabase.databaseName)
+
+    private fun mapLegacySavedArea(areaEntity: AreaEntity) =
+        LegacySavedArea(
+            areaEntity.areaCode,
+            areaEntity.areaName,
+            areaEntity.areaType.value
+        )
 }
+
+data class LegacySavedArea(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String
+)
