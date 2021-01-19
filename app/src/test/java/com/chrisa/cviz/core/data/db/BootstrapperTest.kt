@@ -18,6 +18,7 @@ package com.chrisa.cviz.core.data.db
 
 import com.chrisa.cviz.core.data.db.hospitallookups.HospitalLookupHelper
 import com.chrisa.cviz.core.data.db.legacy.LegacyAppDatabaseHelper
+import com.chrisa.cviz.core.data.db.legacy.LegacySavedArea
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,6 +26,7 @@ import org.junit.Before
 import org.junit.Test
 
 class BootstrapperTest {
+
     private val appDatabase: AppDatabase = mockk(relaxed = true)
     private val areaDao: AreaDao = mockk(relaxed = true)
     private val areaLookupDao: AreaLookupDao = mockk(relaxed = true)
@@ -43,44 +45,28 @@ class BootstrapperTest {
 
     @Test
     fun `GIVEN no saved areas WHEN legacy db exists THEN saved areas are copied and legacy database is deleted`() {
-        val areas = listOf("E1", "S1", "W1")
         every { legacyAppDatabaseHelper.hasDatabase() } returns true
-        every { legacyAppDatabaseHelper.savedAreaCodes() } returns areas
+        every { legacyAppDatabaseHelper.savedAreas() } returns savedAreas
         every { savedAreaDao.countAll() } returns 0
 
         sut.execute()
 
         verify(exactly = 1) { legacyAppDatabaseHelper.deleteDatabase() }
-        verify(exactly = 1) {
-            savedAreaDao.insertAll(
-                listOf(
-                    SavedAreaEntity("E1"),
-                    SavedAreaEntity("S1"),
-                    SavedAreaEntity("W1")
-                )
-            )
-        }
+        verify(exactly = 1) { savedAreaDao.insertAll(savedAreaEntities) }
+        verify(exactly = 1) { areaDao.insertAll(areaEntities) }
     }
 
     @Test
     fun `GIVEN saved areas WHEN legacy db exists THEN saved areas are not copied and legacy database is deleted`() {
-        val areas = listOf("E1", "S1", "W1")
         every { legacyAppDatabaseHelper.hasDatabase() } returns true
-        every { legacyAppDatabaseHelper.savedAreaCodes() } returns areas
+        every { legacyAppDatabaseHelper.savedAreas() } returns savedAreas
         every { savedAreaDao.countAll() } returns 1
 
         sut.execute()
 
         verify(exactly = 1) { legacyAppDatabaseHelper.deleteDatabase() }
-        verify(exactly = 0) {
-            savedAreaDao.insertAll(
-                listOf(
-                    SavedAreaEntity("E1"),
-                    SavedAreaEntity("S1"),
-                    SavedAreaEntity("W1")
-                )
-            )
-        }
+        verify(exactly = 0) { savedAreaDao.insertAll(savedAreaEntities) }
+        verify(exactly = 0) { areaDao.insertAll(areaEntities) }
     }
 
     @Test
@@ -106,5 +92,35 @@ class BootstrapperTest {
         sut.execute()
 
         verify(exactly = 1) { hospitalLookupHelper.insertHospitalLookupData() }
+    }
+
+    companion object {
+        val savedAreas = listOf(
+            LegacySavedArea(
+                areaCode = Constants.ENGLAND_AREA_CODE,
+                areaName = Constants.ENGLAND_AREA_NAME,
+                areaType = AreaType.NATION.value
+            ),
+            LegacySavedArea(
+                areaCode = Constants.SCOTLAND_AREA_CODE,
+                areaName = Constants.SCOTLAND_AREA_NAME,
+                areaType = AreaType.NATION.value
+            ),
+            LegacySavedArea(
+                areaCode = Constants.WALES_AREA_CODE,
+                areaName = Constants.WALES_AREA_NAME,
+                areaType = AreaType.NATION.value
+            )
+        )
+        val areaEntities = savedAreas.map {
+            AreaEntity(
+                it.areaCode,
+                it.areaName,
+                AreaType.from(it.areaType)!!
+            )
+        }
+        val savedAreaEntities = savedAreas.map {
+            SavedAreaEntity(it.areaCode)
+        }
     }
 }
