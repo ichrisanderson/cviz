@@ -18,7 +18,7 @@ package com.chrisa.cviz.features.area.domain.healthcare
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.DailyData
-import com.chrisa.cviz.features.area.data.HealthcareDataSource
+import com.chrisa.cviz.features.area.data.AdmissionsDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
@@ -30,14 +30,14 @@ import org.junit.Test
 
 class SingleAreaHealthcareDataUseCaseTest {
 
-    private val healthcareDataSource: HealthcareDataSource = mockk()
-    private val sut = SingleAreaHealthcareDataUseCase(healthcareDataSource)
+    private val admissionsDataSource: AdmissionsDataSource = mockk()
+    private val sut = SingleAreaHealthcareDataUseCase(admissionsDataSource)
 
     @Test
     fun `WHEN trustData called THEN data for area returned`() {
-        every { healthcareDataSource.healthcareData(area.code) } returns dailyDataList
+        every { admissionsDataSource.admissionsForArea(area.code) } returns dailyDataList
 
-        val data = sut.trustData(area.name, area.code)
+        val data = sut.admissionsForArea(area.name, area.code)
 
         assertThat(data).isEqualTo(
             AreaDailyDataCollection(

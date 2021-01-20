@@ -61,15 +61,15 @@ class HealthcareDataUseCaseTest {
             )
         } returns areaDto
         every {
-            singleAreaHealthcareDataUseCase.trustData(
+            singleAreaHealthcareDataUseCase.admissionsForArea(
                 areaDto.name,
                 areaDto.code
             )
-        } returns singleTrustData
+        } returns admissionsForArea
 
         val data = sut.healthcareData("E1", AreaType.UTLA, areaLookup)
 
-        assertThat(data).isEqualTo(singleTrustData)
+        assertThat(data).isEqualTo(admissionsForArea)
     }
 
     @Test
@@ -85,15 +85,15 @@ class HealthcareDataUseCaseTest {
         } returns healthcareLookups
         every { healthcareRegionUseCase.healthcareArea(areaCode, areaType, null) } returns areaDto
         every {
-            singleAreaHealthcareDataUseCase.trustData(
+            singleAreaHealthcareDataUseCase.admissionsForArea(
                 areaDto.name,
                 areaDto.code
             )
-        } returns singleTrustData
+        } returns admissionsForArea
 
         val data = sut.healthcareData("E1", AreaType.UTLA, null)
 
-        assertThat(data).isEqualTo(singleTrustData)
+        assertThat(data).isEqualTo(admissionsForArea)
     }
 
     @Test
@@ -115,15 +115,15 @@ class HealthcareDataUseCaseTest {
             )
         } returns areaDto
         every {
-            multiAreaHealthcareDataUseCase.trustData(
+            multiAreaHealthcareDataUseCase.admissionsForAreaCodes(
                 areaLookup.utlaName,
                 healthcareLookups
             )
-        } returns multiTrustData
+        } returns admissionsForAreaCodes
 
         val data = sut.healthcareData("E1", AreaType.UTLA, areaLookup)
 
-        assertThat(data).isEqualTo(multiTrustData)
+        assertThat(data).isEqualTo(admissionsForAreaCodes)
     }
 
     companion object {
@@ -152,7 +152,7 @@ class HealthcareDataUseCaseTest {
             rate = 0.0,
             date = LocalDate.of(2020, 1, 2)
         )
-        val singleTrustData = AreaDailyDataCollection(
+        val admissionsForArea = AreaDailyDataCollection(
             name = "London",
             data = listOf(
                 AreaDailyDataDto(
@@ -161,7 +161,7 @@ class HealthcareDataUseCaseTest {
                 )
             )
         )
-        val multiTrustData = AreaDailyDataCollection(
+        val admissionsForAreaCodes = AreaDailyDataCollection(
             name = "London",
             data = listOf(
                 AreaDailyDataDto(

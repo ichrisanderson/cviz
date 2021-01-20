@@ -37,10 +37,10 @@ class HealthcareDataUseCase @Inject constructor(
             healthcareLookups.isEmpty() || areaLookup == null -> {
                 val nhsRegion =
                     healthcareRegionUseCase.healthcareArea(areaCode, areaType, areaLookup)
-                singleAreaHealthcareDataUseCase.trustData(nhsRegion.name, nhsRegion.code)
+                singleAreaHealthcareDataUseCase.admissionsForArea(nhsRegion.name, nhsRegion.code)
             }
             else -> {
-                multiAreaHealthcareDataUseCase.trustData(
+                multiAreaHealthcareDataUseCase.admissionsForAreaCodes(
                     areaLookup.utlaName,
                     healthcareLookups
                 )

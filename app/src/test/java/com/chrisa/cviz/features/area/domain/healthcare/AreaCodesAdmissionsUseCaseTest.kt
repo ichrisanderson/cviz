@@ -16,13 +16,22 @@
 
 package com.chrisa.cviz.features.area.domain.healthcare
 
-import com.chrisa.cviz.features.area.data.HealthcareDataSource
-import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
-import javax.inject.Inject
+import com.chrisa.cviz.features.area.data.AdmissionsDataSource
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.Test
 
-class HealthcareAreaCodesUseCase @Inject constructor(
-    private val healthcareDataSource: HealthcareDataSource
-) {
-    fun healthcareDataFoAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
-        healthcareDataSource.healthcareDataFoAreaCodes(areaCodes)
+class AreaCodesAdmissionsUseCaseTest {
+
+    private val admissionsDataSource: AdmissionsDataSource = mockk(relaxed = true)
+    private val sut = AreaCodesAdmissionsUseCase(admissionsDataSource)
+
+    @Test
+    fun `WHEN admissionsForAreaCodes called THEN admissionsDataSource queried`() {
+        val areaCodes = listOf("1", "2", "3")
+
+        sut.admissionsForAreaCodes(areaCodes)
+
+        verify(exactly = 1) { admissionsDataSource.admissionsForAreaCodes(areaCodes) }
+    }
 }

@@ -30,11 +30,11 @@ import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
 
-class HealthcareDataSourceTest {
+class AdmissionsDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val healthcareDao = mockk<HealthcareDao>()
-    private val sut = HealthcareDataSource(appDatabase)
+    private val sut = AdmissionsDataSource(appDatabase)
 
     @Before
     fun setup() {
@@ -42,21 +42,21 @@ class HealthcareDataSourceTest {
     }
 
     @Test
-    fun `GIVEN area does not have healthcare deaths WHEN healthcareData called THEN empty list emitted`() {
+    fun `GIVEN area does not have admissions WHEN healthcareData called THEN empty list emitted`() {
         every { healthcareDao.byAreaCode("") } returns emptyList()
 
-        val healthcareData = sut.healthcareData("")
+        val admissionsForArea = sut.admissionsForArea("")
 
-        assertThat(healthcareData).isEmpty()
+        assertThat(admissionsForArea).isEmpty()
     }
 
     @Test
-    fun `GIVEN area has healthcare deaths WHEN healthcareData called THEN healthcare data emitted`() {
+    fun `GIVEN area has admissions WHEN healthcareData called THEN  data emitted`() {
         every { healthcareDao.byAreaCode("") } returns listOf(areaData)
 
-        val healthcareData = sut.healthcareData("")
+        val admissionsForArea = sut.admissionsForArea("")
 
-        assertThat(healthcareData).isEqualTo(
+        assertThat(admissionsForArea).isEqualTo(
             listOf(
                 DailyData(
                     date = syncDate.toLocalDate(),
@@ -69,13 +69,13 @@ class HealthcareDataSourceTest {
     }
 
     @Test
-    fun `GIVEN area has healthcare deaths WHEN healthcareDataFoAreaCodes called THEN healthcare data emitted`() {
+    fun `GIVEN areas have admissions WHEN healthcareDataFoAreaCodes called THEN admission data emitted`() {
         val areaCodes = listOf("1", "2", "3")
         every { healthcareDao.byAreaCodes(areaCodes) } returns listOf(areaData)
 
-        val healthcareData = sut.healthcareDataFoAreaCodes(areaCodes)
+        val admissionsForArea = sut.admissionsForAreaCodes(areaCodes)
 
-        assertThat(healthcareData).isEqualTo(
+        assertThat(admissionsForArea).isEqualTo(
             listOf(
                 AreaDailyDataDto(
                     areaData.areaName,

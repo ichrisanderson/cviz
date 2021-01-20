@@ -22,11 +22,11 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import javax.inject.Inject
 
-class HealthcareDataSource @Inject constructor(
+class AdmissionsDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
-    fun healthcareData(areaCode: String): List<DailyData> =
+    fun admissionsForArea(areaCode: String): List<DailyData> =
         allAdmissions(areaCode).filter(::hasHealthcareData).map(::mapDailyData)
 
     private fun allAdmissions(areaCode: String) =
@@ -35,7 +35,7 @@ class HealthcareDataSource @Inject constructor(
     private fun hasHealthcareData(it: HealthcareEntity): Boolean =
         it.cumulativeAdmissions != null && it.newAdmissions != null
 
-    fun healthcareDataFoAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
+    fun admissionsForAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
         allAdmissionsInAreaCodes(areaCodes)
             .filter(::hasHealthcareData)
             .groupBy { it.areaName }

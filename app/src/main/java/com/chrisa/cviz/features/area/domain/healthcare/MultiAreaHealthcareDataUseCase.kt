@@ -20,14 +20,14 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import javax.inject.Inject
 
 class MultiAreaHealthcareDataUseCase @Inject constructor(
-    private val healthcareAreaCodesUseCase: HealthcareAreaCodesUseCase
+    private val areaCodesAdmissionsUseCase: AreaCodesAdmissionsUseCase
 ) {
-    fun trustData(
+    fun admissionsForAreaCodes(
         areaName: String,
         areaCodes: List<String>
     ): AreaDailyDataCollection =
         AreaDailyDataCollection(
             areaName,
-            healthcareAreaCodesUseCase.healthcareDataFoAreaCodes(areaCodes)
+            areaCodesAdmissionsUseCase.admissionsForAreaCodes(areaCodes)
         )
 }
