@@ -85,7 +85,9 @@ class AreaDataModelMapper @Inject constructor(
             hospitalAdmissionsSummary = weeklySummary(filteredHospitalData),
             hospitalAdmissionsChartData = hospitalAdmissionsChartData,
             canFilterHospitalAdmissionsAreas = canFilterHospitalAdmissionsAreas,
-            hospitalAdmissionsAreas = hospitalAdmissionsAreas
+            hospitalAdmissionsAreas = hospitalAdmissionsAreas,
+            canDisplayTransmissionRate = areaDetailModel.transmissionRate != null,
+            transmissionRateDto = areaDetailModel.transmissionRate
         )
     }
 

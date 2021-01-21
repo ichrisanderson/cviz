@@ -18,6 +18,7 @@ package com.chrisa.cviz.features.area.domain.models
 
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
 import java.time.LocalDateTime
 
 data class AreaDetailModel(
@@ -30,5 +31,6 @@ data class AreaDetailModel(
     val onsDeathAreaName: String,
     val onsDeathsByRegistrationDate: List<DailyData>,
     val hospitalAdmissionsAreaName: String,
-    val hospitalAdmissions: List<AreaDailyDataDto>
+    val hospitalAdmissions: List<AreaDailyDataDto>,
+    val transmissionRate: AreaTransmissionRateDto?
 )

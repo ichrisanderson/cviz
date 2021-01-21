@@ -27,17 +27,17 @@ class AdmissionsDataSource @Inject constructor(
 ) {
 
     fun admissionsForArea(areaCode: String): List<DailyData> =
-        allAdmissions(areaCode).filter(::hasHealthcareData).map(::mapDailyData)
+        allHealthcareData(areaCode).filter(::hasAdmissions).map(::mapDailyData)
 
-    private fun allAdmissions(areaCode: String) =
+    private fun allHealthcareData(areaCode: String) =
         appDatabase.healthcareDao().byAreaCode(areaCode)
 
-    private fun hasHealthcareData(it: HealthcareEntity): Boolean =
+    private fun hasAdmissions(it: HealthcareEntity): Boolean =
         it.cumulativeAdmissions != null && it.newAdmissions != null
 
     fun admissionsForAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
         allAdmissionsInAreaCodes(areaCodes)
-            .filter(::hasHealthcareData)
+            .filter(::hasAdmissions)
             .groupBy { it.areaName }
             .map { AreaDailyDataDto(it.key, it.value.map(::mapDailyData)) }
 

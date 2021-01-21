@@ -323,7 +323,8 @@ class AreaViewModelTest {
                 onsDeathAreaName = "",
                 onsDeathsByRegistrationDate = emptyList(),
                 hospitalAdmissionsAreaName = "",
-                hospitalAdmissions = emptyList()
+                hospitalAdmissions = emptyList(),
+                transmissionRate = null
             )
         }
 
@@ -350,7 +351,9 @@ class AreaViewModelTest {
                 hospitalAdmissions = emptyList(),
                 hospitalAdmissionsChartData = emptyList(),
                 canFilterHospitalAdmissionsAreas = false,
-                hospitalAdmissionsAreas = emptyList()
+                hospitalAdmissionsAreas = emptyList(),
+                canDisplayTransmissionRate = false,
+                transmissionRateDto = null
             )
         }
     }

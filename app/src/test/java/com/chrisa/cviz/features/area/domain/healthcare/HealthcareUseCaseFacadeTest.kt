@@ -32,15 +32,19 @@ import org.junit.Test
 class HealthcareUseCaseFacadeTest {
     private val healthcareDataUseCase: HealthcareDataUseCase = mockk(relaxed = true)
     private val healthcareLookupDataSource: HealthcareLookupDataSource = mockk(relaxed = true)
-    private val healthcareRegionUseCase: HealthcareRegionUseCase = mockk(relaxed = true)
+    private val healthcareAreaUseCase: HealthcareAreaUseCase = mockk(relaxed = true)
     private val healthcareSyncUseCase: HealthcareSyncUseCase = mockk(relaxed = true)
+    private val nhsRegionAreaUseCase: NhsRegionAreaUseCase = mockk(relaxed = true)
+    private val transmissionRateUseCase: TransmissionRateUseCase = mockk(relaxed = true)
     private val testDispatcher = TestCoroutineDispatcher()
 
     private val sut = HealthcareUseCaseFacade(
         healthcareDataUseCase,
         healthcareLookupDataSource,
-        healthcareRegionUseCase,
-        healthcareSyncUseCase
+        healthcareAreaUseCase,
+        healthcareSyncUseCase,
+        transmissionRateUseCase,
+        nhsRegionAreaUseCase
     )
 
     @Test
@@ -48,7 +52,7 @@ class HealthcareUseCaseFacadeTest {
         sut.healthcareArea(areaCode, areaType, areaLookup)
 
         verify(exactly = 1) {
-            healthcareRegionUseCase.healthcareArea(
+            healthcareAreaUseCase.healthcareArea(
                 areaCode,
                 areaType,
                 areaLookup
@@ -65,10 +69,10 @@ class HealthcareUseCaseFacadeTest {
 
     @Test
     fun `WHEN healthcareData called THEN healthcareRegionUseCase queried`() {
-        sut.healthcareData(areaCode, areaType, areaLookup)
+        sut.admissions(areaCode, areaType, areaLookup)
 
         verify(exactly = 1) {
-            healthcareDataUseCase.healthcareData(
+            healthcareDataUseCase.admissions(
                 areaCode,
                 areaType,
                 areaLookup

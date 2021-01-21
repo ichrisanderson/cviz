@@ -20,6 +20,7 @@ import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -45,7 +46,9 @@ data class AreaDataModel(
     val hospitalAdmissions: List<AreaDailyDataDto>,
     val hospitalAdmissionsChartData: List<CombinedChartData>,
     val canFilterHospitalAdmissionsAreas: Boolean,
-    val hospitalAdmissionsAreas: List<HospitalAdmissionsAreaModel>
+    val hospitalAdmissionsAreas: List<HospitalAdmissionsAreaModel>,
+    val canDisplayTransmissionRate: Boolean,
+    val transmissionRateDto: AreaTransmissionRateDto?
 )
 
 data class HospitalAdmissionsAreaModel(
