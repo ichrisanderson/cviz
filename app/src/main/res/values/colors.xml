@@ -10,6 +10,7 @@
     <color name="windowBackground">#EEE</color>
     <color name="negativeChange">#ffcc0000</color>
     <color name="positiveChange">#ff669900</color>
+    <color name="upwardChange">#ffff8800</color>
     <color name="navigationColor">@color/primaryDarkColor</color>
     <color name="combinedChartBarColor">#8ceaff</color>
     <color name="combinedChartLineColor">#333</color>

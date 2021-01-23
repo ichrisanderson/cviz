@@ -18,6 +18,7 @@ package com.chrisa.cviz.features.area.domain.healthcare
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import javax.inject.Inject
 
@@ -42,9 +43,9 @@ class HealthcareUseCaseFacade @Inject constructor(
     suspend fun syncHospitalData(areaCode: String, areaType: AreaType) =
         healthcareSyncUseCase.syncHospitalData(areaCode, areaType)
 
-    fun transmissionRate(areaCode: String, areaLookupDto: AreaLookupDto?) =
-        transmissionRateUseCase.transmissionRate(areaCode, areaLookupDto)
+    fun transmissionRate(nhsRegion: AreaDto) =
+        transmissionRateUseCase.transmissionRate(nhsRegion)
 
     fun nhsRegionArea(areaCode: String, areaLookup: AreaLookupDto?) =
-        nhsRegionAreaUseCase.regionArea(areaCode, areaLookup)
+        nhsRegionAreaUseCase.nhsRegion(areaCode, areaLookup)
 }

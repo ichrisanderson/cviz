@@ -32,6 +32,7 @@ import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
 import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
+import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRate
 import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -180,7 +181,7 @@ class AreaDataModelMapperTest {
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
-                lastUpdatedDate = syncDateTime,
+                lastUpdatedDate = lastUpdatedDateTime,
                 lastDeathPublishedDate = deaths.last().date,
                 showDeathsByPublishedDate = true,
                 deathsByPublishedDateAreaName = areaName,
@@ -328,9 +329,18 @@ class AreaDataModelMapperTest {
 
     @Test
     fun `WHEN mapAreaDetailModel called with transmission data THEN hospital data shown`() {
+        val rateDate = lastUpdatedDateTime.minusDays(7).toLocalDate()
+        val areaName = "London"
         val areaTransmissionRateDto = AreaTransmissionRateDto(
-            "area",
-            TransmissionRateDto(1.0, 1.3, 0.3, 0.7)
+            areaName,
+            lastUpdatedDateTime,
+            TransmissionRateDto(
+                date = rateDate,
+                transmissionRateMin = 1.0,
+                transmissionRateMax = 1.3,
+                transmissionRateGrowthRateMin = 0.3,
+                transmissionRateGrowthRateMax = 0.7
+            )
         )
         val areaDetail = areaDetail.copy(
             transmissionRate = areaTransmissionRateDto
@@ -340,14 +350,22 @@ class AreaDataModelMapperTest {
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
-                canDisplayTransmissionRate = true,
-                transmissionRateDto = areaTransmissionRateDto
+                areaTransmissionRate = AreaTransmissionRate(
+                    areaName = areaName,
+                    lastUpdatedDate = lastUpdatedDateTime,
+                    lastRateDate = rateDate,
+                    minRate = 1.0,
+                    maxRate = 1.3,
+                    minGrowthRate = 0.3,
+                    maxGrowthRate = 0.7
+                )
             )
         )
     }
 
     companion object {
-        private val syncDateTime = LocalDateTime.of(2020, 1, 1, 0, 0)
+        private val syncDateTime = LocalDateTime.of(2020, 1, 2, 0, 0)
+        private val lastUpdatedDateTime = LocalDateTime.of(2020, 1, 1, 11, 0)
 
         private const val allCasesLabel = "All cases"
         private const val latestCasesLabel = "Latest cases"
@@ -360,7 +378,7 @@ class AreaDataModelMapperTest {
         private const val lineChartLabel = "line chart"
 
         private val areaDetail = AreaDetailModel(
-            lastUpdatedAt = syncDateTime,
+            lastUpdatedAt = lastUpdatedDateTime,
             lastSyncedAt = syncDateTime,
             casesAreaName = "",
             cases = emptyList(),
@@ -374,7 +392,7 @@ class AreaDataModelMapperTest {
         )
 
         private val defaultModel = AreaDataModel(
-            lastUpdatedDate = syncDateTime,
+            lastUpdatedDate = lastUpdatedDateTime,
             lastCaseDate = null,
             caseAreaName = "",
             caseSummary = WeeklySummary.EMPTY,
@@ -396,8 +414,7 @@ class AreaDataModelMapperTest {
             hospitalAdmissionsChartData = emptyList(),
             canFilterHospitalAdmissionsAreas = false,
             hospitalAdmissionsAreas = emptyList(),
-            canDisplayTransmissionRate = false,
-            transmissionRateDto = null
+            areaTransmissionRate = null
         )
 
         private fun combinedChartData(labelPrefix: String) =

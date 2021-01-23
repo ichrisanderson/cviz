@@ -14,7 +14,7 @@
     <string name="total_cases">Total cases</string>
     <string name="cases_this_week">Cases this week</string>
     <string name="daily_cases">Daily cases</string>
-    <string name="cases_title">Positive cases in %s</string>s
+    <string name="cases_title">Positive cases in %s</string>
     <string name="latest_data_label">Last data provided on %s</string>
     <string name="updated_label">Last updated: %s</string>
     <string name="all_cases_chart_label">All cases</string>
@@ -57,4 +57,9 @@
     <string name="view_all">View all</string>
     <string name="amissions_area_filter_subtitle">Select trust(s) to display</string>
     <string name="admission_area_filter_cta">Apply</string>
+
+    <string name="transmission_rate_title">Estimated R number in %s</string>
+    <string name="transmission_rate_current_rate_caption">Current R number</string>
+    <string name="transmission_rate_growth_rate_caption">Daily growth rate</string>
+    <string name="transmission_rate_value_format">%1$s to %2$s</string>
 </resources>

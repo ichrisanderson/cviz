@@ -79,7 +79,7 @@ class AreaDetailUseCaseTest {
         every { areaLookupUseCase.areaLookup(any(), any()) } returns areaLookupDto
         every { healthcareFacade.healthcareArea(any(), any(), any()) } returns ukArea
         every { healthcareFacade.nhsRegionArea(any(), any()) } returns ukArea
-        every { healthcareFacade.transmissionRate(any(), any()) } returns null
+        every { healthcareFacade.transmissionRate(any()) } returns null
         every { areaDataSource.healthcareData(ukArea.code) } returns emptyList()
         every { rollingAverageHelper.average(any(), any()) } returns 1.0
         every {
@@ -220,6 +220,29 @@ class AreaDetailUseCaseTest {
             sut.execute("1", AreaType.UTLA)
 
             coVerify(exactly = 1) { healthcareFacade.syncHospitalData("1", AreaType.UTLA) }
+        }
+
+    @Test
+    fun `GIVEN nhs area returned WHEN execute called THEN hospital synced`() =
+        runBlocking {
+            val areaTypes = listOf(AreaType.UTLA, AreaType.LTLA, AreaType.REGION)
+            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            areaTypes.forEach { areaType ->
+                val nhsArea = AreaDto(
+                    "${areaType}_1234",
+                    "${areaType}_name",
+                    areaType
+                )
+                every { healthcareFacade.nhsRegionArea("1", areaLookupDto) } returns nhsArea
+                sut.execute("1", areaType)
+
+                coVerify(exactly = 1) {
+                    healthcareFacade.syncHospitalData(
+                        nhsArea.code,
+                        nhsArea.regionType
+                    )
+                }
+            }
         }
 
     @Test
@@ -376,10 +399,7 @@ class AreaDetailUseCaseTest {
                     )
                 )
             every {
-                healthcareFacade.transmissionRate(
-                    areaWithHospitalAdmissions.areaCode,
-                    areaLookupDto
-                )
+                healthcareFacade.transmissionRate(ukArea)
             } returns
                 nhsAreaTransmissionRateDto
 
@@ -496,8 +516,14 @@ class AreaDetailUseCaseTest {
         private val areaWithHospitalAdmissions = ukAreaDetailDto
 
         private val nhsAreaDto = AreaDto("nhsCode", "nhsName", AreaType.NHS_REGION)
-        private val nhsTransmissionRateDto = TransmissionRateDto(1.0, 2.0, 0.3, 0.7)
+        private val nhsTransmissionRateDto = TransmissionRateDto(
+            date = lastUpdatedDateTime.toLocalDate(),
+            transmissionRateMin = 1.0,
+            transmissionRateMax = 2.0,
+            transmissionRateGrowthRateMin = 0.3,
+            transmissionRateGrowthRateMax = 0.7
+        )
         private val nhsAreaTransmissionRateDto =
-            AreaTransmissionRateDto(nhsAreaDto.name, nhsTransmissionRateDto)
+            AreaTransmissionRateDto(nhsAreaDto.name, syncDateTime, nhsTransmissionRateDto)
     }
 }

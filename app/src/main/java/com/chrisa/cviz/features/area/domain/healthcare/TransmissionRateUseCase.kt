@@ -17,21 +17,24 @@
 package com.chrisa.cviz.features.area.domain.healthcare
 
 import com.chrisa.cviz.features.area.data.TransmissionRateDataSource
-import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
+import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
 import javax.inject.Inject
 
 class TransmissionRateUseCase @Inject constructor(
-    private val nhsRegionAreaUseCase: NhsRegionAreaUseCase,
     private val transmissionRateDataSource: TransmissionRateDataSource
 ) {
-
     fun transmissionRate(
-        areaCode: String,
-        areaLookupDto: AreaLookupDto?
+        nhsRegion: AreaDto
     ): AreaTransmissionRateDto? {
-        val regionArea = nhsRegionAreaUseCase.regionArea(areaCode, areaLookupDto)
-        val transmissionRate = transmissionRateDataSource.transmissionRate(regionArea.code)
-        return transmissionRate?.let { AreaTransmissionRateDto(regionArea.name, transmissionRate) }
+        val transmissionRate = transmissionRateDataSource.transmissionRate(nhsRegion.code)
+        return transmissionRate?.let {
+            val metadata = transmissionRateDataSource.healthcareMetaData(nhsRegion.code)
+            AreaTransmissionRateDto(
+                nhsRegion.name,
+                metadata!!.lastUpdatedAt,
+                transmissionRate
+            )
+        }
     }
 }

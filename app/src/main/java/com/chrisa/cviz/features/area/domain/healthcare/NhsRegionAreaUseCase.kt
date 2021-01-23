@@ -25,7 +25,7 @@ import javax.inject.Inject
 class NhsRegionAreaUseCase @Inject constructor(
     private val areaCodeResolver: AreaCodeResolver
 ) {
-    fun regionArea(areaCode: String, areaLookupDto: AreaLookupDto?): AreaDto =
+    fun nhsRegion(areaCode: String, areaLookupDto: AreaLookupDto?): AreaDto =
         areaLookupDto?.nhsRegionCode?.let { region(areaLookupDto) }
             ?: areaCodeResolver.defaultAreaDto(areaCode)
 

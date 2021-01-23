@@ -54,8 +54,9 @@ class AreaDetailUseCase @Inject constructor(
                 val onsDeaths = areaDeathsFacade.onsDeaths(areaCode, areaType, areaLookup)
                 val admissions: AreaDailyDataCollection =
                     healthcareUseCaseFacade.admissions(areaCode, areaType, areaLookup)
+                val nhsRegion = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
                 val transmissionRate: AreaTransmissionRateDto? =
-                    healthcareUseCaseFacade.transmissionRate(areaCode, areaLookup)
+                    healthcareUseCaseFacade.transmissionRate(nhsRegion)
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
@@ -98,8 +99,11 @@ class AreaDetailUseCase @Inject constructor(
                         )
                     }
                 }
-                val region = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
-                healthcareUseCaseFacade.syncHospitalData(region.code, region.regionType)
+                val nhsRegionArea = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
+                healthcareUseCaseFacade.syncHospitalData(
+                    nhsRegionArea.code,
+                    nhsRegionArea.regionType
+                )
             }
             else -> {
                 healthcareUseCaseFacade.syncHospitalData(areaCode, areaType)

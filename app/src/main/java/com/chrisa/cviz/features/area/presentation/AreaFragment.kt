@@ -32,11 +32,13 @@ import com.chrisa.cviz.areaCaseSummaryCard
 import com.chrisa.cviz.areaDeathSummaryCard
 import com.chrisa.cviz.areaHospitalSummaryCard
 import com.chrisa.cviz.areaSectionHeader
+import com.chrisa.cviz.core.ui.RateFormatter
 import com.chrisa.cviz.core.ui.binding.KeyedClickListener
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar.barChartTabCard
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined.combinedChartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
 import com.chrisa.cviz.databinding.AreaFragmentBinding
+import com.chrisa.cviz.transmissionRate
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
 import dagger.hilt.android.AndroidEntryPoint
@@ -139,7 +141,8 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
             val lastOnsDeathDate = dateLabel(areaDataModel.lastOnsDeathRegisteredDate)
             val lastHospitalAdmissionDate =
                 dateLabel(areaDataModel.lastHospitalAdmissionDate)
-            val lastUpdated = binding.recyclerView.context.getString(
+            val context = binding.recyclerView.context
+            val lastUpdated = context.getString(
                 R.string.updated_label,
                 DateFormatter.getLocalRelativeTimeSpanString(areaDataModel.lastUpdatedDate)
             )
@@ -155,6 +158,52 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }.show()
                 }
             binding.recyclerView.withModels {
+                val transmissionRate = areaDataModel.areaTransmissionRate
+                if (transmissionRate != null) {
+                    val changeInValueColor = RateFormatter.getRateChangeColour(
+                        transmissionRate.minGrowthRate,
+                        transmissionRate.maxGrowthRate
+                    )
+                    areaSectionHeader {
+                        id("transmissionRateTitle")
+                        title(
+                            getString(
+                                R.string.transmission_rate_title,
+                                areaDataModel.areaTransmissionRate.areaName
+                            )
+                        )
+                        subtitle1(
+                            binding.toolbar.context.getString(
+                                R.string.latest_data_label,
+                                dateLabel(transmissionRate.lastRateDate)
+                            )
+                        )
+                        subtitle2(
+                            context.getString(
+                                R.string.updated_label,
+                                DateFormatter.getLocalRelativeTimeSpanString(transmissionRate.lastUpdatedDate)
+                            )
+                        )
+                    }
+                    transmissionRate {
+                        id("transmissionRate")
+                        currentValue(
+                            context.getString(
+                                R.string.transmission_rate_value_format,
+                                RateFormatter.formattedRate(transmissionRate.minRate),
+                                RateFormatter.formattedRate(transmissionRate.maxRate)
+                            )
+                        )
+                        changeInValue(
+                            context.getString(
+                                R.string.transmission_rate_value_format,
+                                RateFormatter.formattedRateChange(transmissionRate.minGrowthRate),
+                                RateFormatter.formattedRateChange(transmissionRate.maxGrowthRate)
+                            )
+                        )
+                        changeInValueColor(changeInValueColor)
+                    }
+                }
                 areaSectionHeader {
                     id("caseSummaryTitle")
                     title(getString(R.string.cases_title, areaDataModel.caseAreaName))
