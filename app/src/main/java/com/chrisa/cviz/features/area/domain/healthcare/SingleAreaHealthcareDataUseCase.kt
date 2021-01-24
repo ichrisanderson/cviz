@@ -16,17 +16,17 @@
 
 package com.chrisa.cviz.features.area.domain.healthcare
 
-import com.chrisa.cviz.features.area.data.HealthcareDataSource
+import com.chrisa.cviz.features.area.data.AdmissionsDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import javax.inject.Inject
 
 class SingleAreaHealthcareDataUseCase @Inject constructor(
-    private val healthcareDataSource: HealthcareDataSource
+    private val admissionsDataSource: AdmissionsDataSource
 ) {
-    fun trustData(areaName: String, areaCode: String): AreaDailyDataCollection =
+    fun admissionsForArea(areaName: String, areaCode: String): AreaDailyDataCollection =
         AreaDailyDataCollection(
             areaName,
-            listOf(AreaDailyDataDto(areaName, healthcareDataSource.healthcareData(areaCode)))
+            listOf(AreaDailyDataDto(areaName, admissionsDataSource.admissionsForArea(areaCode)))
         )
 }

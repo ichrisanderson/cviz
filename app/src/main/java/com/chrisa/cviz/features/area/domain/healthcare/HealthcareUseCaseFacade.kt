@@ -18,25 +18,34 @@ package com.chrisa.cviz.features.area.domain.healthcare
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import javax.inject.Inject
 
 class HealthcareUseCaseFacade @Inject constructor(
     private val healthcareDataUseCase: HealthcareDataUseCase,
     private val healthcareLookupDataSource: HealthcareLookupDataSource,
-    private val healthcareRegionUseCase: HealthcareRegionUseCase,
-    private val healthcareSyncUseCase: HealthcareSyncUseCase
+    private val healthcareAreaUseCase: HealthcareAreaUseCase,
+    private val healthcareSyncUseCase: HealthcareSyncUseCase,
+    private val transmissionRateUseCase: TransmissionRateUseCase,
+    private val nhsRegionAreaUseCase: NhsRegionAreaUseCase
 ) {
 
-    fun healthcareData(areaCode: String, areaType: AreaType, areaLookup: AreaLookupDto?) =
-        healthcareDataUseCase.healthcareData(areaCode, areaType, areaLookup)
+    fun admissions(areaCode: String, areaType: AreaType, areaLookup: AreaLookupDto?) =
+        healthcareDataUseCase.admissions(areaCode, areaType, areaLookup)
 
     fun healthcareLookups(areaCode: String) =
         healthcareLookupDataSource.healthcareLookups(areaCode)
 
     fun healthcareArea(areaCode: String, areaType: AreaType, areaLookup: AreaLookupDto?) =
-        healthcareRegionUseCase.healthcareArea(areaCode, areaType, areaLookup)
+        healthcareAreaUseCase.healthcareArea(areaCode, areaType, areaLookup)
 
     suspend fun syncHospitalData(areaCode: String, areaType: AreaType) =
         healthcareSyncUseCase.syncHospitalData(areaCode, areaType)
+
+    fun transmissionRate(nhsRegion: AreaDto) =
+        transmissionRateUseCase.transmissionRate(nhsRegion)
+
+    fun nhsRegionArea(areaCode: String, areaLookup: AreaLookupDto?) =
+        nhsRegionAreaUseCase.nhsRegion(areaCode, areaLookup)
 }

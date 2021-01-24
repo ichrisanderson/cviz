@@ -16,18 +16,19 @@
 
 package com.chrisa.cviz.features.area.domain.healthcare
 
-import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
+import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.features.area.data.AreaCodeResolver
+import com.chrisa.cviz.features.area.data.dtos.AreaDto
+import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import javax.inject.Inject
 
-class MultiAreaHealthcareDataUseCase @Inject constructor(
-    private val areaCodesAdmissionsUseCase: AreaCodesAdmissionsUseCase
+class NhsRegionAreaUseCase @Inject constructor(
+    private val areaCodeResolver: AreaCodeResolver
 ) {
-    fun admissionsForAreaCodes(
-        areaName: String,
-        areaCodes: List<String>
-    ): AreaDailyDataCollection =
-        AreaDailyDataCollection(
-            areaName,
-            areaCodesAdmissionsUseCase.admissionsForAreaCodes(areaCodes)
-        )
+    fun nhsRegion(areaCode: String, areaLookupDto: AreaLookupDto?): AreaDto =
+        areaLookupDto?.nhsRegionCode?.let { region(areaLookupDto) }
+            ?: areaCodeResolver.defaultAreaDto(areaCode)
+
+    private fun region(areaLookupDto: AreaLookupDto) =
+        AreaDto(areaLookupDto.nhsRegionCode!!, areaLookupDto.nhsRegionName!!, AreaType.NHS_REGION)
 }

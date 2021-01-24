@@ -22,7 +22,7 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import javax.inject.Inject
 
-class HealthcareRegionUseCase @Inject constructor(
+class HealthcareAreaUseCase @Inject constructor(
     private val areaCodeResolver: AreaCodeResolver
 ) {
     fun healthcareArea(

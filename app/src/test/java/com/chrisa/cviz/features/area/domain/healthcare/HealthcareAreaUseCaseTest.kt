@@ -26,10 +26,10 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.Test
 
-class HealthcareRegionUseCaseTest {
+class HealthcareAreaUseCaseTest {
 
     private val areaCodeResolver: AreaCodeResolver = mockk()
-    private val sut = HealthcareRegionUseCase(areaCodeResolver)
+    private val sut = HealthcareAreaUseCase(areaCodeResolver)
 
     @Test
     fun `GIVEN lookup is null WHEN healthcareArea called THEN default area returned`() {

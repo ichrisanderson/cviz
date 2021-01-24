@@ -27,14 +27,14 @@ import org.junit.Test
 
 class MultiAreaHealthcareDataUseCaseTest {
 
-    private val healthcareAreaCodesUseCase: HealthcareAreaCodesUseCase = mockk(relaxed = true)
-    private val sut = MultiAreaHealthcareDataUseCase(healthcareAreaCodesUseCase)
+    private val areaCodesAdmissionsUseCase: AreaCodesAdmissionsUseCase = mockk(relaxed = true)
+    private val sut = MultiAreaHealthcareDataUseCase(areaCodesAdmissionsUseCase)
 
     @Test
     fun `WHEN trustData called THEN data for area codes returned`() {
-        every { healthcareAreaCodesUseCase.healthcareDataFoAreaCodes(areaCodes) } returns nhsAreaData
+        every { areaCodesAdmissionsUseCase.admissionsForAreaCodes(areaCodes) } returns nhsAreaData
 
-        val data = sut.trustData(areaName, areaCodes)
+        val data = sut.admissionsForAreaCodes(areaName, areaCodes)
 
         assertThat(data).isEqualTo(
             AreaDailyDataCollection(

@@ -33,7 +33,7 @@ class HealthcareLookupDataSourceTest {
     private val sut = HealthcareLookupDataSource(appDatabase)
 
     @Before
-    fun init() {
+    fun setup() {
         every { appDatabase.healthcareLookupDao() } returns healthcareLookupDao
     }
 
@@ -44,14 +44,17 @@ class HealthcareLookupDataSourceTest {
             areaCode = "Foo",
             nhsTrustCode = "Ba"
         )
-        val healthcareLookupDto = HealthcareLookupDto(
-            areaCode = "Foo",
-            nhsTrustCode = "Ba"
-        )
         every { healthcareLookupDao.byAreaCode(areaCode) } returns listOf(healthcareLookupEntity)
 
         val data = sut.healthcareLookups(areaCode)
 
-        assertThat(data).isEqualTo(listOf(healthcareLookupDto))
+        assertThat(data).isEqualTo(
+            listOf(
+                HealthcareLookupDto(
+                    healthcareLookupEntity.areaCode,
+                    healthcareLookupEntity.nhsTrustCode
+                )
+            )
+        )
     }
 }

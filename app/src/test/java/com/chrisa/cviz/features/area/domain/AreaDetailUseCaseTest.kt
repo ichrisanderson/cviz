@@ -28,7 +28,9 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDetailDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
+import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
+import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
 import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
@@ -76,10 +78,12 @@ class AreaDetailUseCaseTest {
         coEvery { healthcareFacade.syncHospitalData(any(), any()) } just Runs
         every { areaLookupUseCase.areaLookup(any(), any()) } returns areaLookupDto
         every { healthcareFacade.healthcareArea(any(), any(), any()) } returns ukArea
+        every { healthcareFacade.nhsRegionArea(any(), any()) } returns ukArea
+        every { healthcareFacade.transmissionRate(any()) } returns null
         every { areaDataSource.healthcareData(ukArea.code) } returns emptyList()
         every { rollingAverageHelper.average(any(), any()) } returns 1.0
         every {
-            healthcareFacade.healthcareData(
+            healthcareFacade.admissions(
                 any(),
                 any(),
                 any()
@@ -219,6 +223,29 @@ class AreaDetailUseCaseTest {
         }
 
     @Test
+    fun `GIVEN nhs area returned WHEN execute called THEN hospital synced`() =
+        runBlocking {
+            val areaTypes = listOf(AreaType.UTLA, AreaType.LTLA, AreaType.REGION)
+            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            areaTypes.forEach { areaType ->
+                val nhsArea = AreaDto(
+                    "${areaType}_1234",
+                    "${areaType}_name",
+                    areaType
+                )
+                every { healthcareFacade.nhsRegionArea("1", areaLookupDto) } returns nhsArea
+                sut.execute("1", areaType)
+
+                coVerify(exactly = 1) {
+                    healthcareFacade.syncHospitalData(
+                        nhsArea.code,
+                        nhsArea.regionType
+                    )
+                }
+            }
+        }
+
+    @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits no data result`() =
         runBlocking {
             every { areaDataSource.loadAreaMetadata(ukAreaDetailDto.areaCode) } returns listOf(null).asFlow()
@@ -255,7 +282,8 @@ class AreaDetailUseCaseTest {
                             onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
                             onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
                             hospitalAdmissionsAreaName = Constants.UK_AREA_NAME,
-                            hospitalAdmissions = emptyList()
+                            hospitalAdmissions = emptyList(),
+                            transmissionRate = null
                         )
                     )
                 )
@@ -286,7 +314,8 @@ class AreaDetailUseCaseTest {
                             onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
                             onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
                             hospitalAdmissionsAreaName = Constants.UK_AREA_NAME,
-                            hospitalAdmissions = emptyList()
+                            hospitalAdmissions = emptyList(),
+                            transmissionRate = null
                         )
                     )
                 )
@@ -306,7 +335,7 @@ class AreaDetailUseCaseTest {
                     areaWithHospitalAdmissions.areaName,
                     areaWithHospitalAdmissions.areaType.toAreaType()
                 )
-            every { healthcareFacade.healthcareData(any(), any(), any()) } returns
+            every { healthcareFacade.admissions(any(), any(), any()) } returns
                 ukAreaDailyDataCollection.copy(
                     data = listOf(
                         AreaDailyDataDto(
@@ -339,7 +368,66 @@ class AreaDetailUseCaseTest {
                                     areaWithHospitalAdmissions.areaName,
                                     SynchronisationTestData.dailyData()
                                 )
-                            )
+                            ),
+                            transmissionRate = null
+                        )
+                    )
+                )
+            }
+        }
+
+    @Test
+    fun `WHEN execute called THEN area detail contains the latest transmission data for the area`() =
+        runBlocking {
+            every { areaDataSource.loadAreaMetadata(areaWithHospitalAdmissions.areaCode) } returns
+                listOf(metadata).asFlow()
+            every { areaDataSource.loadAreaData(areaWithHospitalAdmissions.areaCode) } returns
+                areaWithHospitalAdmissions
+            every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
+                AreaDto(
+                    areaWithHospitalAdmissions.areaCode,
+                    areaWithHospitalAdmissions.areaName,
+                    areaWithHospitalAdmissions.areaType.toAreaType()
+                )
+            every { healthcareFacade.admissions(any(), any(), any()) } returns
+                ukAreaDailyDataCollection.copy(
+                    data = listOf(
+                        AreaDailyDataDto(
+                            areaWithHospitalAdmissions.areaName,
+                            SynchronisationTestData.dailyData()
+                        )
+                    )
+                )
+            every {
+                healthcareFacade.transmissionRate(ukArea)
+            } returns
+                nhsAreaTransmissionRateDto
+
+            val areaDetailModelFlow = sut.execute(
+                areaWithHospitalAdmissions.areaCode,
+                areaWithHospitalAdmissions.areaType.toAreaType()
+            )
+
+            areaDetailModelFlow.collect { result ->
+                assertThat(result).isEqualTo(
+                    AreaDetailModelResult.Success(
+                        AreaDetailModel(
+                            lastUpdatedAt = lastUpdatedDateTime,
+                            lastSyncedAt = syncDateTime,
+                            casesAreaName = ukAreaCaseDataDto.name,
+                            cases = ukAreaCaseDataDto.data,
+                            deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
+                            deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
+                            onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
+                            onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
+                            hospitalAdmissionsAreaName = areaWithHospitalAdmissions.areaName,
+                            hospitalAdmissions = listOf(
+                                AreaDailyDataDto(
+                                    areaWithHospitalAdmissions.areaName,
+                                    SynchronisationTestData.dailyData()
+                                )
+                            ),
+                            transmissionRate = nhsAreaTransmissionRateDto
                         )
                     )
                 )
@@ -426,5 +514,16 @@ class AreaDetailUseCaseTest {
         )
 
         private val areaWithHospitalAdmissions = ukAreaDetailDto
+
+        private val nhsAreaDto = AreaDto("nhsCode", "nhsName", AreaType.NHS_REGION)
+        private val nhsTransmissionRateDto = TransmissionRateDto(
+            date = lastUpdatedDateTime.toLocalDate(),
+            transmissionRateMin = 1.0,
+            transmissionRateMax = 2.0,
+            transmissionRateGrowthRateMin = 0.3,
+            transmissionRateGrowthRateMax = 0.7
+        )
+        private val nhsAreaTransmissionRateDto =
+            AreaTransmissionRateDto(nhsAreaDto.name, syncDateTime, nhsTransmissionRateDto)
     }
 }

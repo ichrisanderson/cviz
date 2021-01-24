@@ -32,18 +32,18 @@ import org.junit.Test
 class HealthcareDataUseCaseTest {
 
     private val healthcareLookupsUseCase: HealthcareLookupsUseCase = mockk()
-    private val healthcareRegionUseCase: HealthcareRegionUseCase = mockk()
+    private val healthcareAreaUseCase: HealthcareAreaUseCase = mockk()
     private val multiAreaHealthcareDataUseCase: MultiAreaHealthcareDataUseCase = mockk()
     private val singleAreaHealthcareDataUseCase: SingleAreaHealthcareDataUseCase = mockk()
     private val sut = HealthcareDataUseCase(
         healthcareLookupsUseCase,
-        healthcareRegionUseCase,
+        healthcareAreaUseCase,
         multiAreaHealthcareDataUseCase,
         singleAreaHealthcareDataUseCase
     )
 
     @Test
-    fun `GIVEN no lookups WHEN healthcareData called THEN area data returned`() {
+    fun `GIVEN no lookups WHEN admissions called THEN area data returned`() {
         val areaCode = "E1"
         val areaType = AreaType.UTLA
         val areaDto = AreaDto(areaLookup.nationCode, areaLookup.nationName, AreaType.NATION)
@@ -54,26 +54,26 @@ class HealthcareDataUseCaseTest {
             )
         } returns emptyList()
         every {
-            healthcareRegionUseCase.healthcareArea(
+            healthcareAreaUseCase.healthcareArea(
                 areaCode,
                 areaType,
                 areaLookup
             )
         } returns areaDto
         every {
-            singleAreaHealthcareDataUseCase.trustData(
+            singleAreaHealthcareDataUseCase.admissionsForArea(
                 areaDto.name,
                 areaDto.code
             )
-        } returns singleTrustData
+        } returns admissionsForArea
 
-        val data = sut.healthcareData("E1", AreaType.UTLA, areaLookup)
+        val data = sut.admissions("E1", AreaType.UTLA, areaLookup)
 
-        assertThat(data).isEqualTo(singleTrustData)
+        assertThat(data).isEqualTo(admissionsForArea)
     }
 
     @Test
-    fun `GIVEN areaLookup is null WHEN healthcareData called THEN area data returned`() {
+    fun `GIVEN areaLookup is null WHEN admissions called THEN area data returned`() {
         val areaCode = "E1"
         val areaType = AreaType.UTLA
         val areaDto = AreaDto(areaLookup.nationCode, areaLookup.nationName, AreaType.NATION)
@@ -83,21 +83,21 @@ class HealthcareDataUseCaseTest {
                 null
             )
         } returns healthcareLookups
-        every { healthcareRegionUseCase.healthcareArea(areaCode, areaType, null) } returns areaDto
+        every { healthcareAreaUseCase.healthcareArea(areaCode, areaType, null) } returns areaDto
         every {
-            singleAreaHealthcareDataUseCase.trustData(
+            singleAreaHealthcareDataUseCase.admissionsForArea(
                 areaDto.name,
                 areaDto.code
             )
-        } returns singleTrustData
+        } returns admissionsForArea
 
-        val data = sut.healthcareData("E1", AreaType.UTLA, null)
+        val data = sut.admissions("E1", AreaType.UTLA, null)
 
-        assertThat(data).isEqualTo(singleTrustData)
+        assertThat(data).isEqualTo(admissionsForArea)
     }
 
     @Test
-    fun `GIVEN healthcare lookups WHEN healthcareData called THEN lookups data returned`() {
+    fun `GIVEN healthcare lookups WHEN admissions called THEN lookups data returned`() {
         val areaCode = "E1"
         val areaType = AreaType.UTLA
         val areaDto = AreaDto(areaLookup.nationCode, areaLookup.nationName, AreaType.NATION)
@@ -108,22 +108,22 @@ class HealthcareDataUseCaseTest {
             )
         } returns healthcareLookups
         every {
-            healthcareRegionUseCase.healthcareArea(
+            healthcareAreaUseCase.healthcareArea(
                 areaCode,
                 areaType,
                 areaLookup
             )
         } returns areaDto
         every {
-            multiAreaHealthcareDataUseCase.trustData(
+            multiAreaHealthcareDataUseCase.admissionsForAreaCodes(
                 areaLookup.utlaName,
                 healthcareLookups
             )
-        } returns multiTrustData
+        } returns admissionsForAreaCodes
 
-        val data = sut.healthcareData("E1", AreaType.UTLA, areaLookup)
+        val data = sut.admissions("E1", AreaType.UTLA, areaLookup)
 
-        assertThat(data).isEqualTo(multiTrustData)
+        assertThat(data).isEqualTo(admissionsForAreaCodes)
     }
 
     companion object {
@@ -152,7 +152,7 @@ class HealthcareDataUseCaseTest {
             rate = 0.0,
             date = LocalDate.of(2020, 1, 2)
         )
-        val singleTrustData = AreaDailyDataCollection(
+        val admissionsForArea = AreaDailyDataCollection(
             name = "London",
             data = listOf(
                 AreaDailyDataDto(
@@ -161,7 +161,7 @@ class HealthcareDataUseCaseTest {
                 )
             )
         )
-        val multiTrustData = AreaDailyDataCollection(
+        val admissionsForAreaCodes = AreaDailyDataCollection(
             name = "London",
             data = listOf(
                 AreaDailyDataDto(

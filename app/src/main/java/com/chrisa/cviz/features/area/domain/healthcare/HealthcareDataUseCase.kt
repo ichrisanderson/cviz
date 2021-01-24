@@ -23,11 +23,12 @@ import javax.inject.Inject
 
 class HealthcareDataUseCase @Inject constructor(
     private val healthcareLookupsUseCase: HealthcareLookupsUseCase,
-    private val healthcareRegionUseCase: HealthcareRegionUseCase,
+    private val healthcareAreaUseCase: HealthcareAreaUseCase,
     private val multiAreaHealthcareDataUseCase: MultiAreaHealthcareDataUseCase,
     private val singleAreaHealthcareDataUseCase: SingleAreaHealthcareDataUseCase
 ) {
-    fun healthcareData(
+
+    fun admissions(
         areaCode: String,
         areaType: AreaType,
         areaLookup: AreaLookupDto?
@@ -36,11 +37,11 @@ class HealthcareDataUseCase @Inject constructor(
         return when {
             healthcareLookups.isEmpty() || areaLookup == null -> {
                 val nhsRegion =
-                    healthcareRegionUseCase.healthcareArea(areaCode, areaType, areaLookup)
-                singleAreaHealthcareDataUseCase.trustData(nhsRegion.name, nhsRegion.code)
+                    healthcareAreaUseCase.healthcareArea(areaCode, areaType, areaLookup)
+                singleAreaHealthcareDataUseCase.admissionsForArea(nhsRegion.name, nhsRegion.code)
             }
             else -> {
-                multiAreaHealthcareDataUseCase.trustData(
+                multiAreaHealthcareDataUseCase.admissionsForAreaCodes(
                     areaLookup.utlaName,
                     healthcareLookups
                 )

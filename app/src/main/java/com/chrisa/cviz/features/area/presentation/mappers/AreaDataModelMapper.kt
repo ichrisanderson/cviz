@@ -27,6 +27,7 @@ import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
+import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRate
 import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -85,7 +86,18 @@ class AreaDataModelMapper @Inject constructor(
             hospitalAdmissionsSummary = weeklySummary(filteredHospitalData),
             hospitalAdmissionsChartData = hospitalAdmissionsChartData,
             canFilterHospitalAdmissionsAreas = canFilterHospitalAdmissionsAreas,
-            hospitalAdmissionsAreas = hospitalAdmissionsAreas
+            hospitalAdmissionsAreas = hospitalAdmissionsAreas,
+            areaTransmissionRate = areaDetailModel.transmissionRate?.let {
+                AreaTransmissionRate(
+                    it.areaName,
+                    it.lastUpdatedDate,
+                    it.transmissionRateDto.date,
+                    it.transmissionRateDto.transmissionRateMin,
+                    it.transmissionRateDto.transmissionRateMax,
+                    it.transmissionRateDto.transmissionRateGrowthRateMin,
+                    it.transmissionRateDto.transmissionRateGrowthRateMax
+                )
+            }
         )
     }
 

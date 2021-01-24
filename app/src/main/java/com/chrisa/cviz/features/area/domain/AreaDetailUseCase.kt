@@ -20,6 +20,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
+import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
 import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
@@ -48,10 +49,14 @@ class AreaDetailUseCase @Inject constructor(
                 val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
 
                 val areaCases = areaCasesUseCase.cases(areaCode)
-                val publishedDeaths = areaDeathsFacade.publishedDeaths(areaCode, areaType, areaLookup)
+                val publishedDeaths =
+                    areaDeathsFacade.publishedDeaths(areaCode, areaType, areaLookup)
                 val onsDeaths = areaDeathsFacade.onsDeaths(areaCode, areaType, areaLookup)
-                val healthcareData: AreaDailyDataCollection =
-                    healthcareUseCaseFacade.healthcareData(areaCode, areaType, areaLookup)
+                val admissions: AreaDailyDataCollection =
+                    healthcareUseCaseFacade.admissions(areaCode, areaType, areaLookup)
+                val nhsRegion = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
+                val transmissionRate: AreaTransmissionRateDto? =
+                    healthcareUseCaseFacade.transmissionRate(nhsRegion)
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
@@ -63,8 +68,9 @@ class AreaDetailUseCase @Inject constructor(
                         deathsByPublishedDate = publishedDeaths.data,
                         onsDeathAreaName = onsDeaths.name,
                         onsDeathsByRegistrationDate = onsDeaths.data,
-                        hospitalAdmissionsAreaName = healthcareData.name,
-                        hospitalAdmissions = healthcareData.data
+                        hospitalAdmissionsAreaName = admissions.name,
+                        hospitalAdmissions = admissions.data,
+                        transmissionRate = transmissionRate
                     )
                 )
             }
@@ -80,8 +86,8 @@ class AreaDetailUseCase @Inject constructor(
             AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
                 areaLookupUseCase.syncAreaLookup(areaCode, areaType)
                 val healthcareLookups = healthcareUseCaseFacade.healthcareLookups(areaCode)
+                val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
                 if (healthcareLookups.isEmpty()) {
-                    val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
                     val nhsRegion =
                         healthcareUseCaseFacade.healthcareArea(areaCode, areaType, areaLookup)
                     healthcareUseCaseFacade.syncHospitalData(nhsRegion.code, nhsRegion.regionType)
@@ -93,6 +99,11 @@ class AreaDetailUseCase @Inject constructor(
                         )
                     }
                 }
+                val nhsRegionArea = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
+                healthcareUseCaseFacade.syncHospitalData(
+                    nhsRegionArea.code,
+                    nhsRegionArea.regionType
+                )
             }
             else -> {
                 healthcareUseCaseFacade.syncHospitalData(areaCode, areaType)

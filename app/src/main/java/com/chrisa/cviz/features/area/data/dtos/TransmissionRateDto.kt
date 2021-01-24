@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.presentation.models
+package com.chrisa.cviz.features.area.data.dtos
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class AreaMetadata(
+data class TransmissionRateDto(
+    val date: LocalDate?,
+    val transmissionRateMin: Double,
+    val transmissionRateMax: Double,
+    val transmissionRateGrowthRateMin: Double,
+    val transmissionRateGrowthRateMax: Double
+)
+
+data class AreaTransmissionRateDto(
+    val areaName: String,
     val lastUpdatedDate: LocalDateTime?,
-    val lastCaseDate: LocalDate?,
-    val lastDeathDate: LocalDate?,
-    val lastHospitalAdmissionDate: LocalDate?
+    val transmissionRateDto: TransmissionRateDto
 )
