@@ -45,7 +45,8 @@ class TransmissionRateDataSource @Inject constructor(
         appDatabase.healthcareDao().byAreaCode(areaCode)
 
     private fun hasTransmissionRate(it: HealthcareEntity): Boolean =
-        it.transmissionRateMin != null && it.transmissionRateMax != null
+        it.transmissionRateMin != null && it.transmissionRateMax != null &&
+            it.transmissionRateGrowthRateMin != null && it.transmissionRateGrowthRateMax != null
 
     private fun mapDailyData(areaData: HealthcareEntity): TransmissionRateDto {
         return TransmissionRateDto(
