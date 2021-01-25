@@ -16,12 +16,10 @@
 
 package com.chrisa.cviz.features.area.data.dtos
 
-import java.time.LocalDate
+import java.time.LocalDateTime
 
-data class TransmissionRateDto(
-    val date: LocalDate?,
-    val transmissionRateMin: Double,
-    val transmissionRateMax: Double,
-    val transmissionRateGrowthRateMin: Double,
-    val transmissionRateGrowthRateMax: Double
+data class AreaTransmissionRateDto(
+    val areaName: String,
+    val lastUpdatedDate: LocalDateTime?,
+    val transmissionRateDto: TransmissionRateDto
 )

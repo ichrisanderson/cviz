@@ -224,7 +224,7 @@ class AreaLookupUseCaseTest {
         val defaultArea = AreaDto(
             code = Constants.UK_AREA_CODE,
             name = Constants.UK_AREA_NAME,
-            regionType = AreaType.OVERVIEW
+            areaType = AreaType.OVERVIEW
         )
     }
 }

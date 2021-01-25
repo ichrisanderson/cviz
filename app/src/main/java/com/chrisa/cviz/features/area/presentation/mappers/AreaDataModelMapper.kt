@@ -25,9 +25,12 @@ import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
+import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
+import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
-import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRate
+import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -87,19 +90,34 @@ class AreaDataModelMapper @Inject constructor(
             hospitalAdmissionsChartData = hospitalAdmissionsChartData,
             canFilterHospitalAdmissionsAreas = canFilterHospitalAdmissionsAreas,
             hospitalAdmissionsAreas = hospitalAdmissionsAreas,
-            areaTransmissionRate = areaDetailModel.transmissionRate?.let {
-                AreaTransmissionRate(
-                    it.areaName,
-                    it.lastUpdatedDate,
-                    it.transmissionRateDto.date,
-                    it.transmissionRateDto.transmissionRateMin,
-                    it.transmissionRateDto.transmissionRateMax,
-                    it.transmissionRateDto.transmissionRateGrowthRateMin,
-                    it.transmissionRateDto.transmissionRateGrowthRateMax
-                )
-            }
+            areaTransmissionRate = mapAreaTransmissionRate(areaDetailModel.transmissionRate),
+            alertLevel = mapAlertLevel(areaDetailModel.alertLevel)
         )
     }
+
+    private fun mapAreaTransmissionRate(areaTransmissionRate: DomainAreaTransmissionRateModel?): AreaTransmissionRateModel? =
+        areaTransmissionRate?.let {
+            AreaTransmissionRateModel(
+                areaName = areaTransmissionRate.areaName,
+                lastUpdatedDate = areaTransmissionRate.lastUpdatedDate,
+                lastRateDate = areaTransmissionRate.transmissionRate.date,
+                minRate = areaTransmissionRate.transmissionRate.transmissionRateMin,
+                maxRate = areaTransmissionRate.transmissionRate.transmissionRateMax,
+                minGrowthRate = areaTransmissionRate.transmissionRate.transmissionRateGrowthRateMin,
+                maxGrowthRate = areaTransmissionRate.transmissionRate.transmissionRateGrowthRateMax
+            )
+        }
+
+    private fun mapAlertLevel(alertLevel: DomainAlertLevelModel?): AlertLevelModel? =
+        alertLevel?.let {
+            AlertLevelModel(
+                areaName = alertLevel.areaName,
+                date = alertLevel.date,
+                lastUpdatedAt = alertLevel.lastUpdatedAt,
+                alertLevelName = alertLevel.alertLevelName,
+                alertLevelUrl = alertLevel.alertLevelUrl
+            )
+        }
 
     private fun hospitalAdmissionsAreaModel(
         areaDailyData: AreaDailyDataDto,

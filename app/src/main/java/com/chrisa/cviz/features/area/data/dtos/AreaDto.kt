@@ -18,4 +18,4 @@ package com.chrisa.cviz.features.area.data.dtos
 
 import com.chrisa.cviz.core.data.db.AreaType
 
-data class AreaDto(val code: String, val name: String, val regionType: AreaType)
+data class AreaDto(val code: String, val name: String, val areaType: AreaType)

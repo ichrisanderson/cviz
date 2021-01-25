@@ -28,11 +28,13 @@ import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
-import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
-import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
+import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
+import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as AreaTransmissionRateDomainModel
+import com.chrisa.cviz.features.area.domain.models.TransmissionRateModel
+import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
-import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRate
+import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -331,10 +333,10 @@ class AreaDataModelMapperTest {
     fun `WHEN mapAreaDetailModel called with transmission data THEN hospital data shown`() {
         val rateDate = lastUpdatedDateTime.minusDays(7).toLocalDate()
         val areaName = "London"
-        val areaTransmissionRateDto = AreaTransmissionRateDto(
+        val areaTransmissionRate = AreaTransmissionRateDomainModel(
             areaName,
             lastUpdatedDateTime,
-            TransmissionRateDto(
+            TransmissionRateModel(
                 date = rateDate,
                 transmissionRateMin = 1.0,
                 transmissionRateMax = 1.3,
@@ -343,14 +345,14 @@ class AreaDataModelMapperTest {
             )
         )
         val areaDetail = areaDetail.copy(
-            transmissionRate = areaTransmissionRateDto
+            transmissionRate = areaTransmissionRate
         )
 
         val mappedModel = sut.mapAreaDetailModel(areaDetail, emptySet())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
-                areaTransmissionRate = AreaTransmissionRate(
+                areaTransmissionRate = AreaTransmissionRateModel(
                     areaName = areaName,
                     lastUpdatedDate = lastUpdatedDateTime,
                     lastRateDate = rateDate,
@@ -358,6 +360,36 @@ class AreaDataModelMapperTest {
                     maxRate = 1.3,
                     minGrowthRate = 0.3,
                     maxGrowthRate = 0.7
+                )
+            )
+        )
+    }
+
+    @Test
+    fun `WHEN mapAreaDetailModel called with alert level data THEN hospital data shown`() {
+        val date = lastUpdatedDateTime.minusDays(7).toLocalDate()
+        val areaName = "London"
+        val alertLevel = DomainAlertLevelModel(
+            areaName = areaName,
+            date = date,
+            lastUpdatedAt = lastUpdatedDateTime,
+            alertLevelName = "National",
+            alertLevelUrl = "https://www.acme.com"
+        )
+        val areaDetail = areaDetail.copy(
+            alertLevel = alertLevel
+        )
+
+        val mappedModel = sut.mapAreaDetailModel(areaDetail, emptySet())
+
+        assertThat(mappedModel).isEqualTo(
+            defaultModel.copy(
+                alertLevel = AlertLevelModel(
+                    areaName = areaName,
+                    date = date,
+                    lastUpdatedAt = lastUpdatedDateTime,
+                    alertLevelName = "National",
+                    alertLevelUrl = "https://www.acme.com"
                 )
             )
         )
@@ -388,7 +420,8 @@ class AreaDataModelMapperTest {
             onsDeathsByRegistrationDate = emptyList(),
             hospitalAdmissionsAreaName = "",
             hospitalAdmissions = emptyList(),
-            transmissionRate = null
+            transmissionRate = null,
+            alertLevel = null
         )
 
         private val defaultModel = AreaDataModel(

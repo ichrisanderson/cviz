@@ -19,9 +19,10 @@ package com.chrisa.cviz.features.area.domain.healthcare
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.TransmissionRateDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
-import com.chrisa.cviz.features.area.data.dtos.AreaTransmissionRateDto
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
+import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel
+import com.chrisa.cviz.features.area.domain.models.TransmissionRateModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -50,10 +51,16 @@ class TransmissionRateUseCaseTest {
         val areaTransmissionRate = sut.transmissionRate(area)
 
         assertThat(areaTransmissionRate).isEqualTo(
-            AreaTransmissionRateDto(
+            AreaTransmissionRateModel(
                 areaName = area.name,
                 lastUpdatedDate = metadata.lastUpdatedAt,
-                transmissionRateDto = transmissionRate
+                transmissionRate = TransmissionRateModel(
+                    date = transmissionRate.date,
+                    transmissionRateMin = transmissionRate.transmissionRateMin,
+                    transmissionRateMax = transmissionRate.transmissionRateMax,
+                    transmissionRateGrowthRateMin = transmissionRate.transmissionRateGrowthRateMin,
+                    transmissionRateGrowthRateMax = transmissionRate.transmissionRateGrowthRateMax
+                )
             )
         )
     }

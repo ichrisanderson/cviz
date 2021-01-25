@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.area.data.dtos
+package com.chrisa.cviz.features.area.domain.models
 
 import java.time.LocalDate
 
-data class TransmissionRateDto(
+data class TransmissionRateModel(
     val date: LocalDate?,
     val transmissionRateMin: Double,
     val transmissionRateMax: Double,

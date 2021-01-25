@@ -32,7 +32,7 @@ class TransmissionRateDataSource @Inject constructor(
         return allHealthcareData
             .filter(::hasTransmissionRate)
             .sortedByDescending { it.date }
-            .map(::mapDailyData)
+            .map(::mapTransmissionRate)
             .firstOrNull()
     }
 
@@ -48,7 +48,7 @@ class TransmissionRateDataSource @Inject constructor(
         it.transmissionRateMin != null && it.transmissionRateMax != null &&
             it.transmissionRateGrowthRateMin != null && it.transmissionRateGrowthRateMax != null
 
-    private fun mapDailyData(areaData: HealthcareEntity): TransmissionRateDto {
+    private fun mapTransmissionRate(areaData: HealthcareEntity): TransmissionRateDto {
         return TransmissionRateDto(
             date = areaData.date,
             transmissionRateMin = areaData.transmissionRateMin!!,

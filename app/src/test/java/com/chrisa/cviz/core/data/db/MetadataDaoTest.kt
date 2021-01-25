@@ -125,7 +125,7 @@ class MetadataDaoTest {
     }
 
     @Test
-    fun `GIVEN saved area does not exist WHEN insert called THEN new entity is inserted`() =
+    fun `GIVEN metadata does not exist WHEN insert called THEN new entity is inserted`() =
         runBlocking {
 
             val metadataEntity = MetadataEntity(

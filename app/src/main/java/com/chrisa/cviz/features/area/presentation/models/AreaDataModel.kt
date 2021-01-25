@@ -46,7 +46,8 @@ data class AreaDataModel(
     val hospitalAdmissionsChartData: List<CombinedChartData>,
     val canFilterHospitalAdmissionsAreas: Boolean,
     val hospitalAdmissionsAreas: List<HospitalAdmissionsAreaModel>,
-    val areaTransmissionRate: AreaTransmissionRate?
+    val areaTransmissionRate: AreaTransmissionRateModel?,
+    val alertLevel: AlertLevelModel? = null
 )
 
 data class HospitalAdmissionsAreaModel(
@@ -54,7 +55,7 @@ data class HospitalAdmissionsAreaModel(
     val isSelected: Boolean
 )
 
-data class AreaTransmissionRate(
+data class AreaTransmissionRateModel(
     val areaName: String,
     val lastUpdatedDate: LocalDateTime?,
     val lastRateDate: LocalDate?,
@@ -62,4 +63,12 @@ data class AreaTransmissionRate(
     val maxRate: Double,
     val minGrowthRate: Double,
     val maxGrowthRate: Double
+)
+
+data class AlertLevelModel(
+    val areaName: String,
+    val date: LocalDate,
+    val lastUpdatedAt: LocalDateTime,
+    val alertLevelName: String,
+    val alertLevelUrl: String
 )
