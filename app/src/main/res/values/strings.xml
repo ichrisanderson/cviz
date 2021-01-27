@@ -58,8 +58,13 @@
     <string name="amissions_area_filter_subtitle">Select trust(s) to display</string>
     <string name="admission_area_filter_cta">Apply</string>
 
+    <!-- Transmission rate -->
     <string name="transmission_rate_title">Estimated R number in %s</string>
     <string name="transmission_rate_current_rate_caption">Current R number</string>
     <string name="transmission_rate_growth_rate_caption">Daily growth rate</string>
     <string name="transmission_rate_value_format">%1$s to %2$s</string>
+
+    <!-- Alert level -->
+    <string name="alert_level_title">Current alert level in %s</string>
+    <string name="alert_level_more_information">View\ninformation</string>
 </resources>
