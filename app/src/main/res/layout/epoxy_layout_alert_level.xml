@@ -68,6 +68,7 @@
                 android:id="@+id/warningIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_warning"
                 app:layout_constraintBottom_toBottomOf="@id/viewInformation"
                 app:layout_constraintStart_toStartOf="@+id/guidelineStart"
@@ -75,10 +76,11 @@
                 app:tint="@color/alertCardTextColor" />
 
             <TextView
-                android:id="@+id/currentValue"
+                android:id="@+id/alertLevel"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
+                android:layout_marginEnd="4dp"
                 android:text="@{alertLevelName}"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 android:textColor="@color/alertCardTextColor"
@@ -92,6 +94,7 @@
                 android:id="@+id/viewInformation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
                 android:fontFamily="@font/roboto_light"
                 android:text="@string/alert_level_more_information"
                 android:textAlignment="center"
@@ -106,6 +109,7 @@
                 android:id="@+id/viewInformationChevron"
                 android:layout_width="16dp"
                 android:layout_height="0dp"
+                android:importantForAccessibility="no"
                 android:src="@drawable/ic_chevron_right"
                 app:layout_constraintBottom_toBottomOf="@id/viewInformation"
                 app:layout_constraintEnd_toEndOf="@+id/guidelineEnd"
