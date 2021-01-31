@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="androidx.core.content.ContextCompat" />
+
+        <variable
+            name="ctaClickListener"
+            type="com.chrisa.cviz.core.ui.binding.KeyedClickListener" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:onClick="@{ctaClickListener}"
+        app:cardBackgroundColor="@color/alertCardBackgroundColor"
+        app:strokeColor="@color/alertCardStrokeColor">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineStart"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                app:layout_constraintGuide_begin="12dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineEnd"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="12dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineTop"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_begin="8dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidelineBottom"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_end="8dp" />
+
+            <ImageView
+                android:id="@+id/warningIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_warning"
+                app:layout_constraintBottom_toBottomOf="@id/viewInformation"
+                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                app:layout_constraintTop_toTopOf="@id/viewInformation"
+                app:tint="@color/alertCardTextColor" />
+
+            <TextView
+                android:id="@+id/alertLevel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="4dp"
+                android:text="@string/alert_level_title"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                android:textColor="@color/alertCardTextColor"
+                app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+                app:layout_constraintEnd_toStartOf="@+id/viewInformation"
+                app:layout_constraintStart_toEndOf="@id/warningIcon"
+                app:layout_constraintTop_toBottomOf="@id/guidelineTop"
+                tools:text="National Restrictions" />
+
+            <TextView
+                android:id="@+id/viewInformation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:fontFamily="@font/roboto_light"
+                android:text="@string/alert_level_more_information"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                android:textColor="@color/alertCardTextColor"
+                app:drawableTint="@color/alertCardTextColor"
+                app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
+                app:layout_constraintEnd_toStartOf="@+id/viewInformationChevron"
+                app:layout_constraintTop_toTopOf="@id/guidelineTop" />
+
+            <ImageView
+                android:id="@+id/viewInformationChevron"
+                android:layout_width="16dp"
+                android:layout_height="0dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_chevron_right"
+                app:layout_constraintBottom_toBottomOf="@id/viewInformation"
+                app:layout_constraintEnd_toEndOf="@+id/guidelineEnd"
+                app:layout_constraintTop_toTopOf="@id/viewInformation"
+                app:tint="@color/alertCardTextColor" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>
+

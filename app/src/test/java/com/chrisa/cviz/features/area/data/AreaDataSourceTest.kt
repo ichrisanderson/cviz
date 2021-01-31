@@ -17,14 +17,11 @@
 package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.AreaDataDao
 import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
-import com.chrisa.cviz.core.data.synchronisation.DailyData
-import com.chrisa.cviz.features.area.data.dtos.AreaDetailDto
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.SavedAreaDto
 import com.chrisa.cviz.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
@@ -50,7 +47,6 @@ import org.junit.Test
 class AreaDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
-    private val areaDataDao = mockk<AreaDataDao>()
     private val sut = AreaDataSource(appDatabase)
 
     @Test
@@ -113,46 +109,6 @@ class AreaDataSourceTest {
                 )
             )
         }
-    }
-
-    @Test
-    fun `WHEN loadAreaData called THEN area data is returned`() = runBlocking {
-        every { areaDataDao.allByAreaCode(areaData.areaCode) } returns listOf(areaData)
-        every { appDatabase.areaDataDao() } returns areaDataDao
-
-        val areaCase = sut.loadAreaData(areaData.areaCode)
-
-        assertThat(areaCase).isEqualTo(
-            AreaDetailDto(
-                areaCode = areaData.areaCode,
-                areaName = areaData.areaName,
-                areaType = areaData.areaType.value,
-                cases = listOf(
-                    DailyData(
-                        newValue = areaData.newCases,
-                        cumulativeValue = areaData.cumulativeCases,
-                        rate = areaData.infectionRate,
-                        date = areaData.date
-                    )
-                ),
-                deathsByPublishedDate = listOf(
-                    DailyData(
-                        newValue = areaData.newDeathsByPublishedDate!!,
-                        cumulativeValue = areaData.cumulativeDeathsByPublishedDate!!,
-                        rate = areaData.cumulativeDeathsByPublishedDateRate!!,
-                        date = areaData.date
-                    )
-                ),
-                onsDeathsByRegistrationDate = listOf(
-                    DailyData(
-                        newValue = areaData.newOnsDeathsByRegistrationDate!!,
-                        cumulativeValue = areaData.cumulativeOnsDeathsByRegistrationDate!!,
-                        rate = areaData.cumulativeOnsDeathsByRegistrationDateRate!!,
-                        date = areaData.date
-                    )
-                )
-            )
-        )
     }
 
     companion object {

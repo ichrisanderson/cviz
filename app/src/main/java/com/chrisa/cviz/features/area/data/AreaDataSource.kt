@@ -18,8 +18,6 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.MetaDataIds
-import com.chrisa.cviz.core.data.synchronisation.DailyData
-import com.chrisa.cviz.features.area.data.dtos.AreaDetailDto
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.SavedAreaDto
 import com.chrisa.cviz.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
@@ -43,50 +41,6 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadAreaData(areaCode: String): AreaDetailDto {
-        val allData = appDatabase.areaDataDao().allByAreaCode(areaCode)
-        val lastCase = allData.last()
-        return AreaDetailDto(
-            areaName = lastCase.areaName,
-            areaCode = lastCase.areaCode,
-            areaType = lastCase.areaType.value,
-            cases = allData.map { areaData ->
-                DailyData(
-                    newValue = areaData.newCases,
-                    cumulativeValue = areaData.cumulativeCases,
-                    rate = areaData.infectionRate,
-                    date = areaData.date
-                )
-            },
-            deathsByPublishedDate = allData.filter {
-                it.cumulativeDeathsByPublishedDate != null &&
-                    it.newDeathsByPublishedDate != null &&
-                    it.cumulativeDeathsByPublishedDateRate != null
-            }
-                .map { areaData ->
-                    DailyData(
-                        newValue = areaData.newDeathsByPublishedDate!!,
-                        cumulativeValue = areaData.cumulativeDeathsByPublishedDate!!,
-                        rate = areaData.cumulativeDeathsByPublishedDateRate!!,
-                        date = areaData.date
-                    )
-                },
-            onsDeathsByRegistrationDate = allData.filter {
-                it.cumulativeOnsDeathsByRegistrationDate != null &&
-                    it.newOnsDeathsByRegistrationDate != null &&
-                    it.cumulativeOnsDeathsByRegistrationDateRate != null
-            }
-                .map { areaData ->
-                    DailyData(
-                        newValue = areaData.newOnsDeathsByRegistrationDate!!,
-                        cumulativeValue = areaData.cumulativeOnsDeathsByRegistrationDate!!,
-                        rate = areaData.cumulativeOnsDeathsByRegistrationDateRate!!,
-                        date = areaData.date
-                    )
-                }
-        )
-    }
-
     fun loadAreaMetadata(areaCode: String): Flow<MetadataDto?> {
         return appDatabase.metadataDao()
             .metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
@@ -97,20 +51,6 @@ class AreaDataSource @Inject constructor(
                         lastSyncTime = it.lastSyncTime
                     )
                 }
-            }
-    }
-
-    fun healthcareData(areaCode: String): List<DailyData> {
-        return appDatabase.healthcareDao().byAreaCode(areaCode).filter {
-            it.cumulativeAdmissions != null && it.newAdmissions != null
-        }
-            .map { areaData ->
-                DailyData(
-                    newValue = areaData.newAdmissions!!,
-                    cumulativeValue = areaData.cumulativeAdmissions!!,
-                    rate = 0.0,
-                    date = areaData.date
-                )
             }
     }
 }

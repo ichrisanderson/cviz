@@ -38,6 +38,9 @@ abstract class SyncModule {
     internal abstract fun bindHealthcareDataSynchroniser(healthcareDataSynchroniser: HealthcareDataSynchroniserImpl): HealthcareDataSynchroniser
 
     @Binds
+    internal abstract fun bindAlertLevelSynchroniser(alertLevelSynchroniserImpl: AlertLevelSynchroniserImpl): AlertLevelSynchroniser
+
+    @Binds
     internal abstract fun bindDataSynchroniser(dataSynchroniserImpl: DataSynchroniserImpl): DataSynchroniser
 
     @Binds

@@ -29,6 +29,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,9 +46,10 @@ import kotlinx.coroutines.flow.Flow
         SavedAreaEntity::class,
         HealthcareEntity::class,
         AreaLookupEntity::class,
-        HealthcareLookupEntity::class
+        HealthcareLookupEntity::class,
+        AlertLevelEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(
@@ -64,11 +67,20 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun areaLookupDao(): AreaLookupDao
     abstract fun healthcareDao(): HealthcareDao
     abstract fun healthcareLookupDao(): HealthcareLookupDao
+    abstract fun alertLevelDao(): AlertLevelDao
 
     companion object {
         private const val databaseName = "cviz-db"
+
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS `alertLevel` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`))")
+            }
+        }
+
         fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
+                .addMigrations(MIGRATION_1_2)
                 .fallbackToDestructiveMigration()
                 .build()
         }
@@ -380,6 +392,7 @@ object MetaDataIds {
     fun areaSummaryId(): String = "AREA_SUMMARY_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
     fun healthcareId(areaCode: String) = "HEALTHCARE_${areaCode}_METADATA"
+    fun alertLevelId(areaCode: String) = "ALERT_LEVEL_${areaCode}_METADATA"
 }
 
 @Entity(
@@ -583,4 +596,40 @@ interface HealthcareLookupDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(items: List<HealthcareLookupEntity>)
+}
+
+@Entity(
+    tableName = "alertLevel",
+    primaryKeys = ["areaCode"]
+)
+data class AlertLevelEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: AreaType,
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "alertLevel")
+    val alertLevel: Int,
+    @ColumnInfo(name = "alertLevelName")
+    val alertLevelName: String,
+    @ColumnInfo(name = "alertLevelUrl")
+    val alertLevelUrl: String,
+    @ColumnInfo(name = "alertLevelValue")
+    val alertLevelValue: Int
+)
+
+@Dao
+interface AlertLevelDao {
+
+    @Query("SELECT * FROM alertLevel WHERE areaCode = :areaCode")
+    fun byAreaCode(areaCode: String): AlertLevelEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(item: AlertLevelEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(items: List<AlertLevelEntity>)
 }

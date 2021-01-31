@@ -16,10 +16,13 @@
 
 package com.chrisa.cviz.features.area.presentation
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -28,6 +31,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.chrisa.cviz.R
+import com.chrisa.cviz.alertLevel
 import com.chrisa.cviz.areaCaseSummaryCard
 import com.chrisa.cviz.areaDeathSummaryCard
 import com.chrisa.cviz.areaHospitalSummaryCard
@@ -158,6 +162,17 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }.show()
                 }
             binding.recyclerView.withModels {
+                val alertLevel = areaDataModel.alertLevel
+                if (alertLevel != null) {
+                    val alertLevelClickListener =
+                        KeyedClickListener(alertLevel.hashCode().toString()) {
+                            openUrl(alertLevel.alertLevelUrl)
+                        }
+                    alertLevel {
+                        id("alertLevel")
+                        ctaClickListener(alertLevelClickListener)
+                    }
+                }
                 val transmissionRate = areaDataModel.areaTransmissionRate
                 if (transmissionRate != null) {
                     val changeInValueColor = RateFormatter.getRateChangeColour(
@@ -365,6 +380,19 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     .show()
             }
         })
+    }
+
+    private fun openUrl(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Throwable) {
+            Toast.makeText(
+                binding.recyclerView.context,
+                getString(R.string.failed_to_open_url, url),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun navigateUp() {

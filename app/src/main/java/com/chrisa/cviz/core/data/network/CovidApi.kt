@@ -25,6 +25,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
+import retrofit2.http.QueryMap
 
 interface CovidApi {
 
@@ -61,6 +62,12 @@ interface CovidApi {
         @Query(encoded = true, value = "filters") filters: String,
         @Query(value = "structure") structure: String
     ): Response<Page<HealthcareData>>
+
+    @GET("v2/data")
+    suspend fun alertLevel(
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @QueryMap filters: Map<String, String>
+    ): Response<BodyPage<AlertLevel>>
 }
 
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
@@ -208,3 +215,21 @@ data class HealthcareData(
         }.toString()
     }
 }
+
+@JsonClass(generateAdapter = true)
+data class BodyPage<T>(
+    val length: Int?,
+    val body: List<T>
+)
+
+@JsonClass(generateAdapter = true)
+data class AlertLevel(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val date: LocalDate,
+    val alertLevel: Int,
+    val alertLevelName: String,
+    val alertLevelUrl: String,
+    val alertLevelValue: Int
+)
