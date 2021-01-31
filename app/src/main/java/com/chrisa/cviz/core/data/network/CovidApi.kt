@@ -64,7 +64,7 @@ interface CovidApi {
     ): Response<Page<HealthcareData>>
 
     @GET("v2/data")
-    suspend fun areaData(
+    suspend fun alertLevel(
         @Header("If-Modified-Since") modifiedDate: String?,
         @QueryMap filters: Map<String, String>
     ): Response<BodyPage<AlertLevel>>

@@ -92,20 +92,20 @@ class AlertLevelSynchroniserImplTest {
 
             sut.performSync(areaCode, areaType)
 
-            coVerify(exactly = 0) { covidApi.areaData(any(), any()) }
+            coVerify(exactly = 0) { covidApi.alertLevel(any(), any()) }
         }
 
     @Test(expected = HttpException::class)
     fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
         testDispatcher.runBlockingTest {
             every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns null
-            coEvery { covidApi.areaData(any(), any()) } returns
+            coEvery { covidApi.alertLevel(any(), any()) } returns
                 Response.error(500, Utils.emptyJsonResponse())
 
             sut.performSync(areaCode, areaType)
 
             coVerify(exactly = 1) {
-                covidApi.areaData(
+                covidApi.alertLevel(
                     null,
                     filter
                 )
@@ -125,7 +125,7 @@ class AlertLevelSynchroniserImplTest {
             sut.performSync(areaCode, areaType)
 
             coVerify(exactly = 0) {
-                covidApi.areaData(any(), any())
+                covidApi.alertLevel(any(), any())
             }
         }
 
@@ -140,7 +140,7 @@ class AlertLevelSynchroniserImplTest {
 
             every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.areaData(
+                covidApi.alertLevel(
                     any(),
                     any()
                 )
@@ -160,7 +160,7 @@ class AlertLevelSynchroniserImplTest {
 
             every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.areaData(
+                covidApi.alertLevel(
                     any(),
                     any()
                 )
@@ -194,7 +194,7 @@ class AlertLevelSynchroniserImplTest {
 
             every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.areaData(
+                covidApi.alertLevel(
                     any(),
                     any()
                 )

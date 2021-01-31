@@ -61,7 +61,7 @@ internal class AlertLevelSynchroniserImpl @Inject constructor(
             return
         }
 
-        val response = api.areaData(
+        val response = api.alertLevel(
             modifiedDate = metadata?.lastUpdatedAt?.formatAsGmt(),
             filters = mapOf(
                 "areaType" to areaType.value,
