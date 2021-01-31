@@ -28,21 +28,36 @@ class AlertLevelUseCase @Inject constructor(
     private val alertLevelSynchroniser: AlertLevelSynchroniser
 ) {
 
-    fun alertLevel(areaCode: String): AlertLevelModel? {
-        val metadata = alertLevelDataSource.metadata(areaCode)
-        return metadata?.let {
-            val alertLevel = alertLevelDataSource.alertLevel(areaCode)
-            alertLevel?.let {
-                AlertLevelModel(
-                    areaName = alertLevel.areaName,
-                    date = alertLevel.date,
-                    lastUpdatedAt = metadata.lastUpdatedAt,
-                    alertLevelName = alertLevel.alertLevelName,
-                    alertLevelUrl = alertLevel.alertLevelUrl
-                )
-            }
+    fun alertLevel(areaCode: String, areaType: AreaType): AlertLevelModel? {
+        val alertLevel = alertLevelDataSource.alertLevel(areaCode)
+        return alertLevel?.let {
+            AlertLevelModel(
+                alertLevelUrl = alertLevel.alertLevelUrl
+            )
+        } ?: defaultAlertLevel(areaCode, areaType)
+    }
+
+    private fun defaultAlertLevel(areaCode: String, areaType: AreaType): AlertLevelModel? {
+        if (!canDisplayAlertLevel(areaType)) return null
+        return when {
+            areaCode.startsWith("S") ->
+                AlertLevelModel(SCOTLAND_RESTRICTIONS_URL)
+            areaCode.startsWith("W") ->
+                AlertLevelModel(WALES_RESTRICTIONS_URL)
+            areaCode.startsWith("E") ->
+                AlertLevelModel(UK_RESTRICTIONS_URL)
+            areaCode.startsWith("N") ->
+                AlertLevelModel(NORTHERN_IRELAND_RESTRICTIONS_URL)
+            else -> null
         }
     }
+
+    private fun canDisplayAlertLevel(areaType: AreaType): Boolean =
+        when (areaType) {
+            AreaType.UTLA,
+            AreaType.LTLA -> true
+            else -> false
+        }
 
     suspend fun syncAlertLevel(areaCode: String, areaType: AreaType) =
         when (areaType) {
@@ -56,4 +71,15 @@ class AlertLevelUseCase @Inject constructor(
         } catch (error: Throwable) {
             Timber.e(error)
         }
+
+    companion object {
+        const val UK_RESTRICTIONS_URL =
+            "https://www.gov.uk/coronavirus"
+        const val WALES_RESTRICTIONS_URL =
+            "https://gov.wales/coronavirus"
+        const val SCOTLAND_RESTRICTIONS_URL =
+            "https://www.gov.scot/coronavirus-covid-19/"
+        const val NORTHERN_IRELAND_RESTRICTIONS_URL =
+            "https://www.nidirect.gov.uk/campaigns/coronavirus-covid-19"
+    }
 }

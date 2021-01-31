@@ -48,17 +48,19 @@ class AreaDetailUseCase @Inject constructor(
             } else {
                 val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
 
-                val areaCases = areaCasesUseCase.cases(areaCode)
+                val areaCases =
+                    areaCasesUseCase.cases(areaCode)
                 val publishedDeaths =
                     areaDeathsFacade.publishedDeaths(areaCode, areaType, areaLookup)
                 val onsDeaths = areaDeathsFacade.onsDeaths(areaCode, areaType, areaLookup)
                 val admissions: AreaDailyDataCollection =
                     healthcareUseCaseFacade.admissions(areaCode, areaType, areaLookup)
-                val nhsRegion = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
+                val nhsRegion =
+                    healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
                 val transmissionRate =
                     healthcareUseCaseFacade.transmissionRate(nhsRegion)
                 val alertLevel =
-                    alertLevelUseCase.alertLevel(areaCode)
+                    alertLevelUseCase.alertLevel(areaCode, areaType)
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(

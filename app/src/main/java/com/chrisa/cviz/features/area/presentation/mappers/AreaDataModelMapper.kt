@@ -111,10 +111,6 @@ class AreaDataModelMapper @Inject constructor(
     private fun mapAlertLevel(alertLevel: DomainAlertLevelModel?): AlertLevelModel? =
         alertLevel?.let {
             AlertLevelModel(
-                areaName = alertLevel.areaName,
-                date = alertLevel.date,
-                lastUpdatedAt = alertLevel.lastUpdatedAt,
-                alertLevelName = alertLevel.alertLevelName,
                 alertLevelUrl = alertLevel.alertLevelUrl
             )
         }

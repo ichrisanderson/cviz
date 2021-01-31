@@ -66,9 +66,5 @@ data class AreaTransmissionRateModel(
 )
 
 data class AlertLevelModel(
-    val areaName: String,
-    val date: LocalDate,
-    val lastUpdatedAt: LocalDateTime,
-    val alertLevelName: String,
     val alertLevelUrl: String
 )

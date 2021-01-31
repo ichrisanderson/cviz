@@ -65,6 +65,6 @@
     <string name="transmission_rate_value_format">%1$s to %2$s</string>
 
     <!-- Alert level -->
-    <string name="alert_level_title">Current alert level in %s</string>
+    <string name="alert_level_title">Restrictions in place</string>
     <string name="alert_level_more_information">View\ninformation</string>
 </resources>

@@ -17,21 +17,12 @@
 package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.features.area.data.dtos.AlertLevelDto
-import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import javax.inject.Inject
 
 class AlertLevelDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
-    fun metadata(areaCode: String): MetadataDto? =
-        appDatabase.metadataDao().metadata(MetaDataIds.alertLevelId(areaCode))?.let {
-            MetadataDto(
-                it.lastUpdatedAt,
-                it.lastSyncTime
-            )
-        }
 
     fun alertLevel(areaCode: String): AlertLevelDto? =
         appDatabase.alertLevelDao().byAreaCode(areaCode)?.let {

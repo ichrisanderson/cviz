@@ -102,7 +102,7 @@ class AreaDetailUseCaseTest {
         every { areaDeathsFacade.onsDeaths(any(), any(), any()) } returns ukAreaOnsDeathsDataDto
         every { healthcareFacade.healthcareLookups(any()) } returns emptyList()
         coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
-        coEvery { alertLevelUseCase.alertLevel(any()) } returns null
+        coEvery { alertLevelUseCase.alertLevel(any(), any()) } returns null
     }
 
     @Test
@@ -436,15 +436,11 @@ class AreaDetailUseCaseTest {
     fun `WHEN execute called THEN area detail contains the latest alert level data for the area`() =
         runBlocking {
             val alertLevel = AlertLevelModel(
-                areaName = "London",
-                date = syncDateTime.toLocalDate(),
-                lastUpdatedAt = lastUpdatedDateTime,
-                alertLevelName = "National restrictions",
                 alertLevelUrl = "http://acme.com"
             )
             every { areaDataSource.loadAreaMetadata(ukAreaDetailDto.areaCode) } returns
                 listOf(metadata).asFlow()
-            every { alertLevelUseCase.alertLevel(ukAreaDetailDto.areaCode) } returns
+            every { alertLevelUseCase.alertLevel(ukAreaDetailDto.areaCode, ukAreaDetailDto.areaType.toAreaType()) } returns
                 alertLevel
 
             val areaDetailModelFlow = sut.execute(

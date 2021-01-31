@@ -367,29 +367,15 @@ class AreaDataModelMapperTest {
 
     @Test
     fun `WHEN mapAreaDetailModel called with alert level data THEN hospital data shown`() {
-        val date = lastUpdatedDateTime.minusDays(7).toLocalDate()
-        val areaName = "London"
-        val alertLevel = DomainAlertLevelModel(
-            areaName = areaName,
-            date = date,
-            lastUpdatedAt = lastUpdatedDateTime,
-            alertLevelName = "National",
-            alertLevelUrl = "https://www.acme.com"
-        )
-        val areaDetail = areaDetail.copy(
-            alertLevel = alertLevel
-        )
+        val alertLevel = DomainAlertLevelModel(alertLevelUrl = "https://www.acme.com")
+        val areaDetail = areaDetail.copy(alertLevel = alertLevel)
 
         val mappedModel = sut.mapAreaDetailModel(areaDetail, emptySet())
 
         assertThat(mappedModel).isEqualTo(
             defaultModel.copy(
                 alertLevel = AlertLevelModel(
-                    areaName = areaName,
-                    date = date,
-                    lastUpdatedAt = lastUpdatedDateTime,
-                    alertLevelName = "National",
-                    alertLevelUrl = "https://www.acme.com"
+                    alertLevelUrl = alertLevel.alertLevelUrl
                 )
             )
         )

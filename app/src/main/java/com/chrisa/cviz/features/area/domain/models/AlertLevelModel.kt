@@ -16,13 +16,6 @@
 
 package com.chrisa.cviz.features.area.domain.models
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-
 data class AlertLevelModel(
-    val areaName: String,
-    val date: LocalDate,
-    val lastUpdatedAt: LocalDateTime,
-    val alertLevelName: String,
     val alertLevelUrl: String
 )

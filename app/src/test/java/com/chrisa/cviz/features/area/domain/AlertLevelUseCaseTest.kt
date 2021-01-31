@@ -20,13 +20,11 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AlertLevelSynchroniser
 import com.chrisa.cviz.features.area.data.AlertLevelDataSource
 import com.chrisa.cviz.features.area.data.dtos.AlertLevelDto
-import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import java.time.LocalDateTime
@@ -40,21 +38,108 @@ class AlertLevelUseCaseTest {
     private val sut = AlertLevelUseCase(alertLevelDataSource, alertLevelSynchroniser)
 
     @Test
-    fun `WHEN alertLevel called THEN alert level data returned`() {
-        every { alertLevelDataSource.metadata("") } returns metadata
+    fun `GIVEN alert level exists WHEN alertLevel called THEN alert level data returned`() {
         coEvery { alertLevelDataSource.alertLevel("") } returns alertLevel
 
-        val data = sut.alertLevel("")
+        val data = sut.alertLevel("", AreaType.LTLA)
 
         assertThat(data).isEqualTo(
             AlertLevelModel(
-                areaName = alertLevel.areaName,
-                date = alertLevel.date,
-                lastUpdatedAt = metadata.lastUpdatedAt,
-                alertLevelName = alertLevel.alertLevelName,
                 alertLevelUrl = alertLevel.alertLevelUrl
             )
         )
+    }
+
+    @Test
+    fun `GIVEN alert level does not exists WHEN alertLevel called with english tier area THEN alert level data returned`() {
+        val areaTypes = listOf(AreaType.LTLA, AreaType.UTLA)
+        coEvery { alertLevelDataSource.alertLevel("E") } returns null
+
+        areaTypes.forEach { areaType ->
+            val data = sut.alertLevel("E", areaType)
+
+            assertThat(data).isEqualTo(
+                AlertLevelModel(
+                    alertLevelUrl = AlertLevelUseCase.UK_RESTRICTIONS_URL
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `GIVEN alert level does not exists WHEN alertLevel called with scottish tier area THEN alert level data returned`() {
+        val areaTypes = listOf(AreaType.LTLA, AreaType.UTLA)
+        coEvery { alertLevelDataSource.alertLevel("S") } returns null
+
+        areaTypes.forEach { areaType ->
+            val data = sut.alertLevel("S", areaType)
+
+            assertThat(data).isEqualTo(
+                AlertLevelModel(
+                    alertLevelUrl = AlertLevelUseCase.SCOTLAND_RESTRICTIONS_URL
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `GIVEN alert level does not exists WHEN alertLevel called with welsh tier area THEN alert level data returned`() {
+        val areaTypes = listOf(AreaType.LTLA, AreaType.UTLA)
+        coEvery { alertLevelDataSource.alertLevel("W") } returns null
+
+        areaTypes.forEach { areaType ->
+            val data = sut.alertLevel("W", areaType)
+
+            assertThat(data).isEqualTo(
+                AlertLevelModel(
+                    alertLevelUrl = AlertLevelUseCase.WALES_RESTRICTIONS_URL
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `GIVEN alert level does not exists WHEN alertLevel called with ni tier area THEN alert level data returned`() {
+        val areaTypes = listOf(AreaType.LTLA, AreaType.UTLA)
+        coEvery { alertLevelDataSource.alertLevel("N") } returns null
+
+        areaTypes.forEach { areaType ->
+            val data = sut.alertLevel("N", areaType)
+
+            assertThat(data).isEqualTo(
+                AlertLevelModel(
+                    alertLevelUrl = AlertLevelUseCase.NORTHERN_IRELAND_RESTRICTIONS_URL
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `GIVEN alert level does not exists WHEN alertLevel called with unsupported tier area THEN alert level data is null`() {
+        val areaTypes = listOf(AreaType.LTLA, AreaType.UTLA)
+        coEvery { alertLevelDataSource.alertLevel("K") } returns null
+
+        areaTypes.forEach { areaType ->
+            val data = sut.alertLevel("K", areaType)
+
+            assertThat(data).isNull()
+        }
+    }
+
+    @Test
+    fun `GIVEN alert level does not exists WHEN alertLevel called with non tier area THEN alert level data is null`() {
+        val displayedAlertLevelAreaTypes = setOf(AreaType.LTLA, AreaType.UTLA)
+        val areaTypes = AreaType.values().filter { !displayedAlertLevelAreaTypes.contains(it) }
+        val areaCodes = listOf("E", "S", "W", "N")
+        areaCodes.forEach { areaCode ->
+            coEvery { alertLevelDataSource.alertLevel(areaCode) } returns null
+
+            areaTypes.forEach { areaType ->
+                val data = sut.alertLevel(areaCode, areaType)
+
+                assertThat(data).isNull()
+            }
+        }
     }
 
     @Test
@@ -96,10 +181,6 @@ class AlertLevelUseCaseTest {
 
     companion object {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
-        private val metadata = MetadataDto(
-            syncDate,
-            syncDate
-        )
         val alertLevel = AlertLevelDto(
             areaCode = "",
             areaName = "",

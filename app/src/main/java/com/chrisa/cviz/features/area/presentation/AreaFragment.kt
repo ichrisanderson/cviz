@@ -170,13 +170,6 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         }
                     alertLevel {
                         id("alertLevel")
-                        alertLevelTitle(
-                            getString(
-                                R.string.alert_level_title,
-                                areaDataModel.alertLevel.areaName
-                            )
-                        )
-                        alertLevelName(alertLevel.alertLevelName)
                         ctaClickListener(alertLevelClickListener)
                     }
                 }
