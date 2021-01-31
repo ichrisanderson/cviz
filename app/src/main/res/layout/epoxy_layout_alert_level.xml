@@ -8,14 +8,6 @@
         <import type="androidx.core.content.ContextCompat" />
 
         <variable
-            name="alertLevelName"
-            type="String" />
-
-        <variable
-            name="alertLevelUrl"
-            type="String" />
-
-        <variable
             name="ctaClickListener"
             type="com.chrisa.cviz.core.ui.binding.KeyedClickListener" />
     </data>
