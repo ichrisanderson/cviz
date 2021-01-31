@@ -67,4 +67,7 @@
     <!-- Alert level -->
     <string name="alert_level_title">Restrictions in place</string>
     <string name="alert_level_more_information">View\ninformation</string>
+
+    <!-- Errors -->
+    <string name="failed_to_open_url">Failed to open %s</string>
 </resources>

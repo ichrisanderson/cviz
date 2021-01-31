@@ -389,7 +389,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         } catch (e: Throwable) {
             Toast.makeText(
                 binding.recyclerView.context,
-                "Failed to open $url",
+                getString(R.string.failed_to_open_url, url),
                 Toast.LENGTH_SHORT
             ).show()
         }
