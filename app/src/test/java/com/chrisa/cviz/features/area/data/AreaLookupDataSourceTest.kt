@@ -103,6 +103,8 @@ class AreaLookupDataSourceTest {
 
     companion object {
         val lookupEntity = AreaLookupEntity(
+            postcode = "",
+            trimmedPostcode = "",
             lsoaCode = "",
             lsoaName = null,
             msoaCode = "",

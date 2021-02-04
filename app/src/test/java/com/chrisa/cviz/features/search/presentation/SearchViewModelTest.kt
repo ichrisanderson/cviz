@@ -24,11 +24,13 @@ import com.chrisa.cviz.features.search.domain.models.AreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class SearchViewModelTest {
 
     @Rule

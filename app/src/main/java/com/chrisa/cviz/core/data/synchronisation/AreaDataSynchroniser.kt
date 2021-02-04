@@ -81,9 +81,8 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         } else {
             throw HttpException(
                 Response.error<Page<AreaDataModel>>(
-                    casesFromNetwork.errorBody() ?: "".toResponseBody(
-                        "application/json".toMediaType()
-                    ),
+                    casesFromNetwork.errorBody()
+                        ?: "".toResponseBody("application/json".toMediaType()),
                     casesFromNetwork.raw()
                 )
             )

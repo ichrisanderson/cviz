@@ -20,6 +20,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
+import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
@@ -86,20 +87,21 @@ class AreaDetailUseCase @Inject constructor(
         areaCode: String,
         areaType: AreaType
     ) {
-        syncAreaCases(areaCode, areaType)
-        syncHealthcare(areaType, areaCode)
+        areaLookupUseCase.syncAreaLookup(areaCode, areaType)
+        val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
+        syncAreaCases(areaCode, areaType, areaLookup)
+        syncHealthcare(areaCode, areaType, areaLookup)
         alertLevelUseCase.syncAlertLevel(areaCode, areaType)
     }
 
     private suspend fun syncHealthcare(
+        areaCode: String,
         areaType: AreaType,
-        areaCode: String
+        areaLookup: AreaLookupDto?
     ) {
         when (areaType) {
-            AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
-                areaLookupUseCase.syncAreaLookup(areaCode, areaType)
+            AreaType.MSOA, AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
                 val healthcareLookups = healthcareUseCaseFacade.healthcareLookups(areaCode)
-                val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
                 if (healthcareLookups.isEmpty()) {
                     val nhsRegion =
                         healthcareUseCaseFacade.healthcareArea(areaCode, areaType, areaLookup)
@@ -124,7 +126,11 @@ class AreaDetailUseCase @Inject constructor(
         }
     }
 
-    private suspend fun syncAreaCases(areaCode: String, areaType: AreaType): Boolean {
+    private suspend fun syncAreaCases(
+        areaCode: String,
+        areaType: AreaType,
+        areaLookup: AreaLookupDto?
+    ): Boolean {
         return try {
             areaDataSynchroniser.performSync(areaCode, areaType)
             true

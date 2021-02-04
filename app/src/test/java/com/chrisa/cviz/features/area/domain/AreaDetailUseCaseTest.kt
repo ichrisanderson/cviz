@@ -121,53 +121,16 @@ class AreaDetailUseCaseTest {
         }
 
     @Test
-    fun `GIVEN overview area WHEN execute called THEN area lookup is not synced`() =
+    fun `WHEN execute called THEN area lookup is not synced`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata("") } returns listOf(null).asFlow()
+            val areaTypes = AreaType.values()
+            areaTypes.forEach { areaType ->
+                every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
 
-            sut.execute("", AreaType.OVERVIEW)
+                sut.execute("1", areaType)
 
-            coVerify(exactly = 0) { areaLookupUseCase.syncAreaLookup(any(), any()) }
-        }
-
-    @Test
-    fun `GIVEN nation area WHEN execute called THEN area lookup is not synced`() =
-        runBlocking {
-            every { areaDataSource.loadAreaMetadata("") } returns listOf(null).asFlow()
-
-            sut.execute("", AreaType.NATION)
-
-            coVerify(exactly = 0) { areaLookupUseCase.syncAreaLookup(any(), any()) }
-        }
-
-    @Test
-    fun `GIVEN region area WHEN execute called THEN area lookup is synced`() =
-        runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-
-            sut.execute("1", AreaType.REGION)
-
-            coVerify(exactly = 1) { areaLookupUseCase.syncAreaLookup("1", AreaType.REGION) }
-        }
-
-    @Test
-    fun `GIVEN ltla area WHEN execute called THEN area lookup is synced`() =
-        runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-
-            sut.execute("1", AreaType.LTLA)
-
-            coVerify(exactly = 1) { areaLookupUseCase.syncAreaLookup("1", AreaType.LTLA) }
-        }
-
-    @Test
-    fun `GIVEN utla area WHEN execute called THEN area lookup is synced`() =
-        runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
-
-            sut.execute("1", AreaType.UTLA)
-
-            coVerify(exactly = 1) { areaLookupUseCase.syncAreaLookup("1", AreaType.UTLA) }
+                coVerify(exactly = 1) { areaLookupUseCase.syncAreaLookup("1", areaType) }
+            }
         }
 
     @Test
@@ -440,7 +403,12 @@ class AreaDetailUseCaseTest {
             )
             every { areaDataSource.loadAreaMetadata(ukAreaDetailDto.areaCode) } returns
                 listOf(metadata).asFlow()
-            every { alertLevelUseCase.alertLevel(ukAreaDetailDto.areaCode, ukAreaDetailDto.areaType.toAreaType()) } returns
+            every {
+                alertLevelUseCase.alertLevel(
+                    ukAreaDetailDto.areaCode,
+                    ukAreaDetailDto.areaType.toAreaType()
+                )
+            } returns
                 alertLevel
 
             val areaDetailModelFlow = sut.execute(

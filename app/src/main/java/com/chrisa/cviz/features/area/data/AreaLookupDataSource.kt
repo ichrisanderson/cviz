@@ -25,6 +25,9 @@ class AreaLookupDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
+    fun areaLookupByMsoa(areaCode: String): AreaLookupDto? =
+        appDatabase.areaLookupDao().byMsoa(areaCode)?.toAreaLookupDto()
+
     fun areaLookupByLtla(areaCode: String): AreaLookupDto? =
         appDatabase.areaLookupDao().byLtla(areaCode)?.toAreaLookupDto()
 

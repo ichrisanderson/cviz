@@ -30,6 +30,7 @@ class AreaLookupUseCase @Inject constructor(
 
     fun areaLookup(areaCode: String, areaType: AreaType): AreaLookupDto? {
         return when (areaType) {
+            AreaType.MSOA -> areaLookupDataSource.areaLookupByMsoa(areaCode)
             AreaType.LTLA -> areaLookupDataSource.areaLookupByLtla(areaCode)
             AreaType.UTLA -> areaLookupDataSource.areaLookupByUtla(areaCode)
             AreaType.REGION -> areaLookupDataSource.areaLookupByRegion(areaCode)
@@ -46,6 +47,7 @@ class AreaLookupUseCase @Inject constructor(
 
     fun areaName(areaType: AreaType, areaLookupDto: AreaLookupDto): String {
         return when (areaType) {
+            AreaType.MSOA -> areaLookupDto.msoaName!!
             AreaType.LTLA -> areaLookupDto.ltlaName
             AreaType.UTLA -> areaLookupDto.utlaName
             AreaType.REGION -> areaLookupDto.regionName!!

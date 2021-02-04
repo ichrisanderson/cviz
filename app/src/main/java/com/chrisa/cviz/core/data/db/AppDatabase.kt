@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.Flow
         HealthcareLookupEntity::class,
         AlertLevelEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(
@@ -78,9 +78,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DELETE FROM `alertLevel`")
+                database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `trimmedPostcode` TEXT NOT NULL")
+                database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `postcode` TEXT NOT NULL")
+            }
+        }
+
         fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .fallbackToDestructiveMigration()
                 .build()
         }
@@ -130,7 +138,8 @@ enum class AreaType(val value: String) {
     NHS_REGION("nhsRegion"),
     NHS_TRUST("nhsTrust"),
     UTLA("utla"),
-    LTLA("ltla");
+    LTLA("ltla"),
+    MSOA("msoa");
 
     companion object {
         fun from(type: String): AreaType? {
@@ -142,6 +151,7 @@ enum class AreaType(val value: String) {
                 NHS_TRUST.value -> NHS_TRUST
                 UTLA.value -> UTLA
                 LTLA.value -> LTLA
+                MSOA.value -> MSOA
                 else -> null
             }
         }
@@ -464,6 +474,10 @@ interface AreaSummaryDao {
     primaryKeys = ["lsoaCode"]
 )
 data class AreaLookupEntity(
+    @ColumnInfo(name = "postcode")
+    val postcode: String,
+    @ColumnInfo(name = "trimmedPostcode")
+    val trimmedPostcode: String,
     @ColumnInfo(name = "lsoaCode")
     val lsoaCode: String,
     @ColumnInfo(name = "lsoaName")
@@ -504,6 +518,9 @@ interface AreaLookupDao {
     @Query("SELECT COUNT(msoaCode) FROM areaLookup")
     fun countAll(): Int
 
+    @Query("SELECT * FROM areaLookup WHERE msoaCode = :code LIMIT 1")
+    fun byMsoa(code: String): AreaLookupEntity?
+
     @Query("SELECT * FROM areaLookup WHERE ltlaCode = :code LIMIT 1")
     fun byLtla(code: String): AreaLookupEntity?
 
@@ -518,6 +535,9 @@ interface AreaLookupDao {
 
     @Query("SELECT * FROM areaLookup WHERE nhsTrustCode = :code LIMIT 1")
     fun byNhsTrustCode(code: String): AreaLookupEntity?
+
+    @Query("SELECT * FROM areaLookup WHERE trimmedPostcode = :code LIMIT 1")
+    fun byTrimmedPostcode(code: String): AreaLookupEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaLookupEntities: List<AreaLookupEntity>)

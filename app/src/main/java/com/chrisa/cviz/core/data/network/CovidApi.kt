@@ -68,6 +68,15 @@ interface CovidApi {
         @Header("If-Modified-Since") modifiedDate: String?,
         @QueryMap filters: Map<String, String>
     ): Response<BodyPage<AlertLevel>>
+
+    @GET("v1/data")
+    suspend fun pagedSoaAreaData(
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @Query(encoded = true, value = "filters") filters: String,
+        @Query(value = "structure") structure: String
+    ): Page<AreaDataModel>
+    // https://coronavirus.data.gov.uk/api/v1/soa?filters=&areaType=msoa&areaCode=E02000642&
+    // structure=%7B%22areaCode%22:%22areaCode%22,%22release%22:%22release%22,%22newCasesBySpecimenDate%22:%5B%7B%22date%22:%22date%22,%22rollingSum%22:%22rollingSum%22,%22rollingRate%22:%22rollingRate%22,%22change%22:%22change%22,%22direction%22:%22direction%22,%22changePercentage%22:%22changePercentage%22%7D%5D%7D
 }
 
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
