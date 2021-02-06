@@ -18,14 +18,14 @@ package com.chrisa.cviz.core.data.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDate
-import java.time.LocalDateTime
 import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 interface CovidApi {
 
@@ -69,14 +69,11 @@ interface CovidApi {
         @QueryMap filters: Map<String, String>
     ): Response<BodyPage<AlertLevel>>
 
-    @GET("v1/data")
-    suspend fun pagedSoaAreaData(
+    @GET("v1/soa")
+    suspend fun soaData(
         @Header("If-Modified-Since") modifiedDate: String?,
-        @Query(encoded = true, value = "filters") filters: String,
-        @Query(value = "structure") structure: String
-    ): Page<AreaDataModel>
-    // https://coronavirus.data.gov.uk/api/v1/soa?filters=&areaType=msoa&areaCode=E02000642&
-    // structure=%7B%22areaCode%22:%22areaCode%22,%22release%22:%22release%22,%22newCasesBySpecimenDate%22:%5B%7B%22date%22:%22date%22,%22rollingSum%22:%22rollingSum%22,%22rollingRate%22:%22rollingRate%22,%22change%22:%22change%22,%22direction%22:%22direction%22,%22changePercentage%22:%22changePercentage%22%7D%5D%7D
+        @Query(value = "filters") filters: String
+    ): Response<SoaDataModel>
 }
 
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
@@ -241,4 +238,33 @@ data class AlertLevel(
     val alertLevelName: String,
     val alertLevelUrl: String,
     val alertLevelValue: Int
+)
+
+@JsonClass(generateAdapter = true)
+data class SoaDataModel(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val latest: LatestChangeModel,
+    val newCasesBySpecimenDate: List<RollingChangeModel>
+) {
+    companion object {
+        fun maosFilter(areaCode: String) =
+            "&areaType=msoa&areaCode=$areaCode"
+    }
+}
+
+@JsonClass(generateAdapter = true)
+data class LatestChangeModel(
+    val newCasesBySpecimenDate: RollingChangeModel
+)
+
+@JsonClass(generateAdapter = true)
+data class RollingChangeModel(
+    val date: LocalDate,
+    val rollingSum: Int?,
+    val rollingRate: Double?,
+    val change: Int?,
+    val direction: String?,
+    val changePercentage: Double?
 )

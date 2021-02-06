@@ -26,6 +26,7 @@ class UrlDecodeInterceptor : Interceptor {
             .replace("%3D", "=")
             .replace("%3A", ":")
             .replace("%2C", ",")
+            .replace("%26", "&")
         val request = originalRequest.newBuilder().url(replacedUrl).build()
         return chain.proceed(request)
     }
