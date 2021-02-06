@@ -47,7 +47,8 @@ import kotlinx.coroutines.flow.Flow
         HealthcareEntity::class,
         AreaLookupEntity::class,
         HealthcareLookupEntity::class,
-        AlertLevelEntity::class
+        AlertLevelEntity::class,
+        SoaDataEntity::class
     ],
     version = 3,
     exportSchema = true
@@ -68,6 +69,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun healthcareDao(): HealthcareDao
     abstract fun healthcareLookupDao(): HealthcareLookupDao
     abstract fun alertLevelDao(): AlertLevelDao
+    abstract fun soaDataDao(): SoaDataDao
 
     companion object {
         private const val databaseName = "cviz-db"
@@ -80,6 +82,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS `soaData` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`))")
                 database.execSQL("DELETE FROM `alertLevel`")
                 database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `trimmedPostcode` TEXT NOT NULL")
                 database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `postcode` TEXT NOT NULL")
@@ -652,4 +655,36 @@ interface AlertLevelDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(items: List<AlertLevelEntity>)
+}
+
+@Entity(
+    tableName = "soaData",
+    primaryKeys = ["areaCode", "date"]
+)
+data class SoaDataEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: AreaType,
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "rollingSum")
+    val rollingSum: Int,
+    @ColumnInfo(name = "rollingRate")
+    val rollingRate: Double,
+    @ColumnInfo(name = "change")
+    val change: Int,
+    @ColumnInfo(name = "changePercentage")
+    val changePercentage: Double
+)
+
+@Dao
+interface SoaDataDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(items: List<SoaDataEntity>)
+
+    @Query("DELETE FROM soaData WHERE :areaCode = areaCode")
+    fun deleteAllByAreaCode(areaCode: String)
 }

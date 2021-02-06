@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "f79e6e8c4efd4de84c0f9714dea9b987",
+    "identityHash": "3c5c2fb76586bf07cc802003be4f2816",
     "entities": [
       {
         "tableName": "area",
@@ -624,12 +624,75 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "soaData",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`))",
+        "fields": [
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaName",
+            "columnName": "areaName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areaType",
+            "columnName": "areaType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rollingSum",
+            "columnName": "rollingSum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rollingRate",
+            "columnName": "rollingRate",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "change",
+            "columnName": "change",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "changePercentage",
+            "columnName": "changePercentage",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode",
+            "date"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f79e6e8c4efd4de84c0f9714dea9b987')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3c5c2fb76586bf07cc802003be4f2816')"
     ]
   }
 }
