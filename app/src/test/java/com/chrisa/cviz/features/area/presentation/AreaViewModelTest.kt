@@ -343,7 +343,9 @@ class AreaViewModelTest {
                 hospitalAdmissionsChartData = emptyList(),
                 canFilterHospitalAdmissionsAreas = false,
                 hospitalAdmissionsAreas = emptyList(),
-                areaTransmissionRate = null
+                areaTransmissionRate = null,
+                alertLevel = null,
+                soaData = null
             )
         }
     }

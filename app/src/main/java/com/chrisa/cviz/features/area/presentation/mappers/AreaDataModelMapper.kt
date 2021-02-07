@@ -28,10 +28,12 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
+import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
 import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
 import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
+import com.chrisa.cviz.features.area.presentation.models.SoaDataModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -91,7 +93,8 @@ class AreaDataModelMapper @Inject constructor(
             canFilterHospitalAdmissionsAreas = canFilterHospitalAdmissionsAreas,
             hospitalAdmissionsAreas = hospitalAdmissionsAreas,
             areaTransmissionRate = mapAreaTransmissionRate(areaDetailModel.transmissionRate),
-            alertLevel = mapAlertLevel(areaDetailModel.alertLevel)
+            alertLevel = mapAlertLevel(areaDetailModel.alertLevel),
+            soaData = mapSoaDataModel(areaDetailModel.soaData)
         )
     }
 
@@ -112,6 +115,18 @@ class AreaDataModelMapper @Inject constructor(
         alertLevel?.let {
             AlertLevelModel(
                 alertLevelUrl = alertLevel.alertLevelUrl
+            )
+        }
+
+    private fun mapSoaDataModel(soaDataModel: DomainSoaDataModel?): SoaDataModel? =
+        soaDataModel?.let {
+            SoaDataModel(
+                areaName = soaDataModel.areaName,
+                date = soaDataModel.date,
+                totalCases = soaDataModel.rollingSum,
+                changeInCases = soaDataModel.change,
+                changeInCasesPercentage = soaDataModel.changePercentage,
+                rollingRate = soaDataModel.rollingRate
             )
         }
 
