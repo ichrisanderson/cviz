@@ -72,9 +72,7 @@ class AreaViewModelTest {
         testDispatcher.runBlockingTest {
             pauseDispatcher {
                 val areaCasesModel = areaData()
-                val areaDetailModel = areaDetailModel().copy(
-                    lastSyncedAt = syncTime
-                )
+                val areaDetailModel = areaDetailModel()
                 coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
                     listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
                 every {
@@ -206,9 +204,7 @@ class AreaViewModelTest {
     @Test
     fun `WHEN retry called THEN loading states emitted`() =
         testDispatcher.runBlockingTest {
-            val areaDetailModel = areaDetailModel().copy(
-                lastSyncedAt = syncTime
-            )
+            val areaDetailModel = areaDetailModel()
             coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
                 listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
             val sut = areaViewModel()
@@ -224,9 +220,7 @@ class AreaViewModelTest {
     @Test
     fun `WHEN refresh called THEN refresh states emitted`() =
         testDispatcher.runBlockingTest {
-            val areaDetailModel = areaDetailModel().copy(
-                lastSyncedAt = syncTime
-            )
+            val areaDetailModel = areaDetailModel()
             coEvery { areaDetailUseCase.execute(areaCode, areaType) } returns
                 listOf(AreaDetailModelResult.Success(areaDetailModel)).asFlow()
             val sut = areaViewModel()
@@ -254,9 +248,7 @@ class AreaViewModelTest {
                 val filteredAreaCasesModel = areaData().copy(
                     hospitalAdmissions = emptyList()
                 )
-                val areaDetailModel = areaDetailModel().copy(
-                    lastSyncedAt = syncTime
-                )
+                val areaDetailModel = areaDetailModel()
                 val filteredHospitalAdmissionsAreaModels = hospitalAdmissions.map {
                     HospitalAdmissionsAreaModel(it.name, true)
                 }
@@ -315,7 +307,6 @@ class AreaViewModelTest {
         private fun areaDetailModel(): AreaDetailModel {
             return AreaDetailModel(
                 lastUpdatedAt = null,
-                lastSyncedAt = null,
                 casesAreaName = "",
                 cases = emptyList(),
                 deathsByPublishedDateAreaName = "",

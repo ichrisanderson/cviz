@@ -682,6 +682,10 @@ data class SoaDataEntity(
 
 @Dao
 interface SoaDataDao {
+
+    @Query("SELECT * FROM soaData WHERE areaCode = :areaCode ORDER BY date DESC LIMIT 1")
+    fun byAreaCode(areaCode: String): SoaDataEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(items: List<SoaDataEntity>)
 

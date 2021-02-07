@@ -34,6 +34,7 @@ import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel
+import com.chrisa.cviz.features.area.domain.models.SoaDataModel
 import com.chrisa.cviz.features.area.domain.models.TransmissionRateModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
@@ -63,6 +64,7 @@ class AreaDetailUseCaseTest {
     private val areaCasesUseCase = mockk<AreaCasesUseCase>()
     private val areaDeathsFacade = mockk<AreaDeathsFacade>()
     private val alertLevelUseCase = mockk<AlertLevelUseCase>()
+    private val soaDataUseCase = mockk<SoaDataUseCase>()
 
     private val sut = AreaDetailUseCase(
         areaDataSynchroniser,
@@ -71,7 +73,8 @@ class AreaDetailUseCaseTest {
         areaCasesUseCase,
         areaDeathsFacade,
         healthcareFacade,
-        alertLevelUseCase
+        alertLevelUseCase,
+        soaDataUseCase
     )
 
     @Before
@@ -103,6 +106,8 @@ class AreaDetailUseCaseTest {
         every { healthcareFacade.healthcareLookups(any()) } returns emptyList()
         coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
         coEvery { alertLevelUseCase.alertLevel(any(), any()) } returns null
+        coEvery { soaDataUseCase.syncSoaData(any(), any()) } just Runs
+        every { soaDataUseCase.byAreaCode(any(), any()) } returns null
     }
 
     @Test
@@ -258,7 +263,6 @@ class AreaDetailUseCaseTest {
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
-                            lastSyncedAt = syncDateTime,
                             casesAreaName = ukAreaCaseDataDto.name,
                             cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
@@ -289,7 +293,6 @@ class AreaDetailUseCaseTest {
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
-                            lastSyncedAt = syncDateTime,
                             casesAreaName = ukAreaCaseDataDto.name,
                             cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
@@ -337,7 +340,6 @@ class AreaDetailUseCaseTest {
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
-                            lastSyncedAt = syncDateTime,
                             casesAreaName = ukAreaCaseDataDto.name,
                             cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
@@ -379,7 +381,6 @@ class AreaDetailUseCaseTest {
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
-                            lastSyncedAt = syncDateTime,
                             casesAreaName = ukAreaCaseDataDto.name,
                             cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
@@ -421,7 +422,6 @@ class AreaDetailUseCaseTest {
                     AreaDetailModelResult.Success(
                         AreaDetailModel(
                             lastUpdatedAt = lastUpdatedDateTime,
-                            lastSyncedAt = syncDateTime,
                             casesAreaName = ukAreaCaseDataDto.name,
                             cases = ukAreaCaseDataDto.data,
                             deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
@@ -432,6 +432,73 @@ class AreaDetailUseCaseTest {
                             hospitalAdmissions = emptyList(),
                             transmissionRate = null,
                             alertLevel = alertLevel
+                        )
+                    )
+                )
+            }
+        }
+
+    @Test
+    fun `WHEN execute called THEN soa data is synced`() =
+        runBlocking {
+            val areaTypes = AreaType.values()
+            areaTypes.forEach { areaType ->
+                val areaCode = "$areaType"
+                every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
+
+                sut.execute(areaCode, areaType)
+
+                coVerify(exactly = 1) { soaDataUseCase.syncSoaData(areaCode, areaType) }
+            }
+        }
+
+    @Test
+    fun `WHEN execute called THEN area detail contains the latest soa data for the area`() =
+        runBlocking {
+            val msoaCode = "msoa1"
+            val msoaAreaLookup = areaLookupDto.copy(
+                msoaCode = msoaCode,
+                msoaName = "msoa name"
+            )
+            val soaData = SoaDataModel(
+                areaCode = msoaAreaLookup.msoaCode,
+                areaName = msoaAreaLookup.msoaName!!,
+                areaType = AreaType.MSOA,
+                date = lastUpdatedDateTime.minusDays(1).toLocalDate(),
+                rollingSum = 10,
+                rollingRate = 33.0,
+                change = 3,
+                changePercentage = 32.0
+            )
+            every { areaDataSource.loadAreaMetadata(msoaCode) } returns
+                listOf(metadata).asFlow()
+            every { areaLookupUseCase.areaLookup(any(), any()) } returns msoaAreaLookup
+            every {
+                soaDataUseCase.byAreaCode(msoaAreaLookup.msoaCode, AreaType.MSOA)
+            } returns
+                soaData
+
+            val areaDetailModelFlow = sut.execute(
+                msoaCode,
+                AreaType.MSOA
+            )
+
+            areaDetailModelFlow.collect { result ->
+                assertThat(result).isEqualTo(
+                    AreaDetailModelResult.Success(
+                        AreaDetailModel(
+                            lastUpdatedAt = lastUpdatedDateTime,
+                            casesAreaName = ukAreaCaseDataDto.name,
+                            cases = ukAreaCaseDataDto.data,
+                            deathsByPublishedDateAreaName = ukAreaPublishedDeathsDataDto.name,
+                            deathsByPublishedDate = ukAreaPublishedDeathsDataDto.data,
+                            onsDeathAreaName = ukAreaOnsDeathsDataDto.name,
+                            onsDeathsByRegistrationDate = ukAreaOnsDeathsDataDto.data,
+                            hospitalAdmissionsAreaName = ukAreaDetailDto.areaName,
+                            hospitalAdmissions = emptyList(),
+                            transmissionRate = null,
+                            alertLevel = null,
+                            soaData = soaData
                         )
                     )
                 )

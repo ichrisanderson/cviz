@@ -35,8 +35,7 @@ class SearchDataSource @Inject constructor(
 
     suspend fun searchPostcode(postcode: String): AreaDTO? {
         val lookup = areaLookupData(postcode)
-        // TODO: Return msoa data
-        return lookup?.msoaName?.let { AreaDTO(lookup.utlaCode, it, AreaType.UTLA.value) }
+        return lookup?.msoaName?.let { AreaDTO(lookup.msoaCode, it, AreaType.MSOA.value) }
     }
 
     private suspend fun areaLookupData(postcode: String) =

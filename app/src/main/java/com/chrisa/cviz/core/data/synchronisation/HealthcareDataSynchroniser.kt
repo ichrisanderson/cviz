@@ -53,13 +53,13 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
         areaCode: String,
         areaType: AreaType
     ) {
-        if (!networkUtils.hasNetworkConnection()) throw IOException()
-
         val metadata = appDatabase.metadataDao().metadata(MetaDataIds.healthcareId(areaCode))
         val now = timeProvider.currentTime()
         if (metadata != null && metadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
         }
+
+        if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val response = api.pagedHealthcareDataResponse(
             modifiedDate = metadata?.lastUpdatedAt?.formatAsGmt(),

@@ -20,7 +20,6 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.AreaLookupDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaLookupDataSource
-import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
@@ -216,15 +215,6 @@ class AreaLookupUseCaseTest {
             regionName = null,
             nationCode = "",
             nationName = ""
-        )
-        val lookupEntityWithoutNhsRegion = lookupEntity.copy(
-            nhsRegionCode = null,
-            nhsRegionName = null
-        )
-        val defaultArea = AreaDto(
-            code = Constants.UK_AREA_CODE,
-            name = Constants.UK_AREA_NAME,
-            areaType = AreaType.OVERVIEW
         )
     }
 }

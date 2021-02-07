@@ -37,7 +37,8 @@ class AreaDetailUseCase @Inject constructor(
     private val areaCasesUseCase: AreaCasesUseCase,
     private val areaDeathsFacade: AreaDeathsFacade,
     private val healthcareUseCaseFacade: HealthcareUseCaseFacade,
-    private val alertLevelUseCase: AlertLevelUseCase
+    private val alertLevelUseCase: AlertLevelUseCase,
+    private val soaDataUseCase: SoaDataUseCase
 ) {
 
     suspend fun execute(areaCode: String, areaType: AreaType): Flow<AreaDetailModelResult> {
@@ -49,24 +50,39 @@ class AreaDetailUseCase @Inject constructor(
             } else {
                 val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
 
+                val soaData = soaDataUseCase.byAreaCode(areaCode, areaType)
+
+                val areaLookupCode = areaLookupCode(areaCode, areaType, areaLookup)
+
                 val areaCases =
-                    areaCasesUseCase.cases(areaCode)
+                    areaCasesUseCase.cases(areaLookupCode.areaCode)
                 val publishedDeaths =
-                    areaDeathsFacade.publishedDeaths(areaCode, areaType, areaLookup)
-                val onsDeaths = areaDeathsFacade.onsDeaths(areaCode, areaType, areaLookup)
+                    areaDeathsFacade.publishedDeaths(
+                        areaLookupCode.areaCode,
+                        areaLookupCode.areaType,
+                        areaLookup
+                    )
+                val onsDeaths = areaDeathsFacade.onsDeaths(
+                    areaLookupCode.areaCode,
+                    areaLookupCode.areaType,
+                    areaLookup
+                )
                 val admissions: AreaDailyDataCollection =
-                    healthcareUseCaseFacade.admissions(areaCode, areaType, areaLookup)
+                    healthcareUseCaseFacade.admissions(
+                        areaLookupCode.areaCode,
+                        areaLookupCode.areaType,
+                        areaLookup
+                    )
                 val nhsRegion =
-                    healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
+                    healthcareUseCaseFacade.nhsRegionArea(areaLookupCode.areaCode, areaLookup)
                 val transmissionRate =
                     healthcareUseCaseFacade.transmissionRate(nhsRegion)
                 val alertLevel =
-                    alertLevelUseCase.alertLevel(areaCode, areaType)
+                    alertLevelUseCase.alertLevel(areaLookupCode.areaCode, areaLookupCode.areaType)
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
                         lastUpdatedAt = metadata.lastUpdatedAt,
-                        lastSyncedAt = metadata.lastSyncTime,
                         casesAreaName = areaCases.name,
                         cases = areaCases.data,
                         deathsByPublishedDateAreaName = publishedDeaths.name,
@@ -76,12 +92,27 @@ class AreaDetailUseCase @Inject constructor(
                         hospitalAdmissionsAreaName = admissions.name,
                         hospitalAdmissions = admissions.data,
                         transmissionRate = transmissionRate,
-                        alertLevel = alertLevel
+                        alertLevel = alertLevel,
+                        soaData = soaData
                     )
                 )
             }
         }
     }
+
+    private fun areaLookupCode(
+        areaCode: String,
+        areaType: AreaType,
+        areaLookup: AreaLookupDto?
+    ): AreaLookupCode =
+        when (areaType) {
+            AreaType.MSOA ->
+                AreaLookupCode(areaLookup!!.utlaCode, AreaType.UTLA)
+            else ->
+                AreaLookupCode(areaCode, areaType)
+        }
+
+    data class AreaLookupCode(val areaCode: String, val areaType: AreaType)
 
     private suspend fun syncAreaData(
         areaCode: String,
@@ -89,7 +120,8 @@ class AreaDetailUseCase @Inject constructor(
     ) {
         areaLookupUseCase.syncAreaLookup(areaCode, areaType)
         val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
-        syncAreaCases(areaCode, areaType, areaLookup)
+        soaDataUseCase.syncSoaData(areaCode, areaType)
+        syncAreaCases(areaCode, areaType)
         syncHealthcare(areaCode, areaType, areaLookup)
         alertLevelUseCase.syncAlertLevel(areaCode, areaType)
     }
@@ -128,8 +160,7 @@ class AreaDetailUseCase @Inject constructor(
 
     private suspend fun syncAreaCases(
         areaCode: String,
-        areaType: AreaType,
-        areaLookup: AreaLookupDto?
+        areaType: AreaType
     ): Boolean {
         return try {
             areaDataSynchroniser.performSync(areaCode, areaType)

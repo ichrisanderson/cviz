@@ -52,13 +52,13 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
     override suspend fun performSync(
         areaCode: String
     ) {
-        if (!networkUtils.hasNetworkConnection()) throw IOException()
-
         val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
         val now = timeProvider.currentTime()
         if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
         }
+
+        if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val soaDataModelResponse = api.soaData(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),

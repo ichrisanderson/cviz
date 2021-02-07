@@ -44,6 +44,9 @@ abstract class SyncModule {
     internal abstract fun bindAlertLevelSynchroniser(alertLevelSynchroniserImpl: AlertLevelSynchroniserImpl): AlertLevelSynchroniser
 
     @Binds
+    internal abstract fun soaDataSynchroniser(soaDataSynchroniserImpl: SoaDataSynchroniserImpl): SoaDataSynchroniser
+
+    @Binds
     internal abstract fun bindDataSynchroniser(dataSynchroniserImpl: DataSynchroniserImpl): DataSynchroniser
 
     @Binds

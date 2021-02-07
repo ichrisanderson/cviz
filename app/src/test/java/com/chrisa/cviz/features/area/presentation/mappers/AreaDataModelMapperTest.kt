@@ -382,7 +382,6 @@ class AreaDataModelMapperTest {
     }
 
     companion object {
-        private val syncDateTime = LocalDateTime.of(2020, 1, 2, 0, 0)
         private val lastUpdatedDateTime = LocalDateTime.of(2020, 1, 1, 11, 0)
 
         private const val allCasesLabel = "All cases"
@@ -397,7 +396,6 @@ class AreaDataModelMapperTest {
 
         private val areaDetail = AreaDetailModel(
             lastUpdatedAt = lastUpdatedDateTime,
-            lastSyncedAt = syncDateTime,
             casesAreaName = "",
             cases = emptyList(),
             deathsByPublishedDateAreaName = "",
