@@ -24,10 +24,10 @@ import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
-import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
@@ -43,7 +43,7 @@ class AreaDetailUseCase @Inject constructor(
 
     suspend fun execute(areaCode: String, areaType: AreaType): Flow<AreaDetailModelResult> {
         syncAreaData(areaCode, areaType)
-        val metadataFlow = areaDataSource.loadAreaMetadata(areaCode)
+        val metadataFlow = areaDataSource.metadataAsFlow(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
                 AreaDetailModelResult.NoData
@@ -53,6 +53,7 @@ class AreaDetailUseCase @Inject constructor(
                 val soaData = soaDataUseCase.byAreaCode(areaCode, areaType)
 
                 val areaLookupCode = areaLookupCode(areaCode, areaType, areaLookup)
+                val areaMetadata = areaDataSource.metadata(areaLookupCode.areaCode)!!
 
                 val areaCases =
                     areaCasesUseCase.cases(areaLookupCode.areaCode)
@@ -82,7 +83,7 @@ class AreaDetailUseCase @Inject constructor(
 
                 AreaDetailModelResult.Success(
                     AreaDetailModel(
-                        lastUpdatedAt = metadata.lastUpdatedAt,
+                        lastUpdatedAt = areaMetadata.lastUpdatedAt,
                         casesAreaName = areaCases.name,
                         cases = areaCases.data,
                         deathsByPublishedDateAreaName = publishedDeaths.name,
@@ -119,11 +120,13 @@ class AreaDetailUseCase @Inject constructor(
         areaType: AreaType
     ) {
         areaLookupUseCase.syncAreaLookup(areaCode, areaType)
-        val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
         soaDataUseCase.syncSoaData(areaCode, areaType)
-        syncAreaCases(areaCode, areaType)
-        syncHealthcare(areaCode, areaType, areaLookup)
         alertLevelUseCase.syncAlertLevel(areaCode, areaType)
+
+        val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
+        val areaLookupCode = areaLookupCode(areaCode, areaType, areaLookup)
+        syncAreaCases(areaLookupCode.areaCode, areaLookupCode.areaType)
+        syncHealthcare(areaLookupCode.areaCode, areaLookupCode.areaType, areaLookup)
     }
 
     private suspend fun syncHealthcare(

@@ -42,6 +42,7 @@ import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar.barChartTabCard
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined.combinedChartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
 import com.chrisa.cviz.databinding.AreaFragmentBinding
+import com.chrisa.cviz.soaCard
 import com.chrisa.cviz.transmissionRate
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
@@ -50,11 +51,11 @@ import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
@@ -171,6 +172,36 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     alertLevel {
                         id("alertLevel")
                         ctaClickListener(alertLevelClickListener)
+                    }
+                }
+                val soaData = areaDataModel.soaData
+                if (soaData != null) {
+                    areaSectionHeader {
+                        id("soaDataTitle")
+                        title(
+                            getString(
+                                R.string.cases_title,
+                                soaData.areaName
+                            )
+                        )
+                        subtitle1(
+                            binding.toolbar.context.getString(
+                                R.string.latest_data_label,
+                                dateLabel(soaData.date)
+                            )
+                        )
+//                        subtitle2(
+//                            context.getString(
+//                                R.string.updated_label,
+//                                DateFormatter.getLocalRelativeTimeSpanString(transmissionRate.lastUpdatedDate)
+//                            )
+//                        )
+                    }
+                    soaCard {
+                        id("soaData")
+                        totalCases(soaData.totalCases)
+                        changeInCases(soaData.changeInCases)
+                        rollingRate(soaData.rollingRate.toInt())
                     }
                 }
                 val transmissionRate = areaDataModel.areaTransmissionRate

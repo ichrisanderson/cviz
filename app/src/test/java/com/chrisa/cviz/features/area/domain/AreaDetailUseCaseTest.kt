@@ -108,12 +108,13 @@ class AreaDetailUseCaseTest {
         coEvery { alertLevelUseCase.alertLevel(any(), any()) } returns null
         coEvery { soaDataUseCase.syncSoaData(any(), any()) } just Runs
         every { soaDataUseCase.byAreaCode(any(), any()) } returns null
+        every { areaDataSource.metadata(any()) } returns metadata
     }
 
     @Test
     fun `WHEN execute called THEN area cases are synced`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata(ukAreaDetailDto.areaCode) } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow(ukAreaDetailDto.areaCode) } returns listOf(null).asFlow()
 
             sut.execute(ukAreaDetailDto.areaCode, ukAreaDetailDto.areaType.toAreaType())
 
@@ -130,7 +131,7 @@ class AreaDetailUseCaseTest {
         runBlocking {
             val areaTypes = AreaType.values()
             areaTypes.forEach { areaType ->
-                every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+                every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
 
                 sut.execute("1", areaType)
 
@@ -141,7 +142,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `GIVEN overview area WHEN execute called THEN hospital synced`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
 
             sut.execute("1", AreaType.OVERVIEW)
 
@@ -151,7 +152,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `GIVEN nation area WHEN execute called THEN hospital synced`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
 
             sut.execute("1", AreaType.NATION)
 
@@ -161,7 +162,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `GIVEN region area WHEN execute called THEN hospital synced`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
             every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.REGION)
 
@@ -173,7 +174,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `GIVEN ltla area WHEN execute called THEN hospital synced`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
             every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.LTLA)
 
@@ -185,7 +186,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `GIVEN utla area WHEN execute called THEN hospital synced`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
             every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
                 AreaDto("1", "", AreaType.UTLA)
 
@@ -198,7 +199,7 @@ class AreaDetailUseCaseTest {
     fun `GIVEN nhs area returned WHEN execute called THEN hospital synced`() =
         runBlocking {
             val areaTypes = listOf(AreaType.UTLA, AreaType.LTLA, AreaType.REGION)
-            every { areaDataSource.loadAreaMetadata("1") } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
             areaTypes.forEach { areaType ->
                 val nhsArea = AreaDto(
                     "${areaType}_1234",
@@ -222,7 +223,7 @@ class AreaDetailUseCaseTest {
         runBlocking {
             val areaTypes = AreaType.values()
             coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
-            every { areaDataSource.loadAreaMetadata(any()) } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow(any()) } returns listOf(null).asFlow()
             areaTypes.forEach { areaType ->
                 val areaCode = "${areaType}_1"
                 sut.execute(areaCode, areaType)
@@ -239,7 +240,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `GIVEN metadata is null WHEN execute called THEN area detail emits no data result`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata(ukAreaDetailDto.areaCode) } returns listOf(null).asFlow()
+            every { areaDataSource.metadataAsFlow(ukAreaDetailDto.areaCode) } returns listOf(null).asFlow()
 
             val areaDetailModelFlow =
                 sut.execute(ukAreaDetailDto.areaCode, ukAreaDetailDto.areaType.toAreaType())
@@ -252,7 +253,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `WHEN execute called THEN area detail contains the latest cases for the area`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata(areaWithCases.areaCode) } returns
+            every { areaDataSource.metadataAsFlow(areaWithCases.areaCode) } returns
                 listOf(metadata).asFlow()
 
             val areaDetailModelFlow =
@@ -282,7 +283,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `WHEN execute called THEN area detail contains the latest deaths for the area`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata(areaWithDeaths.areaCode) } returns
+            every { areaDataSource.metadataAsFlow(areaWithDeaths.areaCode) } returns
                 listOf(metadata).asFlow()
 
             val areaDetailModelFlow =
@@ -312,7 +313,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `WHEN execute called THEN area detail contains the latest hospital admissions for the area`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata(areaWithHospitalAdmissions.areaCode) } returns
+            every { areaDataSource.metadataAsFlow(areaWithHospitalAdmissions.areaCode) } returns
                 listOf(metadata).asFlow()
             every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
                 AreaDto(
@@ -364,7 +365,7 @@ class AreaDetailUseCaseTest {
     @Test
     fun `WHEN execute called THEN area detail contains the latest transmission data for the area`() =
         runBlocking {
-            every { areaDataSource.loadAreaMetadata(ukAreaDetailDto.areaCode) } returns
+            every { areaDataSource.metadataAsFlow(ukAreaDetailDto.areaCode) } returns
                 listOf(metadata).asFlow()
             every {
                 healthcareFacade.transmissionRate(ukArea)
@@ -402,7 +403,7 @@ class AreaDetailUseCaseTest {
             val alertLevel = AlertLevelModel(
                 alertLevelUrl = "http://acme.com"
             )
-            every { areaDataSource.loadAreaMetadata(ukAreaDetailDto.areaCode) } returns
+            every { areaDataSource.metadataAsFlow(ukAreaDetailDto.areaCode) } returns
                 listOf(metadata).asFlow()
             every {
                 alertLevelUseCase.alertLevel(
@@ -444,7 +445,7 @@ class AreaDetailUseCaseTest {
             val areaTypes = AreaType.values()
             areaTypes.forEach { areaType ->
                 val areaCode = "$areaType"
-                every { areaDataSource.loadAreaMetadata(areaCode) } returns listOf(null).asFlow()
+                every { areaDataSource.metadataAsFlow(areaCode) } returns listOf(null).asFlow()
 
                 sut.execute(areaCode, areaType)
 
@@ -470,7 +471,7 @@ class AreaDetailUseCaseTest {
                 change = 3,
                 changePercentage = 32.0
             )
-            every { areaDataSource.loadAreaMetadata(msoaCode) } returns
+            every { areaDataSource.metadataAsFlow(msoaCode) } returns
                 listOf(metadata).asFlow()
             every { areaLookupUseCase.areaLookup(any(), any()) } returns msoaAreaLookup
             every {

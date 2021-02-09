@@ -41,7 +41,7 @@ class AreaDataSource @Inject constructor(
         return appDatabase.savedAreaDao().delete(savedAreaDto.toSavedAreaEntity())
     }
 
-    fun loadAreaMetadata(areaCode: String): Flow<MetadataDto?> {
+    fun metadataAsFlow(areaCode: String): Flow<MetadataDto?> {
         return appDatabase.metadataDao()
             .metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
             .map {
@@ -51,6 +51,17 @@ class AreaDataSource @Inject constructor(
                         lastSyncTime = it.lastSyncTime
                     )
                 }
+            }
+    }
+
+    fun metadata(areaCode: String): MetadataDto? {
+        return appDatabase.metadataDao()
+            .metadata(MetaDataIds.areaCodeId(areaCode))
+            ?.let {
+                MetadataDto(
+                    lastUpdatedAt = it.lastUpdatedAt,
+                    lastSyncTime = it.lastSyncTime
+                )
             }
     }
 }
