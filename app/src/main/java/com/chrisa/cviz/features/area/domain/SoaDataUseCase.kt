@@ -19,6 +19,8 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.SoaDataSynchroniser
 import com.chrisa.cviz.features.area.data.SoaDataSource
+import com.chrisa.cviz.features.area.data.dtos.SoaDataDto
+import com.chrisa.cviz.features.area.domain.models.SoaData
 import com.chrisa.cviz.features.area.domain.models.SoaDataModel
 import javax.inject.Inject
 import timber.log.Timber
@@ -55,17 +57,22 @@ class SoaDataUseCase @Inject constructor(
             Timber.e(e)
         }
 
-    private fun areaData(areaCode: String) =
-        soaDataSource.byAreaCode(areaCode)?.let { soaData ->
+    private fun areaData(areaCode: String): SoaDataModel? {
+        val data = soaDataSource.byAreaCode(areaCode)
+        return data.firstOrNull()?.let { soa ->
             SoaDataModel(
-                soaData.areaCode,
-                soaData.areaName,
-                soaData.areaType,
-                soaData.date,
-                soaData.rollingSum,
-                soaData.rollingRate,
-                soaData.change,
-                soaData.changePercentage
+                soa.areaCode,
+                soa.areaName,
+                soa.areaType,
+                data.map(::mapSoaData)
             )
         }
+    }
+
+    private fun mapSoaData(soaData: SoaDataDto): SoaData =
+        SoaData(
+            date = soaData.date,
+            rollingSum = soaData.rollingSum,
+            rollingRate = soaData.rollingRate
+        )
 }

@@ -20,6 +20,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.SoaDataSynchroniser
 import com.chrisa.cviz.features.area.data.SoaDataSource
 import com.chrisa.cviz.features.area.data.dtos.SoaDataDto
+import com.chrisa.cviz.features.area.domain.models.SoaData
 import com.chrisa.cviz.features.area.domain.models.SoaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
@@ -98,7 +99,7 @@ class SoaDataUseCaseTest {
         val areaTypes = AreaType.values().filter { msoaAreas.contains(it) }
         areaTypes.forEach { areaType ->
             val areaCode = "$areaType"
-            every { soaDataSource.byAreaCode(areaCode) } returns soaDataDto
+            every { soaDataSource.byAreaCode(areaCode) } returns listOf(soaDataDto)
 
             val soaData = sut.byAreaCode(areaCode, areaType)
 
@@ -107,11 +108,13 @@ class SoaDataUseCaseTest {
                     soaDataDto.areaCode,
                     soaDataDto.areaName,
                     soaDataDto.areaType,
-                    soaDataDto.date,
-                    soaDataDto.rollingSum,
-                    soaDataDto.rollingRate,
-                    soaDataDto.change,
-                    soaDataDto.changePercentage
+                    listOf(
+                        SoaData(
+                            soaDataDto.date,
+                            soaDataDto.rollingSum,
+                            soaDataDto.rollingRate
+                        )
+                    )
                 )
             )
         }

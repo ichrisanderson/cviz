@@ -23,9 +23,11 @@ data class SoaDataModel(
     val areaCode: String,
     val areaName: String,
     val areaType: AreaType,
+    val data: List<SoaData>
+)
+
+data class SoaData(
     val date: LocalDate,
     val rollingSum: Int,
-    val rollingRate: Double,
-    val change: Int,
-    val changePercentage: Double
+    val rollingRate: Double
 )

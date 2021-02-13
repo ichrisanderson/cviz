@@ -32,6 +32,7 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
+import com.chrisa.cviz.features.area.domain.models.SoaData
 import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
 import com.chrisa.cviz.features.area.domain.models.TransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
@@ -54,12 +55,14 @@ class AreaDataModelMapperTest {
     private val chartBuilder = mockk<ChartBuilder>()
     private val weeklySummaryBuilder = mockk<WeeklySummaryBuilder>()
     private val admissionsFilter = mockk<AdmissionsFilter>()
+    private val soaChartBuilder = mockk<SoaChartBuilder>()
     private val sut = AreaDataModelMapper(
         context,
         dailyDataWithRollingAverageBuilder,
         weeklySummaryBuilder,
         chartBuilder,
-        admissionsFilter
+        admissionsFilter,
+        soaChartBuilder
     )
 
     @Before
@@ -387,16 +390,26 @@ class AreaDataModelMapperTest {
 
     @Test
     fun `WHEN mapAreaDetailModel called with soa data THEN soa data is present`() {
+        val week1 = SoaData(
+            date = LocalDate.of(2020, 1, 1),
+            rollingSum = 11,
+            rollingRate = 12.0
+        )
+        val week2 = SoaData(
+            date = LocalDate.of(2020, 1, 1),
+            rollingSum = 11,
+            rollingRate = 12.0
+        )
+        val data = listOf(week2, week1)
         val soaDataModel = DomainSoaDataModel(
             areaCode = "1234",
             areaName = "London",
             areaType = AreaType.REGION,
-            date = LocalDate.of(2020, 1, 1),
-            rollingSum = 11,
-            rollingRate = 12.0,
-            change = 12,
-            changePercentage = 12.0
+            data = data
         )
+        val casesChart = combinedChartData("soa cases")
+        val chartData = listOf(casesChart)
+        every { soaChartBuilder.caseChartData(data) } returns chartData
         val areaDetail = areaDetail.copy(soaData = soaDataModel)
 
         val mappedModel = sut.mapAreaDetailModel(areaDetail, emptySet())
@@ -405,11 +418,12 @@ class AreaDataModelMapperTest {
             defaultModel.copy(
                 soaData = SoaDataModel(
                     areaName = soaDataModel.areaName,
-                    date = soaDataModel.date,
-                    totalCases = soaDataModel.rollingSum,
-                    changeInCases = soaDataModel.change,
-                    changeInCasesPercentage = soaDataModel.changePercentage,
-                    rollingRate = soaDataModel.rollingRate
+                    lastDate = week2.date,
+                    weeklyRate = week2.rollingRate.toInt(),
+                    weeklyCases = week2.rollingSum,
+                    changeInCases = week2.rollingSum - week1.rollingSum,
+                    changeInRate = week2.rollingRate.toInt() - week1.rollingRate.toInt(),
+                    chartData = chartData
                 )
             )
         )

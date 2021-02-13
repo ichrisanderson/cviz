@@ -20,7 +20,6 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.core.data.synchronisation.DailyData
-import com.chrisa.cviz.core.data.synchronisation.RollingAverageHelper
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
@@ -60,7 +59,6 @@ class AreaDetailUseCaseTest {
     private val areaDataSource = mockk<AreaDataSource>()
     private val areaLookupUseCase = mockk<AreaLookupUseCase>()
     private val healthcareFacade = mockk<HealthcareUseCaseFacade>()
-    private val rollingAverageHelper = mockk<RollingAverageHelper>()
     private val areaCasesUseCase = mockk<AreaCasesUseCase>()
     private val areaDeathsFacade = mockk<AreaDeathsFacade>()
     private val alertLevelUseCase = mockk<AlertLevelUseCase>()
@@ -86,7 +84,6 @@ class AreaDetailUseCaseTest {
         every { healthcareFacade.healthcareArea(any(), any(), any()) } returns ukArea
         every { healthcareFacade.nhsRegionArea(any(), any()) } returns ukArea
         every { healthcareFacade.transmissionRate(any()) } returns null
-        every { rollingAverageHelper.average(any(), any()) } returns 1.0
         every {
             healthcareFacade.admissions(
                 any(),
@@ -465,11 +462,7 @@ class AreaDetailUseCaseTest {
                 areaCode = msoaAreaLookup.msoaCode,
                 areaName = msoaAreaLookup.msoaName!!,
                 areaType = AreaType.MSOA,
-                date = lastUpdatedDateTime.minusDays(1).toLocalDate(),
-                rollingSum = 10,
-                rollingRate = 33.0,
-                change = 3,
-                changePercentage = 32.0
+                data = emptyList()
             )
             every { areaDataSource.metadataAsFlow(msoaCode) } returns
                 listOf(metadata).asFlow()

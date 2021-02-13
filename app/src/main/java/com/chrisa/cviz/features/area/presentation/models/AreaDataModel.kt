@@ -72,9 +72,10 @@ data class AlertLevelModel(
 
 data class SoaDataModel(
     val areaName: String,
-    val date: LocalDate,
-    val totalCases: Int,
+    val lastDate: LocalDate?,
+    val weeklyCases: Int,
     val changeInCases: Int,
-    val changeInCasesPercentage: Double,
-    val rollingRate: Double
+    val weeklyRate: Int,
+    val changeInRate: Int,
+    val chartData: List<CombinedChartData>
 )

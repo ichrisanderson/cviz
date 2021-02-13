@@ -51,11 +51,11 @@ import io.plaidapp.core.util.event.EventObserver
 import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
@@ -187,21 +187,21 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         subtitle1(
                             binding.toolbar.context.getString(
                                 R.string.latest_data_label,
-                                dateLabel(soaData.date)
+                                dateLabel(soaData.lastDate!!)
                             )
                         )
-//                        subtitle2(
-//                            context.getString(
-//                                R.string.updated_label,
-//                                DateFormatter.getLocalRelativeTimeSpanString(transmissionRate.lastUpdatedDate)
-//                            )
-//                        )
+                        subtitle2(lastUpdated)
                     }
                     soaCard {
                         id("soaData")
-                        totalCases(soaData.totalCases)
+                        totalCases(soaData.weeklyCases)
                         changeInCases(soaData.changeInCases)
-                        rollingRate(soaData.rollingRate.toInt())
+                        rollingRate(soaData.weeklyRate)
+                        changeInRate(soaData.changeInRate)
+                    }
+                    combinedChartTabCard {
+                        id("soaChartData")
+                        chartData(soaData.chartData)
                     }
                 }
                 val transmissionRate = areaDataModel.areaTransmissionRate

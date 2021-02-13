@@ -51,20 +51,22 @@ class SoaDataSourceTest {
             change = 12,
             changePercentage = 12.0
         )
-        every { soaDataDao.byAreaCode("") } returns soaDataEntity
+        every { soaDataDao.byAreaCode("") } returns listOf(soaDataEntity)
 
         val soaData = sut.byAreaCode("")
 
         assertThat(soaData).isEqualTo(
-            SoaDataDto(
-                soaDataEntity.areaCode,
-                soaDataEntity.areaName,
-                soaDataEntity.areaType,
-                soaDataEntity.date,
-                soaDataEntity.rollingSum,
-                soaDataEntity.rollingRate,
-                soaDataEntity.change,
-                soaDataEntity.changePercentage
+            listOf(
+                SoaDataDto(
+                    soaDataEntity.areaCode,
+                    soaDataEntity.areaName,
+                    soaDataEntity.areaType,
+                    soaDataEntity.date,
+                    soaDataEntity.rollingSum,
+                    soaDataEntity.rollingRate,
+                    soaDataEntity.change,
+                    soaDataEntity.changePercentage
+                )
             )
         )
     }

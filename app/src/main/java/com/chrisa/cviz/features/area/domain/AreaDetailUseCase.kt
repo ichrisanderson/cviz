@@ -24,10 +24,10 @@ import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
@@ -122,7 +122,13 @@ class AreaDetailUseCase @Inject constructor(
         areaLookupUseCase.syncAreaLookup(areaCode, areaType)
         soaDataUseCase.syncSoaData(areaCode, areaType)
         alertLevelUseCase.syncAlertLevel(areaCode, areaType)
+        syncAuthorityData(areaCode, areaType)
+    }
 
+    private suspend fun AreaDetailUseCase.syncAuthorityData(
+        areaCode: String,
+        areaType: AreaType
+    ) {
         val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
         val areaLookupCode = areaLookupCode(areaCode, areaType, areaLookup)
         syncAreaCases(areaLookupCode.areaCode, areaLookupCode.areaType)

@@ -24,8 +24,8 @@ class SoaDataSource @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
 
-    fun byAreaCode(areaCode: String): SoaDataDto? =
-        appDatabase.soaDataDao().byAreaCode(areaCode)?.let { soaData ->
+    fun byAreaCode(areaCode: String): List<SoaDataDto> =
+        appDatabase.soaDataDao().byAreaCode(areaCode).map { soaData ->
             SoaDataDto(
                 soaData.areaCode,
                 soaData.areaName,

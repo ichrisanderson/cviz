@@ -42,7 +42,8 @@ class AreaDataModelMapper @Inject constructor(
     private val dailyDataWithRollingAverageBuilder: DailyDataWithRollingAverageBuilder,
     private val weeklySummaryBuilder: WeeklySummaryBuilder,
     private val chartBuilder: ChartBuilder,
-    private val admissionsFilter: AdmissionsFilter
+    private val admissionsFilter: AdmissionsFilter,
+    private val soaChartBuilder: SoaChartBuilder
 ) {
 
     fun mapAreaDetailModel(
@@ -118,17 +119,29 @@ class AreaDataModelMapper @Inject constructor(
             )
         }
 
-    private fun mapSoaDataModel(soaDataModel: DomainSoaDataModel?): SoaDataModel? =
-        soaDataModel?.let {
+    private fun mapSoaDataModel(soaDataModel: DomainSoaDataModel?): SoaDataModel? {
+        return soaDataModel?.let {
+            val lastCaseIndex = soaDataModel.data.lastIndex
+
+            val latestData = soaDataModel.data.getOrNull(lastCaseIndex)
+            val latestDataCaseValue = latestData?.rollingSum ?: 0
+            val latestDataCaseRate = latestData?.rollingRate?.toInt() ?: 0
+
+            val previousData = soaDataModel.data.getOrNull(lastCaseIndex - 1)
+            val previousDataCaseValue = previousData?.rollingSum ?: 0
+            val previousDataCaseRate = previousData?.rollingRate?.toInt() ?: 0
+
             SoaDataModel(
                 areaName = soaDataModel.areaName,
-                date = soaDataModel.date,
-                totalCases = soaDataModel.rollingSum,
-                changeInCases = soaDataModel.change,
-                changeInCasesPercentage = soaDataModel.changePercentage,
-                rollingRate = soaDataModel.rollingRate
+                lastDate = soaDataModel.data.map { it.date }.lastOrNull(),
+                weeklyCases = latestDataCaseValue,
+                weeklyRate = latestDataCaseRate,
+                changeInCases = latestDataCaseValue - previousDataCaseValue,
+                changeInRate = latestDataCaseRate - previousDataCaseRate,
+                chartData = soaChartBuilder.caseChartData(soaDataModel.data)
             )
         }
+    }
 
     private fun hospitalAdmissionsAreaModel(
         areaDailyData: AreaDailyDataDto,
