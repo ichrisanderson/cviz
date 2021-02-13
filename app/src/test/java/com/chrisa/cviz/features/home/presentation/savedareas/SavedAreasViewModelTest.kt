@@ -21,7 +21,7 @@ import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.cviz.core.util.test
 import com.chrisa.cviz.features.home.domain.LoadSavedAreasUseCase
 import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
-import com.chrisa.cviz.features.home.domain.models.SummaryModel
+import com.chrisa.cviz.features.home.domain.models.SavedAreaSummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -57,8 +57,7 @@ class SavedAreasViewModelTest {
         testDispatcher.runBlockingTest {
             pauseDispatcher {
 
-                val summaryModel = SummaryModel(
-                    position = 1,
+                val summaryModel = SavedAreaSummaryModel(
                     areaCode = "1234",
                     areaName = "Lambeth",
                     areaType = "ltla",
@@ -90,7 +89,7 @@ class SavedAreasViewModelTest {
     @Test
     fun `WHEN viewmodel refreshed THEN refresh state is emitted`() =
         testDispatcher.runBlockingTest {
-            every { loadSavedAreasUseCase.execute() } returns emptyList<List<SummaryModel>>().asFlow()
+            every { loadSavedAreasUseCase.execute() } returns emptyList<List<SavedAreaSummaryModel>>().asFlow()
             coEvery { refreshDataUseCase.execute() } just Runs
             val sut = SavedAreasViewModel(
                 loadSavedAreasUseCase,
@@ -108,7 +107,7 @@ class SavedAreasViewModelTest {
     @Test
     fun `WHEN viewmodel refresh fails THEN is refreshing set to false`() =
         testDispatcher.runBlockingTest {
-            every { loadSavedAreasUseCase.execute() } returns emptyList<List<SummaryModel>>().asFlow()
+            every { loadSavedAreasUseCase.execute() } returns emptyList<List<SavedAreaSummaryModel>>().asFlow()
             coEvery { refreshDataUseCase.execute() } throws IOException()
             val sut = SavedAreasViewModel(
                 loadSavedAreasUseCase,

@@ -22,11 +22,13 @@ import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.features.home.data.HomeDataSource
 import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.cviz.features.home.domain.models.SummaryModel
+import com.chrisa.cviz.features.home.data.dtos.SavedSoaDataDto
+import com.chrisa.cviz.features.home.domain.models.SavedAreaSummaryModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 @ExperimentalCoroutinesApi
@@ -35,13 +37,50 @@ class LoadSavedAreasUseCase @Inject constructor(
     private val homeDataSource: HomeDataSource,
     private val weeklySummaryBuilder: WeeklySummaryBuilder
 ) {
-    fun execute(): Flow<List<SummaryModel>> {
+    fun execute(): Flow<List<SavedAreaSummaryModel>> {
+        return combine(savedAreaData(), savedSoaData()) { savedAreaData, savedSoaData ->
+            savedAreaData.plus(savedSoaData).sortedBy { it.areaName }
+        }
+    }
+
+    private fun savedAreaData(): Flow<List<SavedAreaSummaryModel>> {
         return homeDataSource.savedAreaCases().map { savedAreaCases ->
             savedAreaCases.groupBy { Area(it.areaCode, it.areaName, it.areaType) }
                 .map(this::areaData)
-                .sortedBy(AreaData::areaName)
-                .mapIndexed(this::mapSummaryModel)
+                .map(this::mapSummaryModel)
         }
+    }
+
+    private fun savedSoaData(): Flow<List<SavedAreaSummaryModel>> {
+        return homeDataSource.savedSoaData().map { savedAreaCases ->
+            savedAreaCases.groupBy { Area(it.areaCode, it.areaName, it.areaType) }
+                .map(this::mapSummaryModel)
+        }
+    }
+
+    private fun mapSummaryModel(
+        group: Map.Entry<Area, List<SavedSoaDataDto>>
+    ): SavedAreaSummaryModel {
+        val data = group.value
+        val lastCaseIndex = data.lastIndex
+
+        val latestData = data.getOrNull(lastCaseIndex)
+        val latestCaseValue = latestData?.rollingSum ?: 0
+        val latestCaseRate = latestData?.rollingRate?.toInt() ?: 0
+
+        val previousData = data.getOrNull(lastCaseIndex - 1)
+        val previousCaseValue = previousData?.rollingSum ?: 0
+        val previousCaseRate = previousData?.rollingRate?.toInt() ?: 0
+
+        return SavedAreaSummaryModel(
+            areaType = group.key.areaType.value,
+            areaCode = group.key.areaCode,
+            areaName = group.key.areaName,
+            currentNewCases = latestCaseValue,
+            changeInCases = latestCaseValue - previousCaseValue,
+            currentInfectionRate = latestCaseRate.toDouble(),
+            changeInInfectionRate = (latestCaseRate - previousCaseRate).toDouble()
+        )
     }
 
     private fun areaData(group: Map.Entry<Area, List<SavedAreaCaseDto>>): AreaData {
@@ -58,11 +97,9 @@ class LoadSavedAreasUseCase @Inject constructor(
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
 
     private fun mapSummaryModel(
-        index: Int,
         areaData: AreaData
-    ): SummaryModel {
-        return SummaryModel(
-            position = index + 1,
+    ): SavedAreaSummaryModel {
+        return SavedAreaSummaryModel(
             areaType = areaData.areaType,
             areaCode = areaData.areaCode,
             areaName = areaData.areaName,

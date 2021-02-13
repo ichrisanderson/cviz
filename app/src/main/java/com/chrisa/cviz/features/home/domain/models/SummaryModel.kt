@@ -26,3 +26,13 @@ data class SummaryModel(
     val currentInfectionRate: Double,
     val changeInInfectionRate: Double
 )
+
+data class SavedAreaSummaryModel(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val changeInCases: Int,
+    val currentNewCases: Int,
+    val currentInfectionRate: Double,
+    val changeInInfectionRate: Double
+)

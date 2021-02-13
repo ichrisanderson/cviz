@@ -38,6 +38,7 @@ class SavedAreaDataSynchroniserTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataSynchroniser = mockk<AreaDataSynchroniser>()
+    private val soaDataSynchroniser = mockk<SoaDataSynchroniser>()
     private val areaDao = mockk<AreaDao>()
     private val testDispatcher = TestCoroutineDispatcher()
 
@@ -47,7 +48,7 @@ class SavedAreaDataSynchroniserTest {
     fun setup() {
         every { appDatabase.areaDao() } returns areaDao
 
-        sut = SavedAreaDataSynchroniser(areaDataSynchroniser, appDatabase)
+        sut = SavedAreaDataSynchroniser(areaDataSynchroniser, soaDataSynchroniser, appDatabase)
     }
 
     @Test
@@ -134,6 +135,28 @@ class SavedAreaDataSynchroniserTest {
                 areaDataSynchroniser.performSync(
                     area2.areaCode,
                     area2.areaType
+                )
+            }
+        }
+
+    @Test
+    fun `GIVEN saved soa areas WHEN performSync THEN area data is synced`() =
+        testDispatcher.runBlockingTest {
+
+            val area = AreaEntity(
+                areaName = "Lambeth",
+                areaCode = "1",
+                areaType = AreaType.MSOA
+            )
+            coEvery { areaDataSynchroniser.performSync(any(), any()) } just Runs
+            coEvery { soaDataSynchroniser.performSync(any()) } just Runs
+            every { areaDao.allSavedAreas() } returns listOf(area)
+
+            sut.performSync()
+
+            coVerify(exactly = 1) {
+                soaDataSynchroniser.performSync(
+                    area.areaCode
                 )
             }
         }

@@ -181,6 +181,9 @@ interface AreaDao {
     fun count(): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(area: AreaEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(area: List<AreaEntity>)
 
     @Query("SELECT * FROM area WHERE areaCode = :areaCode LIMIT 1")
@@ -682,6 +685,9 @@ data class SoaDataEntity(
 
 @Dao
 interface SoaDataDao {
+
+    @Query("SELECT * FROM soaData INNER JOIN savedArea ON soaData.areaCode = savedArea.areaCode ORDER BY date ASC")
+    fun allSavedAreaData(): Flow<List<SoaDataEntity>>
 
     @Query("SELECT * FROM soaData WHERE areaCode = :areaCode ORDER BY date ASC")
     fun byAreaCode(areaCode: String): List<SoaDataEntity>

@@ -18,7 +18,9 @@ package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaLookupEntity
+import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.network.AreaLookupData
 import com.chrisa.cviz.core.data.network.CovidApi
 import com.chrisa.cviz.core.util.NetworkUtils
@@ -53,6 +55,7 @@ internal class PostcodeLookupDataSynchroniserImpl @Inject constructor(
         areaLookupData: AreaLookupData
     ) {
         appDatabase.withTransaction {
+
             appDatabase.areaLookupDao().insert(
                 AreaLookupEntity(
                     postcode = areaLookupData.postcode,
@@ -75,6 +78,16 @@ internal class PostcodeLookupDataSynchroniserImpl @Inject constructor(
                     nationName = areaLookupData.nationName
                 )
             )
+
+            if (areaLookupData.msoaName != null) {
+                appDatabase.areaDao().insert(
+                    AreaEntity(
+                        areaLookupData.msoa,
+                        areaLookupData.msoaName,
+                        AreaType.MSOA
+                    )
+                )
+            }
         }
     }
 }

@@ -17,8 +17,11 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaDao
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaLookupDao
 import com.chrisa.cviz.core.data.db.AreaLookupEntity
+import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.network.AreaLookupData
 import com.chrisa.cviz.core.data.network.CovidApi
@@ -46,6 +49,7 @@ class PostcodeLookupDataSynchroniserImplTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val areaLookupDao = mockk<AreaLookupDao>()
+    private val areaDao = mockk<AreaDao>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
     private val testDispatcher = TestCoroutineDispatcher()
@@ -56,7 +60,9 @@ class PostcodeLookupDataSynchroniserImplTest {
     fun setup() {
         every { networkUtils.hasNetworkConnection() } returns true
         every { appDatabase.areaLookupDao() } returns areaLookupDao
+        every { appDatabase.areaDao() } returns areaDao
         every { areaLookupDao.insert(any()) } just Runs
+        every { areaDao.insert(any()) } just Runs
 
         appDatabase.mockTransaction()
 
@@ -138,6 +144,15 @@ class PostcodeLookupDataSynchroniserImplTest {
                         regionName = areaLookupData.regionName,
                         nationCode = areaLookupData.nation,
                         nationName = areaLookupData.nationName
+                    )
+                )
+            }
+            coVerify(exactly = 1) {
+                areaDao.insert(
+                    AreaEntity(
+                        areaCode = areaLookupData.msoa,
+                        areaName = areaLookupData.msoaName!!,
+                        areaType = AreaType.MSOA
                     )
                 )
             }

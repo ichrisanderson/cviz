@@ -28,3 +28,12 @@ data class SavedAreaCaseDto(
     val infectionRate: Double,
     val date: LocalDate
 )
+
+data class SavedSoaDataDto(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: AreaType,
+    val rollingSum: Int,
+    val rollingRate: Double,
+    val date: LocalDate
+)

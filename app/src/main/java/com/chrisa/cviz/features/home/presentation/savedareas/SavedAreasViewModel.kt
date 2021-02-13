@@ -24,7 +24,7 @@ import androidx.lifecycle.viewModelScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.home.domain.LoadSavedAreasUseCase
 import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
-import com.chrisa.cviz.features.home.domain.models.SummaryModel
+import com.chrisa.cviz.features.home.domain.models.SavedAreaSummaryModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -40,8 +40,8 @@ class SavedAreasViewModel @ViewModelInject constructor(
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _savedAreas = MutableLiveData<List<SummaryModel>>()
-    val savedAreas: LiveData<List<SummaryModel>>
+    private val _savedAreas = MutableLiveData<List<SavedAreaSummaryModel>>()
+    val savedAreas: LiveData<List<SavedAreaSummaryModel>>
         get() = _savedAreas
 
     private val _isLoading = MutableLiveData<Boolean>()

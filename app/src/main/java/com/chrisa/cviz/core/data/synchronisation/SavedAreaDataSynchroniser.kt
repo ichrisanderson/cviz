@@ -24,6 +24,7 @@ import javax.inject.Inject
 
 internal class SavedAreaDataSynchroniser @Inject constructor(
     private val areaDataSynchroniser: AreaDataSynchroniser,
+    private val soaDataSynchroniser: SoaDataSynchroniser,
     private val appDatabase: AppDatabase
 ) {
 
@@ -31,16 +32,29 @@ internal class SavedAreaDataSynchroniser @Inject constructor(
         val areas = listOf(
             AreaEntity(Constants.UK_AREA_CODE, Constants.UK_AREA_NAME, AreaType.OVERVIEW),
             AreaEntity(Constants.ENGLAND_AREA_CODE, Constants.ENGLAND_AREA_NAME, AreaType.NATION),
-            AreaEntity(Constants.NORTHERN_IRELAND_AREA_CODE, Constants.NORTHERN_IRELAND_AREA_NAME, AreaType.NATION),
+            AreaEntity(
+                Constants.NORTHERN_IRELAND_AREA_CODE,
+                Constants.NORTHERN_IRELAND_AREA_NAME,
+                AreaType.NATION
+            ),
             AreaEntity(Constants.SCOTLAND_AREA_CODE, Constants.SCOTLAND_AREA_NAME, AreaType.NATION),
             AreaEntity(Constants.WALES_AREA_CODE, Constants.WALES_AREA_NAME, AreaType.NATION)
         )
             .plus(appDatabase.areaDao().allSavedAreas())
 
         var error: Throwable? = null
-        areas.forEach { area ->
+        val areasWithoutSoa = areas.filterNot { it.areaType == AreaType.MSOA }
+        areasWithoutSoa.forEach { area ->
             try {
                 areaDataSynchroniser.performSync(area.areaCode, area.areaType)
+            } catch (throwable: Throwable) {
+                if (error == null) error = throwable
+            }
+        }
+        val areasWithSoa = areas.filter { it.areaType == AreaType.MSOA }
+        areasWithSoa.forEach { area ->
+            try {
+                soaDataSynchroniser.performSync(area.areaCode)
             } catch (throwable: Throwable) {
                 if (error == null) error = throwable
             }
