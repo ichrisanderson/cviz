@@ -6,7 +6,7 @@
         android:id="@+id/search"
         android:enabled="true"
         android:icon="@drawable/ic_search"
-        android:title="@string/home_search_hint"
+        android:title="@string/search_area_menu_title"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
 </menu>

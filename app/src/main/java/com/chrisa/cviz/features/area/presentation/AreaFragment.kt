@@ -420,7 +420,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         } catch (e: Throwable) {
             Toast.makeText(
                 binding.recyclerView.context,
-                getString(R.string.failed_to_open_url, url),
+                getString(R.string.alert_level_failed_to_open_url, url),
                 Toast.LENGTH_SHORT
             ).show()
         }

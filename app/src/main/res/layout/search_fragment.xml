@@ -21,7 +21,7 @@
                 android:theme="@style/Widget.Cviz.ToolbarSearchView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:queryHint="@string/home_search_hint"
+                app:queryHint="@string/search_area_hint"
                 app:searchHintIcon="@null"
                 app:searchIcon="@null" />
 

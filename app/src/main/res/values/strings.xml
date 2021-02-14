@@ -5,7 +5,6 @@
     <string name="menu_saved_locations">Saved locations</string>
     <string name="menu_settings">Settings</string>
 
-    <string name="home_search_hint">Search for locations</string>
     <string name="empty_locations_title">You have no saved locations</string>
     <string name="empty_locations_body">Search for locations to see latest data</string>
 
@@ -36,6 +35,8 @@
     <string name="daily_hospital_admissions">Daily admissions</string>
     <string name="all_hospital_admissions_chart_label">All admissions</string>
     <string name="latest_hospital_admissions_chart_label">Latest admissions</string>
+    <string name="admissions_area_filter_subtitle">Select trust(s) to display</string>
+    <string name="admission_area_filter_cta">Apply</string>
 
     <string name="top_infection_rates">Top infection rates</string>
     <string name="rising_infection_rates">Rising infection rates</string>
@@ -55,8 +56,6 @@
     <string name="sync_notification_success_content_title">New data</string>
     <string name="sync_notification_success_content_text">New data available</string>
     <string name="view_all">View all</string>
-    <string name="amissions_area_filter_subtitle">Select trust(s) to display</string>
-    <string name="admission_area_filter_cta">Apply</string>
 
     <!-- Transmission rate -->
     <string name="transmission_rate_title">Estimated R number in %s</string>
@@ -67,7 +66,10 @@
     <!-- Alert level -->
     <string name="alert_level_title">Restrictions in place</string>
     <string name="alert_level_more_information">View\ninformation</string>
+    <string name="alert_level_failed_to_open_url">Failed to open %s</string>
 
-    <!-- Errors -->
-    <string name="failed_to_open_url">Failed to open %s</string>
+    <!-- Search -->
+    <string name="search_area_hint">Enter area name or postcode</string>
+    <string name="search_area_menu_title">Search for locations</string>
+
 </resources>
