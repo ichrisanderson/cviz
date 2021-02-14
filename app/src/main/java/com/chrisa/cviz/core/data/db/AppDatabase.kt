@@ -47,9 +47,10 @@ import kotlinx.coroutines.flow.Flow
         HealthcareEntity::class,
         AreaLookupEntity::class,
         HealthcareLookupEntity::class,
-        AlertLevelEntity::class
+        AlertLevelEntity::class,
+        SoaDataEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(
@@ -68,6 +69,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun healthcareDao(): HealthcareDao
     abstract fun healthcareLookupDao(): HealthcareLookupDao
     abstract fun alertLevelDao(): AlertLevelDao
+    abstract fun soaDataDao(): SoaDataDao
 
     companion object {
         private const val databaseName = "cviz-db"
@@ -78,9 +80,18 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS `soaData` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`))")
+                database.execSQL("DELETE FROM `alertLevel`")
+                database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `trimmedPostcode` TEXT NOT NULL")
+                database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `postcode` TEXT NOT NULL")
+            }
+        }
+
         fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .fallbackToDestructiveMigration()
                 .build()
         }
@@ -130,7 +141,8 @@ enum class AreaType(val value: String) {
     NHS_REGION("nhsRegion"),
     NHS_TRUST("nhsTrust"),
     UTLA("utla"),
-    LTLA("ltla");
+    LTLA("ltla"),
+    MSOA("msoa");
 
     companion object {
         fun from(type: String): AreaType? {
@@ -142,6 +154,7 @@ enum class AreaType(val value: String) {
                 NHS_TRUST.value -> NHS_TRUST
                 UTLA.value -> UTLA
                 LTLA.value -> LTLA
+                MSOA.value -> MSOA
                 else -> null
             }
         }
@@ -166,6 +179,9 @@ interface AreaDao {
 
     @Query("SELECT COUNT(areaCode) FROM area")
     fun count(): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(area: AreaEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(area: List<AreaEntity>)
@@ -464,6 +480,10 @@ interface AreaSummaryDao {
     primaryKeys = ["lsoaCode"]
 )
 data class AreaLookupEntity(
+    @ColumnInfo(name = "postcode")
+    val postcode: String,
+    @ColumnInfo(name = "trimmedPostcode")
+    val trimmedPostcode: String,
     @ColumnInfo(name = "lsoaCode")
     val lsoaCode: String,
     @ColumnInfo(name = "lsoaName")
@@ -504,6 +524,9 @@ interface AreaLookupDao {
     @Query("SELECT COUNT(msoaCode) FROM areaLookup")
     fun countAll(): Int
 
+    @Query("SELECT * FROM areaLookup WHERE msoaCode = :code LIMIT 1")
+    fun byMsoa(code: String): AreaLookupEntity?
+
     @Query("SELECT * FROM areaLookup WHERE ltlaCode = :code LIMIT 1")
     fun byLtla(code: String): AreaLookupEntity?
 
@@ -518,6 +541,9 @@ interface AreaLookupDao {
 
     @Query("SELECT * FROM areaLookup WHERE nhsTrustCode = :code LIMIT 1")
     fun byNhsTrustCode(code: String): AreaLookupEntity?
+
+    @Query("SELECT * FROM areaLookup WHERE trimmedPostcode = :code LIMIT 1")
+    fun byTrimmedPostcode(code: String): AreaLookupEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaLookupEntities: List<AreaLookupEntity>)
@@ -632,4 +658,43 @@ interface AlertLevelDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(items: List<AlertLevelEntity>)
+}
+
+@Entity(
+    tableName = "soaData",
+    primaryKeys = ["areaCode", "date"]
+)
+data class SoaDataEntity(
+    @ColumnInfo(name = "areaCode")
+    val areaCode: String,
+    @ColumnInfo(name = "areaName")
+    val areaName: String,
+    @ColumnInfo(name = "areaType")
+    val areaType: AreaType,
+    @ColumnInfo(name = "date")
+    val date: LocalDate,
+    @ColumnInfo(name = "rollingSum")
+    val rollingSum: Int,
+    @ColumnInfo(name = "rollingRate")
+    val rollingRate: Double,
+    @ColumnInfo(name = "change")
+    val change: Int,
+    @ColumnInfo(name = "changePercentage")
+    val changePercentage: Double
+)
+
+@Dao
+interface SoaDataDao {
+
+    @Query("SELECT * FROM soaData INNER JOIN savedArea ON soaData.areaCode = savedArea.areaCode ORDER BY date ASC")
+    fun allSavedAreaData(): Flow<List<SoaDataEntity>>
+
+    @Query("SELECT * FROM soaData WHERE areaCode = :areaCode ORDER BY date ASC")
+    fun byAreaCode(areaCode: String): List<SoaDataEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(items: List<SoaDataEntity>)
+
+    @Query("DELETE FROM soaData WHERE :areaCode = areaCode")
+    fun deleteAllByAreaCode(areaCode: String)
 }

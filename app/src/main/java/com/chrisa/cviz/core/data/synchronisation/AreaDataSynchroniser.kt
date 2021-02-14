@@ -55,13 +55,13 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         areaCode: String,
         areaType: AreaType
     ) {
-        if (!networkUtils.hasNetworkConnection()) throw IOException()
-
         val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
         val now = timeProvider.currentTime()
         if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
         }
+
+        if (!networkUtils.hasNetworkConnection()) throw IOException()
 
         val casesFromNetwork = api.pagedAreaDataResponse(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
@@ -81,9 +81,8 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         } else {
             throw HttpException(
                 Response.error<Page<AreaDataModel>>(
-                    casesFromNetwork.errorBody() ?: "".toResponseBody(
-                        "application/json".toMediaType()
-                    ),
+                    casesFromNetwork.errorBody()
+                        ?: "".toResponseBody("application/json".toMediaType()),
                     casesFromNetwork.raw()
                 )
             )

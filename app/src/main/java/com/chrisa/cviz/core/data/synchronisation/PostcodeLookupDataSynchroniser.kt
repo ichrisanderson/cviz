@@ -18,6 +18,7 @@ package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaLookupEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.network.AreaLookupData
@@ -26,42 +27,27 @@ import com.chrisa.cviz.core.util.NetworkUtils
 import java.io.IOException
 import javax.inject.Inject
 
-interface AreaLookupDataSynchroniser {
-    suspend fun performSync(areaCode: String, areaType: AreaType)
+interface PostcodeLookupDataSynchroniser {
+    suspend fun performSync(postcode: String)
 }
 
-internal class AreaLookupDataSynchroniserImpl @Inject constructor(
+internal class PostcodeLookupDataSynchroniserImpl @Inject constructor(
     private val api: CovidApi,
     private val appDatabase: AppDatabase,
     private val networkUtils: NetworkUtils
-) : AreaLookupDataSynchroniser {
+) : PostcodeLookupDataSynchroniser {
 
     override suspend fun performSync(
-        areaCode: String,
-        areaType: AreaType
+        postcode: String
     ) {
-        if (!canLookupData(areaType)) return
-        if (hasLookupData(areaCode, areaType)) return
+        if (hasLookupData(postcode)) return
         if (!networkUtils.hasNetworkConnection()) throw IOException()
-        cacheAreaData(api.areaLookupData(category = areaType.value, search = areaCode))
+        val lookup = api.areaLookupData(category = "postcode", search = postcode)
+        cacheAreaData(lookup)
     }
 
-    private fun canLookupData(areaType: AreaType): Boolean {
-        return when (areaType) {
-            AreaType.REGION,
-            AreaType.UTLA,
-            AreaType.LTLA -> true
-            else -> false
-        }
-    }
-
-    private fun hasLookupData(areaCode: String, areaType: AreaType): Boolean {
-        val areaLookupData: AreaLookupEntity? = when (areaType) {
-            AreaType.REGION -> appDatabase.areaLookupDao().byRegion(areaCode)
-            AreaType.UTLA -> appDatabase.areaLookupDao().byUtla(areaCode)
-            AreaType.LTLA -> appDatabase.areaLookupDao().byLtla(areaCode)
-            else -> null
-        }
+    private fun hasLookupData(postcode: String): Boolean {
+        val areaLookupData = appDatabase.areaLookupDao().byTrimmedPostcode(postcode)
         return areaLookupData != null
     }
 
@@ -69,6 +55,7 @@ internal class AreaLookupDataSynchroniserImpl @Inject constructor(
         areaLookupData: AreaLookupData
     ) {
         appDatabase.withTransaction {
+
             appDatabase.areaLookupDao().insert(
                 AreaLookupEntity(
                     postcode = areaLookupData.postcode,
@@ -91,6 +78,16 @@ internal class AreaLookupDataSynchroniserImpl @Inject constructor(
                     nationName = areaLookupData.nationName
                 )
             )
+
+            if (areaLookupData.msoaName != null) {
+                appDatabase.areaDao().insert(
+                    AreaEntity(
+                        areaLookupData.msoa,
+                        areaLookupData.msoaName,
+                        AreaType.MSOA
+                    )
+                )
+            }
         }
     }
 }

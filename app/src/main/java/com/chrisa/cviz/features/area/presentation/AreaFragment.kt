@@ -42,6 +42,7 @@ import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar.barChartTabCard
 import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined.combinedChartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
 import com.chrisa.cviz.databinding.AreaFragmentBinding
+import com.chrisa.cviz.soaCard
 import com.chrisa.cviz.transmissionRate
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.appcompat.itemClicks
@@ -171,6 +172,36 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     alertLevel {
                         id("alertLevel")
                         ctaClickListener(alertLevelClickListener)
+                    }
+                }
+                val soaData = areaDataModel.soaData
+                if (soaData != null) {
+                    areaSectionHeader {
+                        id("soaDataTitle")
+                        title(
+                            getString(
+                                R.string.cases_title,
+                                soaData.areaName
+                            )
+                        )
+                        subtitle1(
+                            binding.toolbar.context.getString(
+                                R.string.latest_data_label,
+                                dateLabel(soaData.lastDate!!)
+                            )
+                        )
+                        subtitle2(lastUpdated)
+                    }
+                    soaCard {
+                        id("soaData")
+                        totalCases(soaData.weeklyCases)
+                        changeInCases(soaData.changeInCases)
+                        rollingRate(soaData.weeklyRate)
+                        changeInRate(soaData.changeInRate)
+                    }
+                    combinedChartTabCard {
+                        id("soaChartData")
+                        chartData(soaData.chartData)
                     }
                 }
                 val transmissionRate = areaDataModel.areaTransmissionRate
@@ -389,7 +420,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
         } catch (e: Throwable) {
             Toast.makeText(
                 binding.recyclerView.context,
-                getString(R.string.failed_to_open_url, url),
+                getString(R.string.alert_level_failed_to_open_url, url),
                 Toast.LENGTH_SHORT
             ).show()
         }

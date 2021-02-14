@@ -19,15 +19,15 @@ package com.chrisa.cviz.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
-import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
+import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.CovidApi
-import com.chrisa.cviz.core.data.network.HealthcareData
 import com.chrisa.cviz.core.data.network.Page
-import com.chrisa.cviz.core.data.network.Utils.emptyJsonResponse
+import com.chrisa.cviz.core.data.network.RollingChangeModel
+import com.chrisa.cviz.core.data.network.SoaDataModel
+import com.chrisa.cviz.core.data.network.Utils
 import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.DateUtils.formatAsGmt
 import com.chrisa.cviz.core.util.DateUtils.toGmtDateTime
@@ -38,48 +38,45 @@ import javax.inject.Inject
 import retrofit2.HttpException
 import retrofit2.Response
 
-interface HealthcareDataSynchroniser {
-    suspend fun performSync(areaCode: String, areaType: AreaType)
+interface SoaDataSynchroniser {
+    suspend fun performSync(areaCode: String)
 }
 
-internal class HealthcareDataSynchroniserImpl @Inject constructor(
+internal class SoaDataSynchroniserImpl @Inject constructor(
     private val api: CovidApi,
     private val appDatabase: AppDatabase,
     private val networkUtils: NetworkUtils,
     private val timeProvider: TimeProvider
-) : HealthcareDataSynchroniser {
+) : SoaDataSynchroniser {
 
     override suspend fun performSync(
-        areaCode: String,
-        areaType: AreaType
+        areaCode: String
     ) {
-        val metadata = appDatabase.metadataDao().metadata(MetaDataIds.healthcareId(areaCode))
+        val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
         val now = timeProvider.currentTime()
-        if (metadata != null && metadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
+        if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
         }
 
         if (!networkUtils.hasNetworkConnection()) throw IOException()
 
-        val response = api.pagedHealthcareDataResponse(
-            modifiedDate = metadata?.lastUpdatedAt?.formatAsGmt(),
-            filters = AREA_DATA_FILTER(areaCode, areaType.value),
-            structure = HealthcareData.STRUCTURE
+        val soaDataModelResponse = api.soaData(
+            modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
+            filters = SoaDataModel.maosFilter(areaCode)
         )
-
-        if (response.isSuccessful) {
-            val pagedAreaCodeData = response.body()!!
-            val lastModified = response.headers()["Last-Modified"]
+        if (soaDataModelResponse.isSuccessful) {
+            val soaDataModel = soaDataModelResponse.body()!!
+            val lastModified = soaDataModelResponse.headers()["Last-Modified"]
             cacheData(
                 areaCode,
-                pagedAreaCodeData,
+                soaDataModel,
                 lastModified?.toGmtDateTime() ?: timeProvider.currentTime()
             )
         } else {
             throw HttpException(
                 Response.error<Page<AreaDataModel>>(
-                    response.errorBody() ?: emptyJsonResponse(),
-                    response.raw()
+                    soaDataModelResponse.errorBody() ?: Utils.emptyJsonResponse(),
+                    soaDataModelResponse.raw()
                 )
             )
         }
@@ -87,28 +84,27 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
 
     private suspend fun cacheData(
         areaCode: String,
-        pagedAreaCodeData: Page<HealthcareData>,
+        soaDataModel: SoaDataModel,
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
-            val metadataId = MetaDataIds.healthcareId(areaCode)
-            val dataToInsert = pagedAreaCodeData.data.filter { it.occupiedBeds != null }
-            appDatabase.healthcareDao().deleteAllByAreaCode(areaCode)
-            appDatabase.healthcareDao().insertAll(dataToInsert.map {
-                HealthcareEntity(
-                    areaCode = it.areaCode,
-                    areaName = it.areaName,
-                    areaType = AreaType.from(it.areaType)!!,
-                    date = it.date,
-                    newAdmissions = it.newAdmissions,
-                    cumulativeAdmissions = it.cumulativeAdmissions,
-                    occupiedBeds = it.occupiedBeds,
-                    transmissionRateMin = it.transmissionRateMin,
-                    transmissionRateMax = it.transmissionRateMax,
-                    transmissionRateGrowthRateMin = it.transmissionRateGrowthRateMin,
-                    transmissionRateGrowthRateMax = it.transmissionRateGrowthRateMax
-                )
-            })
+            val metadataId = MetaDataIds.areaCodeId(areaCode)
+            appDatabase.soaDataDao().deleteAllByAreaCode(areaCode)
+            appDatabase.soaDataDao().insertAll(
+                soaDataModel.newCasesBySpecimenDate
+                    .filter(::hasRollingData)
+                    .map { rollingChangeModel ->
+                        SoaDataEntity(
+                            soaDataModel.areaCode,
+                            soaDataModel.areaName,
+                            AreaType.from(soaDataModel.areaType)!!,
+                            rollingChangeModel.date,
+                            rollingChangeModel.rollingSum!!,
+                            rollingChangeModel.rollingRate!!,
+                            rollingChangeModel.change!!,
+                            rollingChangeModel.changePercentage!!
+                        )
+                    })
             appDatabase.metadataDao().insert(
                 metadata = MetadataEntity(
                     id = metadataId,
@@ -118,4 +114,10 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
             )
         }
     }
+
+    private fun hasRollingData(rollingChangeModel: RollingChangeModel): Boolean =
+        rollingChangeModel.change != null &&
+            rollingChangeModel.changePercentage != null &&
+            rollingChangeModel.rollingRate != null &&
+            rollingChangeModel.rollingSum != null
 }

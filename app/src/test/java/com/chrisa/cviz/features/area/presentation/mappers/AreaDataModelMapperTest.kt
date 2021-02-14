@@ -18,6 +18,7 @@ package com.chrisa.cviz.features.area.presentation.mappers
 
 import android.content.Context
 import com.chrisa.cviz.R
+import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
@@ -30,15 +31,19 @@ import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
-import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as AreaTransmissionRateDomainModel
+import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
+import com.chrisa.cviz.features.area.domain.models.SoaData
+import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
 import com.chrisa.cviz.features.area.domain.models.TransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
 import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
+import com.chrisa.cviz.features.area.presentation.models.SoaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
@@ -50,12 +55,14 @@ class AreaDataModelMapperTest {
     private val chartBuilder = mockk<ChartBuilder>()
     private val weeklySummaryBuilder = mockk<WeeklySummaryBuilder>()
     private val admissionsFilter = mockk<AdmissionsFilter>()
+    private val soaChartBuilder = mockk<SoaChartBuilder>()
     private val sut = AreaDataModelMapper(
         context,
         dailyDataWithRollingAverageBuilder,
         weeklySummaryBuilder,
         chartBuilder,
-        admissionsFilter
+        admissionsFilter,
+        soaChartBuilder
     )
 
     @Before
@@ -333,7 +340,7 @@ class AreaDataModelMapperTest {
     fun `WHEN mapAreaDetailModel called with transmission data THEN hospital data shown`() {
         val rateDate = lastUpdatedDateTime.minusDays(7).toLocalDate()
         val areaName = "London"
-        val areaTransmissionRate = AreaTransmissionRateDomainModel(
+        val areaTransmissionRate = DomainAreaTransmissionRateModel(
             areaName,
             lastUpdatedDateTime,
             TransmissionRateModel(
@@ -366,7 +373,7 @@ class AreaDataModelMapperTest {
     }
 
     @Test
-    fun `WHEN mapAreaDetailModel called with alert level data THEN hospital data shown`() {
+    fun `WHEN mapAreaDetailModel called with alert level data THEN alert level is present`() {
         val alertLevel = DomainAlertLevelModel(alertLevelUrl = "https://www.acme.com")
         val areaDetail = areaDetail.copy(alertLevel = alertLevel)
 
@@ -381,8 +388,48 @@ class AreaDataModelMapperTest {
         )
     }
 
+    @Test
+    fun `WHEN mapAreaDetailModel called with soa data THEN soa data is present`() {
+        val week1 = SoaData(
+            date = LocalDate.of(2020, 1, 1),
+            rollingSum = 11,
+            rollingRate = 12.0
+        )
+        val week2 = SoaData(
+            date = LocalDate.of(2020, 1, 1),
+            rollingSum = 11,
+            rollingRate = 12.0
+        )
+        val data = listOf(week2, week1)
+        val soaDataModel = DomainSoaDataModel(
+            areaCode = "1234",
+            areaName = "London",
+            areaType = AreaType.REGION,
+            data = data
+        )
+        val casesChart = combinedChartData("soa cases")
+        val chartData = listOf(casesChart)
+        every { soaChartBuilder.caseChartData(data) } returns chartData
+        val areaDetail = areaDetail.copy(soaData = soaDataModel)
+
+        val mappedModel = sut.mapAreaDetailModel(areaDetail, emptySet())
+
+        assertThat(mappedModel).isEqualTo(
+            defaultModel.copy(
+                soaData = SoaDataModel(
+                    areaName = soaDataModel.areaName,
+                    lastDate = week2.date,
+                    weeklyRate = week2.rollingRate.toInt(),
+                    weeklyCases = week2.rollingSum,
+                    changeInCases = week2.rollingSum - week1.rollingSum,
+                    changeInRate = week2.rollingRate.toInt() - week1.rollingRate.toInt(),
+                    chartData = chartData
+                )
+            )
+        )
+    }
+
     companion object {
-        private val syncDateTime = LocalDateTime.of(2020, 1, 2, 0, 0)
         private val lastUpdatedDateTime = LocalDateTime.of(2020, 1, 1, 11, 0)
 
         private const val allCasesLabel = "All cases"
@@ -397,7 +444,6 @@ class AreaDataModelMapperTest {
 
         private val areaDetail = AreaDetailModel(
             lastUpdatedAt = lastUpdatedDateTime,
-            lastSyncedAt = syncDateTime,
             casesAreaName = "",
             cases = emptyList(),
             deathsByPublishedDateAreaName = "",
@@ -433,7 +479,9 @@ class AreaDataModelMapperTest {
             hospitalAdmissionsChartData = emptyList(),
             canFilterHospitalAdmissionsAreas = false,
             hospitalAdmissionsAreas = emptyList(),
-            areaTransmissionRate = null
+            areaTransmissionRate = null,
+            alertLevel = null,
+            soaData = null
         )
 
         private fun combinedChartData(labelPrefix: String) =

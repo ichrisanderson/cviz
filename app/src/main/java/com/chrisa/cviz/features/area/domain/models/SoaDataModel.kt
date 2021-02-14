@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,20 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.home.data.dtos
+package com.chrisa.cviz.features.area.domain.models
 
 import com.chrisa.cviz.core.data.db.AreaType
 import java.time.LocalDate
 
-data class SavedAreaCaseDto(
+data class SoaDataModel(
     val areaCode: String,
     val areaName: String,
     val areaType: AreaType,
-    val newCases: Int,
-    val cumulativeCases: Int,
-    val infectionRate: Double,
-    val date: LocalDate
+    val data: List<SoaData>
 )
 
-data class SavedSoaDataDto(
-    val areaCode: String,
-    val areaName: String,
-    val areaType: AreaType,
+data class SoaData(
+    val date: LocalDate,
     val rollingSum: Int,
-    val rollingRate: Double,
-    val date: LocalDate
+    val rollingRate: Double
 )

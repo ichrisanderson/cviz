@@ -13,27 +13,20 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            android:layout_height="?attr/actionBarSize">
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back">
 
             <androidx.appcompat.widget.SearchView
                 android:id="@+id/searchView"
-                android:theme="@style/Widget.Cviz.ToolbarSearchView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:queryHint="@string/home_search_hint"
+                android:theme="@style/Widget.Cviz.ToolbarSearchView"
+                app:queryHint="@string/search_area_hint"
                 app:searchHintIcon="@null"
                 app:searchIcon="@null" />
 
         </com.google.android.material.appbar.MaterialToolbar>
-
     </com.google.android.material.appbar.AppBarLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="4dp"
-        android:background="#666"
-        app:layout_constraintTop_toBottomOf="@+id/appBar" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

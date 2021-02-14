@@ -59,7 +59,7 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
         initToolbar()
         initSearchView()
         initRecyclerView()
-        observeViewState()
+        observeAreas()
         observeViewEvents()
     }
 
@@ -87,18 +87,10 @@ class SearchFragment : Fragment(R.layout.search_fragment) {
         )
     }
 
-    private fun observeViewState() {
-        viewModel.state.observe(viewLifecycleOwner, Observer {
-            val state = it ?: return@Observer
-            when (state) {
-                SearchState.Loading -> {
-                    // TODO: Show loading state
-                }
-                is SearchState.Success -> areaAdapter.submitList(state.items)
-                SearchState.Empty -> {
-                    areaAdapter.submitList(emptyList())
-                }
-            }
+    private fun observeAreas() {
+        viewModel.areas.observe(viewLifecycleOwner, Observer {
+            val areas = it ?: return@Observer
+            areaAdapter.submitList(areas)
         })
     }
 

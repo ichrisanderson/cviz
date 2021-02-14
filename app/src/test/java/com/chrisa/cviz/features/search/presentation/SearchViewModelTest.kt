@@ -24,11 +24,13 @@ import com.chrisa.cviz.features.search.domain.models.AreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class SearchViewModelTest {
 
     @Rule
@@ -50,12 +52,11 @@ class SearchViewModelTest {
 
             coEvery { searchUseCase.execute(query) } returns listOf()
 
-            val statesObserver = sut.state.test()
+            val statesObserver = sut.areas.test()
 
             sut.searchAreas(query)
 
-            assertThat(statesObserver.values[0]).isEqualTo(SearchState.Loading)
-            assertThat(statesObserver.values[1]).isEqualTo(SearchState.Empty)
+            assertThat(statesObserver.values[0]).isEqualTo(listOf<AreaModel>())
         }
 
     @Test
@@ -75,11 +76,10 @@ class SearchViewModelTest {
 
             coEvery { searchUseCase.execute(query) } returns expectedResults
 
-            val statesObserver = sut.state.test()
+            val statesObserver = sut.areas.test()
 
             sut.searchAreas(query)
 
-            assertThat(statesObserver.values[0]).isEqualTo(SearchState.Loading)
-            assertThat(statesObserver.values[1]).isEqualTo(SearchState.Success(expectedResults))
+            assertThat(statesObserver.values[0]).isEqualTo(expectedResults)
         }
 }

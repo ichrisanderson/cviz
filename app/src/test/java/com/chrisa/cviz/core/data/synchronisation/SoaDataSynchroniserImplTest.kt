@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,17 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.AreaDataDao
-import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
-import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
-import com.chrisa.cviz.core.data.network.AreaDataModel
-import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
+import com.chrisa.cviz.core.data.db.SoaDataDao
+import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.CovidApi
-import com.chrisa.cviz.core.data.network.Page
-import com.chrisa.cviz.core.data.network.Utils.emptyJsonResponse
+import com.chrisa.cviz.core.data.network.LatestChangeModel
+import com.chrisa.cviz.core.data.network.RollingChangeModel
+import com.chrisa.cviz.core.data.network.SoaDataModel
+import com.chrisa.cviz.core.data.network.Utils
 import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.NetworkUtils
 import com.chrisa.cviz.core.util.mockTransaction
@@ -52,41 +50,37 @@ import retrofit2.HttpException
 import retrofit2.Response
 
 @ExperimentalCoroutinesApi
-class AreaLookupDataSynchroniserImplTest {
+class SoaDataSynchroniserImplTest {
 
     private val appDatabase = mockk<AppDatabase>()
-    private val areaDataDao = mockk<AreaDataDao>()
+    private val soaDataDao = mockk<SoaDataDao>()
     private val metadataDao = mockk<MetadataDao>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
-    private val areaDataModelStructureMapper = mockk<AreaDataModelStructureMapper>()
     private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private lateinit var sut: AreaDataSynchroniser
+    private lateinit var sut: SoaDataSynchroniserImpl
     private val areaCode = "1234"
-    private val areaType = AreaType.OVERVIEW
-    private val areaDataModel = "{}"
+    private val areaType = AreaType.MSOA
     private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
 
     @Before
     fun setup() {
         every { networkUtils.hasNetworkConnection() } returns true
-        every { areaDataModelStructureMapper.mapAreaTypeToDataModel(any()) } returns areaDataModel
         every { appDatabase.metadataDao() } returns metadataDao
-        every { appDatabase.areaDataDao() } returns areaDataDao
-        every { areaDataDao.deleteAllByAreaCode(areaCode) } just Runs
-        every { areaDataDao.insertAll(any()) } just Runs
+        every { appDatabase.soaDataDao() } returns soaDataDao
+        every { soaDataDao.deleteAllByAreaCode(areaCode) } just Runs
+        every { soaDataDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
         every { metadataDao.metadata(any()) } returns null
 
         appDatabase.mockTransaction()
 
-        sut = AreaDataSynchroniserImpl(
+        sut = SoaDataSynchroniserImpl(
             covidApi,
             appDatabase,
-            areaDataModelStructureMapper,
             networkUtils,
             timeProvider
         )
@@ -98,7 +92,7 @@ class AreaLookupDataSynchroniserImplTest {
 
             every { networkUtils.hasNetworkConnection() } returns false
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode)
 
             coVerify(exactly = 0) { covidApi.pagedAreaDataResponse(any(), any(), any()) }
         }
@@ -107,16 +101,15 @@ class AreaLookupDataSynchroniserImplTest {
     fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
         testDispatcher.runBlockingTest {
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns null
-            coEvery { covidApi.pagedAreaDataResponse(any(), any(), any()) } returns
-                Response.error(500, emptyJsonResponse())
+            coEvery { covidApi.soaData(any(), any()) } returns
+                Response.error(500, Utils.emptyJsonResponse())
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode)
 
             coVerify(exactly = 1) {
-                covidApi.pagedAreaDataResponse(
+                covidApi.soaData(
                     null,
-                    AREA_DATA_FILTER(areaCode, areaType.value),
-                    areaDataModel
+                    SoaDataModel.maosFilter(areaCode)
                 )
             }
         }
@@ -131,7 +124,7 @@ class AreaLookupDataSynchroniserImplTest {
             )
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode)
 
             coVerify(exactly = 0) {
                 covidApi.pagedAreaDataResponse(any(), any(), any())
@@ -149,14 +142,16 @@ class AreaLookupDataSynchroniserImplTest {
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.pagedAreaDataResponse(
-                    any(),
+                covidApi.soaData(
                     any(),
                     any()
                 )
-            } returns Response.error(404, emptyJsonResponse())
+            } returns Response.error(
+                404,
+                Utils.emptyJsonResponse()
+            )
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode)
         }
 
     @Test(expected = NullPointerException::class)
@@ -170,14 +165,13 @@ class AreaLookupDataSynchroniserImplTest {
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.pagedAreaDataResponse(
-                    any(),
+                covidApi.soaData(
                     any(),
                     any()
                 )
             } returns Response.success(null)
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode)
         }
 
     @Test
@@ -188,64 +182,56 @@ class AreaLookupDataSynchroniserImplTest {
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
-            val areaModel = AreaDataModel(
-                areaCode = Constants.UK_AREA_CODE,
-                areaName = Constants.UK_AREA_NAME,
-                areaType = AreaType.OVERVIEW.value,
-                cumulativeCases = 100,
+            val rollingChangeModel = RollingChangeModel(
                 date = LocalDate.now(),
-                newCases = 10,
-                infectionRate = 100.0,
-                newDeathsByPublishedDate = 15,
-                cumulativeDeathsByPublishedDate = 20,
-                cumulativeDeathsByPublishedDateRate = 30.0,
-                newDeathsByDeathDate = 40,
-                cumulativeDeathsByDeathDate = 50,
-                cumulativeDeathsByDeathDateRate = 60.0,
-                newOnsDeathsByRegistrationDate = 10,
-                cumulativeOnsDeathsByRegistrationDate = 53,
-                cumulativeOnsDeathsByRegistrationDateRate = 62.0
+                rollingSum = 11,
+                rollingRate = 1.0,
+                change = 1,
+                direction = "",
+                changePercentage = 2.0
             )
-            val pageModel = Page(
-                length = 1,
-                maxPageLimit = null,
-                data = listOf(areaModel)
+            val emptyRollingChangeModel = RollingChangeModel(
+                date = LocalDate.now(),
+                rollingSum = null,
+                rollingRate = null,
+                change = null,
+                direction = null,
+                changePercentage = null
+            )
+            val soaData = SoaDataModel(
+                areaCode = areaCode,
+                areaName = "Westminister",
+                areaType = areaType.value,
+                latest = LatestChangeModel(
+                    newCasesBySpecimenDate = rollingChangeModel
+                ),
+                newCasesBySpecimenDate = listOf(rollingChangeModel, emptyRollingChangeModel)
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
 
             every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.pagedAreaDataResponse(
-                    any(),
+                covidApi.soaData(
                     any(),
                     any()
                 )
-            } returns Response.success(pageModel)
+            } returns Response.success(soaData)
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(areaCode)
 
-            verify(exactly = 1) { areaDataDao.deleteAllByAreaCode(areaCode) }
+            verify(exactly = 1) { soaDataDao.deleteAllByAreaCode(areaCode) }
             verify(exactly = 1) {
-                areaDataDao.insertAll(
+                soaDataDao.insertAll(
                     listOf(
-                        AreaDataEntity(
-                            metadataId = metadataEntity.id,
-                            areaCode = areaModel.areaCode,
-                            areaName = areaModel.areaName,
-                            areaType = AreaType.from(areaModel.areaType)!!,
-                            cumulativeCases = areaModel.cumulativeCases!!,
-                            date = areaModel.date,
-                            newCases = areaModel.newCases!!,
-                            infectionRate = areaModel.infectionRate!!,
-                            newDeathsByPublishedDate = areaModel.newDeathsByPublishedDate!!,
-                            cumulativeDeathsByPublishedDate = areaModel.cumulativeDeathsByPublishedDate!!,
-                            cumulativeDeathsByPublishedDateRate = areaModel.cumulativeDeathsByPublishedDateRate!!,
-                            newDeathsByDeathDate = areaModel.newDeathsByDeathDate!!,
-                            cumulativeDeathsByDeathDate = areaModel.cumulativeDeathsByDeathDate!!,
-                            cumulativeDeathsByDeathDateRate = areaModel.cumulativeDeathsByDeathDateRate!!,
-                            newOnsDeathsByRegistrationDate = areaModel.newOnsDeathsByRegistrationDate,
-                            cumulativeOnsDeathsByRegistrationDate = areaModel.cumulativeOnsDeathsByRegistrationDate,
-                            cumulativeOnsDeathsByRegistrationDateRate = areaModel.cumulativeOnsDeathsByRegistrationDateRate
+                        SoaDataEntity(
+                            areaCode = soaData.areaCode,
+                            areaName = soaData.areaName,
+                            areaType = areaType,
+                            rollingChangeModel.date,
+                            rollingChangeModel.rollingSum!!,
+                            rollingChangeModel.rollingRate!!,
+                            rollingChangeModel.change!!,
+                            rollingChangeModel.changePercentage!!
                         )
                     )
                 )

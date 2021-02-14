@@ -22,7 +22,8 @@ import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.features.home.data.HomeDataSource
 import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
-import com.chrisa.cviz.features.home.domain.models.SummaryModel
+import com.chrisa.cviz.features.home.data.dtos.SavedSoaDataDto
+import com.chrisa.cviz.features.home.domain.models.SavedAreaSummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
@@ -64,6 +65,14 @@ class LoadSavedAreasUseCaseTest {
                 infectionRate = 10.0,
                 date = syncDate.toLocalDate()
             )
+            val soaAreaCaseDto = SavedSoaDataDto(
+                areaName = "Westminister",
+                areaCode = "E1234",
+                areaType = AreaType.MSOA,
+                rollingSum = 11,
+                rollingRate = 122.0,
+                date = syncDate.toLocalDate()
+            )
             val weeklySummary = WeeklySummary(
                 lastDate = syncDate.toLocalDate(),
                 currentTotal = 12220,
@@ -74,9 +83,11 @@ class LoadSavedAreasUseCaseTest {
                 changeInRate = 10.0
             )
             val newCases = listOf(ukAreaCaseDto, englandAreaCaseDto)
+            val newSoaData = listOf(soaAreaCaseDto)
             every { areaSummaryMapper.buildWeeklySummary(any()) } returns weeklySummary
             every { homeDataSource.savedAreaCases() } returns listOf(newCases).asFlow()
-            val emittedItems = mutableListOf<List<SummaryModel>>()
+            every { homeDataSource.savedSoaData() } returns listOf(newSoaData).asFlow()
+            val emittedItems = mutableListOf<List<SavedAreaSummaryModel>>()
 
             sut.execute().collect { emittedItems.add(it) }
 
@@ -85,8 +96,7 @@ class LoadSavedAreasUseCaseTest {
             assertThat(summaryModels)
                 .isEqualTo(
                     listOf(
-                        SummaryModel(
-                            position = 1,
+                        SavedAreaSummaryModel(
                             areaCode = englandAreaCaseDto.areaCode,
                             areaName = englandAreaCaseDto.areaName,
                             areaType = englandAreaCaseDto.areaType.value,
@@ -95,8 +105,7 @@ class LoadSavedAreasUseCaseTest {
                             currentInfectionRate = weeklySummary.weeklyRate,
                             changeInInfectionRate = weeklySummary.changeInRate
                         ),
-                        SummaryModel(
-                            position = 2,
+                        SavedAreaSummaryModel(
                             areaCode = ukAreaCaseDto.areaCode,
                             areaName = ukAreaCaseDto.areaName,
                             areaType = ukAreaCaseDto.areaType.value,
@@ -104,6 +113,15 @@ class LoadSavedAreasUseCaseTest {
                             currentNewCases = weeklySummary.weeklyTotal,
                             currentInfectionRate = weeklySummary.weeklyRate,
                             changeInInfectionRate = weeklySummary.changeInRate
+                        ),
+                        SavedAreaSummaryModel(
+                            areaCode = soaAreaCaseDto.areaCode,
+                            areaName = soaAreaCaseDto.areaName,
+                            areaType = soaAreaCaseDto.areaType.value,
+                            changeInCases = soaAreaCaseDto.rollingSum,
+                            currentNewCases = soaAreaCaseDto.rollingSum,
+                            currentInfectionRate = soaAreaCaseDto.rollingRate,
+                            changeInInfectionRate = soaAreaCaseDto.rollingRate
                         )
                     )
                 )

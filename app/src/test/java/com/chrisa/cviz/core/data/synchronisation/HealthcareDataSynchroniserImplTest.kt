@@ -76,6 +76,7 @@ class HealthcareDataSynchroniserImplTest {
         every { healthcareDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
+        every { metadataDao.metadata(any()) } returns null
 
         appDatabase.mockTransaction()
 

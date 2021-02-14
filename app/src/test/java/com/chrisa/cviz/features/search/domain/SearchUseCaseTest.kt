@@ -22,30 +22,37 @@ import com.chrisa.cviz.features.search.domain.models.AreaModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class SearchUseCaseTest {
 
     private val searchDataSource = mockk<SearchDataSource>()
     private val sut = SearchUseCase(searchDataSource)
+    private val testDispatcher = TestCoroutineDispatcher()
 
     @Test
-    fun `GIVEN query is empty WHEN execute called THEN empty list returned`() {
-        val results = sut.execute("")
+    fun `GIVEN query is empty WHEN execute called THEN empty list returned`() =
+        testDispatcher.runBlockingTest {
+            val results = sut.execute("")
 
-        assertThat(results).isEmpty()
-    }
+            assertThat(results).isEmpty()
+        }
 
     @Test
-    fun `WHEN execute called THEN casesDao searches for area`() {
-        val area = AreaDTO(code = "1234", name = "London", type = "utla")
-        val expectedResults = listOf(area)
-        every { searchDataSource.searchAreas(area.name) } returns expectedResults
+    fun `WHEN execute called THEN casesDao searches for area`() =
+        testDispatcher.runBlockingTest {
+            val area = AreaDTO(code = "1234", name = "London", type = "utla")
+            val expectedResults = listOf(area)
+            every { searchDataSource.searchAreas(area.name) } returns expectedResults
 
-        val results = sut.execute(area.name)
+            val results = sut.execute(area.name)
 
-        assertThat(results).isEqualTo(expectedResults.map {
-            AreaModel(it.code, it.name, it.type)
-        })
-    }
+            assertThat(results).isEqualTo(expectedResults.map {
+                AreaModel(it.code, it.name, it.type)
+            })
+        }
 }

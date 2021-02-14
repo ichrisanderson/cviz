@@ -19,6 +19,7 @@ package com.chrisa.cviz.features.search.data
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.synchronisation.PostcodeLookupDataSynchroniser
 import com.chrisa.cviz.features.search.data.dtos.AreaDTO
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -28,9 +29,10 @@ import org.junit.Test
 class SearchDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
+    private val postcodeLookupDataSynchroniser = mockk<PostcodeLookupDataSynchroniser>()
     private val queryTransformer = SearchQueryTransformer()
 
-    private val sut = SearchDataSource(appDatabase, queryTransformer)
+    private val sut = SearchDataSource(appDatabase, postcodeLookupDataSynchroniser, queryTransformer)
 
     @Test
     fun `WHEN execute called THEN casesDao searches for area`() {

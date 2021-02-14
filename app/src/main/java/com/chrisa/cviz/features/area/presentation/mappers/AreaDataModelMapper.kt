@@ -28,10 +28,12 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
 import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
+import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
 import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
 import com.chrisa.cviz.features.area.presentation.models.AreaTransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.HospitalAdmissionsAreaModel
+import com.chrisa.cviz.features.area.presentation.models.SoaDataModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -40,7 +42,8 @@ class AreaDataModelMapper @Inject constructor(
     private val dailyDataWithRollingAverageBuilder: DailyDataWithRollingAverageBuilder,
     private val weeklySummaryBuilder: WeeklySummaryBuilder,
     private val chartBuilder: ChartBuilder,
-    private val admissionsFilter: AdmissionsFilter
+    private val admissionsFilter: AdmissionsFilter,
+    private val soaChartBuilder: SoaChartBuilder
 ) {
 
     fun mapAreaDetailModel(
@@ -91,7 +94,8 @@ class AreaDataModelMapper @Inject constructor(
             canFilterHospitalAdmissionsAreas = canFilterHospitalAdmissionsAreas,
             hospitalAdmissionsAreas = hospitalAdmissionsAreas,
             areaTransmissionRate = mapAreaTransmissionRate(areaDetailModel.transmissionRate),
-            alertLevel = mapAlertLevel(areaDetailModel.alertLevel)
+            alertLevel = mapAlertLevel(areaDetailModel.alertLevel),
+            soaData = mapSoaDataModel(areaDetailModel.soaData)
         )
     }
 
@@ -114,6 +118,30 @@ class AreaDataModelMapper @Inject constructor(
                 alertLevelUrl = alertLevel.alertLevelUrl
             )
         }
+
+    private fun mapSoaDataModel(soaDataModel: DomainSoaDataModel?): SoaDataModel? {
+        return soaDataModel?.let {
+            val lastCaseIndex = soaDataModel.data.lastIndex
+
+            val latestData = soaDataModel.data.getOrNull(lastCaseIndex)
+            val latestDataCaseValue = latestData?.rollingSum ?: 0
+            val latestDataCaseRate = latestData?.rollingRate?.toInt() ?: 0
+
+            val previousData = soaDataModel.data.getOrNull(lastCaseIndex - 1)
+            val previousDataCaseValue = previousData?.rollingSum ?: 0
+            val previousDataCaseRate = previousData?.rollingRate?.toInt() ?: 0
+
+            SoaDataModel(
+                areaName = soaDataModel.areaName,
+                lastDate = soaDataModel.data.map { it.date }.lastOrNull(),
+                weeklyCases = latestDataCaseValue,
+                weeklyRate = latestDataCaseRate,
+                changeInCases = latestDataCaseValue - previousDataCaseValue,
+                changeInRate = latestDataCaseRate - previousDataCaseRate,
+                chartData = soaChartBuilder.caseChartData(soaDataModel.data)
+            )
+        }
+    }
 
     private fun hospitalAdmissionsAreaModel(
         areaDailyData: AreaDailyDataDto,

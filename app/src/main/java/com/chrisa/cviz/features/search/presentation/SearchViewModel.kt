@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chrisa.cviz.core.util.coroutines.CoroutineDispatchers
 import com.chrisa.cviz.features.search.domain.SearchUseCase
+import com.chrisa.cviz.features.search.domain.models.AreaModel
 import kotlinx.coroutines.launch
 
 class SearchViewModel @ViewModelInject constructor(
@@ -30,20 +31,14 @@ class SearchViewModel @ViewModelInject constructor(
     private val dispatchers: CoroutineDispatchers
 ) : ViewModel() {
 
-    private val _state = MutableLiveData<SearchState>()
-    val state: LiveData<SearchState>
-        get() = _state
+    private val _areas = MutableLiveData<List<AreaModel>>()
+    val areas: LiveData<List<AreaModel>>
+        get() = _areas
 
     fun searchAreas(query: String) {
-        _state.postValue(SearchState.Loading)
         viewModelScope.launch(dispatchers.io) {
-            // TODO: Error handling
             val areas = searchUseCase.execute(query)
-            if (areas.isNotEmpty()) {
-                _state.postValue(SearchState.Success(areas))
-            } else {
-                _state.postValue(SearchState.Empty)
-            }
+            _areas.postValue(areas)
         }
     }
 }

@@ -68,6 +68,12 @@ interface CovidApi {
         @Header("If-Modified-Since") modifiedDate: String?,
         @QueryMap filters: Map<String, String>
     ): Response<BodyPage<AlertLevel>>
+
+    @GET("v1/soa")
+    suspend fun soaData(
+        @Header("If-Modified-Since") modifiedDate: String?,
+        @Query(value = "filters") filters: String
+    ): Response<SoaDataModel>
 }
 
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
@@ -232,4 +238,33 @@ data class AlertLevel(
     val alertLevelName: String,
     val alertLevelUrl: String,
     val alertLevelValue: Int
+)
+
+@JsonClass(generateAdapter = true)
+data class SoaDataModel(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
+    val latest: LatestChangeModel,
+    val newCasesBySpecimenDate: List<RollingChangeModel>
+) {
+    companion object {
+        fun maosFilter(areaCode: String) =
+            "&areaType=msoa&areaCode=$areaCode"
+    }
+}
+
+@JsonClass(generateAdapter = true)
+data class LatestChangeModel(
+    val newCasesBySpecimenDate: RollingChangeModel
+)
+
+@JsonClass(generateAdapter = true)
+data class RollingChangeModel(
+    val date: LocalDate,
+    val rollingSum: Int?,
+    val rollingRate: Double?,
+    val change: Int?,
+    val direction: String?,
+    val changePercentage: Double?
 )

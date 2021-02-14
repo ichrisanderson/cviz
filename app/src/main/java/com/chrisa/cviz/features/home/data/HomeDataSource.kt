@@ -21,6 +21,7 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
 import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
+import com.chrisa.cviz.features.home.data.dtos.SavedSoaDataDto
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -81,6 +82,23 @@ class HomeDataSource @Inject constructor(
                         newCases = it.newCases,
                         cumulativeCases = it.cumulativeCases,
                         infectionRate = it.infectionRate
+                    )
+                }
+            }
+    }
+
+    fun savedSoaData(): Flow<List<SavedSoaDataDto>> {
+        return appDatabase.soaDataDao()
+            .allSavedAreaData()
+            .map { areaDataList ->
+                areaDataList.map {
+                    SavedSoaDataDto(
+                        areaCode = it.areaCode,
+                        areaName = it.areaName,
+                        areaType = it.areaType,
+                        date = it.date,
+                        rollingSum = it.rollingSum,
+                        rollingRate = it.rollingRate
                     )
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.features.search.presentation
+package com.chrisa.cviz.features.area.data.dtos
 
-import com.chrisa.cviz.features.search.domain.models.AreaModel
+import com.chrisa.cviz.core.data.db.AreaType
+import java.time.LocalDate
 
-sealed class SearchState {
-    object Loading : SearchState()
-    object Empty : SearchState()
-    data class Success(val items: List<AreaModel>) : SearchState()
-}
+data class SoaDataDto(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: AreaType,
+    val date: LocalDate,
+    val rollingSum: Int,
+    val rollingRate: Double,
+    val change: Int,
+    val changePercentage: Double
+)

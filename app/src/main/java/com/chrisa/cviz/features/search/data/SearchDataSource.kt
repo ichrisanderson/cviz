@@ -17,11 +17,14 @@
 package com.chrisa.cviz.features.search.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.synchronisation.PostcodeLookupDataSynchroniser
 import com.chrisa.cviz.features.search.data.dtos.AreaDTO
 import javax.inject.Inject
 
 class SearchDataSource @Inject constructor(
     private val appDatabase: AppDatabase,
+    private val postcodeLookupDataSynchroniser: PostcodeLookupDataSynchroniser,
     private val searchQueryTransformer: SearchQueryTransformer
 ) {
     fun searchAreas(query: String): List<AreaDTO> {
@@ -29,4 +32,17 @@ class SearchDataSource @Inject constructor(
             .search(searchQueryTransformer.transformQuery(query))
             .map { AreaDTO(it.areaCode, it.areaName, it.areaType.value) }
     }
+
+    suspend fun searchPostcode(postcode: String): AreaDTO? {
+        val lookup = areaLookupData(postcode)
+        return lookup?.msoaName?.let { AreaDTO(lookup.msoaCode, it, AreaType.MSOA.value) }
+    }
+
+    private suspend fun areaLookupData(postcode: String) =
+        try {
+            postcodeLookupDataSynchroniser.performSync(postcode)
+            appDatabase.areaLookupDao().byTrimmedPostcode(postcode)
+        } catch (e: Throwable) {
+            null
+        }
 }
