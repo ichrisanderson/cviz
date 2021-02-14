@@ -52,12 +52,11 @@ class SearchViewModelTest {
 
             coEvery { searchUseCase.execute(query) } returns listOf()
 
-            val statesObserver = sut.state.test()
+            val statesObserver = sut.areas.test()
 
             sut.searchAreas(query)
 
-            assertThat(statesObserver.values[0]).isEqualTo(SearchState.Loading)
-            assertThat(statesObserver.values[1]).isEqualTo(SearchState.Empty)
+            assertThat(statesObserver.values[0]).isEqualTo(listOf<AreaModel>())
         }
 
     @Test
@@ -77,11 +76,10 @@ class SearchViewModelTest {
 
             coEvery { searchUseCase.execute(query) } returns expectedResults
 
-            val statesObserver = sut.state.test()
+            val statesObserver = sut.areas.test()
 
             sut.searchAreas(query)
 
-            assertThat(statesObserver.values[0]).isEqualTo(SearchState.Loading)
-            assertThat(statesObserver.values[1]).isEqualTo(SearchState.Success(expectedResults))
+            assertThat(statesObserver.values[0]).isEqualTo(expectedResults)
         }
 }
