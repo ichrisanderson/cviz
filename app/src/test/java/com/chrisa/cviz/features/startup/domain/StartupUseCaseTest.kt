@@ -25,6 +25,7 @@ import com.chrisa.cviz.features.startup.data.StartupDataSource
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -66,7 +67,7 @@ class StartupUseCaseTest {
             val result = sut.execute()
 
             assertThat(result).isEqualTo(StartupResult.ShowHomeScreen)
-            verify(exactly = 1) { bootstrapper.execute() }
+            coVerify(exactly = 1) { bootstrapper.execute() }
         }
 
     @Test

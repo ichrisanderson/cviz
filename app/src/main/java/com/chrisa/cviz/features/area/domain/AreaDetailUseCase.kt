@@ -121,16 +121,16 @@ class AreaDetailUseCase @Inject constructor(
     ) {
         areaLookupUseCase.syncAreaLookup(areaCode, areaType)
         soaDataUseCase.syncSoaData(areaCode, areaType)
-        alertLevelUseCase.syncAlertLevel(areaCode, areaType)
         syncAuthorityData(areaCode, areaType)
     }
 
-    private suspend fun AreaDetailUseCase.syncAuthorityData(
+    private suspend fun syncAuthorityData(
         areaCode: String,
         areaType: AreaType
     ) {
         val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
         val areaLookupCode = areaLookupCode(areaCode, areaType, areaLookup)
+        alertLevelUseCase.syncAlertLevel(areaLookupCode.areaCode, areaLookupCode.areaType)
         syncAreaCases(areaLookupCode.areaCode, areaLookupCode.areaType)
         syncHealthcare(areaLookupCode.areaCode, areaLookupCode.areaType, areaLookup)
     }

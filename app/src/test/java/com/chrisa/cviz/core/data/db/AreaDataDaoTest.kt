@@ -101,7 +101,7 @@ class AreaDataDaoTest {
         )
         assertThat(db.areaDataDao().countAll()).isEqualTo(2)
 
-        db.areaDataDao().deleteAllNotInAreaCodes(listOf(areaData.areaCode))
+        db.areaDataDao().deleteAllNotInAreaCode(listOf(areaData.areaCode))
 
         assertThat(db.areaDataDao().countAll()).isEqualTo(1)
         assertThat(db.areaDataDao().allByAreaCode(areaData.areaCode)).isEqualTo(listOf(areaData))

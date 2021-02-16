@@ -118,7 +118,7 @@ class MetadataDaoTest {
         assertThat(db.metadataDao().metadata(METADATA_ID)).isNotNull()
         assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()
 
-        db.metadataDao().deleteAllNotInIds(listOf(idToRetain))
+        db.metadataDao().deleteAllNotInId(listOf(idToRetain))
 
         assertThat(db.metadataDao().metadata(METADATA_ID)).isNull()
         assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()

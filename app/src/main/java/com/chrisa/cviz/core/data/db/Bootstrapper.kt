@@ -23,12 +23,14 @@ import javax.inject.Inject
 class Bootstrapper @Inject constructor(
     private val appDatabase: AppDatabase,
     private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper,
-    private val hospitalLookupHelper: HospitalLookupHelper
+    private val hospitalLookupHelper: HospitalLookupHelper,
+    private val databaseCleaner: DatabaseCleaner
 ) {
-    fun execute() {
+    suspend fun execute() {
         val didCopyOldData = copyOldData()
         insertAreaData(didCopyOldData)
         hospitalLookupHelper.insertHospitalLookupData()
+        databaseCleaner.removeUnusedData()
     }
 
     private fun copyOldData(): Boolean {

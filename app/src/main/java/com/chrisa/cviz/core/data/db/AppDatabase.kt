@@ -297,7 +297,7 @@ interface AreaDataDao {
     fun deleteAllByAreaCode(areaCode: String)
 
     @Query("DELETE FROM areaData WHERE areaCode NOT IN (:areaCodes)")
-    fun deleteAllNotInAreaCodes(areaCodes: List<String>)
+    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
 
     @Query("SELECT COUNT(areaCode) FROM areaData")
     fun countAll(): Int
@@ -346,8 +346,11 @@ data class MetadataEntity(
 @Dao
 interface MetadataDao {
 
+    @Query("SELECT * FROM metadata")
+    fun all(): List<MetadataEntity>
+
     @Query("DELETE FROM metadata WHERE id NOT IN (:id)")
-    fun deleteAllNotInIds(id: List<String>)
+    fun deleteAllNotInId(id: Collection<String>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(metadata: MetadataEntity)
@@ -521,8 +524,14 @@ data class AreaLookupEntity(
 @Dao
 interface AreaLookupDao {
 
+    @Query("DELETE FROM areaLookup WHERE lsoaCode NOT IN (:lsoaCodes)")
+    fun deleteAllNotInLsoaCode(lsoaCodes: Collection<String>): Int
+
     @Query("SELECT COUNT(msoaCode) FROM areaLookup")
     fun countAll(): Int
+
+    @Query("SELECT * FROM areaLookup")
+    fun all(): List<AreaLookupEntity>
 
     @Query("SELECT * FROM areaLookup WHERE msoaCode = :code LIMIT 1")
     fun byMsoa(code: String): AreaLookupEntity?
@@ -584,6 +593,9 @@ data class HealthcareEntity(
 @Dao
 interface HealthcareDao {
 
+    @Query("DELETE FROM healthcare WHERE areaCode NOT IN(:areaCode)")
+    fun deleteAllNotInAreaCode(areaCode: Collection<String>)
+
     @Query("DELETE FROM healthcare WHERE :areaCode = areaCode")
     fun deleteAllByAreaCode(areaCode: String)
 
@@ -610,6 +622,9 @@ data class HealthcareLookupEntity(
 
 @Dao
 interface HealthcareLookupDao {
+
+    @Query("SELECT * FROM healthcareLookup")
+    fun all(): List<HealthcareLookupEntity>
 
     @Query("SELECT COUNT(nhsTrustCode) FROM healthcareLookup")
     fun countAll(): Int
@@ -650,6 +665,12 @@ data class AlertLevelEntity(
 @Dao
 interface AlertLevelDao {
 
+    @Query("DELETE FROM alertLevel WHERE areaCode NOT IN (:areaCodes)")
+    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
+
+    @Query("SELECT * FROM alertLevel")
+    fun all(): List<AlertLevelEntity>
+
     @Query("SELECT * FROM alertLevel WHERE areaCode = :areaCode")
     fun byAreaCode(areaCode: String): AlertLevelEntity?
 
@@ -686,6 +707,12 @@ data class SoaDataEntity(
 @Dao
 interface SoaDataDao {
 
+    @Query("DELETE FROM soaData WHERE areaCode NOT IN (:areaCodes)")
+    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
+
+    @Query("DELETE FROM soaData WHERE areaCode = :areaCode")
+    fun deleteAllByAreaCode(areaCode: String)
+
     @Query("SELECT * FROM soaData INNER JOIN savedArea ON soaData.areaCode = savedArea.areaCode ORDER BY date ASC")
     fun allSavedAreaData(): Flow<List<SoaDataEntity>>
 
@@ -694,7 +721,4 @@ interface SoaDataDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(items: List<SoaDataEntity>)
-
-    @Query("DELETE FROM soaData WHERE :areaCode = areaCode")
-    fun deleteAllByAreaCode(areaCode: String)
 }

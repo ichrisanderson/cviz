@@ -22,6 +22,7 @@ import com.chrisa.cviz.core.data.db.legacy.LegacySavedArea
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 
@@ -33,7 +34,13 @@ class BootstrapperTest {
     private val savedAreaDao: SavedAreaDao = mockk(relaxed = true)
     private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper = mockk(relaxed = true)
     private val hospitalLookupHelper: HospitalLookupHelper = mockk(relaxed = true)
-    private val sut = Bootstrapper(appDatabase, legacyAppDatabaseHelper, hospitalLookupHelper)
+    private val databaseCleaner: DatabaseCleaner = mockk(relaxed = true)
+    private val sut = Bootstrapper(
+        appDatabase,
+        legacyAppDatabaseHelper,
+        hospitalLookupHelper,
+        databaseCleaner
+    )
 
     @Before
     fun setup() {
@@ -44,55 +51,60 @@ class BootstrapperTest {
     }
 
     @Test
-    fun `GIVEN no saved areas WHEN legacy db exists THEN saved areas are copied and legacy database is deleted`() {
-        every { legacyAppDatabaseHelper.hasDatabase() } returns true
-        every { legacyAppDatabaseHelper.savedAreas() } returns savedAreas
-        every { savedAreaDao.countAll() } returns 0
+    fun `GIVEN no saved areas WHEN legacy db exists THEN saved areas are copied and legacy database is deleted`() =
+        runBlocking {
+            every { legacyAppDatabaseHelper.hasDatabase() } returns true
+            every { legacyAppDatabaseHelper.savedAreas() } returns savedAreas
+            every { savedAreaDao.countAll() } returns 0
 
-        sut.execute()
+            sut.execute()
 
-        verify(exactly = 1) { legacyAppDatabaseHelper.deleteDatabase() }
-        verify(exactly = 1) { savedAreaDao.insertAll(savedAreaEntities) }
-        verify(exactly = 1) { areaDao.insertAll(areaEntities) }
-    }
-
-    @Test
-    fun `GIVEN saved areas WHEN legacy db exists THEN saved areas are not copied and legacy database is deleted`() {
-        every { legacyAppDatabaseHelper.hasDatabase() } returns true
-        every { legacyAppDatabaseHelper.savedAreas() } returns savedAreas
-        every { savedAreaDao.countAll() } returns 1
-
-        sut.execute()
-
-        verify(exactly = 1) { legacyAppDatabaseHelper.deleteDatabase() }
-        verify(exactly = 0) { savedAreaDao.insertAll(savedAreaEntities) }
-        verify(exactly = 0) { areaDao.insertAll(areaEntities) }
-    }
+            verify(exactly = 1) { legacyAppDatabaseHelper.deleteDatabase() }
+            verify(exactly = 1) { savedAreaDao.insertAll(savedAreaEntities) }
+            verify(exactly = 1) { areaDao.insertAll(areaEntities) }
+        }
 
     @Test
-    fun `WHEN area data present THEN data is not inserted`() {
-        every { areaDao.count() } returns 1
+    fun `GIVEN saved areas WHEN legacy db exists THEN saved areas are not copied and legacy database is deleted`() =
+        runBlocking {
+            every { legacyAppDatabaseHelper.hasDatabase() } returns true
+            every { legacyAppDatabaseHelper.savedAreas() } returns savedAreas
+            every { savedAreaDao.countAll() } returns 1
 
-        sut.execute()
+            sut.execute()
 
-        verify(exactly = 0) { areaDao.insertAll(BootstrapData.areaData()) }
-    }
-
-    @Test
-    fun `WHEN area data is not present THEN data is inserted`() {
-        every { areaDao.count() } returns 0
-
-        sut.execute()
-
-        verify(exactly = 1) { areaDao.insertAll(BootstrapData.areaData()) }
-    }
+            verify(exactly = 1) { legacyAppDatabaseHelper.deleteDatabase() }
+            verify(exactly = 0) { savedAreaDao.insertAll(savedAreaEntities) }
+            verify(exactly = 0) { areaDao.insertAll(areaEntities) }
+        }
 
     @Test
-    fun `WHEN execute called THEN hospital lookups inserted`() {
-        sut.execute()
+    fun `WHEN area data present THEN data is not inserted`() =
+        runBlocking {
+            every { areaDao.count() } returns 1
 
-        verify(exactly = 1) { hospitalLookupHelper.insertHospitalLookupData() }
-    }
+            sut.execute()
+
+            verify(exactly = 0) { areaDao.insertAll(BootstrapData.areaData()) }
+        }
+
+    @Test
+    fun `WHEN area data is not present THEN data is inserted`() =
+        runBlocking {
+            every { areaDao.count() } returns 0
+
+            sut.execute()
+
+            verify(exactly = 1) { areaDao.insertAll(BootstrapData.areaData()) }
+        }
+
+    @Test
+    fun `WHEN execute called THEN hospital lookups inserted`() =
+        runBlocking {
+            sut.execute()
+
+            verify(exactly = 1) { hospitalLookupHelper.insertHospitalLookupData() }
+        }
 
     companion object {
         val savedAreas = listOf(

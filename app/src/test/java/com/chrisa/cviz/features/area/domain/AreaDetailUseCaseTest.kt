@@ -216,9 +216,9 @@ class AreaDetailUseCaseTest {
         }
 
     @Test
-    fun `WHEN execute called THEN alert level synced`() =
+    fun `WHEN execute called with non msoa area THEN alert level synced with area code`() =
         runBlocking {
-            val areaTypes = AreaType.values()
+            val areaTypes = AreaType.values().filterNot { it == AreaType.MSOA }
             coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
             every { areaDataSource.metadataAsFlow(any()) } returns listOf(null).asFlow()
             areaTypes.forEach { areaType ->
@@ -229,6 +229,25 @@ class AreaDetailUseCaseTest {
                     alertLevelUseCase.syncAlertLevel(
                         areaCode,
                         areaType
+                    )
+                }
+            }
+        }
+
+    @Test
+    fun `WHEN execute called with msoa area THEN alert level synced with utla area code`() =
+        runBlocking {
+            val areaTypes = AreaType.values().filter { it == AreaType.MSOA }
+            coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
+            every { areaDataSource.metadataAsFlow(any()) } returns listOf(null).asFlow()
+            areaTypes.forEach { areaType ->
+                val areaCode = "${areaType}_1"
+                sut.execute(areaCode, areaType)
+
+                coVerify(exactly = 1) {
+                    alertLevelUseCase.syncAlertLevel(
+                        areaLookupDto.utlaCode!!,
+                        AreaType.UTLA
                     )
                 }
             }
