@@ -89,7 +89,7 @@ class HomeDataSource @Inject constructor(
 
     fun savedSoaData(): Flow<List<SavedSoaDataDto>> {
         return appDatabase.soaDataDao()
-            .allSavedAreaData()
+            .allAsFlow()
             .map { areaDataList ->
                 areaDataList.map {
                     SavedSoaDataDto(

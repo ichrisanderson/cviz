@@ -32,12 +32,16 @@ class Snapshot(
     val lsoaAreaCodes = savedAreaLookups.map { it.lsoaCode }.toSet()
 
     val msoaAreaCodes =
-        savedAreaLookups.map { it.msoaCode }.toSet()
+        savedAreaLookups.filter { savedAreaCodes.contains(it.msoaCode) }.map { it.msoaCode }.toSet()
 
     private val localAreaDataCodes =
-        savedAreaLookups.asSequence()
-            .map { it.utlaCode }
-            .plus(savedAreaLookups.map { it.ltlaCode })
+        mutableSetOf<String>()
+            .plus(savedAreaLookups.filter {
+                savedAreaCodes.contains(it.utlaCode) || savedAreaCodes.contains(it.msoaCode)
+            }.map { it.utlaCode })
+            .plus(savedAreaLookups.filter {
+                savedAreaCodes.contains(it.ltlaCode) || savedAreaCodes.contains(it.msoaCode)
+            }.map { it.ltlaCode })
             .plus(savedAreaLookups.mapNotNull { it.regionCode })
             .toSet()
 
