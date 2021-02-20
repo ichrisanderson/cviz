@@ -19,7 +19,10 @@ package com.chrisa.cviz.core.data.db
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import com.chrisa.cviz.core.data.time.TimeProvider
 import com.google.common.truth.Truth.assertThat
+import io.mockk.every
+import io.mockk.mockk
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlinx.coroutines.runBlocking
@@ -35,6 +38,7 @@ class DatabaseCleanerTest {
 
     private lateinit var db: AppDatabase
     private lateinit var sut: DatabaseCleaner
+    private val timeProvider: TimeProvider = mockk()
 
     @Before
     fun setup() {
@@ -44,68 +48,13 @@ class DatabaseCleanerTest {
             .allowMainThreadQueries()
             .build()
 
-        seedAreaLookups()
-        seedAlertLevels()
-        seedAreaData()
-        seedSoaData()
-        seedHealthcareLookups()
-        seedHealthcare()
-        seedMetadata()
-
-        sut = DatabaseCleaner(db, SnapshotProvider())
+        sut = DatabaseCleaner(db, SnapshotProvider(), timeProvider)
     }
 
-    private fun seedAreaLookups() {
-        db.areaLookupDao().insert(aberdeenCityAreaLookup)
-        db.areaLookupDao().insert(
-            AreaLookupEntity(
-                postcode = "CF10 1AR",
-                trimmedPostcode = "CF101AR",
-                lsoaCode = "W01001939",
-                lsoaName = "Cardiff 032F",
-                msoaCode = "W02000398",
-                msoaName = "Cathays South & Bute Park",
-                ltlaCode = "W06000015",
-                ltlaName = "Cardiff",
-                utlaCode = "W06000015",
-                utlaName = "Cardiff",
-                nhsRegionCode = null,
-                nhsRegionName = null,
-                nhsTrustCode = null,
-                nhsTrustName = null,
-                regionCode = null,
-                regionName = null,
-                nationCode = "W92000004",
-                nationName = "Wales"
-            )
-        )
-        db.areaLookupDao().insert(centralWestminsterAreaLookup)
-        db.areaLookupDao().insert(oxfordCentralAreaLookup)
-        db.areaLookupDao().insert(
-            AreaLookupEntity(
-                postcode = "NW1 4LJ",
-                trimmedPostcode = "NW14LJ",
-                lsoaCode = "E01004716",
-                lsoaName = "Westminster 011C",
-                msoaCode = "E02000970",
-                msoaName = "Marylebone & Park Lane",
-                ltlaCode = "E09000033",
-                ltlaName = "Westminster",
-                utlaCode = "E09000033",
-                utlaName = "Westminster",
-                nhsRegionCode = "E40000003",
-                nhsRegionName = "London",
-                nhsTrustCode = "RYJ",
-                nhsTrustName = "Imperial College Healthcare NHS Trust",
-                regionCode = "E12000007",
-                regionName = "London",
-                nationCode = "E92000001",
-                nationName = "England"
-            )
-        )
-    }
-
-    private fun seedSoaData() {
+    @Test
+    fun `GIVEN soa data is out of date WHEN removeUnusedData called THEN out of date soa data is deleted`() {
+        val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
+        every { timeProvider.currentTime() } returns currentTime
         val westminsterData =
             SoaDataEntity(
                 areaCode = centralWestminsterArea.areaCode,
@@ -117,27 +66,63 @@ class DatabaseCleanerTest {
                 rollingRate = 55.9,
                 rollingSum = 9
             )
-        db.soaDataDao().insertAll(
+        val soaData = listOf(
+            westminsterData,
+            westminsterData.copy(
+                areaCode = marlyboneArea.areaCode,
+                areaName = marlyboneArea.areaName
+            ),
+            westminsterData.copy(
+                areaCode = oxfordCentralArea.areaCode,
+                areaName = oxfordCentralArea.areaName
+            )
+        )
+        val westminsterMetadata = MetadataEntity(
+            id = MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+            lastUpdatedAt = currentTime.minusDays(1),
+            lastSyncTime = currentTime.minusHours(1)
+        )
+        db.soaDataDao().insertAll(soaData)
+        db.metadataDao().insertAll(
             listOf(
-                westminsterData,
-                westminsterData.copy(
-                    areaCode = marlyboneArea.areaCode,
-                    areaName = marlyboneArea.areaName
+                westminsterMetadata,
+                westminsterMetadata.copy(
+                    id = MetaDataIds.areaCodeId(marlyboneArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(3)
                 ),
-                westminsterData.copy(
-                    areaCode = oxfordCentralArea.areaCode,
-                    areaName = oxfordCentralArea.areaName
+                westminsterMetadata.copy(
+                    id = MetaDataIds.areaCodeId(oxfordCentralArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(1)
                 )
+            )
+        )
+
+        runBlocking { sut.removeUnusedData() }
+
+        val testSnapshot = TestSnapshot(db)
+        assertThat(testSnapshot.retainedSoaAreaCodes).isEqualTo(
+            listOf(
+                centralWestminsterArea.areaCode,
+                oxfordCentralArea.areaCode
+            )
+        )
+        assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
+            listOf(
+                MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+                MetaDataIds.areaCodeId(oxfordCentralArea.areaCode)
             )
         )
     }
 
-    private fun seedAreaData() {
-        val ukAreaData = AreaDataEntity(
-            areaCode = Constants.UK_AREA_CODE,
-            areaName = Constants.UK_AREA_NAME,
-            areaType = AreaType.OVERVIEW,
-            metadataId = MetaDataIds.areaSummaryId(),
+    @Test
+    fun `GIVEN area data is out of date WHEN removeUnusedData called THEN out of date area data is deleted`() {
+        val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
+        every { timeProvider.currentTime() } returns currentTime
+        val westminsterData = AreaDataEntity(
+            areaCode = centralWestminsterArea.areaCode,
+            areaName = centralWestminsterArea.areaName,
+            areaType = centralWestminsterArea.areaType,
+            metadataId = MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
             date = LocalDate.of(2021, 2, 12),
             cumulativeCases = 222,
             infectionRate = 122.0,
@@ -152,183 +137,98 @@ class DatabaseCleanerTest {
             cumulativeOnsDeathsByRegistrationDate = 53,
             cumulativeOnsDeathsByRegistrationDateRate = 62.0
         )
-        db.areaDataDao().insertAll(
+        val areaData = listOf(
+            westminsterData,
+            westminsterData.copy(
+                areaCode = marlyboneArea.areaCode,
+                areaName = marlyboneArea.areaName,
+                metadataId = MetaDataIds.areaCodeId(marlyboneArea.areaCode)
+            ),
+            westminsterData.copy(
+                areaCode = oxfordCentralArea.areaCode,
+                areaName = oxfordCentralArea.areaName,
+                metadataId = MetaDataIds.areaCodeId(oxfordCentralArea.areaCode)
+            )
+        )
+        val westminsterMetadata = MetadataEntity(
+            id = MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+            lastUpdatedAt = currentTime.minusDays(1),
+            lastSyncTime = currentTime.minusHours(1)
+        )
+        db.areaDataDao().insertAll(areaData)
+        db.metadataDao().insertAll(
             listOf(
-                ukAreaData,
-                ukAreaData.copy(
-                    areaCode = westministerArea.areaCode,
-                    areaName = westministerArea.areaName,
-                    areaType = westministerArea.areaType,
-                    metadataId = MetaDataIds.areaCodeId(westministerArea.areaCode)
+                westminsterMetadata,
+                westminsterMetadata.copy(
+                    id = MetaDataIds.areaCodeId(marlyboneArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(3)
                 ),
-                ukAreaData.copy(
-                    areaCode = oxfordshireArea.areaCode,
-                    areaName = oxfordshireArea.areaName,
-                    areaType = oxfordshireArea.areaType,
-                    metadataId = MetaDataIds.areaCodeId(oxfordshireArea.areaCode)
-                ),
-                ukAreaData.copy(
-                    areaCode = oxfordCentralAreaLookup.regionCode!!,
-                    areaName = oxfordCentralAreaLookup.regionName!!,
-                    areaType = AreaType.REGION,
-                    metadataId = MetaDataIds.areaCodeId(oxfordCentralAreaLookup.regionCode!!)
-                ),
-                ukAreaData.copy(
-                    areaCode = cardiffArea.areaCode,
-                    areaName = cardiffArea.areaName,
-                    areaType = cardiffArea.areaType,
-                    metadataId = MetaDataIds.areaCodeId(cardiffArea.areaCode)
-                ),
-                ukAreaData.copy(
-                    areaCode = aberdeenCityArea.areaCode,
-                    areaName = aberdeenCityArea.areaName,
-                    areaType = aberdeenCityArea.areaType,
-                    metadataId = MetaDataIds.areaCodeId(aberdeenCityArea.areaCode)
-                ),
-                ukAreaData.copy(
-                    areaCode = Constants.ENGLAND_AREA_CODE,
-                    areaName = Constants.ENGLAND_AREA_NAME,
-                    areaType = AreaType.NATION,
-                    metadataId = MetaDataIds.areaCodeId(Constants.ENGLAND_AREA_CODE)
-                ),
-                ukAreaData.copy(
-                    areaCode = Constants.SCOTLAND_AREA_CODE,
-                    areaName = Constants.SCOTLAND_AREA_NAME,
-                    areaType = AreaType.NATION,
-                    metadataId = MetaDataIds.areaCodeId(Constants.SCOTLAND_AREA_CODE)
-                ),
-                ukAreaData.copy(
-                    areaCode = Constants.NORTHERN_IRELAND_AREA_CODE,
-                    areaName = Constants.NORTHERN_IRELAND_AREA_NAME,
-                    areaType = AreaType.NATION,
-                    metadataId = MetaDataIds.areaCodeId(Constants.NORTHERN_IRELAND_AREA_CODE)
-                ),
-                ukAreaData.copy(
-                    areaCode = Constants.WALES_AREA_CODE,
-                    areaName = Constants.WALES_AREA_CODE,
-                    areaType = AreaType.NATION,
-                    metadataId = MetaDataIds.areaCodeId(Constants.WALES_AREA_CODE)
+                westminsterMetadata.copy(
+                    id = MetaDataIds.areaCodeId(oxfordCentralArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(1)
                 )
+            )
+        )
+
+        runBlocking { sut.removeUnusedData() }
+
+        val testSnapshot = TestSnapshot(db)
+        assertThat(testSnapshot.retainedAreaDataAreaCodes).isEqualTo(
+            listOf(
+                centralWestminsterArea.areaCode,
+                oxfordCentralArea.areaCode
+            )
+        )
+        assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
+            listOf(
+                MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+                MetaDataIds.areaCodeId(oxfordCentralArea.areaCode)
             )
         )
     }
 
-    private fun seedAlertLevels() {
+    @Test
+    fun `GIVEN alert level data is out of date WHEN removeUnusedData called THEN out of date alert level data is deleted`() {
+        val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
+        every { timeProvider.currentTime() } returns currentTime
         val westminsterAlertLevel = AlertLevelEntity(
-            areaCode = westministerArea.areaCode,
-            areaName = westministerArea.areaName,
-            areaType = westministerArea.areaType,
+            areaCode = centralWestminsterArea.areaCode,
+            areaName = centralWestminsterArea.areaName,
+            areaType = centralWestminsterArea.areaType,
             date = LocalDate.of(2021, 2, 14),
             alertLevel = 2,
             alertLevelName = "Stay Alert",
             alertLevelUrl = "http://acme.com",
             alertLevelValue = 2
         )
-        db.alertLevelDao().insertAll(
-            listOf(
-                westminsterAlertLevel,
-                westminsterAlertLevel.copy(
-                    areaCode = oxfordshireArea.areaCode,
-                    areaName = oxfordshireArea.areaName
-                )
+        val alertLevels = listOf(
+            westminsterAlertLevel,
+            westminsterAlertLevel.copy(
+                areaCode = marlyboneArea.areaCode,
+                areaName = marlyboneArea.areaName
+            ),
+            westminsterAlertLevel.copy(
+                areaCode = oxfordCentralArea.areaCode,
+                areaName = oxfordCentralArea.areaName
             )
         )
-    }
-
-    private fun seedHealthcareLookups() {
-        val westminsterTrusts = westminsterHealthcareTrusts.map {
-            HealthcareLookupEntity(
-                areaCode = westministerArea.areaCode,
-                nhsTrustCode = it
-            )
-        }
-        val oxfordTrusts = oxfordHealthcareTrusts.map {
-            HealthcareLookupEntity(
-                areaCode = oxfordshireArea.areaCode,
-                nhsTrustCode = it
-            )
-        }
-
-        db.healthcareLookupDao().insertAll(
-            westminsterTrusts
-                .plus(oxfordTrusts)
+        val westminsterMetadata = MetadataEntity(
+            id = MetaDataIds.alertLevelId(centralWestminsterArea.areaCode),
+            lastUpdatedAt = currentTime.minusDays(1),
+            lastSyncTime = currentTime.minusHours(1)
         )
-    }
-
-    private fun seedHealthcare() {
-        val westminsterHealthcare = westminsterHealthcareTrusts.map {
-            ukHealthcare.copy(
-                areaCode = it,
-                areaName = "Westminster Trust",
-                areaType = AreaType.NHS_TRUST
-            )
-        }
-        val oxfordHealthcare = oxfordHealthcareTrusts.map {
-            ukHealthcare.copy(
-                areaCode = it,
-                areaName = "Oxford Trust",
-                areaType = AreaType.NHS_TRUST
-            )
-        }
-        db.healthcareDao().insertAll(
-            listOf(
-                ukHealthcare,
-                englandHealthcare,
-                englandHealthcare.copy(
-                    areaCode = Constants.SCOTLAND_AREA_CODE,
-                    areaName = Constants.SCOTLAND_AREA_NAME
-                ),
-                englandHealthcare.copy(
-                    areaCode = Constants.WALES_AREA_CODE,
-                    areaName = Constants.WALES_AREA_NAME
-                ),
-                englandHealthcare.copy(
-                    areaCode = Constants.NORTHERN_IRELAND_AREA_CODE,
-                    areaName = Constants.NORTHERN_IRELAND_AREA_CODE
-                )
-            )
-                .plus(westminsterHealthcare)
-                .plus(oxfordHealthcare)
-                .plus(
-                    listOf(
-                        londonRegionHealthcare
-                    )
-                )
-        )
-    }
-
-    private fun seedMetadata() {
-        val ukOverviewMetadata = MetadataEntity(
-            id = MetaDataIds.areaSummaryId(),
-            lastUpdatedAt = LocalDateTime.of(2020, 2, 1, 0, 0),
-            lastSyncTime = LocalDateTime.of(2020, 1, 1, 0, 0)
-        )
-        val healthcareAreaCodes = db.healthcareDao().all().map { it.areaCode }
+        db.alertLevelDao().insertAll(alertLevels)
         db.metadataDao().insertAll(
             listOf(
-                ukOverviewMetadata,
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(centralWestminsterAreaLookup.msoaCode)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(centralWestminsterAreaLookup.utlaCode)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(centralWestminsterAreaLookup.regionCode!!)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(marlyboneArea.areaCode)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(oxfordCentralAreaLookup.msoaCode)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(oxfordCentralAreaLookup.utlaCode)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(oxfordCentralAreaLookup.regionCode!!)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(cardiffArea.areaCode)),
-                ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(aberdeenCityArea.areaCode))
-            )
-                .plus(nations.map { ukOverviewMetadata.copy(id = MetaDataIds.areaCodeId(it)) })
-                .plus(healthcareAreaCodes.map {
-                    ukOverviewMetadata.copy(id = MetaDataIds.healthcareId(it))
-                })
-        )
-    }
-
-    @Test
-    fun `GIVEN soa area saved WHEN removeUnusedData called THEN soa data retained`() {
-        db.savedAreaDao().insertAll(
-            listOf(
-                SavedAreaEntity(centralWestminsterAreaLookup.msoaCode)
+                westminsterMetadata,
+                westminsterMetadata.copy(
+                    id = MetaDataIds.alertLevelId(marlyboneArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(3)
+                ),
+                westminsterMetadata.copy(
+                    id = MetaDataIds.alertLevelId(oxfordCentralArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(1)
+                )
             )
         )
 
@@ -337,138 +237,26 @@ class DatabaseCleanerTest {
         val testSnapshot = TestSnapshot(db)
         assertThat(testSnapshot.retainedAlertLevelAreaCodes).isEqualTo(
             listOf(
-                centralWestminsterAreaLookup.utlaCode
+                centralWestminsterArea.areaCode,
+                oxfordCentralArea.areaCode
             )
         )
-        assertThat(testSnapshot.retainedSoaAreaCodes).isEqualTo(listOf(centralWestminsterAreaLookup.msoaCode))
-        assertThat(testSnapshot.retainedAreaLookupCodes).isEqualTo(
+        assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
             listOf(
-                centralWestminsterAreaLookup.lsoaCode
+                MetaDataIds.alertLevelId(centralWestminsterArea.areaCode),
+                MetaDataIds.alertLevelId(oxfordCentralArea.areaCode)
             )
-        )
-        assertThat(testSnapshot.retainedAreaDataAreaCodes).containsExactlyElementsIn(
-            listOf(centralWestminsterAreaLookup.utlaCode)
-                .plus(nations)
-                .plus(Constants.UK_AREA_CODE)
-        )
-        assertThat(testSnapshot.retainedHealthcareAreaCodes).containsExactlyElementsIn(
-            westminsterHealthcareTrusts
-                .plus(centralWestminsterAreaLookup.nationCode)
-                .plus(centralWestminsterAreaLookup.nhsRegionCode)
-        )
-        assertThat(testSnapshot.retainedMetadataIds).containsExactlyElementsIn(
-            listOf(
-                centralWestminsterAreaLookup.msoaCode,
-                centralWestminsterAreaLookup.utlaCode,
-                centralWestminsterAreaLookup.regionCode!!
-            ).map { MetaDataIds.areaCodeId(it) }
-                .plus(
-                    westminsterHealthcareTrusts
-                        .plus(centralWestminsterAreaLookup.nationCode)
-                        .plus(centralWestminsterAreaLookup.nhsRegionCode!!)
-                        .map { MetaDataIds.healthcareId(it) }
-                )
-                .plus(nations.map { MetaDataIds.areaCodeId(it) })
-                .plus(MetaDataIds.areaSummaryId())
         )
     }
 
     @Test
-    fun `GIVEN utla area saved WHEN removeUnusedData called THEN utla data retained`() {
-        db.savedAreaDao().insertAll(
-            listOf(
-                SavedAreaEntity(aberdeenCityAreaLookup.utlaCode)
-            )
-        )
-
-        runBlocking { sut.removeUnusedData() }
-
-        val testSnapshot = TestSnapshot(db)
-        assertThat(testSnapshot.retainedAlertLevelAreaCodes).isEmpty()
-        assertThat(testSnapshot.retainedSoaAreaCodes).isEmpty()
-        assertThat(testSnapshot.retainedAreaLookupCodes).isEqualTo(listOf(aberdeenCityAreaLookup.lsoaCode))
-        assertThat(testSnapshot.retainedAreaDataAreaCodes).containsExactlyElementsIn(
-            listOf(aberdeenCityAreaLookup.utlaCode)
-                .plus(nations)
-                .plus(Constants.UK_AREA_CODE)
-        )
-        assertThat(testSnapshot.retainedHealthcareAreaCodes).containsExactlyElementsIn(
-            listOf(aberdeenCityAreaLookup.nationCode)
-        )
-        assertThat(testSnapshot.retainedMetadataIds).containsExactlyElementsIn(
-            listOf(aberdeenCityArea.areaCode).map { MetaDataIds.areaCodeId(it) }
-                .plus(
-                    listOf(aberdeenCityAreaLookup.nationCode)
-                        .map { MetaDataIds.healthcareId(it) }
-                )
-                .plus(nations.map { MetaDataIds.areaCodeId(it) })
-                .plus(MetaDataIds.areaSummaryId())
-        )
-    }
-
-    @Test
-    fun `GIVEN region area saved WHEN removeUnusedData called THEN region data retained`() {
-        db.savedAreaDao().insertAll(
-            listOf(
-                SavedAreaEntity(oxfordCentralAreaLookup.regionCode!!)
-            )
-        )
-
-        runBlocking { sut.removeUnusedData() }
-
-        val testSnapshot = TestSnapshot(db)
-        assertThat(testSnapshot.retainedAlertLevelAreaCodes).isEqualTo(
-            listOf(
-                oxfordCentralAreaLookup.utlaCode
-            )
-        )
-        assertThat(testSnapshot.retainedSoaAreaCodes).isEmpty()
-        assertThat(testSnapshot.retainedAreaLookupCodes).isEqualTo(listOf(oxfordCentralAreaLookup.lsoaCode))
-        assertThat(testSnapshot.retainedAreaDataAreaCodes).containsExactlyElementsIn(
-            listOf(oxfordCentralAreaLookup.regionCode!!)
-                .plus(nations)
-                .plus(Constants.UK_AREA_CODE)
-        )
-        assertThat(testSnapshot.retainedHealthcareAreaCodes).containsExactlyElementsIn(
-            listOf(
-                oxfordCentralAreaLookup.nhsTrustCode!!,
-                oxfordCentralAreaLookup.nationCode
-            )
-        )
-        assertThat(testSnapshot.retainedMetadataIds).containsExactlyElementsIn(
-            listOf(oxfordCentralAreaLookup.regionCode!!).map { MetaDataIds.areaCodeId(it) }
-                .plus(
-                    listOf(
-                        oxfordCentralAreaLookup.nhsTrustCode!!,
-                        oxfordCentralAreaLookup.nationCode
-                    )
-                        .map { MetaDataIds.healthcareId(it) }
-                )
-                .plus(nations.map { MetaDataIds.areaCodeId(it) })
-                .plus(MetaDataIds.areaSummaryId())
-        )
-    }
-
-    class TestSnapshot(db: AppDatabase) {
-        val retainedAlertLevelAreaCodes = db.alertLevelDao().all().map { it.areaCode }
-        val retainedSoaAreaCodes = db.soaDataDao().all().map { it.areaCode }
-        val retainedAreaLookupCodes = db.areaLookupDao().all().map { it.lsoaCode }
-        val retainedAreaDataAreaCodes = db.areaDataDao().all().map { it.areaCode }
-        val retainedHealthcareAreaCodes = db.healthcareDao().all().map { it.areaCode }
-        val retainedMetadataIds = db.metadataDao().all().map { it.id }
-    }
-
-    companion object {
-        val nations = listOf(
-            Constants.ENGLAND_AREA_CODE,
-            Constants.NORTHERN_IRELAND_AREA_CODE,
-            Constants.SCOTLAND_AREA_CODE,
-            Constants.WALES_AREA_CODE
-        )
-        val ukHealthcare = HealthcareEntity(
-            areaCode = Constants.UK_AREA_CODE,
-            areaName = Constants.UK_AREA_NAME,
-            areaType = AreaType.OVERVIEW,
+    fun `GIVEN healthcare data is out of date WHEN removeUnusedData called THEN out of date healthcare data is deleted`() {
+        val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
+        every { timeProvider.currentTime() } returns currentTime
+        val westminsterHealthcareEntity = HealthcareEntity(
+            areaCode = centralWestminsterArea.areaCode,
+            areaName = centralWestminsterArea.areaName,
+            areaType = centralWestminsterArea.areaType,
             date = LocalDate.of(2021, 2, 11),
             newAdmissions = 10,
             cumulativeAdmissions = 100,
@@ -478,21 +266,63 @@ class DatabaseCleanerTest {
             transmissionRateGrowthRateMin = 0.7,
             transmissionRateGrowthRateMax = 1.2
         )
-        val englandHealthcare = ukHealthcare.copy(
-            areaCode = Constants.ENGLAND_AREA_CODE,
-            areaName = Constants.ENGLAND_AREA_NAME,
-            areaType = AreaType.NATION
+        val healthcare = listOf(
+            westminsterHealthcareEntity,
+            westminsterHealthcareEntity.copy(
+                areaCode = marlyboneArea.areaCode,
+                areaName = marlyboneArea.areaName
+            ),
+            westminsterHealthcareEntity.copy(
+                areaCode = oxfordCentralArea.areaCode,
+                areaName = oxfordCentralArea.areaName
+            )
         )
-        val londonRegionHealthcare = ukHealthcare.copy(
-            areaCode = "E40000003",
-            areaName = "London NHS Region",
-            areaType = AreaType.NHS_REGION
+        val westminsterMetadata = MetadataEntity(
+            id = MetaDataIds.healthcareId(centralWestminsterArea.areaCode),
+            lastUpdatedAt = currentTime.minusDays(1),
+            lastSyncTime = currentTime.minusHours(1)
         )
-        val westministerArea = AreaEntity(
-            areaCode = "E09000033",
-            areaName = "Westminister",
-            areaType = AreaType.UTLA
+        db.healthcareDao().insertAll(healthcare)
+        db.metadataDao().insertAll(
+            listOf(
+                westminsterMetadata,
+                westminsterMetadata.copy(
+                    id = MetaDataIds.healthcareId(marlyboneArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(3)
+                ),
+                westminsterMetadata.copy(
+                    id = MetaDataIds.healthcareId(oxfordCentralArea.areaCode),
+                    lastSyncTime = currentTime.minusDays(1)
+                )
+            )
         )
+
+        runBlocking { sut.removeUnusedData() }
+
+        val testSnapshot = TestSnapshot(db)
+        assertThat(testSnapshot.retainedHealthcareAreaCodes).isEqualTo(
+            listOf(
+                centralWestminsterArea.areaCode,
+                oxfordCentralArea.areaCode
+            )
+        )
+        assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
+            listOf(
+                MetaDataIds.healthcareId(centralWestminsterArea.areaCode),
+                MetaDataIds.healthcareId(oxfordCentralArea.areaCode)
+            )
+        )
+    }
+
+    class TestSnapshot(db: AppDatabase) {
+        val retainedSoaAreaCodes = db.soaDataDao().all().map { it.areaCode }
+        val retainedAreaDataAreaCodes = db.areaDataDao().all().map { it.areaCode }
+        val retainedHealthcareAreaCodes = db.healthcareDao().all().map { it.areaCode }
+        val retainedAlertLevelAreaCodes = db.alertLevelDao().all().map { it.areaCode }
+        val retainedMetadataIds = db.metadataDao().all().map { it.id }
+    }
+
+    companion object {
         val marlyboneArea = AreaEntity(
             areaCode = "E02000970",
             areaName = "Marylebone & Park Lane",
@@ -503,101 +333,10 @@ class DatabaseCleanerTest {
             areaName = "Central Westminster",
             areaType = AreaType.MSOA
         )
-        val centralWestminsterAreaLookup = AreaLookupEntity(
-            postcode = "W1 1AA",
-            trimmedPostcode = "W11AA",
-            lsoaCode = "E01004733",
-            lsoaName = "Westminster 020C",
-            msoaCode = "E02000979",
-            msoaName = "Central Westminster",
-            ltlaCode = "E09000033",
-            ltlaName = "Westminster",
-            utlaCode = "E09000033",
-            utlaName = "Westminster",
-            nhsRegionCode = "E40000003",
-            nhsRegionName = "London",
-            nhsTrustCode = "RJ1",
-            nhsTrustName = "Guy's and St Thomas' NHS Foundation Trust",
-            regionCode = "E12000007",
-            regionName = "London",
-            nationCode = "E92000001",
-            nationName = "England"
-        )
-        val oxfordCentralAreaLookup = AreaLookupEntity(
-            postcode = "OX1 1AA",
-            trimmedPostcode = "OX11AA",
-            lsoaCode = "E01028522",
-            lsoaName = "Oxford 008B",
-            msoaCode = "E02005947",
-            msoaName = "Oxford Central",
-            ltlaCode = "E07000178",
-            ltlaName = "Oxford",
-            utlaCode = "E10000025",
-            utlaName = "Oxfordshire",
-            nhsRegionCode = "E40000005",
-            nhsRegionName = "South East",
-            nhsTrustCode = "RTH",
-            nhsTrustName = "Oxford University Hospitals NHS Foundation Trust",
-            regionCode = "E12000008",
-            regionName = "South East",
-            nationCode = "E92000001",
-            nationName = "England"
-        )
         val oxfordCentralArea = AreaEntity(
             areaCode = "E02005947",
             areaName = "Oxford Central",
             areaType = AreaType.MSOA
-        )
-        val oxfordshireArea = AreaEntity(
-            areaCode = "E10000025",
-            areaName = "Oxfordshire",
-            areaType = AreaType.UTLA
-        )
-        val cardiffArea = AreaEntity(
-            areaCode = "W06000015",
-            areaName = "Cardiff",
-            areaType = AreaType.UTLA
-        )
-        val aberdeenCityArea = AreaEntity(
-            areaCode = "S12000033",
-            areaName = "Aberdeen City",
-            areaType = AreaType.UTLA
-        )
-        val aberdeenCityAreaLookup = AreaLookupEntity(
-            postcode = "AB10 1AB",
-            trimmedPostcode = "AB101AB",
-            lsoaCode = "S01006646",
-            lsoaName = null,
-            msoaCode = "S02001261",
-            msoaName = null,
-            ltlaCode = "S12000033",
-            ltlaName = "Aberdeen City",
-            utlaCode = "S12000033",
-            utlaName = "Aberdeen City",
-            nhsRegionCode = null,
-            nhsRegionName = null,
-            nhsTrustCode = null,
-            nhsTrustName = null,
-            regionCode = null,
-            regionName = null,
-            nationCode = "S92000003",
-            nationName = "Scotland"
-        )
-        val westminsterHealthcareTrusts = listOf(
-            "RV3",
-            "RYJ",
-            "RRV",
-            "RJ1",
-            "RWF",
-            "RAL",
-            "RYX"
-        )
-
-        val oxfordHealthcareTrusts = listOf(
-            "RTH",
-            "RNU",
-            "RHW",
-            "RXQ"
         )
     }
 }

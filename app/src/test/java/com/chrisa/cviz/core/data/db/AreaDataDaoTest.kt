@@ -92,19 +92,20 @@ class AreaDataDaoTest {
     }
 
     @Test
-    fun `GIVEN area data exists WHEN deleteAllNotInAreaCodes called THEN data not in area code is deleted`() {
+    fun `GIVEN area data exists WHEN deleteAllInAreaCode called THEN data in area code is deleted`() {
+        val toKeep = areaData.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
         db.areaDataDao().insertAll(
             listOf(
                 areaData,
-                areaData.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
+                toKeep
             )
         )
         assertThat(db.areaDataDao().countAll()).isEqualTo(2)
 
-        db.areaDataDao().deleteAllNotInAreaCode(listOf(areaData.areaCode))
+        db.areaDataDao().deleteAllInAreaCode(listOf(areaData.areaCode))
 
         assertThat(db.areaDataDao().countAll()).isEqualTo(1)
-        assertThat(db.areaDataDao().allByAreaCode(areaData.areaCode)).isEqualTo(listOf(areaData))
+        assertThat(db.areaDataDao().allByAreaCode(toKeep.areaCode)).isEqualTo(listOf(toKeep))
     }
 
     @Test

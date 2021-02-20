@@ -17,68 +17,9 @@
 package com.chrisa.cviz.core.data.db
 
 class Snapshot(
-    private val savedAreaCodes: Set<String>,
-    healthcareLookups: List<HealthcareLookupEntity>,
-    areaLookups: List<AreaLookupEntity>
-) {
-    private val savedAreaLookups =
-        areaLookups.filter { lookup ->
-            savedAreaCodes.contains(lookup.msoaCode) ||
-                savedAreaCodes.contains(lookup.ltlaCode) ||
-                savedAreaCodes.contains(lookup.utlaCode) ||
-                lookup.regionCode != null && savedAreaCodes.contains(lookup.regionCode)
-        }
-
-    val lsoaAreaCodes = savedAreaLookups.map { it.lsoaCode }.toSet()
-
-    val msoaAreaCodes =
-        savedAreaLookups.filter { savedAreaCodes.contains(it.msoaCode) }.map { it.msoaCode }.toSet()
-
-    private val localAreaDataCodes =
-        mutableSetOf<String>()
-            .plus(savedAreaLookups.filter {
-                savedAreaCodes.contains(it.utlaCode) || savedAreaCodes.contains(it.msoaCode)
-            }.map { it.utlaCode })
-            .plus(savedAreaLookups.filter {
-                savedAreaCodes.contains(it.ltlaCode) || savedAreaCodes.contains(it.msoaCode)
-            }.map { it.ltlaCode })
-            .plus(savedAreaLookups.mapNotNull { it.regionCode })
-            .toSet()
-
-    val localAndNationalAreaDataCodes =
-        localAreaDataCodes
-            .plus(
-                listOf(
-                    Constants.UK_AREA_CODE,
-                    Constants.ENGLAND_AREA_CODE,
-                    Constants.NORTHERN_IRELAND_AREA_CODE,
-                    Constants.SCOTLAND_AREA_CODE,
-                    Constants.WALES_AREA_CODE
-                )
-            )
-            .toSet()
-
-    private val healthcareLookupCodes =
-        healthcareLookups.filter { localAndNationalAreaDataCodes.contains(it.areaCode) }
-            .map { it.nhsTrustCode }
-
-    val healthcareAreaCodes =
-        savedAreaLookups.asSequence()
-            .mapNotNull { it.regionCode }
-            .plus(savedAreaLookups.mapNotNull { it.nhsTrustCode })
-            .plus(savedAreaLookups.mapNotNull { it.nhsRegionCode })
-            .plus(savedAreaLookups.map { it.nationCode })
-            .plus(healthcareLookupCodes)
-            .toSet()
-
-    val alertLevelAreaCodes = savedAreaLookups.map { it.utlaCode }
-        .plus(savedAreaLookups.map { it.ltlaCode })
-        .plus(savedAreaLookups.mapNotNull { it.regionCode })
-        .toSet()
-
-    val metadataIds =
-        localAndNationalAreaDataCodes.map(MetaDataIds::areaCodeId)
-            .plus(msoaAreaCodes.map(MetaDataIds::areaCodeId))
-            .plus(MetaDataIds.areaSummaryId())
-            .plus(healthcareAreaCodes.map(MetaDataIds::healthcareId))
-}
+    val metadata: List<MetadataEntity>,
+    val areaDataAreaCodes: List<String>,
+    val soaDataAreaCodes: List<String>,
+    val healthcareAreaCodes: List<String>,
+    val alertLevelAreaCodes: List<String>
+)

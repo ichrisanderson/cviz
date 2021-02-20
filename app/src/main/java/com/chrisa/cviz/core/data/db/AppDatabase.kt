@@ -83,9 +83,9 @@ abstract class AppDatabase : RoomDatabase() {
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `soaData` (`areaCode` TEXT NOT NULL, `areaName` TEXT NOT NULL, `areaType` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`))")
-                database.execSQL("DELETE FROM `alertLevel`")
-                database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `trimmedPostcode` TEXT NOT NULL")
-                database.execSQL("ALTER TABLE `alertLevel` ADD COLUMN `postcode` TEXT NOT NULL")
+                database.execSQL("ALTER TABLE `areaLookup` ADD COLUMN `trimmedPostcode` TEXT DEFAULT '' NOT NULL")
+                database.execSQL("ALTER TABLE `areaLookup` ADD COLUMN `postcode` TEXT DEFAULT '' NOT NULL ")
+                database.execSQL("DELETE FROM `areaLookup`")
             }
         }
 
@@ -293,14 +293,17 @@ data class AreaDeathData(
 @Dao
 interface AreaDataDao {
 
+    @Query("SELECT DISTINCT areaCode FROM areaData")
+    fun distinctAreaCodes(): List<String>
+
     @Query("SELECT * FROM areaData")
     fun all(): List<AreaDataEntity>
 
     @Query("DELETE FROM areaData WHERE :areaCode = areaCode")
     fun deleteAllByAreaCode(areaCode: String)
 
-    @Query("DELETE FROM areaData WHERE areaCode NOT IN (:areaCodes)")
-    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
+    @Query("DELETE FROM areaData WHERE areaCode IN (:areaCodes)")
+    fun deleteAllInAreaCode(areaCodes: Collection<String>)
 
     @Query("SELECT COUNT(areaCode) FROM areaData")
     fun countAll(): Int
@@ -352,8 +355,8 @@ interface MetadataDao {
     @Query("SELECT * FROM metadata")
     fun all(): List<MetadataEntity>
 
-    @Query("DELETE FROM metadata WHERE id NOT IN (:id)")
-    fun deleteAllNotInId(id: Collection<String>)
+    @Query("DELETE FROM metadata WHERE id IN (:id)")
+    fun deleteAllInId(id: Collection<String>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(metadata: MetadataEntity)
@@ -379,6 +382,9 @@ data class SavedAreaEntity(
 
 @Dao
 interface SavedAreaDao {
+
+    @Query("SELECT DISTINCT areaCode FROM savedArea")
+    fun distinctAreaCodes(): List<String>
 
     @Query("SELECT COUNT(areaCode) FROM savedArea")
     fun countAll(): Int
@@ -599,11 +605,14 @@ data class HealthcareEntity(
 @Dao
 interface HealthcareDao {
 
+    @Query("SELECT DISTINCT areaCode FROM healthcare")
+    fun distinctAreaCodes(): List<String>
+
     @Query("SELECT * FROM healthcare")
     fun all(): List<HealthcareEntity>
 
-    @Query("DELETE FROM healthcare WHERE areaCode NOT IN(:areaCode)")
-    fun deleteAllNotInAreaCode(areaCode: Collection<String>)
+    @Query("DELETE FROM healthcare WHERE areaCode IN(:areaCode)")
+    fun deleteAllInAreaCode(areaCode: Collection<String>)
 
     @Query("DELETE FROM healthcare WHERE :areaCode = areaCode")
     fun deleteAllByAreaCode(areaCode: String)
@@ -631,7 +640,6 @@ data class HealthcareLookupEntity(
 
 @Dao
 interface HealthcareLookupDao {
-
     @Query("SELECT * FROM healthcareLookup")
     fun all(): List<HealthcareLookupEntity>
 
@@ -674,8 +682,11 @@ data class AlertLevelEntity(
 @Dao
 interface AlertLevelDao {
 
-    @Query("DELETE FROM alertLevel WHERE areaCode NOT IN (:areaCodes)")
-    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
+    @Query("SELECT DISTINCT areaCode FROM alertLevel")
+    fun distinctAreaCodes(): List<String>
+
+    @Query("DELETE FROM alertLevel WHERE areaCode IN (:areaCodes)")
+    fun deleteAllInAreaCode(areaCodes: Collection<String>)
 
     @Query("SELECT * FROM alertLevel")
     fun all(): List<AlertLevelEntity>
@@ -716,16 +727,19 @@ data class SoaDataEntity(
 @Dao
 interface SoaDataDao {
 
-    @Query("DELETE FROM soaData WHERE areaCode NOT IN (:areaCodes)")
-    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
+    @Query("SELECT DISTINCT areaCode FROM soaData")
+    fun distinctAreaCodes(): List<String>
+
+    @Query("DELETE FROM soaData WHERE areaCode IN (:areaCodes)")
+    fun deleteAllInAreaCode(areaCodes: Collection<String>)
 
     @Query("DELETE FROM soaData WHERE areaCode = :areaCode")
     fun deleteAllByAreaCode(areaCode: String)
 
-    @Query("SELECT * FROM soaData INNER JOIN savedArea ON soaData.areaCode = savedArea.areaCode ORDER BY date ASC")
+    @Query("SELECT * FROM soaData ORDER BY date ASC")
     fun allAsFlow(): Flow<List<SoaDataEntity>>
 
-    @Query("SELECT * FROM soaData INNER JOIN savedArea ON soaData.areaCode = savedArea.areaCode ORDER BY date ASC")
+    @Query("SELECT * FROM soaData ORDER BY date ASC")
     fun all(): List<SoaDataEntity>
 
     @Query("SELECT * FROM soaData WHERE areaCode = :areaCode ORDER BY date ASC")

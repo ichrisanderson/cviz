@@ -22,8 +22,10 @@ class SnapshotProvider @Inject constructor() {
 
     fun getSnapshot(appDatabase: AppDatabase): Snapshot =
         Snapshot(
-            savedAreaCodes = appDatabase.savedAreaDao().all().map { it.areaCode }.toSet(),
-            healthcareLookups = appDatabase.healthcareLookupDao().all(),
-            areaLookups = appDatabase.areaLookupDao().all()
+            metadata = appDatabase.metadataDao().all(),
+            areaDataAreaCodes = appDatabase.areaDataDao().distinctAreaCodes(),
+            soaDataAreaCodes = appDatabase.soaDataDao().distinctAreaCodes(),
+            healthcareAreaCodes = appDatabase.healthcareDao().distinctAreaCodes(),
+            alertLevelAreaCodes = appDatabase.alertLevelDao().distinctAreaCodes()
         )
 }

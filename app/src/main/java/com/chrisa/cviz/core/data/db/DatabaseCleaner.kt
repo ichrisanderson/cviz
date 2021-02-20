@@ -17,21 +17,61 @@
 package com.chrisa.cviz.core.data.db
 
 import androidx.room.withTransaction
+import com.chrisa.cviz.core.data.time.TimeProvider
 import javax.inject.Inject
 
 class DatabaseCleaner @Inject constructor(
     private val appDatabase: AppDatabase,
-    private val snapshotProvider: SnapshotProvider
+    private val snapshotProvider: SnapshotProvider,
+    private val timeProvider: TimeProvider
 ) {
     suspend fun removeUnusedData() =
         appDatabase.withTransaction {
             val snapshot = snapshotProvider.getSnapshot(appDatabase)
+            val cutoffDate = timeProvider.currentTime().minusDays(2)
 
-            appDatabase.areaLookupDao().deleteAllNotInLsoaCode(snapshot.lsoaAreaCodes)
-            appDatabase.soaDataDao().deleteAllNotInAreaCode(snapshot.msoaAreaCodes)
-            appDatabase.alertLevelDao().deleteAllNotInAreaCode(snapshot.alertLevelAreaCodes)
-            appDatabase.areaDataDao().deleteAllNotInAreaCode(snapshot.localAndNationalAreaDataCodes)
-            appDatabase.healthcareDao().deleteAllNotInAreaCode(snapshot.healthcareAreaCodes)
-            appDatabase.metadataDao().deleteAllNotInId(snapshot.metadataIds)
+            val outOfDateMetadata =
+                snapshot.metadata.filter { it.lastSyncTime < cutoffDate }
+
+            val outOfDateMetadataIds = outOfDateMetadata.map { it.id }.toSet()
+
+            val outOfDateSoaData =
+                snapshot.soaDataAreaCodes.filter {
+                    outOfDateMetadataIds.contains(
+                        MetaDataIds.areaCodeId(
+                            it
+                        )
+                    )
+                }
+            val outOfDateAlertLevels =
+                snapshot.alertLevelAreaCodes.filter {
+                    outOfDateMetadataIds.contains(
+                        MetaDataIds.alertLevelId(
+                            it
+                        )
+                    )
+                }
+            val outOfDateAreaData =
+                snapshot.areaDataAreaCodes.filter {
+                    outOfDateMetadataIds.contains(
+                        MetaDataIds.areaCodeId(
+                            it
+                        )
+                    )
+                }
+            val outOfDateHealthCare =
+                snapshot.healthcareAreaCodes.filter {
+                    outOfDateMetadataIds.contains(
+                        MetaDataIds.healthcareId(
+                            it
+                        )
+                    )
+                }
+
+            appDatabase.soaDataDao().deleteAllInAreaCode(outOfDateSoaData)
+            appDatabase.areaDataDao().deleteAllInAreaCode(outOfDateAreaData)
+            appDatabase.alertLevelDao().deleteAllInAreaCode(outOfDateAlertLevels)
+            appDatabase.healthcareDao().deleteAllInAreaCode(outOfDateHealthCare)
+            appDatabase.metadataDao().deleteAllInId(outOfDateMetadataIds)
         }
 }
