@@ -17,20 +17,12 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.AreaDataDao
-import com.chrisa.cviz.core.data.db.AreaDataEntity
+import com.chrisa.cviz.core.data.db.AreaLookupDao
+import com.chrisa.cviz.core.data.db.AreaLookupEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.core.data.db.MetaDataIds
-import com.chrisa.cviz.core.data.db.MetadataDao
-import com.chrisa.cviz.core.data.db.MetadataEntity
-import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
-import com.chrisa.cviz.core.data.network.AreaDataModel
-import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
+import com.chrisa.cviz.core.data.network.AreaLookupData
 import com.chrisa.cviz.core.data.network.CovidApi
-import com.chrisa.cviz.core.data.network.Page
 import com.chrisa.cviz.core.data.network.Utils.emptyJsonResponse
-import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.NetworkUtils
 import com.chrisa.cviz.core.util.mockTransaction
 import io.mockk.Runs
@@ -41,8 +33,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import java.io.IOException
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -55,209 +45,176 @@ import retrofit2.Response
 class AreaLookupDataSynchroniserImplTest {
 
     private val appDatabase = mockk<AppDatabase>()
-    private val areaDataDao = mockk<AreaDataDao>()
-    private val metadataDao = mockk<MetadataDao>()
+    private val areaLookupDao = mockk<AreaLookupDao>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
-    private val areaDataModelStructureMapper = mockk<AreaDataModelStructureMapper>()
-    private val timeProvider = mockk<TimeProvider>()
     private val testDispatcher = TestCoroutineDispatcher()
 
-    private lateinit var sut: AreaDataSynchroniser
-    private val areaCode = "1234"
-    private val areaType = AreaType.OVERVIEW
-    private val areaDataModel = "{}"
-    private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
+    private lateinit var sut: AreaLookupDataSynchroniserImpl
 
     @Before
     fun setup() {
         every { networkUtils.hasNetworkConnection() } returns true
-        every { areaDataModelStructureMapper.mapAreaTypeToDataModel(any()) } returns areaDataModel
-        every { appDatabase.metadataDao() } returns metadataDao
-        every { appDatabase.areaDataDao() } returns areaDataDao
-        every { areaDataDao.deleteAllByAreaCode(areaCode) } just Runs
-        every { areaDataDao.insertAll(any()) } just Runs
-        every { metadataDao.insert(any()) } just Runs
-        every { timeProvider.currentTime() } returns syncTime
-        every { metadataDao.metadata(any()) } returns null
+        every { appDatabase.areaLookupDao() } returns areaLookupDao
+        every { areaLookupDao.insert(any()) } just Runs
+        every { areaLookupDao.byUtla(any()) } returns null
+        every { areaLookupDao.byLtla(any()) } returns null
+        every { areaLookupDao.byRegion(any()) } returns null
+        every { networkUtils.hasNetworkConnection() } returns true
 
         appDatabase.mockTransaction()
 
-        sut = AreaDataSynchroniserImpl(
+        sut = AreaLookupDataSynchroniserImpl(
             covidApi,
             appDatabase,
-            areaDataModelStructureMapper,
-            networkUtils,
-            timeProvider
+            networkUtils
         )
     }
 
     @Test(expected = IOException::class)
     fun `GIVEN no internet WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
-
             every { networkUtils.hasNetworkConnection() } returns false
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync("", AreaType.UTLA)
 
-            coVerify(exactly = 0) { covidApi.pagedAreaDataResponse(any(), any(), any()) }
+            coVerify(exactly = 0) { covidApi.areaLookupData(any(), any()) }
         }
 
-    @Test(expected = HttpException::class)
-    fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
+    @Test
+    fun `GIVEN non supported area WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns null
-            coEvery { covidApi.pagedAreaDataResponse(any(), any(), any()) } returns
-                Response.error(500, emptyJsonResponse())
+            val supportedAreas = setOf(AreaType.REGION, AreaType.UTLA, AreaType.LTLA)
+            val nonSupportedAreas = AreaType.values().filterNot { supportedAreas.contains(it) }
 
-            sut.performSync(areaCode, areaType)
+            nonSupportedAreas.forEach { areaType ->
+                sut.performSync("", areaType)
 
-            coVerify(exactly = 1) {
-                covidApi.pagedAreaDataResponse(
-                    null,
-                    AREA_DATA_FILTER(areaCode, areaType.value),
-                    areaDataModel
-                )
+                coVerify(exactly = 0) { covidApi.areaLookupData(any(), any()) }
             }
         }
 
     @Test
-    fun `GIVEN recent area metadata WHEN performSync THEN api is not called`() =
+    fun `GIVEN region lookup data exists WHEN performSync THEN api is not called AND association is update`() =
         testDispatcher.runBlockingTest {
-            val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime.minusSeconds(1)
-            )
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { areaLookupDao.byRegion(oxfordCentralAreaLookup.regionCode!!) } returns oxfordCentralAreaLookup
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(oxfordCentralAreaLookup.regionCode!!, AreaType.REGION)
 
-            coVerify(exactly = 0) {
-                covidApi.pagedAreaDataResponse(any(), any(), any())
-            }
+            coVerify(exactly = 0) { covidApi.areaLookupData(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN utla lookup data exists WHEN performSync THEN api is not called AND association is update`() =
+        testDispatcher.runBlockingTest {
+            every { areaLookupDao.byUtla(oxfordCentralAreaLookup.utlaCode) } returns oxfordCentralAreaLookup
+
+            sut.performSync(oxfordCentralAreaLookup.utlaCode, AreaType.UTLA)
+
+            coVerify(exactly = 0) { covidApi.areaLookupData(any(), any()) }
+        }
+
+    @Test
+    fun `GIVEN ltla lookup data exists WHEN performSync THEN api is not called AND association is update`() =
+        testDispatcher.runBlockingTest {
+            every { areaLookupDao.byLtla(oxfordCentralAreaLookup.ltlaCode) } returns oxfordCentralAreaLookup
+
+            sut.performSync(oxfordCentralAreaLookup.ltlaCode, AreaType.LTLA)
+
+            coVerify(exactly = 0) { covidApi.areaLookupData(any(), any()) }
         }
 
     @Test(expected = HttpException::class)
     fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
         testDispatcher.runBlockingTest {
-            val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime.minusSeconds(301)
-            )
-
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.pagedAreaDataResponse(
-                    any(),
+                covidApi.areaLookupData(
                     any(),
                     any()
                 )
-            } returns Response.error(404, emptyJsonResponse())
+            } throws HttpException(Response.error<AreaLookupData>(404, emptyJsonResponse()))
 
-            sut.performSync(areaCode, areaType)
-        }
-
-    @Test(expected = NullPointerException::class)
-    fun `GIVEN api succeeds with null response WHEN performSync THEN area data is not updated`() =
-        testDispatcher.runBlockingTest {
-            val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime.minusMinutes(6)
-            )
-
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
-            coEvery {
-                covidApi.pagedAreaDataResponse(
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns Response.success(null)
-
-            sut.performSync(areaCode, areaType)
+            sut.performSync(oxfordCentralAreaLookup.utlaCode, AreaType.UTLA)
         }
 
     @Test
-    fun `GIVEN api succeeds with non-null response WHEN performSync THEN area data is updated`() =
+    fun `GIVEN api succeeds response WHEN performSync THEN area data is updated`() =
         testDispatcher.runBlockingTest {
-            val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
-                lastUpdatedAt = syncTime.minusDays(1),
-                lastSyncTime = syncTime.minusMinutes(6)
-            )
-            val areaModel = AreaDataModel(
-                areaCode = Constants.UK_AREA_CODE,
-                areaName = Constants.UK_AREA_NAME,
-                areaType = AreaType.OVERVIEW.value,
-                cumulativeCases = 100,
-                date = LocalDate.now(),
-                newCases = 10,
-                infectionRate = 100.0,
-                newDeathsByPublishedDate = 15,
-                cumulativeDeathsByPublishedDate = 20,
-                cumulativeDeathsByPublishedDateRate = 30.0,
-                newDeathsByDeathDate = 40,
-                cumulativeDeathsByDeathDate = 50,
-                cumulativeDeathsByDeathDateRate = 60.0,
-                newOnsDeathsByRegistrationDate = 10,
-                cumulativeOnsDeathsByRegistrationDate = 53,
-                cumulativeOnsDeathsByRegistrationDateRate = 62.0
-            )
-            val pageModel = Page(
-                length = 1,
-                maxPageLimit = null,
-                data = listOf(areaModel)
-            )
-            val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
-
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
-                covidApi.pagedAreaDataResponse(
-                    any(),
+                covidApi.areaLookupData(
                     any(),
                     any()
                 )
-            } returns Response.success(pageModel)
+            } returns areaLookupData
 
-            sut.performSync(areaCode, areaType)
+            sut.performSync(oxfordCentralAreaLookup.utlaCode, AreaType.UTLA)
 
-            verify(exactly = 1) { areaDataDao.deleteAllByAreaCode(areaCode) }
             verify(exactly = 1) {
-                areaDataDao.insertAll(
-                    listOf(
-                        AreaDataEntity(
-                            metadataId = metadataEntity.id,
-                            areaCode = areaModel.areaCode,
-                            areaName = areaModel.areaName,
-                            areaType = AreaType.from(areaModel.areaType)!!,
-                            cumulativeCases = areaModel.cumulativeCases!!,
-                            date = areaModel.date,
-                            newCases = areaModel.newCases!!,
-                            infectionRate = areaModel.infectionRate!!,
-                            newDeathsByPublishedDate = areaModel.newDeathsByPublishedDate!!,
-                            cumulativeDeathsByPublishedDate = areaModel.cumulativeDeathsByPublishedDate!!,
-                            cumulativeDeathsByPublishedDateRate = areaModel.cumulativeDeathsByPublishedDateRate!!,
-                            newDeathsByDeathDate = areaModel.newDeathsByDeathDate!!,
-                            cumulativeDeathsByDeathDate = areaModel.cumulativeDeathsByDeathDate!!,
-                            cumulativeDeathsByDeathDateRate = areaModel.cumulativeDeathsByDeathDateRate!!,
-                            newOnsDeathsByRegistrationDate = areaModel.newOnsDeathsByRegistrationDate,
-                            cumulativeOnsDeathsByRegistrationDate = areaModel.cumulativeOnsDeathsByRegistrationDate,
-                            cumulativeOnsDeathsByRegistrationDateRate = areaModel.cumulativeOnsDeathsByRegistrationDateRate
-                        )
-                    )
-                )
-            }
-            verify(exactly = 1) {
-                metadataDao.insert(
-                    MetadataEntity(
-                        id = MetaDataIds.areaCodeId(areaCode),
-                        lastSyncTime = syncTime,
-                        lastUpdatedAt = syncTime
+                areaLookupDao.insert(
+                    AreaLookupEntity(
+                        postcode = areaLookupData.postcode,
+                        trimmedPostcode = areaLookupData.trimmedPostcode,
+                        lsoaCode = areaLookupData.lsoa,
+                        lsoaName = areaLookupData.lsoaName,
+                        msoaName = areaLookupData.msoaName,
+                        msoaCode = areaLookupData.msoa,
+                        ltlaCode = areaLookupData.ltla,
+                        ltlaName = areaLookupData.ltlaName,
+                        utlaCode = areaLookupData.utla,
+                        utlaName = areaLookupData.utlaName,
+                        nhsTrustCode = areaLookupData.nhsTrust,
+                        nhsTrustName = areaLookupData.nhsTrustName,
+                        nhsRegionCode = areaLookupData.nhsRegion,
+                        nhsRegionName = areaLookupData.nhsRegionName,
+                        regionCode = areaLookupData.region,
+                        regionName = areaLookupData.regionName,
+                        nationCode = areaLookupData.nation,
+                        nationName = areaLookupData.nationName
                     )
                 )
             }
         }
+
+    companion object {
+        val areaLookupData = AreaLookupData(
+            postcode = "OX1 1AA",
+            trimmedPostcode = "OX11AA",
+            lsoa = "E01028522",
+            lsoaName = "Oxford 008B",
+            msoa = "E02005947",
+            msoaName = "Oxford Central",
+            ltla = "E07000178",
+            ltlaName = "Oxford",
+            utla = "E10000025",
+            utlaName = "Oxfordshire",
+            nhsRegion = "E40000005",
+            nhsRegionName = "South East",
+            nhsTrust = "RTH",
+            nhsTrustName = "Oxford University Hospitals NHS Foundation Trust",
+            region = "E12000008",
+            regionName = "South East",
+            nation = "E92000001",
+            nationName = "England"
+        )
+        val oxfordCentralAreaLookup = AreaLookupEntity(
+            postcode = "OX1 1AA",
+            trimmedPostcode = "OX11AA",
+            lsoaCode = "E01028522",
+            lsoaName = "Oxford 008B",
+            msoaCode = "E02005947",
+            msoaName = "Oxford Central",
+            ltlaCode = "E07000178",
+            ltlaName = "Oxford",
+            utlaCode = "E10000025",
+            utlaName = "Oxfordshire",
+            nhsRegionCode = "E40000005",
+            nhsRegionName = "South East",
+            nhsTrustCode = "RTH",
+            nhsTrustName = "Oxford University Hospitals NHS Foundation Trust",
+            regionCode = "E12000008",
+            regionName = "South East",
+            nationCode = "E92000001",
+            nationName = "England"
+        )
+    }
 }

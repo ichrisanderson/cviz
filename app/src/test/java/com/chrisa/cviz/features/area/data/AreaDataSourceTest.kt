@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Before
 import org.junit.Test
 
 @InternalCoroutinesApi
@@ -48,6 +49,11 @@ class AreaDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
     private val sut = AreaDataSource(appDatabase)
+
+    @Before
+    fun setup() {
+        every { appDatabase.savedAreaDao().delete(any()) } returns 1
+    }
 
     @Test
     fun `GIVEN area is not saved WHEN isSaved called THEN savedState is false`() = runBlockingTest {
@@ -86,7 +92,6 @@ class AreaDataSourceTest {
     @Test
     fun `WHEN deleteSavedArea called THEN entity is deleted from the database`() {
         val dto = SavedAreaDto(areaData.areaCode)
-        every { appDatabase.savedAreaDao().delete(dto.toSavedAreaEntity()) } returns 1
 
         val deletedRows = sut.deleteSavedArea(dto)
 

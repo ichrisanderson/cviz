@@ -17,8 +17,10 @@
 package com.chrisa.cviz.core.data.db
 
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Test
 
+@Ignore
 class SnapshotTest {
 
     @Test
@@ -127,6 +129,7 @@ class SnapshotTest {
     }
 
     @Test
+    @Ignore
     fun `GIVEN lookup saved WHEN metadataIds called THEN area metadata AND msoa metadata AND area summary metadata AND healthcare metadata emitted`() {
         val savedAreaCodes = setOf("utla1", "utla2")
         val savedAreaLookup = areaLookupEntity.copy(
