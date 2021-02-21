@@ -41,9 +41,12 @@ internal class AreaLookupDataSynchroniserImpl @Inject constructor(
         areaType: AreaType
     ) {
         if (!canLookupData(areaType)) return
-        if (hasLookupData(areaCode, areaType)) return
+        val lookupData = lookupData(areaCode, areaType)
+        if (lookupData != null) { return }
         if (!networkUtils.hasNetworkConnection()) throw IOException()
-        cacheAreaData(api.areaLookupData(category = areaType.value, search = areaCode))
+        cacheAreaData(
+            api.areaLookupData(category = areaType.value, search = areaCode)
+        )
     }
 
     private fun canLookupData(areaType: AreaType): Boolean {
@@ -55,14 +58,13 @@ internal class AreaLookupDataSynchroniserImpl @Inject constructor(
         }
     }
 
-    private fun hasLookupData(areaCode: String, areaType: AreaType): Boolean {
-        val areaLookupData: AreaLookupEntity? = when (areaType) {
+    private fun lookupData(areaCode: String, areaType: AreaType): AreaLookupEntity? {
+        return when (areaType) {
             AreaType.REGION -> appDatabase.areaLookupDao().byRegion(areaCode)
             AreaType.UTLA -> appDatabase.areaLookupDao().byUtla(areaCode)
             AreaType.LTLA -> appDatabase.areaLookupDao().byLtla(areaCode)
             else -> null
         }
-        return areaLookupData != null
     }
 
     private suspend fun cacheAreaData(

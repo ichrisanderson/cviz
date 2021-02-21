@@ -41,6 +41,7 @@ internal class SavedAreaDataSynchroniser @Inject constructor(
             AreaEntity(Constants.WALES_AREA_CODE, Constants.WALES_AREA_NAME, AreaType.NATION)
         )
             .plus(appDatabase.areaDao().allSavedAreas())
+            .distinct()
 
         var error: Throwable? = null
         val areasWithoutSoa = areas.filterNot { it.areaType == AreaType.MSOA }

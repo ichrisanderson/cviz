@@ -99,26 +99,19 @@ class MetadataDaoTest {
     }
 
     @Test
-    fun `GIVEN metadata data exists WHEN deleteAllNotInIds called THEN metadata with id is not deleted`() {
-
+    fun `GIVEN metadata data exists WHEN deleteAllInId called THEN metadata with id is not deleted`() {
         val lastUpdated = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC)
         val lastSynced = LocalDateTime.ofInstant(Instant.ofEpochMilli(1), ZoneOffset.UTC)
-
         val newMetadata = MetadataEntity(
             id = METADATA_ID,
             lastUpdatedAt = lastUpdated,
             lastSyncTime = lastSynced
         )
-
         val idToRetain = METADATA_ID + "_retained"
-
         db.metadataDao().insert(newMetadata)
         db.metadataDao().insert(newMetadata.copy(id = idToRetain))
 
-        assertThat(db.metadataDao().metadata(METADATA_ID)).isNotNull()
-        assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()
-
-        db.metadataDao().deleteAllNotInIds(listOf(idToRetain))
+        db.metadataDao().deleteAllInId(listOf(METADATA_ID))
 
         assertThat(db.metadataDao().metadata(METADATA_ID)).isNull()
         assertThat(db.metadataDao().metadata(idToRetain)).isNotNull()
