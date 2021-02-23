@@ -41,6 +41,8 @@ class AlertLevelDaoTest {
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
+
+        db.areaDao().insert(AreaEntity(areaCode, "", AreaType.OVERVIEW))
     }
 
     @Test
@@ -84,8 +86,6 @@ class AlertLevelDaoTest {
         private val areaCode = "1234"
         private val alertLevel = AlertLevelEntity(
             areaCode = areaCode,
-            areaName = "",
-            areaType = AreaType.LTLA,
             date = date,
             alertLevel = 1,
             alertLevelUrl = "http://www.acme.com",

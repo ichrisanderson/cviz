@@ -17,6 +17,7 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaDataDao
 import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaType
@@ -57,6 +58,7 @@ class AreaDataSynchroniserImplTest {
     private val appDatabase = mockk<AppDatabase>()
     private val areaDataDao = mockk<AreaDataDao>()
     private val metadataDao = mockk<MetadataDao>()
+    private val areaDao = mockk<AreaDao>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
     private val areaDataModelStructureMapper = mockk<AreaDataModelStructureMapper>()
@@ -75,9 +77,11 @@ class AreaDataSynchroniserImplTest {
         every { areaDataModelStructureMapper.mapAreaTypeToDataModel(any()) } returns areaDataModel
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.areaDataDao() } returns areaDataDao
+        every { appDatabase.areaDao() } returns areaDao
         every { areaDataDao.deleteAllByAreaCode(areaCode) } just Runs
         every { areaDataDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { areaDao.insertAll(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
         every { metadataDao.metadata(any()) } returns null
 
@@ -234,8 +238,6 @@ class AreaDataSynchroniserImplTest {
                         AreaDataEntity(
                             metadataId = metadataEntity.id,
                             areaCode = areaModel.areaCode,
-                            areaName = areaModel.areaName,
-                            areaType = AreaType.from(areaModel.areaType)!!,
                             cumulativeCases = areaModel.cumulativeCases!!,
                             date = areaModel.date,
                             newCases = areaModel.newCases!!,

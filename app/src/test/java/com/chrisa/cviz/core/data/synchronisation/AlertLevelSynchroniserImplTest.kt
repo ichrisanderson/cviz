@@ -19,6 +19,7 @@ package com.chrisa.cviz.core.data.synchronisation
 import com.chrisa.cviz.core.data.db.AlertLevelDao
 import com.chrisa.cviz.core.data.db.AlertLevelEntity
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
@@ -52,6 +53,7 @@ class AlertLevelSynchroniserImplTest {
     private val appDatabase: AppDatabase = mockk()
     private val alertLevelDao = mockk<AlertLevelDao>()
     private val metadataDao = mockk<MetadataDao>()
+    private val areaDao = mockk<AreaDao>()
     private val networkUtils: NetworkUtils = mockk()
     private val timeProvider: TimeProvider = mockk()
     private val areaCode = "1234"
@@ -77,8 +79,10 @@ class AlertLevelSynchroniserImplTest {
         every { networkUtils.hasNetworkConnection() } returns true
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.alertLevelDao() } returns alertLevelDao
+        every { appDatabase.areaDao() } returns areaDao
         every { alertLevelDao.insert(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { areaDao.insert(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
         every { metadataDao.metadata(any()) } returns null
 
@@ -207,8 +211,6 @@ class AlertLevelSynchroniserImplTest {
                 alertLevelDao.insert(
                     AlertLevelEntity(
                         areaCode = alertLevelData.areaCode,
-                        areaName = alertLevelData.areaName,
-                        areaType = AreaType.from(alertLevelData.areaType)!!,
                         date = alertLevelData.date,
                         alertLevel = alertLevelData.alertLevel,
                         alertLevelUrl = alertLevelData.alertLevelUrl,

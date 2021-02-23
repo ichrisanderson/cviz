@@ -183,8 +183,6 @@ class AlertLevelUseCaseTest {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
         val alertLevel = AlertLevelDto(
             areaCode = "",
-            areaName = "",
-            areaType = AreaType.LTLA,
             date = syncDate.toLocalDate(),
             alertLevel = 1,
             alertLevelName = "",

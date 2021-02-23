@@ -18,7 +18,6 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDataEntity
-import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
@@ -127,8 +126,6 @@ class AreaDataSourceTest {
 
         private val areaData = AreaDataEntity(
             areaCode = Constants.UK_AREA_CODE,
-            areaName = Constants.UK_AREA_NAME,
-            areaType = AreaType.OVERVIEW,
             metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
             date = syncDate.toLocalDate(),
             cumulativeCases = 222,

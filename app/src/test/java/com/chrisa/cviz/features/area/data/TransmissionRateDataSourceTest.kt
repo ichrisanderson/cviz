@@ -17,7 +17,6 @@
 package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
 import com.chrisa.cviz.core.data.db.HealthcareEntity
@@ -100,8 +99,6 @@ class TransmissionRateDataSourceTest {
         private val areaData = HealthcareEntity(
             date = syncDate.toLocalDate(),
             areaCode = Constants.ENGLAND_AREA_CODE,
-            areaName = Constants.ENGLAND_AREA_NAME,
-            areaType = AreaType.NATION,
             newAdmissions = 10,
             cumulativeAdmissions = 100,
             occupiedBeds = 70,

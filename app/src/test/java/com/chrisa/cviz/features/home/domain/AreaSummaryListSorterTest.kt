@@ -107,7 +107,7 @@ class AreaSummaryListSorterTest {
         val areaSummary = AreaSummaryDto(
             areaCode = "E1",
             areaName = Constants.ENGLAND_AREA_NAME,
-            areaType = AreaType.NATION.value,
+            areaType = AreaType.OVERVIEW.value,
             changeInCases = 0,
             currentNewCases = 0,
             changeInInfectionRate = 0.0,

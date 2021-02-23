@@ -25,16 +25,16 @@ class SoaDataSource @Inject constructor(
 ) {
 
     fun byAreaCode(areaCode: String): List<SoaDataDto> =
-        appDatabase.soaDataDao().byAreaCode(areaCode).map { soaData ->
+        appDatabase.soaDataDao().withAreaByAreaCode(areaCode).map {
             SoaDataDto(
-                soaData.areaCode,
-                soaData.areaName,
-                soaData.areaType,
-                soaData.date,
-                soaData.rollingSum,
-                soaData.rollingRate,
-                soaData.change,
-                soaData.changePercentage
+                it.soaData.areaCode,
+                it.areaName,
+                it.areaType,
+                it.soaData.date,
+                it.soaData.rollingSum,
+                it.soaData.rollingRate,
+                it.soaData.change,
+                it.soaData.changePercentage
             )
         }
 }

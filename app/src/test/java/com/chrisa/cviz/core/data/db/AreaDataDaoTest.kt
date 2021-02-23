@@ -45,6 +45,21 @@ class AreaDataDaoTest {
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
+
+        db.areaDao().insert(
+            AreaEntity(
+                areaCode = areaDataWithArea.areaData.areaCode,
+                areaName = areaDataWithArea.areaName,
+                areaType = areaDataWithArea.areaType
+            )
+        )
+        db.metadataDao().insert(
+            MetadataEntity(
+                id = areaDataWithArea.areaData.metadataId,
+                lastSyncTime = syncDate,
+                lastUpdatedAt = syncDate
+            )
+        )
     }
 
     @Test
@@ -55,7 +70,7 @@ class AreaDataDaoTest {
 
     @Test
     fun `GIVEN area data exists WHEN count called THEN count is not zero`() {
-        db.areaDataDao().insertAll(listOf(areaData))
+        db.areaDataDao().insertAll(listOf(areaDataWithArea.areaData))
 
         val count = db.areaDataDao().countAll()
 
@@ -63,46 +78,44 @@ class AreaDataDaoTest {
     }
 
     @Test
-    fun `GIVEN area data exists WHEN countAllByAreaType called THEN count is not zero`() {
-        db.areaDataDao().insertAll(
-            listOf(
-                areaData,
-                areaData.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
-            )
-        )
-
-        val count = db.areaDataDao().countAllByAreaType(AreaType.UTLA)
-
-        assertThat(count).isEqualTo(1)
-    }
-
-    @Test
     fun `GIVEN area data exists WHEN deleteAllByAreaCode called THEN data with area code is deleted`() {
-        db.areaDataDao().insertAll(
-            listOf(
-                areaData,
-                areaData.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
-            )
+        val toAdd = listOf(
+            areaDataWithArea.areaData,
+            areaDataWithArea.areaData.copy(areaCode = "002")
         )
+        db.areaDao().insertAll(toAdd.map {
+            AreaEntity(
+                areaCode = it.areaCode,
+                areaName = areaDataWithArea.areaName,
+                areaType = areaDataWithArea.areaType
+            )
+        })
+        db.areaDataDao().insertAll(toAdd)
         assertThat(db.areaDataDao().countAll()).isEqualTo(2)
 
-        db.areaDataDao().deleteAllByAreaCode(areaData.areaCode)
+        db.areaDataDao().deleteAllByAreaCode(areaDataWithArea.areaData.areaCode)
 
         assertThat(db.areaDataDao().countAll()).isEqualTo(1)
     }
 
     @Test
     fun `GIVEN area data exists WHEN deleteAllInAreaCode called THEN data in area code is deleted`() {
-        val toKeep = areaData.copy(areaCode = "1", areaName = "Liverpool", areaType = AreaType.UTLA)
+        val toKeep = areaDataWithArea.areaData.copy(areaCode = "1")
+        db.areaDao().insert(
+            AreaEntity(
+                areaCode = toKeep.areaCode,
+                areaName = areaDataWithArea.areaName,
+                areaType = areaDataWithArea.areaType
+            )
+        )
         db.areaDataDao().insertAll(
             listOf(
-                areaData,
+                areaDataWithArea.areaData,
                 toKeep
             )
         )
-        assertThat(db.areaDataDao().countAll()).isEqualTo(2)
 
-        db.areaDataDao().deleteAllInAreaCode(listOf(areaData.areaCode))
+        db.areaDataDao().deleteAllInAreaCode(listOf(areaDataWithArea.areaData.areaCode))
 
         assertThat(db.areaDataDao().countAll()).isEqualTo(1)
         assertThat(db.areaDataDao().allByAreaCode(toKeep.areaCode)).isEqualTo(listOf(toKeep))
@@ -111,24 +124,34 @@ class AreaDataDaoTest {
     @Test
     fun `GIVEN area data exists WHEN allByAreaCode called THEN data in area code is returned`() {
         val allAreas = listOf(
-            areaData,
-            areaData.copy(date = areaData.date.plusDays(1))
+            areaDataWithArea.areaData,
+            areaDataWithArea.areaData.copy(date = areaDataWithArea.areaData.date.plusDays(1))
         )
 
         db.areaDataDao().insertAll(allAreas)
 
-        assertThat(db.areaDataDao().allByAreaCode(areaData.areaCode)).isEqualTo(allAreas)
+        assertThat(db.areaDataDao().allByAreaCode(areaDataWithArea.areaData.areaCode)).isEqualTo(
+            allAreas
+        )
     }
 
     @Test
     fun `GIVEN area data does not exist WHEN insertAll called THEN area data is added`() =
         runBlocking {
             val toAdd = listOf(
-                areaData,
-                areaData.copy(areaCode = "002", areaName = Constants.ENGLAND_AREA_NAME)
+                areaDataWithArea.areaData,
+                areaDataWithArea.areaData.copy(areaCode = "002")
             )
 
-            db.areaDataDao().allByAreaCodeAsFlow(areaData.areaCode).test {
+            db.areaDao().insertAll(toAdd.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = areaDataWithArea.areaName,
+                    areaType = areaDataWithArea.areaType
+                )
+            })
+
+            db.areaDataDao().allByAreaCodeAsFlow(areaDataWithArea.areaData.areaCode).test {
                 expectNoEvents()
 
                 db.areaDataDao().insertAll(toAdd)
@@ -136,7 +159,7 @@ class AreaDataDaoTest {
                 val emittedItems = expectItem()
 
                 assertThat(emittedItems.size).isEqualTo(1)
-                assertThat(emittedItems[0]).isEqualTo(areaData)
+                assertThat(emittedItems[0]).isEqualTo(areaDataWithArea.areaData)
 
                 cancel()
             }
@@ -145,14 +168,14 @@ class AreaDataDaoTest {
     @Test
     fun `GIVEN area data does exist WHEN insertAll called with same date and area code THEN area data is updated`() =
         runBlocking {
-            db.areaDataDao().insertAll(listOf(areaData))
+            db.areaDataDao().insertAll(listOf(areaDataWithArea.areaData))
 
-            val newArea = areaData.copy(
+            val newArea = areaDataWithArea.areaData.copy(
                 newCases = 1,
-                cumulativeCases = areaData.cumulativeCases + 1
+                cumulativeCases = areaDataWithArea.areaData.cumulativeCases + 1
             )
 
-            db.areaDataDao().allByAreaCodeAsFlow(areaData.areaCode).test {
+            db.areaDataDao().allByAreaCodeAsFlow(areaDataWithArea.areaData.areaCode).test {
                 expectNoEvents()
 
                 db.areaDataDao().insertAll(listOf(newArea))
@@ -169,13 +192,13 @@ class AreaDataDaoTest {
     @Test
     fun `GIVEN area data does exist WHEN insertAll called with same area code and different date THEN area data is added`() =
         runBlocking {
-            db.areaDataDao().insertAll(listOf(areaData))
-            val newArea = areaData.copy(
-                date = areaData.date.plusDays(1),
+            db.areaDataDao().insertAll(listOf(areaDataWithArea.areaData))
+            val newArea = areaDataWithArea.areaData.copy(
+                date = areaDataWithArea.areaData.date.plusDays(1),
                 cumulativeCases = 0
             )
 
-            db.areaDataDao().allByAreaCodeAsFlow(areaData.areaCode).test {
+            db.areaDataDao().allByAreaCodeAsFlow(areaDataWithArea.areaData.areaCode).test {
                 expectNoEvents()
 
                 db.areaDataDao().insertAll(listOf(newArea))
@@ -183,7 +206,7 @@ class AreaDataDaoTest {
                 val emittedItems = expectItem()
 
                 assertThat(emittedItems.size).isEqualTo(2)
-                assertThat(emittedItems[0]).isEqualTo(areaData)
+                assertThat(emittedItems[0]).isEqualTo(areaDataWithArea.areaData)
                 assertThat(emittedItems[1]).isEqualTo(newArea)
 
                 cancel()
@@ -196,7 +219,7 @@ class AreaDataDaoTest {
             db.areaDataDao().allSavedAreaDataAsFlow().test {
                 expectNoEvents()
 
-                db.areaDataDao().insertAll(listOf(areaData))
+                db.areaDataDao().insertAll(listOf(areaDataWithArea.areaData))
 
                 val emittedItems = expectItem()
 
@@ -207,13 +230,20 @@ class AreaDataDaoTest {
         }
 
     @Test
-    fun `GIVEN saved area exist WHEN searchAllSavedAreaCases called THEN area area data are returned`() =
+    fun `GIVEN saved area exist WHEN allSavedAreaDataAsFlow called THEN area area data are returned`() =
         runBlocking {
             val insertedCases = listOf(
-                areaData,
-                areaData.copy(areaCode = "002", areaName = Constants.ENGLAND_AREA_NAME)
+                areaDataWithArea.areaData,
+                areaDataWithArea.areaData.copy(areaCode = "002")
             )
 
+            db.areaDao().insertAll(insertedCases.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = areaDataWithArea.areaName,
+                    areaType = areaDataWithArea.areaType
+                )
+            })
             db.areaDataDao().allSavedAreaDataAsFlow().test {
                 expectNoEvents()
 
@@ -221,24 +251,39 @@ class AreaDataDaoTest {
 
                 assertThat(expectItem().size).isEqualTo(0)
 
-                db.savedAreaDao().insert(SavedAreaEntity(areaCode = areaData.areaCode))
+                db.savedAreaDao()
+                    .insert(SavedAreaEntity(areaCode = areaDataWithArea.areaData.areaCode))
 
                 val emittedItems = expectItem()
 
                 assertThat(emittedItems.size).isEqualTo(1)
-                assertThat(emittedItems[0]).isEqualTo(insertedCases[0])
+                assertThat(emittedItems[0]).isEqualTo(
+                    AreaDataWithArea(
+                        areaName = areaDataWithArea.areaName,
+                        areaType = areaDataWithArea.areaType,
+                        areaData = insertedCases[0]
+                    )
+                )
 
                 cancel()
             }
         }
 
     @Test
-    fun `GIVEN all case areas are saved WHEN searchAllSavedAreaCases called THEN all area data are returned`() =
+    fun `GIVEN all case areas are saved WHEN allSavedAreaDataAsFlow called THEN all area data are returned`() =
         runBlocking {
             val toInsert = listOf(
-                areaData,
-                areaData.copy(areaCode = "002", areaName = Constants.ENGLAND_AREA_NAME)
+                areaDataWithArea.areaData,
+                areaDataWithArea.areaData.copy(areaCode = "002")
             )
+
+            db.areaDao().insertAll(toInsert.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = areaDataWithArea.areaName,
+                    areaType = areaDataWithArea.areaType
+                )
+            })
 
             val insertedCasesAsSavedAreaEntities =
                 toInsert.map { SavedAreaEntity(areaCode = it.areaCode) }
@@ -253,10 +298,16 @@ class AreaDataDaoTest {
 
                 db.savedAreaDao().insert(insertedCasesAsSavedAreaEntities.first())
 
-                val emittedItems = expectItem()
+                val emittedAreaData = expectItem()
 
-                assertThat(emittedItems.size).isEqualTo(1)
-                assertThat(emittedItems[0]).isEqualTo(toInsert.first())
+                assertThat(emittedAreaData.size).isEqualTo(1)
+                assertThat(emittedAreaData[0]).isEqualTo(toInsert.map {
+                    AreaDataWithArea(
+                        areaName = areaDataWithArea.areaName,
+                        areaType = areaDataWithArea.areaType,
+                        areaData = it
+                    )
+                }.first())
 
                 cancel()
             }
@@ -265,7 +316,7 @@ class AreaDataDaoTest {
     @Test
     fun `GIVEN area data exists WHEN latestWithMetadataByAreaCodeAsFlow called THEN area data metadata is emitted`() =
         runBlocking {
-            val syncTime = areaData.date.atStartOfDay()
+            val syncTime = areaDataWithArea.areaData.date.atStartOfDay()
 
             val ukMetadataEntity = MetadataEntity(
                 id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
@@ -279,20 +330,18 @@ class AreaDataDaoTest {
                 lastSyncTime = syncTime.plusDays(1)
             )
 
-            val englandArea = areaData.copy(
+            val englandArea = areaDataWithArea.areaData.copy(
                 metadataId = englandMetadataEntity.id,
                 areaCode = Constants.ENGLAND_AREA_CODE,
-                areaName = Constants.ENGLAND_AREA_NAME,
-                areaType = AreaType.REGION,
                 date = englandMetadataEntity.lastUpdatedAt.toLocalDate()
             )
 
             val toAdd = listOf(
-                areaData,
+                areaDataWithArea.areaData,
                 englandArea,
-                areaData.copy(date = areaData.date.minusDays(21)),
-                areaData.copy(date = areaData.date.minusDays(7)),
-                areaData.copy(date = areaData.date.minusDays(14))
+                areaDataWithArea.areaData.copy(date = areaDataWithArea.areaData.date.minusDays(21)),
+                areaDataWithArea.areaData.copy(date = areaDataWithArea.areaData.date.minusDays(7)),
+                areaDataWithArea.areaData.copy(date = areaDataWithArea.areaData.date.minusDays(14))
             )
 
             db.metadataDao().insert(ukMetadataEntity)
@@ -300,6 +349,13 @@ class AreaDataDaoTest {
 
             val metadataMap = listOf(ukMetadataEntity, englandMetadataEntity).associateBy { it.id }
 
+            db.areaDao().insertAll(toAdd.map {
+                AreaEntity(
+                    areaName = areaDataWithArea.areaName,
+                    areaType = areaDataWithArea.areaType,
+                    areaCode = it.areaCode
+                )
+            })
             db.areaDataDao().insertAll(toAdd)
 
             db.areaDataDao().latestWithMetadataByAreaCodeAsFlow(
@@ -319,10 +375,10 @@ class AreaDataDaoTest {
                         .sortedByDescending { it.date }
                         .map {
                             AreaDataMetadataTuple(
+                                areaName = areaDataWithArea.areaName,
+                                areaType = areaDataWithArea.areaType,
                                 lastUpdatedAt = metadataMap[it.metadataId]!!.lastUpdatedAt,
                                 areaCode = it.areaCode,
-                                areaName = it.areaName,
-                                areaType = it.areaType,
                                 date = it.date,
                                 cumulativeCases = it.cumulativeCases,
                                 infectionRate = it.infectionRate,
@@ -342,24 +398,26 @@ class AreaDataDaoTest {
 
     companion object {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
-        private val areaData = AreaDataEntity(
-            areaCode = Constants.UK_AREA_CODE,
-            areaName = Constants.UK_AREA_NAME,
+        private val areaDataWithArea = AreaDataWithArea(
+            areaName = Constants.ENGLAND_AREA_NAME,
             areaType = AreaType.OVERVIEW,
-            metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
-            date = syncDate.toLocalDate(),
-            cumulativeCases = 222,
-            infectionRate = 122.0,
-            newCases = 122,
-            newDeathsByPublishedDate = 15,
-            cumulativeDeathsByPublishedDate = 20,
-            cumulativeDeathsByPublishedDateRate = 30.0,
-            newDeathsByDeathDate = 40,
-            cumulativeDeathsByDeathDate = 50,
-            cumulativeDeathsByDeathDateRate = 60.0,
-            newOnsDeathsByRegistrationDate = 10,
-            cumulativeOnsDeathsByRegistrationDate = 53,
-            cumulativeOnsDeathsByRegistrationDateRate = 62.0
+            areaData = AreaDataEntity(
+                areaCode = Constants.UK_AREA_CODE,
+                metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+                date = syncDate.toLocalDate(),
+                cumulativeCases = 222,
+                infectionRate = 122.0,
+                newCases = 122,
+                newDeathsByPublishedDate = 15,
+                cumulativeDeathsByPublishedDate = 20,
+                cumulativeDeathsByPublishedDateRate = 30.0,
+                newDeathsByDeathDate = 40,
+                cumulativeDeathsByDeathDate = 50,
+                cumulativeDeathsByDeathDateRate = 60.0,
+                newOnsDeathsByRegistrationDate = 10,
+                cumulativeOnsDeathsByRegistrationDate = 53,
+                cumulativeOnsDeathsByRegistrationDateRate = 62.0
+            )
         )
     }
 }

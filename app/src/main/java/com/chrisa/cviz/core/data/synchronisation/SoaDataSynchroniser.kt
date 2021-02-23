@@ -18,6 +18,7 @@ package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
@@ -90,14 +91,19 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
         appDatabase.withTransaction {
             val metadataId = MetaDataIds.areaCodeId(areaCode)
             appDatabase.soaDataDao().deleteAllByAreaCode(areaCode)
+            appDatabase.areaDao().insert(
+                AreaEntity(
+                    soaDataModel.areaCode,
+                    soaDataModel.areaName,
+                    AreaType.from(soaDataModel.areaType)!!
+                )
+            )
             appDatabase.soaDataDao().insertAll(
                 soaDataModel.newCasesBySpecimenDate
                     .filter(::hasRollingData)
                     .map { rollingChangeModel ->
                         SoaDataEntity(
                             soaDataModel.areaCode,
-                            soaDataModel.areaName,
-                            AreaType.from(soaDataModel.areaType)!!,
                             rollingChangeModel.date,
                             rollingChangeModel.rollingSum!!,
                             rollingChangeModel.rollingRate!!,

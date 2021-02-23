@@ -48,7 +48,14 @@ internal class AreaSummaryDataSynchroniser @Inject constructor(
         val date = timeProvider.currentDate().minusDays(3)
         try {
             val monthlyData = monthlyDataLoader.load(date, AreaType.LTLA)
-            insertAreaEntityList(date, areaEntityListBuilder.build(monthlyData))
+            val areas = monthlyData.week1.data.map {
+                AreaEntity(
+                    it.areaCode,
+                    it.areaName,
+                    AreaType.from(it.areaType)!!
+                )
+            }.distinct()
+            insertAreaEntityList(date, areas, areaEntityListBuilder.build(monthlyData))
         } catch (throwable: Throwable) {
             throw throwable
         }
@@ -56,11 +63,12 @@ internal class AreaSummaryDataSynchroniser @Inject constructor(
 
     private suspend fun insertAreaEntityList(
         date: LocalDate,
+        areas: List<AreaEntity>,
         areaEntityList: List<AreaSummaryEntity>
     ) {
         appDatabase.withTransaction {
             appDatabase.areaSummaryDao().deleteAll()
-            appDatabase.areaSummaryDao().insertAll(areaEntityList)
+            appDatabase.areaDao().insertAll(areas)
             appDatabase.metadataDao().insert(
                 MetadataEntity(
                     id = MetaDataIds.areaSummaryId(),
@@ -68,14 +76,7 @@ internal class AreaSummaryDataSynchroniser @Inject constructor(
                     lastSyncTime = date.atStartOfDay()
                 )
             )
-
-            appDatabase.areaDao().insertAll(areaEntityList.map {
-                AreaEntity(
-                    areaType = it.areaType,
-                    areaName = it.areaName,
-                    areaCode = it.areaCode
-                )
-            })
+            appDatabase.areaSummaryDao().insertAll(areaEntityList)
         }
     }
 }
@@ -142,8 +143,6 @@ class AreaEntityListBuilder @Inject constructor() {
             .forEach {
                 val data = AreaSummaryEntity(
                     areaCode = it.areaCode,
-                    areaType = AreaType.from(it.areaType)!!,
-                    areaName = it.areaName,
                     date = it.date,
                     baseInfectionRate = it.infectionRate!! / it.cumulativeCases!!,
                     cumulativeCasesWeek1 = it.cumulativeCases,

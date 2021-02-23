@@ -17,6 +17,7 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
@@ -55,6 +56,7 @@ class SoaDataSynchroniserImplTest {
     private val appDatabase = mockk<AppDatabase>()
     private val soaDataDao = mockk<SoaDataDao>()
     private val metadataDao = mockk<MetadataDao>()
+    private val areaDao = mockk<AreaDao>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
     private val timeProvider = mockk<TimeProvider>()
@@ -70,9 +72,11 @@ class SoaDataSynchroniserImplTest {
         every { networkUtils.hasNetworkConnection() } returns true
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.soaDataDao() } returns soaDataDao
+        every { appDatabase.areaDao() } returns areaDao
         every { soaDataDao.deleteAllByAreaCode(areaCode) } just Runs
         every { soaDataDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { areaDao.insert(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
         every { metadataDao.metadata(any()) } returns null
 
@@ -225,8 +229,6 @@ class SoaDataSynchroniserImplTest {
                     listOf(
                         SoaDataEntity(
                             areaCode = soaData.areaCode,
-                            areaName = soaData.areaName,
-                            areaType = areaType,
                             rollingChangeModel.date,
                             rollingChangeModel.rollingSum!!,
                             rollingChangeModel.rollingRate!!,

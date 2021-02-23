@@ -21,6 +21,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
 import com.chrisa.cviz.core.data.db.HealthcareEntity
+import com.chrisa.cviz.core.data.db.HealthcareWithArea
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.google.common.truth.Truth.assertThat
@@ -43,7 +44,7 @@ class AdmissionsDataSourceTest {
 
     @Test
     fun `GIVEN area does not have admissions WHEN healthcareData called THEN empty list emitted`() {
-        every { healthcareDao.byAreaCode("") } returns emptyList()
+        every { healthcareDao.withAreaByAreaCodes(listOf("")) } returns emptyList()
 
         val admissionsForArea = sut.admissionsForArea("")
 
@@ -52,7 +53,7 @@ class AdmissionsDataSourceTest {
 
     @Test
     fun `GIVEN area has admissions WHEN healthcareData called THEN  data emitted`() {
-        every { healthcareDao.byAreaCode("") } returns listOf(areaData)
+        every { healthcareDao.withAreaByAreaCodes(listOf("")) } returns listOf(areaData)
 
         val admissionsForArea = sut.admissionsForArea("")
 
@@ -60,8 +61,8 @@ class AdmissionsDataSourceTest {
             listOf(
                 DailyData(
                     date = syncDate.toLocalDate(),
-                    newValue = areaData.newAdmissions!!,
-                    cumulativeValue = areaData.cumulativeAdmissions!!,
+                    newValue = areaData.healthcare.newAdmissions!!,
+                    cumulativeValue = areaData.healthcare.cumulativeAdmissions!!,
                     rate = 0.0
                 )
             )
@@ -71,7 +72,7 @@ class AdmissionsDataSourceTest {
     @Test
     fun `GIVEN areas have admissions WHEN healthcareDataFoAreaCodes called THEN admission data emitted`() {
         val areaCodes = listOf("1", "2", "3")
-        every { healthcareDao.byAreaCodes(areaCodes) } returns listOf(areaData)
+        every { healthcareDao.withAreaByAreaCodes(areaCodes) } returns listOf(areaData)
 
         val admissionsForArea = sut.admissionsForAreaCodes(areaCodes)
 
@@ -82,8 +83,8 @@ class AdmissionsDataSourceTest {
                     listOf(
                         DailyData(
                             date = syncDate.toLocalDate(),
-                            newValue = areaData.newAdmissions!!,
-                            cumulativeValue = areaData.cumulativeAdmissions!!,
+                            newValue = areaData.healthcare.newAdmissions!!,
+                            cumulativeValue = areaData.healthcare.cumulativeAdmissions!!,
                             rate = 0.0
                         )
                     )
@@ -95,18 +96,20 @@ class AdmissionsDataSourceTest {
     companion object {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
 
-        private val areaData = HealthcareEntity(
-            date = syncDate.toLocalDate(),
-            areaCode = Constants.ENGLAND_AREA_CODE,
+        private val areaData = HealthcareWithArea(
             areaName = Constants.ENGLAND_AREA_NAME,
             areaType = AreaType.NATION,
-            newAdmissions = 10,
-            cumulativeAdmissions = 100,
-            occupiedBeds = 70,
-            transmissionRateMin = 0.8,
-            transmissionRateMax = 1.1,
-            transmissionRateGrowthRateMin = 0.7,
-            transmissionRateGrowthRateMax = 1.2
+            healthcare = HealthcareEntity(
+                areaCode = Constants.ENGLAND_AREA_CODE,
+                date = syncDate.toLocalDate(),
+                newAdmissions = 10,
+                cumulativeAdmissions = 100,
+                occupiedBeds = 70,
+                transmissionRateMin = 0.8,
+                transmissionRateMax = 1.1,
+                transmissionRateGrowthRateMin = 0.7,
+                transmissionRateGrowthRateMax = 1.2
+            )
         )
     }
 }

@@ -21,7 +21,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -50,7 +52,7 @@ import kotlinx.coroutines.flow.Flow
         AlertLevelEntity::class,
         SoaDataEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(
@@ -89,9 +91,48 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("CREATE TABLE IF NOT EXISTS `areaData_tmp` (`metadataId` TEXT NOT NULL, `areaCode` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `areaData`")
+                database.execSQL("INSERT INTO `areaData_tmp` (`metadataId`,`areaCode`,`date`,`newCases`,`infectionRate`,`cumulativeCases`,`newDeathsByPublishedDate`,`cumulativeDeathsByPublishedDate`,`cumulativeDeathsByPublishedDateRate`,`newDeathsByDeathDate`,`cumulativeDeathsByDeathDate`,`cumulativeDeathsByDeathDateRate`,`newOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDateRate`) SELECT `metadataId`,`areaCode`,`date`,`newCases`,`infectionRate`,`cumulativeCases`,`newDeathsByPublishedDate`,`cumulativeDeathsByPublishedDate`,`cumulativeDeathsByPublishedDateRate`,`newDeathsByDeathDate`,`cumulativeDeathsByDeathDate`,`cumulativeDeathsByDeathDateRate`,`newOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDateRate` FROM `areaData`")
+                database.execSQL("DROP TABLE `areaData`")
+                database.execSQL("ALTER TABLE `areaData_tmp` RENAME TO `areaData`")
+
+                database.execSQL("CREATE TABLE IF NOT EXISTS `areaSummary_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `baseInfectionRate` REAL NOT NULL, `cumulativeCasesWeek1` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek1` REAL NOT NULL, `newCasesWeek1` INTEGER NOT NULL, `newCaseInfectionRateWeek1` REAL NOT NULL, `cumulativeCasesWeek2` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek2` REAL NOT NULL, `newCasesWeek2` INTEGER NOT NULL, `newCaseInfectionRateWeek2` REAL NOT NULL, `cumulativeCasesWeek3` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek3` REAL NOT NULL, `newCasesWeek3` INTEGER NOT NULL, `newCaseInfectionRateWeek3` REAL NOT NULL, `cumulativeCasesWeek4` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek4` REAL NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `areaSummary`")
+                database.execSQL("INSERT INTO `areaSummary_tmp` (`areaCode`,`date`,`baseInfectionRate`,`cumulativeCasesWeek1`,`cumulativeCaseInfectionRateWeek1`,`newCasesWeek1`,`newCaseInfectionRateWeek1`,`cumulativeCasesWeek2`,`cumulativeCaseInfectionRateWeek2`,`newCasesWeek2`,`newCaseInfectionRateWeek2`,`cumulativeCasesWeek3`,`cumulativeCaseInfectionRateWeek3`,`newCasesWeek3`,`newCaseInfectionRateWeek3`,`cumulativeCasesWeek4`,`cumulativeCaseInfectionRateWeek4`) SELECT `areaCode`,`date`,`baseInfectionRate`,`cumulativeCasesWeek1`,`cumulativeCaseInfectionRateWeek1`,`newCasesWeek1`,`newCaseInfectionRateWeek1`,`cumulativeCasesWeek2`,`cumulativeCaseInfectionRateWeek2`,`newCasesWeek2`,`newCaseInfectionRateWeek2`,`cumulativeCasesWeek3`,`cumulativeCaseInfectionRateWeek3`,`newCasesWeek3`,`newCaseInfectionRateWeek¬3`,`cumulativeCasesWeek4`,`cumulativeCaseInfectionRateWeek4` FROM `areaSummary`")
+                database.execSQL("DROP TABLE `areaSummary`")
+                database.execSQL("ALTER TABLE `areaSummary_tmp` RENAME TO `areaSummary`")
+
+                database.execSQL("CREATE TABLE IF NOT EXISTS `savedArea_tmp` (`areaCode` TEXT NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+                database.execSQL("INSERT INTO `savedArea_tmp` (`areaCode`) SELECT `areaCode` FROM `savedArea`")
+                database.execSQL("DROP TABLE `savedArea`")
+                database.execSQL("ALTER TABLE `savedArea_tmp` RENAME TO `savedArea`")
+
+                database.execSQL("CREATE TABLE IF NOT EXISTS `healthcare_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `healthcare`")
+                database.execSQL("INSERT INTO `healthcare_tmp` (`areaCode`,`date`,`newAdmissions`,`cumulativeAdmissions`,`occupiedBeds`,`transmissionRateMin`,`transmissionRateMax`,`transmissionRateGrowthRateMin`,`transmissionRateGrowthRateMax`) SELECT `areaCode`,`date`,`newAdmissions`,`cumulativeAdmissions`,`occupiedBeds`,`transmissionRateMin`,`transmissionRateMax`,`transmissionRateGrowthRateMin`,`transmissionRateGrowthRateMax` FROM `healthcare`")
+                database.execSQL("DROP TABLE `healthcare`")
+                database.execSQL("ALTER TABLE `healthcare_tmp` RENAME TO `healthcare`")
+
+                database.execSQL("CREATE TABLE IF NOT EXISTS `alertLevel_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `alertLevel`")
+                database.execSQL("INSERT INTO `alertLevel_tmp` (`areaCode`,`date`,`alertLevel`,`alertLevelName`,`alertLevelUrl`,`alertLevelValue`) SELECT `areaCode`,`date`,`alertLevel`,`alertLevelName`,`alertLevelUrl`,`alertLevelValue` FROM `alertLevel`")
+                database.execSQL("DROP TABLE `alertLevel`")
+                database.execSQL("ALTER TABLE `alertLevel_tmp` RENAME TO `alertLevel`")
+
+                database.execSQL("CREATE TABLE `soaData_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION)")
+                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `soaData`")
+                database.execSQL("INSERT INTO `soaData_tmp` (`areaCode`,`date`,`rollingSum`,`rollingRate`,`change`,`changePercentage`) SELECT `areaCode`,`date`,`rollingSum`,`rollingRate`,`change`,`changePercentage` FROM `soaData`")
+                database.execSQL("DROP TABLE `soaData`")
+                database.execSQL("ALTER TABLE `soaData_tmp` RENAME TO `soaData`")
+            }
+        }
+
         fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .fallbackToDestructiveMigration()
                 .build()
         }
@@ -166,11 +207,8 @@ enum class AreaType(val value: String) {
     primaryKeys = ["areaCode"]
 )
 data class AreaEntity(
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "areaName")
     val areaName: String,
-    @ColumnInfo(name = "areaType")
     val areaType: AreaType
 )
 
@@ -198,96 +236,74 @@ interface AreaDao {
 
 @Entity(
     tableName = "areaData",
-    primaryKeys = ["areaCode", "date"]
+    primaryKeys = ["areaCode", "date"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AreaEntity::class,
+            parentColumns = ["areaCode"],
+            childColumns = ["areaCode"]
+        ),
+        ForeignKey(
+            entity = MetadataEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["metadataId"]
+        )
+    ]
 )
 data class AreaDataEntity(
-    @ColumnInfo(name = "metadataId")
     val metadataId: String,
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "areaType")
-    val areaType: AreaType,
-    @ColumnInfo(name = "newCases")
     val newCases: Int,
-    @ColumnInfo(name = "infectionRate")
     val infectionRate: Double,
-    @ColumnInfo(name = "cumulativeCases")
     val cumulativeCases: Int,
-    @ColumnInfo(name = "date")
     val date: LocalDate,
-    @ColumnInfo(name = "newDeathsByPublishedDate")
     val newDeathsByPublishedDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByPublishedDate")
     val cumulativeDeathsByPublishedDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByPublishedDateRate")
     val cumulativeDeathsByPublishedDateRate: Double?,
-    @ColumnInfo(name = "newDeathsByDeathDate")
     val newDeathsByDeathDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByDeathDate")
     val cumulativeDeathsByDeathDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
     val cumulativeDeathsByDeathDateRate: Double?,
-    @ColumnInfo(name = "newOnsDeathsByRegistrationDate")
     val newOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDate")
     val cumulativeOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDateRate")
     val cumulativeOnsDeathsByRegistrationDateRate: Double?
 )
 
 data class AreaDataMetadataTuple(
-    @ColumnInfo(name = "lastUpdatedAt")
     val lastUpdatedAt: LocalDateTime,
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "areaName")
     val areaName: String,
-    @ColumnInfo(name = "areaType")
     val areaType: AreaType,
-    @ColumnInfo(name = "newCases")
     val newCases: Int,
-    @ColumnInfo(name = "infectionRate")
     val infectionRate: Double,
-    @ColumnInfo(name = "cumulativeCases")
     val cumulativeCases: Int,
-    @ColumnInfo(name = "date")
     val date: LocalDate
 )
 
 data class AreaCaseData(
-    @ColumnInfo(name = "date")
     val date: LocalDate,
-    @ColumnInfo(name = "newCases")
     val newCases: Int,
-    @ColumnInfo(name = "infectionRate")
     val infectionRate: Double,
-    @ColumnInfo(name = "cumulativeCases")
     val cumulativeCases: Int
 )
 
 data class AreaDeathData(
-    @ColumnInfo(name = "date")
     val date: LocalDate,
-    @ColumnInfo(name = "newDeathsByPublishedDate")
     val newDeathsByPublishedDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByPublishedDate")
     val cumulativeDeathsByPublishedDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByPublishedDateRate")
     val cumulativeDeathsByPublishedDateRate: Double?,
-    @ColumnInfo(name = "newDeathsByDeathDate")
     val newDeathsByDeathDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByDeathDate")
     val cumulativeDeathsByDeathDate: Int?,
-    @ColumnInfo(name = "cumulativeDeathsByDeathDateRate")
     val cumulativeDeathsByDeathDateRate: Double?,
-    @ColumnInfo(name = "newOnsDeathsByRegistrationDate")
     val newOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDate")
     val cumulativeOnsDeathsByRegistrationDate: Int?,
-    @ColumnInfo(name = "cumulativeOnsDeathsByRegistrationDateRate")
     val cumulativeOnsDeathsByRegistrationDateRate: Double?
+)
+
+data class AreaDataWithArea(
+    val areaName: String,
+    val areaType: AreaType,
+    @Embedded
+    val areaData: AreaDataEntity
 )
 
 @Dao
@@ -308,9 +324,6 @@ interface AreaDataDao {
     @Query("SELECT COUNT(areaCode) FROM areaData")
     fun countAll(): Int
 
-    @Query("SELECT COUNT(areaCode) FROM areaData WHERE :areaType = areaType")
-    fun countAllByAreaType(areaType: AreaType): Int
-
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allByAreaCodeAsFlow(areaCode: String): Flow<List<AreaDataEntity>>
 
@@ -323,14 +336,14 @@ interface AreaDataDao {
     @Query("SELECT * FROM areaData WHERE :areaCode = areaCode ORDER BY date ASC")
     fun allAreaDeathsByAreaCode(areaCode: String): List<AreaDeathData>
 
-    @Query("SELECT * FROM areaData INNER JOIN metadata on areaData.metadataId = metadata.id WHERE areaCode IN (:areaCodes) ORDER BY date DESC LIMIT :limit")
+    @Query("SELECT lastUpdatedAt, area.areaCode AS areaCode, areaName, areaType, newCases, infectionRate, cumulativeCases, date  FROM areaData INNER JOIN area on areaData.areaCode = area.areaCode INNER JOIN metadata on areaData.metadataId = metadata.id WHERE area.areaCode IN (:areaCodes) ORDER BY date DESC LIMIT :limit")
     fun latestWithMetadataByAreaCodeAsFlow(
         areaCodes: List<String>,
         limit: Int = areaCodes.size
     ): Flow<List<AreaDataMetadataTuple>>
 
-    @Query("SELECT * FROM areaData INNER JOIN savedArea ON areaData.areaCode = savedArea.areaCode ORDER BY date ASC")
-    fun allSavedAreaDataAsFlow(): Flow<List<AreaDataEntity>>
+    @Query("SELECT * FROM areaData INNER JOIN savedArea ON areaData.areaCode = savedArea.areaCode INNER JOIN area ON areaData.areaCode = area.areaCode ORDER BY date ASC")
+    fun allSavedAreaDataAsFlow(): Flow<List<AreaDataWithArea>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaData: List<AreaDataEntity>)
@@ -341,11 +354,8 @@ interface AreaDataDao {
     primaryKeys = ["id"]
 )
 data class MetadataEntity(
-    @ColumnInfo(name = "id")
     val id: String,
-    @ColumnInfo(name = "lastUpdatedAt")
     val lastUpdatedAt: LocalDateTime,
-    @ColumnInfo(name = "lastSyncTime")
     val lastSyncTime: LocalDateTime
 )
 
@@ -373,7 +383,14 @@ interface MetadataDao {
 
 @Entity(
     tableName = "savedArea",
-    primaryKeys = ["areaCode"]
+    primaryKeys = ["areaCode"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AreaEntity::class,
+            parentColumns = ["areaCode"],
+            childColumns = ["areaCode"]
+        )
+    ]
 )
 data class SavedAreaEntity(
     @ColumnInfo(name = "areaCode")
@@ -428,47 +445,40 @@ object MetaDataIds {
 
 @Entity(
     tableName = "areaSummary",
-    primaryKeys = ["areaCode"]
+    primaryKeys = ["areaCode"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AreaEntity::class,
+            parentColumns = ["areaCode"],
+            childColumns = ["areaCode"]
+        )
+    ]
 )
 data class AreaSummaryEntity(
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "areaType")
-    val areaType: AreaType,
-    @ColumnInfo(name = "date")
     val date: LocalDate,
-    @ColumnInfo(name = "baseInfectionRate")
     val baseInfectionRate: Double,
-    @ColumnInfo(name = "cumulativeCasesWeek1")
     val cumulativeCasesWeek1: Int,
-    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek1")
     val cumulativeCaseInfectionRateWeek1: Double,
-    @ColumnInfo(name = "newCasesWeek1")
     val newCasesWeek1: Int,
-    @ColumnInfo(name = "newCaseInfectionRateWeek1")
     val newCaseInfectionRateWeek1: Double,
-    @ColumnInfo(name = "cumulativeCasesWeek2")
     val cumulativeCasesWeek2: Int,
-    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek2")
     val cumulativeCaseInfectionRateWeek2: Double,
-    @ColumnInfo(name = "newCasesWeek2")
     val newCasesWeek2: Int,
-    @ColumnInfo(name = "newCaseInfectionRateWeek2")
     val newCaseInfectionRateWeek2: Double,
-    @ColumnInfo(name = "cumulativeCasesWeek3")
     val cumulativeCasesWeek3: Int,
-    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek3")
     val cumulativeCaseInfectionRateWeek3: Double,
-    @ColumnInfo(name = "newCasesWeek3")
     val newCasesWeek3: Int,
-    @ColumnInfo(name = "newCaseInfectionRateWeek¬3")
     val newCaseInfectionRateWeek3: Double,
-    @ColumnInfo(name = "cumulativeCasesWeek4")
     val cumulativeCasesWeek4: Int,
-    @ColumnInfo(name = "cumulativeCaseInfectionRateWeek4")
     val cumulativeCaseInfectionRateWeek4: Double
+)
+
+data class AreaSummaryWithArea(
+    val areaName: String,
+    val areaType: AreaType,
+    @Embedded
+    val areaSummary: AreaSummaryEntity
 )
 
 @Dao
@@ -483,8 +493,8 @@ interface AreaSummaryDao {
     @Query("SELECT * FROM areaSummary WHERE areaCode = :areaCode")
     fun byAreaCode(areaCode: String): AreaSummaryEntity
 
-    @Query("SELECT * FROM areaSummary")
-    fun allAsFlow(): Flow<List<AreaSummaryEntity>>
+    @Query("SELECT * FROM areaSummary INNER JOIN area ON areaSummary.areaCode = area.areaCode")
+    fun allWithAreaAsFlow(): Flow<List<AreaSummaryWithArea>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(areaSummaries: List<AreaSummaryEntity>)
@@ -495,41 +505,23 @@ interface AreaSummaryDao {
     primaryKeys = ["lsoaCode"]
 )
 data class AreaLookupEntity(
-    @ColumnInfo(name = "postcode")
     val postcode: String,
-    @ColumnInfo(name = "trimmedPostcode")
     val trimmedPostcode: String,
-    @ColumnInfo(name = "lsoaCode")
     val lsoaCode: String,
-    @ColumnInfo(name = "lsoaName")
     val lsoaName: String?,
-    @ColumnInfo(name = "msoaCode")
     val msoaCode: String,
-    @ColumnInfo(name = "msoaName")
     val msoaName: String?,
-    @ColumnInfo(name = "ltlaCode")
     val ltlaCode: String,
-    @ColumnInfo(name = "ltlaName")
     val ltlaName: String,
-    @ColumnInfo(name = "utlaCode")
     val utlaCode: String,
-    @ColumnInfo(name = "utlaName")
     val utlaName: String,
-    @ColumnInfo(name = "nhsTrustCode")
     val nhsTrustCode: String?,
-    @ColumnInfo(name = "nhsTrustName")
     val nhsTrustName: String?,
-    @ColumnInfo(name = "nhsRegionCode")
     val nhsRegionCode: String?,
-    @ColumnInfo(name = "nhsRegionName")
     val nhsRegionName: String?,
-    @ColumnInfo(name = "regionCode")
     val regionCode: String?,
-    @ColumnInfo(name = "regionName")
     val regionName: String?,
-    @ColumnInfo(name = "nationCode")
     val nationCode: String,
-    @ColumnInfo(name = "nationName")
     val nationName: String
 )
 
@@ -575,31 +567,32 @@ interface AreaLookupDao {
 
 @Entity(
     tableName = "healthcare",
-    primaryKeys = ["areaCode", "date"]
+    primaryKeys = ["areaCode", "date"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AreaEntity::class,
+            parentColumns = ["areaCode"],
+            childColumns = ["areaCode"]
+        )
+    ]
 )
 data class HealthcareEntity(
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "areaType")
-    val areaType: AreaType,
-    @ColumnInfo(name = "date")
     val date: LocalDate,
-    @ColumnInfo(name = "newAdmissions")
     val newAdmissions: Int?,
-    @ColumnInfo(name = "cumulativeAdmissions")
     val cumulativeAdmissions: Int?,
-    @ColumnInfo(name = "occupiedBeds")
     val occupiedBeds: Int?,
-    @ColumnInfo(name = "transmissionRateMin")
     val transmissionRateMin: Double?,
-    @ColumnInfo(name = "transmissionRateMax")
     val transmissionRateMax: Double?,
-    @ColumnInfo(name = "transmissionRateGrowthRateMin")
     val transmissionRateGrowthRateMin: Double?,
-    @ColumnInfo(name = "transmissionRateGrowthRateMax")
     val transmissionRateGrowthRateMax: Double?
+)
+
+data class HealthcareWithArea(
+    val areaName: String,
+    val areaType: AreaType,
+    @Embedded
+    val healthcare: HealthcareEntity
 )
 
 @Dao
@@ -620,8 +613,8 @@ interface HealthcareDao {
     @Query("SELECT * FROM healthcare WHERE areaCode = :code")
     fun byAreaCode(code: String): List<HealthcareEntity>
 
-    @Query("SELECT * FROM healthcare WHERE areaCode IN (:areaCodes)")
-    fun byAreaCodes(areaCodes: List<String>): List<HealthcareEntity>
+    @Query("SELECT * FROM healthcare INNER JOIN area ON healthcare.areaCode = area.areaCode WHERE healthcare.areaCode IN (:areaCodes)")
+    fun withAreaByAreaCodes(areaCodes: List<String>): List<HealthcareWithArea>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(healthcareData: List<HealthcareEntity>)
@@ -632,9 +625,7 @@ interface HealthcareDao {
     primaryKeys = ["areaCode", "nhsTrustCode"]
 )
 data class HealthcareLookupEntity(
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "nhsTrustCode")
     val nhsTrustCode: String
 )
 
@@ -658,24 +649,21 @@ interface HealthcareLookupDao {
 
 @Entity(
     tableName = "alertLevel",
-    primaryKeys = ["areaCode"]
+    primaryKeys = ["areaCode"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AreaEntity::class,
+            parentColumns = ["areaCode"],
+            childColumns = ["areaCode"]
+        )
+    ]
 )
 data class AlertLevelEntity(
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "areaType")
-    val areaType: AreaType,
-    @ColumnInfo(name = "date")
     val date: LocalDate,
-    @ColumnInfo(name = "alertLevel")
     val alertLevel: Int,
-    @ColumnInfo(name = "alertLevelName")
     val alertLevelName: String,
-    @ColumnInfo(name = "alertLevelUrl")
     val alertLevelUrl: String,
-    @ColumnInfo(name = "alertLevelValue")
     val alertLevelValue: Int
 )
 
@@ -703,25 +691,29 @@ interface AlertLevelDao {
 
 @Entity(
     tableName = "soaData",
-    primaryKeys = ["areaCode", "date"]
+    primaryKeys = ["areaCode", "date"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AreaEntity::class,
+            parentColumns = ["areaCode"],
+            childColumns = ["areaCode"]
+        )
+    ]
 )
 data class SoaDataEntity(
-    @ColumnInfo(name = "areaCode")
     val areaCode: String,
-    @ColumnInfo(name = "areaName")
-    val areaName: String,
-    @ColumnInfo(name = "areaType")
-    val areaType: AreaType,
-    @ColumnInfo(name = "date")
     val date: LocalDate,
-    @ColumnInfo(name = "rollingSum")
     val rollingSum: Int,
-    @ColumnInfo(name = "rollingRate")
     val rollingRate: Double,
-    @ColumnInfo(name = "change")
     val change: Int,
-    @ColumnInfo(name = "changePercentage")
     val changePercentage: Double
+)
+
+data class SoaDataWithArea(
+    val areaName: String,
+    val areaType: AreaType,
+    @Embedded
+    val soaData: SoaDataEntity
 )
 
 @Dao
@@ -736,14 +728,14 @@ interface SoaDataDao {
     @Query("DELETE FROM soaData WHERE areaCode = :areaCode")
     fun deleteAllByAreaCode(areaCode: String)
 
-    @Query("SELECT * FROM soaData ORDER BY date ASC")
-    fun allAsFlow(): Flow<List<SoaDataEntity>>
+    @Query("SELECT * FROM soaData INNER JOIN area ON soaData.areaCode = area.areaCode ORDER BY date ASC")
+    fun allWithAreaAsFlow(): Flow<List<SoaDataWithArea>>
 
     @Query("SELECT * FROM soaData ORDER BY date ASC")
     fun all(): List<SoaDataEntity>
 
-    @Query("SELECT * FROM soaData WHERE areaCode = :areaCode ORDER BY date ASC")
-    fun byAreaCode(areaCode: String): List<SoaDataEntity>
+    @Query("SELECT * FROM soaData INNER JOIN area ON soaData.areaCode = area.areaCode WHERE soaData.areaCode = :areaCode ORDER BY date ASC")
+    fun withAreaByAreaCode(areaCode: String): List<SoaDataWithArea>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(items: List<SoaDataEntity>)

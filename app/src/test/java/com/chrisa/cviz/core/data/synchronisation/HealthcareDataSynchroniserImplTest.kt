@@ -17,6 +17,7 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
@@ -56,6 +57,7 @@ class HealthcareDataSynchroniserImplTest {
     private val appDatabase = mockk<AppDatabase>()
     private val healthcareDao = mockk<HealthcareDao>()
     private val metadataDao = mockk<MetadataDao>()
+    private val areaDao = mockk<AreaDao>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
     private val timeProvider = mockk<TimeProvider>()
@@ -72,9 +74,11 @@ class HealthcareDataSynchroniserImplTest {
         every { networkUtils.hasNetworkConnection() } returns true
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.healthcareDao() } returns healthcareDao
+        every { appDatabase.areaDao() } returns areaDao
         every { healthcareDao.deleteAllByAreaCode(areaCode) } just Runs
         every { healthcareDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { areaDao.insertAll(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
         every { metadataDao.metadata(any()) } returns null
 
@@ -221,8 +225,6 @@ class HealthcareDataSynchroniserImplTest {
                     listOf(
                         HealthcareEntity(
                             areaCode = healthcareData.areaCode,
-                            areaName = healthcareData.areaName,
-                            areaType = AreaType.from(healthcareData.areaType)!!,
                             date = healthcareData.date,
                             newAdmissions = healthcareData.newAdmissions,
                             cumulativeAdmissions = healthcareData.cumulativeAdmissions,

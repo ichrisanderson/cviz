@@ -18,6 +18,7 @@ package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.db.MetaDataIds
@@ -94,11 +95,16 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
             val metadataId = MetaDataIds.healthcareId(areaCode)
             val dataToInsert = pagedAreaCodeData.data.filter { it.occupiedBeds != null }
             appDatabase.healthcareDao().deleteAllByAreaCode(areaCode)
+            appDatabase.areaDao().insertAll(dataToInsert.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = AreaType.from(it.areaType)!!
+                )
+            }.distinct())
             appDatabase.healthcareDao().insertAll(dataToInsert.map {
                 HealthcareEntity(
                     areaCode = it.areaCode,
-                    areaName = it.areaName,
-                    areaType = AreaType.from(it.areaType)!!,
                     date = it.date,
                     newAdmissions = it.newAdmissions,
                     cumulativeAdmissions = it.cumulativeAdmissions,

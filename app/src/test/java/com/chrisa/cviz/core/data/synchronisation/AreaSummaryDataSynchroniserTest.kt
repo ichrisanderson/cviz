@@ -26,6 +26,7 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
 import com.chrisa.cviz.core.data.network.Page
 import com.chrisa.cviz.core.data.time.TimeProvider
@@ -110,18 +111,34 @@ class AreaSummaryDataSynchroniserTest {
                 lastUpdatedAt = syncTime.minusDays(4),
                 lastSyncTime = syncTime.minusDays(4)
             )
+            val week1Data = AreaDataModel(
+                areaCode = "LDN",
+                areaName = "London",
+                areaType = AreaType.REGION.value,
+                date = lastDate,
+                cumulativeCases = 100,
+                newCases = 10,
+                infectionRate = 100.0,
+                newDeathsByPublishedDate = 15,
+                cumulativeDeathsByPublishedDate = 20,
+                cumulativeDeathsByPublishedDateRate = 30.0,
+                newDeathsByDeathDate = 40,
+                cumulativeDeathsByDeathDate = 50,
+                cumulativeDeathsByDeathDateRate = 60.0,
+                newOnsDeathsByRegistrationDate = 10,
+                cumulativeOnsDeathsByRegistrationDate = 53,
+                cumulativeOnsDeathsByRegistrationDateRate = 62.0
+            )
             val monthlyData = MonthlyData(
                 lastDate = lastDate,
                 areaType = AreaType.LTLA,
-                week1 = Page(length = 1, maxPageLimit = null, data = listOf()),
-                week2 = Page(length = 1, maxPageLimit = null, data = listOf()),
-                week3 = Page(length = 1, maxPageLimit = null, data = listOf()),
-                week4 = Page(length = 1, maxPageLimit = null, data = listOf())
+                week1 = Page(length = 1, maxPageLimit = null, data = listOf(week1Data)),
+                week2 = Page(length = 1, maxPageLimit = null, data = listOf(week1Data.copy(date = week1Data.date.minusWeeks(1)))),
+                week3 = Page(length = 1, maxPageLimit = null, data = listOf(week1Data.copy(date = week1Data.date.minusWeeks(2)))),
+                week4 = Page(length = 1, maxPageLimit = null, data = listOf(week1Data.copy(date = week1Data.date.minusWeeks(3))))
             )
             val areaSummaryEntity = AreaSummaryEntity(
                 areaCode = Constants.UK_AREA_CODE,
-                areaName = Constants.UK_AREA_NAME,
-                areaType = AreaType.OVERVIEW,
                 date = syncTime.toLocalDate(),
                 baseInfectionRate = 100.0,
                 cumulativeCasesWeek1 = 100,
@@ -148,7 +165,15 @@ class AreaSummaryDataSynchroniserTest {
 
             verifyOrder {
                 areaSummaryEntityDao.deleteAll()
-                areaSummaryEntityDao.insertAll(areaSummaryEntityList)
+                areaDao.insertAll(
+                    areaSummaryEntityList.map {
+                        AreaEntity(
+                            areaCode = week1Data.areaCode,
+                            areaType = AreaType.from(week1Data.areaType)!!,
+                            areaName = week1Data.areaName
+                        )
+                    }
+                )
                 metadataDao.insert(
                     MetadataEntity(
                         id = MetaDataIds.areaSummaryId(),
@@ -156,15 +181,7 @@ class AreaSummaryDataSynchroniserTest {
                         lastSyncTime = lastDate.atStartOfDay()
                     )
                 )
-                areaDao.insertAll(
-                    areaSummaryEntityList.map {
-                        AreaEntity(
-                            areaCode = it.areaCode,
-                            areaType = it.areaType,
-                            areaName = it.areaName
-                        )
-                    }
-                )
+                areaSummaryEntityDao.insertAll(areaSummaryEntityList)
             }
         }
 }

@@ -19,6 +19,7 @@ package com.chrisa.cviz.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AlertLevelEntity
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
@@ -96,12 +97,15 @@ internal class AlertLevelSynchroniserImpl @Inject constructor(
     ) {
         appDatabase.withTransaction {
             val metadataId = MetaDataIds.alertLevelId(areaCode)
-            val it = alertLevels.body.sortedByDescending { it.date }.first()
+            val it = alertLevels.body.maxByOrNull { it.date }!!
+            appDatabase.areaDao().insert(AreaEntity(
+                areaCode = it.areaCode,
+                areaName = it.areaName,
+                areaType = AreaType.from(it.areaType)!!
+            ))
             appDatabase.alertLevelDao().insert(
                 AlertLevelEntity(
                     areaCode = it.areaCode,
-                    areaName = it.areaName,
-                    areaType = AreaType.from(it.areaType)!!,
                     date = it.date,
                     alertLevel = it.alertLevel,
                     alertLevelName = it.alertLevelName,

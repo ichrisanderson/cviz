@@ -43,6 +43,20 @@ class SavedAreaDaoTest {
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
+        db.areaDao().insertAll(
+            listOf(
+                AreaEntity(
+                    areaCode = "1234",
+                    areaName = "1234",
+                    areaType = AreaType.UTLA
+                ),
+                AreaEntity(
+                    areaCode = "2345",
+                    areaName = "2345",
+                    areaType = AreaType.UTLA
+                )
+            )
+        )
     }
 
     @Test

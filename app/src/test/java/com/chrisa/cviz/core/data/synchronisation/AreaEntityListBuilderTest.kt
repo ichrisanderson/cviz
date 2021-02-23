@@ -89,8 +89,6 @@ class AreaEntityListBuilderTest {
             listOf(
                 AreaSummaryEntity(
                     areaCode = week1Data.areaCode,
-                    areaType = AreaType.from(week1Data.areaType)!!,
-                    areaName = week1Data.areaName,
                     date = week1Data.date,
                     baseInfectionRate = baseInfectionRate,
                     cumulativeCasesWeek1 = week1Data.cumulativeCases!!,

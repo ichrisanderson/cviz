@@ -19,7 +19,6 @@ package com.chrisa.cviz.features.area.data
 import com.chrisa.cviz.core.data.db.AlertLevelDao
 import com.chrisa.cviz.core.data.db.AlertLevelEntity
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AlertLevelDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -43,8 +42,6 @@ class AlertLevelDataSourceTest {
     fun `WHEN alertLevel called THEN alert level by area code returned`() {
         val alertLevelEntity = AlertLevelEntity(
             areaCode = "1234",
-            areaName = "London",
-            areaType = AreaType.REGION,
             date = LocalDate.of(2020, 1, 1),
             alertLevel = 2,
             alertLevelName = "Stay Alert",
@@ -58,8 +55,6 @@ class AlertLevelDataSourceTest {
         assertThat(alertLevel).isEqualTo(
             AlertLevelDto(
                 alertLevelEntity.areaCode,
-                alertLevelEntity.areaName,
-                alertLevelEntity.areaType,
                 alertLevelEntity.date,
                 alertLevelEntity.alertLevel,
                 alertLevelEntity.alertLevelName,

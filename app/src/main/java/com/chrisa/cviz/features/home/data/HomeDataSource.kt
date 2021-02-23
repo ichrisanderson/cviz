@@ -75,13 +75,13 @@ class HomeDataSource @Inject constructor(
             .map { areaDataList ->
                 areaDataList.map {
                     SavedAreaCaseDto(
-                        areaCode = it.areaCode,
+                        areaCode = it.areaData.areaCode,
                         areaName = it.areaName,
                         areaType = it.areaType,
-                        date = it.date,
-                        newCases = it.newCases,
-                        cumulativeCases = it.cumulativeCases,
-                        infectionRate = it.infectionRate
+                        date = it.areaData.date,
+                        newCases = it.areaData.newCases,
+                        cumulativeCases = it.areaData.cumulativeCases,
+                        infectionRate = it.areaData.infectionRate
                     )
                 }
             }
@@ -89,16 +89,16 @@ class HomeDataSource @Inject constructor(
 
     fun savedSoaData(): Flow<List<SavedSoaDataDto>> {
         return appDatabase.soaDataDao()
-            .allAsFlow()
+            .allWithAreaAsFlow()
             .map { areaDataList ->
                 areaDataList.map {
                     SavedSoaDataDto(
-                        areaCode = it.areaCode,
+                        areaCode = it.soaData.areaCode,
                         areaName = it.areaName,
                         areaType = it.areaType,
-                        date = it.date,
-                        rollingSum = it.rollingSum,
-                        rollingRate = it.rollingRate
+                        date = it.soaData.date,
+                        rollingSum = it.soaData.rollingSum,
+                        rollingRate = it.soaData.rollingRate
                     )
                 }
             }
@@ -106,17 +106,17 @@ class HomeDataSource @Inject constructor(
 
     fun areaSummaries(): Flow<List<AreaSummaryDto>> {
         return appDatabase.areaSummaryDao()
-            .allAsFlow()
+            .allWithAreaAsFlow()
             .map { areaDataList ->
                 areaDataList.map {
                     AreaSummaryDto(
-                        areaCode = it.areaCode,
+                        areaCode = it.areaSummary.areaCode,
                         areaName = it.areaName,
                         areaType = it.areaType.value,
-                        currentInfectionRate = it.newCaseInfectionRateWeek1,
-                        changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2,
-                        changeInCases = it.newCasesWeek1 - it.newCasesWeek2,
-                        currentNewCases = it.newCasesWeek1
+                        currentInfectionRate = it.areaSummary.newCaseInfectionRateWeek1,
+                        changeInInfectionRate = it.areaSummary.newCaseInfectionRateWeek1 - it.areaSummary.newCaseInfectionRateWeek2,
+                        changeInCases = it.areaSummary.newCasesWeek1 - it.areaSummary.newCasesWeek2,
+                        currentNewCases = it.areaSummary.newCasesWeek1
                     )
                 }
             }
