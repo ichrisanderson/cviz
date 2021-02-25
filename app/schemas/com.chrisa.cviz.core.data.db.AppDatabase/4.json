@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "44e1d84ff9ba0a0e27cd80545bedc952",
+    "identityHash": "93f8049df5662eed5214a9c36bb5613c",
     "entities": [
       {
         "tableName": "area",
@@ -710,12 +710,46 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "areaAssociation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `associatedAreaCode` TEXT NOT NULL, `associatedAreaType` TEXT NOT NULL, PRIMARY KEY(`areaCode`, `associatedAreaCode`, `associatedAreaType`))",
+        "fields": [
+          {
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "associatedAreaCode",
+            "columnName": "associatedAreaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "associatedAreaType",
+            "columnName": "associatedAreaType",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "areaCode",
+            "associatedAreaCode",
+            "associatedAreaType"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '44e1d84ff9ba0a0e27cd80545bedc952')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '93f8049df5662eed5214a9c36bb5613c')"
     ]
   }
 }

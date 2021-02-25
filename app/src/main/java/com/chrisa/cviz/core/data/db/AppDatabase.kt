@@ -50,7 +50,8 @@ import kotlinx.coroutines.flow.Flow
         AreaLookupEntity::class,
         HealthcareLookupEntity::class,
         AlertLevelEntity::class,
-        SoaDataEntity::class
+        SoaDataEntity::class,
+        AreaAssociation::class
     ],
     version = 4,
     exportSchema = true
@@ -58,7 +59,8 @@ import kotlinx.coroutines.flow.Flow
 @TypeConverters(
     AreTypeConverter::class,
     LocalDateConverter::class,
-    LocalDateTimeConverter::class
+    LocalDateTimeConverter::class,
+    AreaAssociationTypeConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -72,6 +74,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun healthcareLookupDao(): HealthcareLookupDao
     abstract fun alertLevelDao(): AlertLevelDao
     abstract fun soaDataDao(): SoaDataDao
+    abstract fun areaAssociationDao(): AreaAssociationDao
 
     companion object {
         private const val databaseName = "cviz-db"
@@ -739,4 +742,58 @@ interface SoaDataDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(items: List<SoaDataEntity>)
+}
+
+enum class AreaAssociationType(val value: String) {
+    AREA_LOOKUP("area_lookup"),
+    AREA_DATA("area_data"),
+    SOA_DATA("soa_data"),
+    HEALTHCARE_DATA("healthcare_data");
+
+    companion object {
+        fun from(type: String): AreaAssociationType? {
+            return when (type) {
+                AREA_LOOKUP.value -> AREA_LOOKUP
+                AREA_DATA.value -> AREA_DATA
+                SOA_DATA.value -> SOA_DATA
+                HEALTHCARE_DATA.value -> HEALTHCARE_DATA
+                else -> null
+            }
+        }
+    }
+}
+
+class AreaAssociationTypeConverter {
+    @TypeConverter
+    fun areaAssociationTypeFromString(value: String?): AreaAssociationType? {
+        return value?.let { AreaAssociationType.from(value) }
+    }
+
+    @TypeConverter
+    fun areaAssociationTypeToString(areaType: AreaAssociationType?): String? {
+        return areaType?.value
+    }
+}
+
+@Entity(
+    tableName = "areaAssociation",
+    primaryKeys = ["areaCode", "associatedAreaCode", "associatedAreaType"]
+)
+data class AreaAssociation(
+    val areaCode: String,
+    val associatedAreaCode: String,
+    val associatedAreaType: AreaAssociationType
+)
+
+@Dao
+interface AreaAssociationDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(item: AreaAssociation)
+
+    @Query("DELETE FROM areaAssociation WHERE areaCode = :areaCode")
+    fun deleteAllByAreaCode(areaCode: String)
+
+    @Query("SELECT * FROM areaAssociation WHERE areaCode = :code")
+    fun byAreaCode(code: String): List<AreaAssociation>
 }
