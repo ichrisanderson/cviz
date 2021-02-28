@@ -58,4 +58,3 @@ class TransmissionRateDataSource @Inject constructor(
         )
     }
 }
-

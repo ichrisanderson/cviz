@@ -29,3 +29,4 @@ class AreaCasesUseCase @Inject constructor(
         return AreaDailyDataDto(areaName, cases)
     }
 }
+
