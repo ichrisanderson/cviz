@@ -38,7 +38,8 @@ class AreaDetailUseCase @Inject constructor(
     private val areaDeathsFacade: AreaDeathsFacade,
     private val healthcareUseCaseFacade: HealthcareUseCaseFacade,
     private val alertLevelUseCase: AlertLevelUseCase,
-    private val soaDataUseCase: SoaDataUseCase
+    private val soaDataUseCase: SoaDataUseCase,
+    private val insertAreaAssociationUseCase: InsertAreaAssociationUseCase
 ) {
 
     suspend fun execute(areaCode: String, areaType: AreaType): Flow<AreaDetailModelResult> {

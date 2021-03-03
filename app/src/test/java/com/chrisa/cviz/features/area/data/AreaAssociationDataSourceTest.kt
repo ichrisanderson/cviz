@@ -20,7 +20,6 @@ import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaAssociation
 import com.chrisa.cviz.core.data.db.AreaAssociationDao
 import com.chrisa.cviz.core.data.db.AreaAssociationType
-import com.chrisa.cviz.features.area.data.dtos.AreaAssociationTypeDto
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -42,8 +41,8 @@ class AreaAssociationDataSourceTest {
     }
 
     @Test
-    fun `GIVEN association type is area lookup WHEN insert called THEN association type is area lookup`() {
-        sut.insert("1", "2", AreaAssociationTypeDto.AREA_LOOKUP)
+    fun `GIVEN association type is area lookup WHEN insert called THEN area lookup association inserted`() {
+        sut.insert("1", "2", AreaAssociationType.AREA_LOOKUP)
 
         verify {
             areaAssociationDao.insert(
@@ -57,8 +56,8 @@ class AreaAssociationDataSourceTest {
     }
 
     @Test
-    fun `GIVEN association type is area data WHEN insert called THEN association type is area data`() {
-        sut.insert("1", "2", AreaAssociationTypeDto.AREA_DATA)
+    fun `GIVEN association type is area data WHEN insert called THEN area data association inserted`() {
+        sut.insert("1", "2", AreaAssociationType.AREA_DATA)
 
         verify {
             areaAssociationDao.insert(
@@ -72,8 +71,8 @@ class AreaAssociationDataSourceTest {
     }
 
     @Test
-    fun `GIVEN association type is healthcare WHEN insert called THEN association type is healthcare data`() {
-        sut.insert("1", "2", AreaAssociationTypeDto.HEALTHCARE_DATA)
+    fun `GIVEN association type is healtchcare data WHEN insert called THEN healtchcare data association inserted`() {
+        sut.insert("1", "2", AreaAssociationType.HEALTHCARE_DATA)
 
         verify {
             areaAssociationDao.insert(
@@ -81,21 +80,6 @@ class AreaAssociationDataSourceTest {
                     "1",
                     "2",
                     AreaAssociationType.HEALTHCARE_DATA
-                )
-            )
-        }
-    }
-
-    @Test
-    fun `GIVEN association type is soa WHEN insert called THEN association type is soa data`() {
-        sut.insert("1", "2", AreaAssociationTypeDto.SOA_DATA)
-
-        verify {
-            areaAssociationDao.insert(
-                AreaAssociation(
-                    "1",
-                    "2",
-                    AreaAssociationType.SOA_DATA
                 )
             )
         }

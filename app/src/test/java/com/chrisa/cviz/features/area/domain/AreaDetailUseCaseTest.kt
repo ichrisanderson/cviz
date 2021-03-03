@@ -42,7 +42,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
@@ -50,6 +49,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 @InternalCoroutinesApi
@@ -63,6 +63,7 @@ class AreaDetailUseCaseTest {
     private val areaDeathsFacade = mockk<AreaDeathsFacade>()
     private val alertLevelUseCase = mockk<AlertLevelUseCase>()
     private val soaDataUseCase = mockk<SoaDataUseCase>()
+    private val insertAreaAssociationUseCase = mockk<InsertAreaAssociationUseCase>()
 
     private val sut = AreaDetailUseCase(
         areaDataSynchroniser,
@@ -72,7 +73,8 @@ class AreaDetailUseCaseTest {
         areaDeathsFacade,
         healthcareFacade,
         alertLevelUseCase,
-        soaDataUseCase
+        soaDataUseCase,
+        insertAreaAssociationUseCase
     )
 
     @Before
