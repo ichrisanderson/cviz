@@ -18,7 +18,6 @@ package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.features.area.data.AreaDataSource
@@ -28,6 +27,7 @@ import com.chrisa.cviz.features.area.data.dtos.AreaDetailDto
 import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
+import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCodeResolver
 import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel
@@ -42,6 +42,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
@@ -49,13 +50,11 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 @InternalCoroutinesApi
 class AreaDetailUseCaseTest {
 
-    private val areaDataSynchroniser = mockk<AreaDataSynchroniser>()
     private val areaDataSource = mockk<AreaDataSource>()
     private val areaLookupUseCase = mockk<AreaLookupUseCase>()
     private val healthcareFacade = mockk<HealthcareUseCaseFacade>()
@@ -63,10 +62,10 @@ class AreaDetailUseCaseTest {
     private val areaDeathsFacade = mockk<AreaDeathsFacade>()
     private val alertLevelUseCase = mockk<AlertLevelUseCase>()
     private val soaDataUseCase = mockk<SoaDataUseCase>()
-    private val insertAreaAssociationUseCase = mockk<InsertAreaAssociationUseCase>()
+    private val areaLookupCodeResolver = AreaLookupCodeResolver()
+    private val areaDataSynchroniser = mockk<AreaDataSynchroniserFacade>()
 
     private val sut = AreaDetailUseCase(
-        areaDataSynchroniser,
         areaDataSource,
         areaLookupUseCase,
         areaCasesUseCase,
@@ -74,7 +73,8 @@ class AreaDetailUseCaseTest {
         healthcareFacade,
         alertLevelUseCase,
         soaDataUseCase,
-        insertAreaAssociationUseCase
+        areaLookupCodeResolver,
+        areaDataSynchroniser
     )
 
     @Before
@@ -122,136 +122,6 @@ class AreaDetailUseCaseTest {
                     ukAreaDetailDto.areaCode,
                     ukAreaDetailDto.areaType.toAreaType()
                 )
-            }
-        }
-
-    @Test
-    fun `WHEN execute called THEN area lookup is not synced`() =
-        runBlocking {
-            val areaTypes = AreaType.values()
-            areaTypes.forEach { areaType ->
-                every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
-
-                sut.execute("1", areaType)
-
-                coVerify(exactly = 1) { areaLookupUseCase.syncAreaLookup("1", areaType) }
-            }
-        }
-
-    @Test
-    fun `GIVEN overview area WHEN execute called THEN hospital synced`() =
-        runBlocking {
-            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
-
-            sut.execute("1", AreaType.OVERVIEW)
-
-            coVerify(exactly = 1) { healthcareFacade.syncHospitalData("1", AreaType.OVERVIEW) }
-        }
-
-    @Test
-    fun `GIVEN nation area WHEN execute called THEN hospital synced`() =
-        runBlocking {
-            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
-
-            sut.execute("1", AreaType.NATION)
-
-            coVerify(exactly = 1) { healthcareFacade.syncHospitalData("1", AreaType.NATION) }
-        }
-
-    @Test
-    fun `GIVEN region area WHEN execute called THEN hospital synced`() =
-        runBlocking {
-            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
-            every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
-                AreaDto("1", "", AreaType.REGION)
-
-            sut.execute("1", AreaType.REGION)
-
-            coVerify(exactly = 1) { healthcareFacade.syncHospitalData("1", AreaType.REGION) }
-        }
-
-    @Test
-    fun `GIVEN ltla area WHEN execute called THEN hospital synced`() =
-        runBlocking {
-            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
-            every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
-                AreaDto("1", "", AreaType.LTLA)
-
-            sut.execute("1", AreaType.LTLA)
-
-            coVerify(exactly = 1) { healthcareFacade.syncHospitalData("1", AreaType.LTLA) }
-        }
-
-    @Test
-    fun `GIVEN utla area WHEN execute called THEN hospital synced`() =
-        runBlocking {
-            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
-            every { healthcareFacade.healthcareArea(any(), any(), any()) } returns
-                AreaDto("1", "", AreaType.UTLA)
-
-            sut.execute("1", AreaType.UTLA)
-
-            coVerify(exactly = 1) { healthcareFacade.syncHospitalData("1", AreaType.UTLA) }
-        }
-
-    @Test
-    fun `GIVEN nhs area returned WHEN execute called THEN hospital synced`() =
-        runBlocking {
-            val areaTypes = listOf(AreaType.UTLA, AreaType.LTLA, AreaType.REGION)
-            every { areaDataSource.metadataAsFlow("1") } returns listOf(null).asFlow()
-            areaTypes.forEach { areaType ->
-                val nhsArea = AreaDto(
-                    "${areaType}_1234",
-                    "${areaType}_name",
-                    areaType
-                )
-                every { healthcareFacade.nhsRegionArea("1", areaLookupDto) } returns nhsArea
-                sut.execute("1", areaType)
-
-                coVerify(exactly = 1) {
-                    healthcareFacade.syncHospitalData(
-                        nhsArea.code,
-                        nhsArea.areaType
-                    )
-                }
-            }
-        }
-
-    @Test
-    fun `WHEN execute called with non msoa area THEN alert level synced with area code`() =
-        runBlocking {
-            val areaTypes = AreaType.values().filterNot { it == AreaType.MSOA }
-            coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
-            every { areaDataSource.metadataAsFlow(any()) } returns listOf(null).asFlow()
-            areaTypes.forEach { areaType ->
-                val areaCode = "${areaType}_1"
-                sut.execute(areaCode, areaType)
-
-                coVerify(exactly = 1) {
-                    alertLevelUseCase.syncAlertLevel(
-                        areaCode,
-                        areaType
-                    )
-                }
-            }
-        }
-
-    @Test
-    fun `WHEN execute called with msoa area THEN alert level synced with utla area code`() =
-        runBlocking {
-            val areaTypes = AreaType.values().filter { it == AreaType.MSOA }
-            coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
-            every { areaDataSource.metadataAsFlow(any()) } returns listOf(null).asFlow()
-            areaTypes.forEach { areaType ->
-                val areaCode = "${areaType}_1"
-                sut.execute(areaCode, areaType)
-
-                coVerify(exactly = 1) {
-                    alertLevelUseCase.syncAlertLevel(
-                        areaLookupDto.utlaCode!!,
-                        AreaType.UTLA
-                    )
-                }
             }
         }
 
@@ -454,20 +324,6 @@ class AreaDetailUseCaseTest {
                         )
                     )
                 )
-            }
-        }
-
-    @Test
-    fun `WHEN execute called THEN soa data is synced`() =
-        runBlocking {
-            val areaTypes = AreaType.values()
-            areaTypes.forEach { areaType ->
-                val areaCode = "$areaType"
-                every { areaDataSource.metadataAsFlow(areaCode) } returns listOf(null).asFlow()
-
-                sut.execute(areaCode, areaType)
-
-                coVerify(exactly = 1) { soaDataUseCase.syncSoaData(areaCode, areaType) }
             }
         }
 

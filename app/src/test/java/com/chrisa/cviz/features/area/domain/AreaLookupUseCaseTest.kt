@@ -42,6 +42,17 @@ class AreaLookupUseCaseTest {
     private val sut = AreaLookupUseCase(areaLookupDataSynchroniser, areaLookupDataSource)
 
     @Test
+    fun `WHEN areaLookup called with MSOA THEN msoa lookup returned`() {
+        val areaCode = "E1"
+        val lookup = lookupEntity.copy(msoaCode = areaCode)
+        every { areaLookupDataSource.areaLookupByMsoa(areaCode) } returns lookup
+
+        val areaLookupDto = sut.areaLookup(areaCode, AreaType.MSOA)
+
+        assertThat(areaLookupDto).isEqualTo(lookup)
+    }
+
+    @Test
     fun `WHEN areaLookup called with LTLA THEN ltla lookup returned`() {
         val areaCode = "E1"
         val lookup = lookupEntity.copy(ltlaCode = areaCode)

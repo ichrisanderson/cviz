@@ -82,6 +82,43 @@ class AreaDeathsUseCaseTest {
     }
 
     @Test
+    fun `WHEN nation has no deaths THEN default deaths returned`() {
+        val defaultAreaDto = AreaDto(
+            code = Constants.SCOTLAND_AREA_CODE,
+            name = Constants.SCOTLAND_AREA_NAME,
+            AreaType.NATION
+        )
+        every { areaDeathsDataSource.deaths(areaLookupDto.nationCode) } returns emptyList()
+        every { areaDeathsDataSource.deaths(defaultAreaDto.code) } returns dailyData
+        every { areaCodeResolver.defaultAreaDto("S1") } returns defaultAreaDto
+
+        val deaths = sut.deaths("S1", AreaType.UTLA, areaLookupDto)
+
+        assertThat(deaths).isEqualTo(
+            AreaDailyDataDto(defaultAreaDto.name, dailyData)
+        )
+    }
+
+    @Test
+    fun `WHEN nation no default deaths THEN uk deaths returned`() {
+        val defaultAreaDto = AreaDto(
+            code = Constants.WALES_AREA_CODE,
+            name = Constants.WALES_AREA_NAME,
+            AreaType.NATION
+        )
+        every { areaCodeResolver.defaultAreaDto("W1") } returns defaultAreaDto
+        every { areaDeathsDataSource.deaths(areaLookupDto.nationCode) } returns emptyList()
+        every { areaDeathsDataSource.deaths(defaultAreaDto.code) } returns emptyList()
+        every { areaDeathsDataSource.deaths(Constants.UK_AREA_CODE) } returns dailyData
+
+        val deaths = sut.deaths("W1", AreaType.UTLA, areaLookupDto)
+
+        assertThat(deaths).isEqualTo(
+            AreaDailyDataDto(Constants.UK_AREA_NAME, dailyData)
+        )
+    }
+
+    @Test
     fun `WHEN region has deaths THEN region deaths returned`() {
         every { areaDeathsDataSource.deaths(areaLookupDto.regionCode!!) } returns dailyData
 

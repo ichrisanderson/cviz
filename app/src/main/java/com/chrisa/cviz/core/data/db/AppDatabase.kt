@@ -734,6 +734,9 @@ interface SoaDataDao {
     @Query("SELECT * FROM soaData INNER JOIN area ON soaData.areaCode = area.areaCode ORDER BY date ASC")
     fun allWithAreaAsFlow(): Flow<List<SoaDataWithArea>>
 
+    @Query("SELECT * FROM soaData INNER JOIN savedArea ON soaData.areaCode = savedArea.areaCode INNER JOIN area ON soaData.areaCode = area.areaCode ORDER BY date ASC")
+    fun allSavedAreaWithAreaAsFlow(): Flow<List<SoaDataWithArea>>
+
     @Query("SELECT * FROM soaData ORDER BY date ASC")
     fun all(): List<SoaDataEntity>
 

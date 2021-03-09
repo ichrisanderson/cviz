@@ -20,6 +20,7 @@ import com.chrisa.cviz.features.search.data.SearchDataSource
 import com.chrisa.cviz.features.search.data.dtos.AreaDTO
 import com.chrisa.cviz.features.search.domain.models.AreaModel
 import com.google.common.truth.Truth.assertThat
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,5 +55,17 @@ class SearchUseCaseTest {
             assertThat(results).isEqualTo(expectedResults.map {
                 AreaModel(it.code, it.name, it.type)
             })
+        }
+
+    @Test
+    fun `GIVEN postcode query string WHEN execute called THEN postcode data returned`() =
+        testDispatcher.runBlockingTest {
+            val postcode = "AB106PB"
+            val area = AreaDTO(code = "1234", name = "London", type = "utla")
+            coEvery { searchDataSource.searchPostcode(postcode) } returns area
+
+            val results = sut.execute(postcode)
+
+            assertThat(results).isEqualTo(listOf(AreaModel(area.code, area.name, area.type)))
         }
 }
