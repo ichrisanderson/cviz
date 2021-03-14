@@ -24,6 +24,7 @@ import androidx.room.Delete
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -96,15 +97,11 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS `areaData_tmp` (`metadataId` TEXT NOT NULL, `areaCode` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
-                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `areaData`")
-                database.execSQL("INSERT INTO `areaData_tmp` (`metadataId`,`areaCode`,`date`,`newCases`,`infectionRate`,`cumulativeCases`,`newDeathsByPublishedDate`,`cumulativeDeathsByPublishedDate`,`cumulativeDeathsByPublishedDateRate`,`newDeathsByDeathDate`,`cumulativeDeathsByDeathDate`,`cumulativeDeathsByDeathDateRate`,`newOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDateRate`) SELECT `metadataId`,`areaCode`,`date`,`newCases`,`infectionRate`,`cumulativeCases`,`newDeathsByPublishedDate`,`cumulativeDeathsByPublishedDate`,`cumulativeDeathsByPublishedDateRate`,`newDeathsByDeathDate`,`cumulativeDeathsByDeathDate`,`cumulativeDeathsByDeathDateRate`,`newOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDate`,`cumulativeOnsDeathsByRegistrationDateRate` FROM `areaData`")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `areaData_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `areaData`")
                 database.execSQL("ALTER TABLE `areaData_tmp` RENAME TO `areaData`")
 
                 database.execSQL("CREATE TABLE IF NOT EXISTS `areaSummary_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `baseInfectionRate` REAL NOT NULL, `cumulativeCasesWeek1` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek1` REAL NOT NULL, `newCasesWeek1` INTEGER NOT NULL, `newCaseInfectionRateWeek1` REAL NOT NULL, `cumulativeCasesWeek2` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek2` REAL NOT NULL, `newCasesWeek2` INTEGER NOT NULL, `newCaseInfectionRateWeek2` REAL NOT NULL, `cumulativeCasesWeek3` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek3` REAL NOT NULL, `newCasesWeek3` INTEGER NOT NULL, `newCaseInfectionRateWeek3` REAL NOT NULL, `cumulativeCasesWeek4` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek4` REAL NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
-                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `areaSummary`")
-                database.execSQL("INSERT INTO `areaSummary_tmp` (`areaCode`,`date`,`baseInfectionRate`,`cumulativeCasesWeek1`,`cumulativeCaseInfectionRateWeek1`,`newCasesWeek1`,`newCaseInfectionRateWeek1`,`cumulativeCasesWeek2`,`cumulativeCaseInfectionRateWeek2`,`newCasesWeek2`,`newCaseInfectionRateWeek2`,`cumulativeCasesWeek3`,`cumulativeCaseInfectionRateWeek3`,`newCasesWeek3`,`newCaseInfectionRateWeek3`,`cumulativeCasesWeek4`,`cumulativeCaseInfectionRateWeek4`) SELECT `areaCode`,`date`,`baseInfectionRate`,`cumulativeCasesWeek1`,`cumulativeCaseInfectionRateWeek1`,`newCasesWeek1`,`newCaseInfectionRateWeek1`,`cumulativeCasesWeek2`,`cumulativeCaseInfectionRateWeek2`,`newCasesWeek2`,`newCaseInfectionRateWeek2`,`cumulativeCasesWeek3`,`cumulativeCaseInfectionRateWeek3`,`newCasesWeek3`,`newCaseInfectionRateWeek¬3`,`cumulativeCasesWeek4`,`cumulativeCaseInfectionRateWeek4` FROM `areaSummary`")
                 database.execSQL("DROP TABLE `areaSummary`")
                 database.execSQL("ALTER TABLE `areaSummary_tmp` RENAME TO `areaSummary`")
 
@@ -113,21 +110,15 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE `savedArea`")
                 database.execSQL("ALTER TABLE `savedArea_tmp` RENAME TO `savedArea`")
 
-                database.execSQL("CREATE TABLE IF NOT EXISTS `healthcare_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
-                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `healthcare`")
-                database.execSQL("INSERT INTO `healthcare_tmp` (`areaCode`,`date`,`newAdmissions`,`cumulativeAdmissions`,`occupiedBeds`,`transmissionRateMin`,`transmissionRateMax`,`transmissionRateGrowthRateMin`,`transmissionRateGrowthRateMax`) SELECT `areaCode`,`date`,`newAdmissions`,`cumulativeAdmissions`,`occupiedBeds`,`transmissionRateMin`,`transmissionRateMax`,`transmissionRateGrowthRateMin`,`transmissionRateGrowthRateMax` FROM `healthcare`")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `healthcare_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `healthcare`")
                 database.execSQL("ALTER TABLE `healthcare_tmp` RENAME TO `healthcare`")
 
-                database.execSQL("CREATE TABLE IF NOT EXISTS `alertLevel_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
-                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `alertLevel`")
-                database.execSQL("INSERT INTO `alertLevel_tmp` (`areaCode`,`date`,`alertLevel`,`alertLevelName`,`alertLevelUrl`,`alertLevelValue`) SELECT `areaCode`,`date`,`alertLevel`,`alertLevelName`,`alertLevelUrl`,`alertLevelValue` FROM `alertLevel`")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `alertLevel_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `alertLevel`")
                 database.execSQL("ALTER TABLE `alertLevel_tmp` RENAME TO `alertLevel`")
 
-                database.execSQL("CREATE TABLE `soaData_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION)")
-                database.execSQL("INSERT INTO `areaData` (`areaCode`,`areaName`,`areaType`) SELECT `areaCode`,`areaName`,`areaType` FROM `soaData`")
-                database.execSQL("INSERT INTO `soaData_tmp` (`areaCode`,`date`,`rollingSum`,`rollingRate`,`change`,`changePercentage`) SELECT `areaCode`,`date`,`rollingSum`,`rollingRate`,`change`,`changePercentage` FROM `soaData`")
+                database.execSQL("CREATE TABLE `soaData_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `soaData`")
                 database.execSQL("ALTER TABLE `soaData_tmp` RENAME TO `soaData`")
             }
@@ -249,13 +240,14 @@ interface AreaDao {
         ForeignKey(
             entity = MetadataEntity::class,
             parentColumns = ["id"],
-            childColumns = ["metadataId"]
+            childColumns = ["metadataId"],
+            onDelete = CASCADE
         )
     ]
 )
 data class AreaDataEntity(
-    val metadataId: String,
     val areaCode: String,
+    val metadataId: String,
     val newCases: Int,
     val infectionRate: Double,
     val cumulativeCases: Int,
@@ -445,7 +437,7 @@ object Constants {
     const val UK_AREA_NAME = "United Kingdom"
 }
 
-object MetaDataIds {
+object MetadataIds {
     fun areaSummaryId(): String = "AREA_SUMMARY_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
     fun healthcareId(areaCode: String) = "HEALTHCARE_${areaCode}_METADATA"
@@ -585,11 +577,18 @@ interface AreaLookupDao {
             entity = AreaEntity::class,
             parentColumns = ["areaCode"],
             childColumns = ["areaCode"]
+        ),
+        ForeignKey(
+            entity = MetadataEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["metadataId"],
+            onDelete = CASCADE
         )
     ]
 )
 data class HealthcareEntity(
     val areaCode: String,
+    val metadataId: String,
     val date: LocalDate,
     val newAdmissions: Int?,
     val cumulativeAdmissions: Int?,
@@ -673,11 +672,18 @@ interface HealthcareLookupDao {
             entity = AreaEntity::class,
             parentColumns = ["areaCode"],
             childColumns = ["areaCode"]
+        ),
+        ForeignKey(
+            entity = MetadataEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["metadataId"],
+            onDelete = CASCADE
         )
     ]
 )
 data class AlertLevelEntity(
     val areaCode: String,
+    val metadataId: String,
     val date: LocalDate,
     val alertLevel: Int,
     val alertLevelName: String,
@@ -715,11 +721,18 @@ interface AlertLevelDao {
             entity = AreaEntity::class,
             parentColumns = ["areaCode"],
             childColumns = ["areaCode"]
+        ),
+        ForeignKey(
+            entity = MetadataEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["metadataId"],
+            onDelete = CASCADE
         )
     ]
 )
 data class SoaDataEntity(
     val areaCode: String,
+    val metadataId: String,
     val date: LocalDate,
     val rollingSum: Int,
     val rollingRate: Double,

@@ -17,7 +17,7 @@
 package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.SavedAreaDto
 import com.chrisa.cviz.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
@@ -43,7 +43,7 @@ class AreaDataSource @Inject constructor(
 
     fun metadataAsFlow(areaCode: String): Flow<MetadataDto?> {
         return appDatabase.metadataDao()
-            .metadataAsFlow(MetaDataIds.areaCodeId(areaCode))
+            .metadataAsFlow(MetadataIds.areaCodeId(areaCode))
             .map {
                 it?.let {
                     MetadataDto(
@@ -56,7 +56,7 @@ class AreaDataSource @Inject constructor(
 
     fun metadata(areaCode: String): MetadataDto? {
         return appDatabase.metadataDao()
-            .metadata(MetaDataIds.areaCodeId(areaCode))
+            .metadata(MetadataIds.areaCodeId(areaCode))
             ?.let {
                 MetadataDto(
                     lastUpdatedAt = it.lastUpdatedAt,

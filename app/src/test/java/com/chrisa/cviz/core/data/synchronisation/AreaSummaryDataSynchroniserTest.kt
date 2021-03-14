@@ -23,7 +23,7 @@ import com.chrisa.cviz.core.data.db.AreaSummaryDao
 import com.chrisa.cviz.core.data.db.AreaSummaryEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.network.AreaDataModel
@@ -107,7 +107,7 @@ class AreaSummaryDataSynchroniserTest {
     fun `GIVEN data can be loaded from the api WHEN performSync THEN data is cached`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaSummaryId(),
+                id = MetadataIds.areaSummaryId(),
                 lastUpdatedAt = syncTime.minusDays(4),
                 lastSyncTime = syncTime.minusDays(4)
             )
@@ -157,7 +157,7 @@ class AreaSummaryDataSynchroniserTest {
                 cumulativeCaseInfectionRateWeek4 = 75.0
             )
             val areaSummaryEntityList = listOf(areaSummaryEntity)
-            every { metadataDao.metadata(MetaDataIds.areaSummaryId()) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaSummaryId()) } returns metadataEntity
             coEvery { monthlyDataLoader.load(lastDate, AreaType.LTLA) } returns monthlyData
             every { areaEntityListBuilder.build(monthlyData) } returns areaSummaryEntityList
 
@@ -176,7 +176,7 @@ class AreaSummaryDataSynchroniserTest {
                 )
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetaDataIds.areaSummaryId(),
+                        id = MetadataIds.areaSummaryId(),
                         lastUpdatedAt = lastDate.atStartOfDay(),
                         lastSyncTime = lastDate.atStartOfDay()
                     )

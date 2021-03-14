@@ -319,13 +319,13 @@ class AreaDataDaoTest {
             val syncTime = areaDataWithArea.areaData.date.atStartOfDay()
 
             val ukMetadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+                id = MetadataIds.areaCodeId(Constants.UK_AREA_CODE),
                 lastUpdatedAt = syncTime,
                 lastSyncTime = syncTime
             )
 
             val englandMetadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(Constants.ENGLAND_AREA_CODE),
+                id = MetadataIds.areaCodeId(Constants.ENGLAND_AREA_CODE),
                 lastUpdatedAt = syncTime.plusDays(1),
                 lastSyncTime = syncTime.plusDays(1)
             )
@@ -403,7 +403,7 @@ class AreaDataDaoTest {
             areaType = AreaType.OVERVIEW,
             areaData = AreaDataEntity(
                 areaCode = Constants.UK_AREA_CODE,
-                metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+                metadataId = MetadataIds.areaCodeId(Constants.UK_AREA_CODE),
                 date = syncDate.toLocalDate(),
                 cumulativeCases = 222,
                 infectionRate = 122.0,

@@ -19,6 +19,7 @@ package com.chrisa.cviz.features.area.data
 import com.chrisa.cviz.core.data.db.AlertLevelDao
 import com.chrisa.cviz.core.data.db.AlertLevelEntity
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.features.area.data.dtos.AlertLevelDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -40,8 +41,11 @@ class AlertLevelDataSourceTest {
 
     @Test
     fun `WHEN alertLevel called THEN alert level by area code returned`() {
+        val areaCode = "1234"
+        val metadataId = MetadataIds.alertLevelId(areaCode)
         val alertLevelEntity = AlertLevelEntity(
-            areaCode = "1234",
+            areaCode = areaCode,
+            metadataId = metadataId,
             date = LocalDate.of(2020, 1, 1),
             alertLevel = 2,
             alertLevelName = "Stay Alert",

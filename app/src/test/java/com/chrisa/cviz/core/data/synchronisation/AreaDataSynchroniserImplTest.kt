@@ -22,7 +22,7 @@ import com.chrisa.cviz.core.data.db.AreaDataDao
 import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
@@ -110,7 +110,7 @@ class AreaDataSynchroniserImplTest {
     @Test(expected = HttpException::class)
     fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
         testDispatcher.runBlockingTest {
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns null
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns null
             coEvery { covidApi.pagedAreaDataResponse(any(), any(), any()) } returns
                 Response.error(500, emptyJsonResponse())
 
@@ -129,11 +129,11 @@ class AreaDataSynchroniserImplTest {
     fun `GIVEN recent area metadata WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(1)
             )
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
 
             sut.performSync(areaCode, areaType)
 
@@ -146,12 +146,12 @@ class AreaDataSynchroniserImplTest {
     fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(301)
             )
 
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.pagedAreaDataResponse(
                     any(),
@@ -170,12 +170,12 @@ class AreaDataSynchroniserImplTest {
     fun `GIVEN api succeeds with null response WHEN performSync THEN area data is not updated`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
 
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.pagedAreaDataResponse(
                     any(),
@@ -191,7 +191,7 @@ class AreaDataSynchroniserImplTest {
     fun `GIVEN api succeeds with non-null response WHEN performSync THEN area data is updated`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
@@ -220,7 +220,7 @@ class AreaDataSynchroniserImplTest {
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
 
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.pagedAreaDataResponse(
                     any(),
@@ -258,7 +258,7 @@ class AreaDataSynchroniserImplTest {
             verify(exactly = 1) {
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetaDataIds.areaCodeId(areaCode),
+                        id = MetadataIds.areaCodeId(areaCode),
                         lastSyncTime = syncTime,
                         lastUpdatedAt = syncTime
                     )

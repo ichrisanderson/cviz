@@ -20,7 +20,7 @@ import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.AreaDataModel
@@ -33,11 +33,11 @@ import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.DateUtils.formatAsGmt
 import com.chrisa.cviz.core.util.DateUtils.toGmtDateTime
 import com.chrisa.cviz.core.util.NetworkUtils
+import retrofit2.HttpException
+import retrofit2.Response
 import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
-import retrofit2.HttpException
-import retrofit2.Response
 
 interface SoaDataSynchroniser {
     suspend fun performSync(areaCode: String)
@@ -53,7 +53,7 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
     override suspend fun performSync(
         areaCode: String
     ) {
-        val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
+        val areaMetadata = appDatabase.metadataDao().metadata(MetadataIds.areaCodeId(areaCode))
         val now = timeProvider.currentTime()
         if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
@@ -89,7 +89,7 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
-            val metadataId = MetaDataIds.areaCodeId(areaCode)
+            val metadataId = MetadataIds.areaCodeId(areaCode)
             appDatabase.soaDataDao().deleteAllByAreaCode(areaCode)
             appDatabase.areaDao().insert(
                 AreaEntity(
@@ -98,19 +98,6 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
                     AreaType.from(soaDataModel.areaType)!!
                 )
             )
-            appDatabase.soaDataDao().insertAll(
-                soaDataModel.newCasesBySpecimenDate
-                    .filter(::hasRollingData)
-                    .map { rollingChangeModel ->
-                        SoaDataEntity(
-                            soaDataModel.areaCode,
-                            rollingChangeModel.date,
-                            rollingChangeModel.rollingSum!!,
-                            rollingChangeModel.rollingRate!!,
-                            rollingChangeModel.change!!,
-                            rollingChangeModel.changePercentage!!
-                        )
-                    })
             appDatabase.metadataDao().insert(
                 metadata = MetadataEntity(
                     id = metadataId,
@@ -118,6 +105,20 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
                     lastSyncTime = timeProvider.currentTime()
                 )
             )
+            appDatabase.soaDataDao().insertAll(
+                soaDataModel.newCasesBySpecimenDate
+                    .filter(::hasRollingData)
+                    .map { rollingChangeModel ->
+                        SoaDataEntity(
+                            areaCode = soaDataModel.areaCode,
+                            metadataId = metadataId,
+                            date = rollingChangeModel.date,
+                            rollingSum = rollingChangeModel.rollingSum!!,
+                            rollingRate = rollingChangeModel.rollingRate!!,
+                            change = rollingChangeModel.change!!,
+                            changePercentage = rollingChangeModel.changePercentage!!
+                        )
+                    })
         }
     }
 

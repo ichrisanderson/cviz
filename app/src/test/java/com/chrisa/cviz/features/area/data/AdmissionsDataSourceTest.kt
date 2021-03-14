@@ -22,6 +22,7 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
 import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.db.HealthcareWithArea
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.google.common.truth.Truth.assertThat
@@ -95,12 +96,13 @@ class AdmissionsDataSourceTest {
 
     companion object {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
-
+        val metadataId = MetadataIds.areaCodeId(Constants.ENGLAND_AREA_CODE)
         private val areaData = HealthcareWithArea(
             areaName = Constants.ENGLAND_AREA_NAME,
             areaType = AreaType.NATION,
             healthcare = HealthcareEntity(
                 areaCode = Constants.ENGLAND_AREA_CODE,
+                metadataId = metadataId,
                 date = syncDate.toLocalDate(),
                 newAdmissions = 10,
                 cumulativeAdmissions = 100,

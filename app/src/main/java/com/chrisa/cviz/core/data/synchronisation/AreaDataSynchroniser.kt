@@ -21,7 +21,7 @@ import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
 import com.chrisa.cviz.core.data.network.AreaDataModel
@@ -56,7 +56,7 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         areaCode: String,
         areaType: AreaType
     ) {
-        val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
+        val areaMetadata = appDatabase.metadataDao().metadata(MetadataIds.areaCodeId(areaCode))
         val now = timeProvider.currentTime()
         if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
@@ -96,7 +96,7 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
-            val metadataId = MetaDataIds.areaCodeId(areaCode)
+            val metadataId = MetadataIds.areaCodeId(areaCode)
             val dataToInsert = pagedAreaCodeData.data.filter { it.cumulativeCases != null }
             appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
             appDatabase.areaDao().insertAll(dataToInsert.map {

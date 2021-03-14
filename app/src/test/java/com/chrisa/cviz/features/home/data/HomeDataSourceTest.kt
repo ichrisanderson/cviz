@@ -24,7 +24,7 @@ import com.chrisa.cviz.core.data.db.AreaSummaryEntity
 import com.chrisa.cviz.core.data.db.AreaSummaryWithArea
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
 import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
@@ -293,7 +293,7 @@ class HomeDataSourceTest {
             areaType = AreaType.OVERVIEW,
             areaData = AreaDataEntity(
                 areaCode = Constants.UK_AREA_CODE,
-                metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+                metadataId = MetadataIds.areaCodeId(Constants.UK_AREA_CODE),
                 date = syncDate.toLocalDate(),
                 cumulativeCases = 222,
                 infectionRate = 122.0,

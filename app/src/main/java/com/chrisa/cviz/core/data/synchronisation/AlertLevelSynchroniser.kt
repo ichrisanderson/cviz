@@ -21,7 +21,7 @@ import com.chrisa.cviz.core.data.db.AlertLevelEntity
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.network.AlertLevel
 import com.chrisa.cviz.core.data.network.AreaDataModel
@@ -54,7 +54,7 @@ internal class AlertLevelSynchroniserImpl @Inject constructor(
         areaCode: String,
         areaType: AreaType
     ) {
-        val metadata = appDatabase.metadataDao().metadata(MetaDataIds.alertLevelId(areaCode))
+        val metadata = appDatabase.metadataDao().metadata(MetadataIds.alertLevelId(areaCode))
         val now = timeProvider.currentTime()
         if (metadata != null && metadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
@@ -96,28 +96,29 @@ internal class AlertLevelSynchroniserImpl @Inject constructor(
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
-            val metadataId = MetaDataIds.alertLevelId(areaCode)
+            val metadataId = MetadataIds.alertLevelId(areaCode)
             val it = alertLevels.body.maxByOrNull { it.date }!!
             appDatabase.areaDao().insert(AreaEntity(
                 areaCode = it.areaCode,
                 areaName = it.areaName,
                 areaType = AreaType.from(it.areaType)!!
             ))
-            appDatabase.alertLevelDao().insert(
-                AlertLevelEntity(
-                    areaCode = it.areaCode,
-                    date = it.date,
-                    alertLevel = it.alertLevel,
-                    alertLevelName = it.alertLevelName,
-                    alertLevelUrl = it.alertLevelUrl,
-                    alertLevelValue = it.alertLevelValue
-                )
-            )
             appDatabase.metadataDao().insert(
                 metadata = MetadataEntity(
                     id = metadataId,
                     lastUpdatedAt = lastModified,
                     lastSyncTime = timeProvider.currentTime()
+                )
+            )
+            appDatabase.alertLevelDao().insert(
+                AlertLevelEntity(
+                    areaCode = it.areaCode,
+                    metadataId = metadataId,
+                    date = it.date,
+                    alertLevel = it.alertLevel,
+                    alertLevelName = it.alertLevelName,
+                    alertLevelUrl = it.alertLevelUrl,
+                    alertLevelValue = it.alertLevelValue
                 )
             )
         }

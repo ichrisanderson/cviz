@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "93f8049df5662eed5214a9c36bb5613c",
+    "identityHash": "20db8f7af0e405a6f822d01d8f9a2df5",
     "entities": [
       {
         "tableName": "area",
@@ -38,17 +38,17 @@
       },
       {
         "tableName": "areaData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`metadataId` TEXT NOT NULL, `areaCode` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
-            "fieldPath": "metadataId",
-            "columnName": "metadataId",
+            "fieldPath": "areaCode",
+            "columnName": "areaCode",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "areaCode",
-            "columnName": "areaCode",
+            "fieldPath": "metadataId",
+            "columnName": "metadataId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -153,7 +153,7 @@
           },
           {
             "table": "metadata",
-            "onDelete": "NO ACTION",
+            "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
               "metadataId"
@@ -358,11 +358,17 @@
       },
       {
         "tableName": "healthcare",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "areaCode",
             "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metadataId",
+            "columnName": "metadataId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -433,6 +439,17 @@
             ],
             "referencedColumns": [
               "areaCode"
+            ]
+          },
+          {
+            "table": "metadata",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "metadataId"
+            ],
+            "referencedColumns": [
+              "id"
             ]
           }
         ]
@@ -588,11 +605,17 @@
       },
       {
         "tableName": "alertLevel",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "areaCode",
             "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metadataId",
+            "columnName": "metadataId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -645,16 +668,33 @@
             "referencedColumns": [
               "areaCode"
             ]
+          },
+          {
+            "table": "metadata",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "metadataId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
           }
         ]
       },
       {
         "tableName": "soaData",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "areaCode",
             "columnName": "areaCode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metadataId",
+            "columnName": "metadataId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -708,6 +748,17 @@
             "referencedColumns": [
               "areaCode"
             ]
+          },
+          {
+            "table": "metadata",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "metadataId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
           }
         ]
       },
@@ -749,7 +800,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '93f8049df5662eed5214a9c36bb5613c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '20db8f7af0e405a6f822d01d8f9a2df5')"
     ]
   }
 }

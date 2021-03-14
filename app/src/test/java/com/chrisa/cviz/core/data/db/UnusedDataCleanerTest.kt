@@ -46,6 +46,7 @@ class UnusedDataCleanerTest {
         val westminsterData =
             SoaDataEntity(
                 areaCode = centralWestminsterArea.areaCode,
+                metadataId = MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
                 change = -4,
                 changePercentage = -17.6,
                 date = LocalDate.of(2021, 2, 14),
@@ -55,31 +56,33 @@ class UnusedDataCleanerTest {
         val soaData = listOf(
             westminsterData,
             westminsterData.copy(
-                areaCode = marlyboneArea.areaCode
+                areaCode = marlyboneArea.areaCode,
+                metadataId = MetadataIds.areaCodeId(marlyboneArea.areaCode)
             ),
             westminsterData.copy(
-                areaCode = oxfordCentralArea.areaCode
+                areaCode = oxfordCentralArea.areaCode,
+                metadataId = MetadataIds.areaCodeId(oxfordCentralArea.areaCode)
             )
         )
         val westminsterMetadata = MetadataEntity(
-            id = MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+            id = MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
             lastUpdatedAt = currentTime.minusDays(1),
             lastSyncTime = currentTime.minusHours(1)
         )
-        db.soaDataDao().insertAll(soaData)
         db.metadataDao().insertAll(
             listOf(
                 westminsterMetadata,
                 westminsterMetadata.copy(
-                    id = MetaDataIds.areaCodeId(marlyboneArea.areaCode),
+                    id = MetadataIds.areaCodeId(marlyboneArea.areaCode),
                     lastSyncTime = currentTime.minusDays(3)
                 ),
                 westminsterMetadata.copy(
-                    id = MetaDataIds.areaCodeId(oxfordCentralArea.areaCode),
+                    id = MetadataIds.areaCodeId(oxfordCentralArea.areaCode),
                     lastSyncTime = currentTime.minusDays(1)
                 )
             )
         )
+        db.soaDataDao().insertAll(soaData)
 
         runBlocking { sut.removeUnusedData() }
 

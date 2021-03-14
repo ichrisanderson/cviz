@@ -20,17 +20,17 @@ import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
 import com.chrisa.cviz.core.data.db.HealthcareEntity
-import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDateTime
 
 class TransmissionRateDataSourceTest {
 
@@ -47,7 +47,7 @@ class TransmissionRateDataSourceTest {
 
     @Test
     fun `WHEN healthcareMetaData called THEN metadata dao data returned`() {
-        every { metadataDao.metadata(MetaDataIds.healthcareId("areaCode")) } returns metadata
+        every { metadataDao.metadata(MetadataIds.healthcareId("areaCode")) } returns metadata
 
         val healthcareMetaData = sut.healthcareMetaData("areaCode")
 
@@ -91,7 +91,7 @@ class TransmissionRateDataSourceTest {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
 
         private val metadata = MetadataEntity(
-            "",
+            MetadataIds.healthcareId(Constants.ENGLAND_AREA_CODE),
             syncDate,
             syncDate
         )
@@ -99,6 +99,7 @@ class TransmissionRateDataSourceTest {
         private val areaData = HealthcareEntity(
             date = syncDate.toLocalDate(),
             areaCode = Constants.ENGLAND_AREA_CODE,
+            metadataId = metadata.id,
             newAdmissions = 10,
             cumulativeAdmissions = 100,
             occupiedBeds = 70,

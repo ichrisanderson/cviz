@@ -64,6 +64,7 @@ class DatabaseCleanerTest {
         val westminsterData =
             SoaDataEntity(
                 areaCode = centralWestminsterArea.areaCode,
+                metadataId = MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
                 change = -4,
                 changePercentage = -17.6,
                 date = LocalDate.of(2021, 2, 14),
@@ -73,31 +74,33 @@ class DatabaseCleanerTest {
         val soaData = listOf(
             westminsterData,
             westminsterData.copy(
-                areaCode = marlyboneArea.areaCode
+                areaCode = marlyboneArea.areaCode,
+                metadataId = MetadataIds.areaCodeId(marlyboneArea.areaCode)
             ),
             westminsterData.copy(
-                areaCode = oxfordCentralArea.areaCode
+                areaCode = oxfordCentralArea.areaCode,
+                metadataId = MetadataIds.areaCodeId(oxfordCentralArea.areaCode)
             )
         )
         val westminsterMetadata = MetadataEntity(
-            id = MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+            id = MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
             lastUpdatedAt = currentTime.minusDays(1),
             lastSyncTime = currentTime.minusHours(1)
         )
-        db.soaDataDao().insertAll(soaData)
         db.metadataDao().insertAll(
             listOf(
                 westminsterMetadata,
                 westminsterMetadata.copy(
-                    id = MetaDataIds.areaCodeId(marlyboneArea.areaCode),
+                    id = MetadataIds.areaCodeId(marlyboneArea.areaCode),
                     lastSyncTime = currentTime.minusDays(3)
                 ),
                 westminsterMetadata.copy(
-                    id = MetaDataIds.areaCodeId(oxfordCentralArea.areaCode),
+                    id = MetadataIds.areaCodeId(oxfordCentralArea.areaCode),
                     lastSyncTime = currentTime.minusDays(1)
                 )
             )
         )
+        db.soaDataDao().insertAll(soaData)
 
         runBlocking { sut.removeUnusedData() }
 
@@ -110,8 +113,8 @@ class DatabaseCleanerTest {
         )
         assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
             listOf(
-                MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
-                MetaDataIds.areaCodeId(oxfordCentralArea.areaCode)
+                MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
+                MetadataIds.areaCodeId(oxfordCentralArea.areaCode)
             )
         )
     }
@@ -122,7 +125,7 @@ class DatabaseCleanerTest {
         every { timeProvider.currentTime() } returns currentTime
         val westminsterData = AreaDataEntity(
             areaCode = centralWestminsterArea.areaCode,
-            metadataId = MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+            metadataId = MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
             date = LocalDate.of(2021, 2, 12),
             cumulativeCases = 222,
             infectionRate = 122.0,
@@ -141,15 +144,15 @@ class DatabaseCleanerTest {
             westminsterData,
             westminsterData.copy(
                 areaCode = marlyboneArea.areaCode,
-                metadataId = MetaDataIds.areaCodeId(marlyboneArea.areaCode)
+                metadataId = MetadataIds.areaCodeId(marlyboneArea.areaCode)
             ),
             westminsterData.copy(
                 areaCode = oxfordCentralArea.areaCode,
-                metadataId = MetaDataIds.areaCodeId(oxfordCentralArea.areaCode)
+                metadataId = MetadataIds.areaCodeId(oxfordCentralArea.areaCode)
             )
         )
         val westminsterMetadata = MetadataEntity(
-            id = MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
+            id = MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
             lastUpdatedAt = currentTime.minusDays(1),
             lastSyncTime = currentTime.minusHours(1)
         )
@@ -157,11 +160,11 @@ class DatabaseCleanerTest {
             listOf(
                 westminsterMetadata,
                 westminsterMetadata.copy(
-                    id = MetaDataIds.areaCodeId(marlyboneArea.areaCode),
+                    id = MetadataIds.areaCodeId(marlyboneArea.areaCode),
                     lastSyncTime = currentTime.minusDays(3)
                 ),
                 westminsterMetadata.copy(
-                    id = MetaDataIds.areaCodeId(oxfordCentralArea.areaCode),
+                    id = MetadataIds.areaCodeId(oxfordCentralArea.areaCode),
                     lastSyncTime = currentTime.minusDays(1)
                 )
             )
@@ -179,8 +182,8 @@ class DatabaseCleanerTest {
         )
         assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
             listOf(
-                MetaDataIds.areaCodeId(centralWestminsterArea.areaCode),
-                MetaDataIds.areaCodeId(oxfordCentralArea.areaCode)
+                MetadataIds.areaCodeId(centralWestminsterArea.areaCode),
+                MetadataIds.areaCodeId(oxfordCentralArea.areaCode)
             )
         )
     }
@@ -191,6 +194,7 @@ class DatabaseCleanerTest {
         every { timeProvider.currentTime() } returns currentTime
         val westminsterAlertLevel = AlertLevelEntity(
             areaCode = centralWestminsterArea.areaCode,
+            metadataId = MetadataIds.alertLevelId(centralWestminsterArea.areaCode),
             date = LocalDate.of(2021, 2, 14),
             alertLevel = 2,
             alertLevelName = "Stay Alert",
@@ -200,31 +204,33 @@ class DatabaseCleanerTest {
         val alertLevels = listOf(
             westminsterAlertLevel,
             westminsterAlertLevel.copy(
-                areaCode = marlyboneArea.areaCode
+                areaCode = marlyboneArea.areaCode,
+                metadataId = MetadataIds.alertLevelId(marlyboneArea.areaCode)
             ),
             westminsterAlertLevel.copy(
-                areaCode = oxfordCentralArea.areaCode
+                areaCode = oxfordCentralArea.areaCode,
+                metadataId = MetadataIds.alertLevelId(oxfordCentralArea.areaCode)
             )
         )
         val westminsterMetadata = MetadataEntity(
-            id = MetaDataIds.alertLevelId(centralWestminsterArea.areaCode),
+            id = MetadataIds.alertLevelId(centralWestminsterArea.areaCode),
             lastUpdatedAt = currentTime.minusDays(1),
             lastSyncTime = currentTime.minusHours(1)
         )
-        db.alertLevelDao().insertAll(alertLevels)
         db.metadataDao().insertAll(
             listOf(
                 westminsterMetadata,
                 westminsterMetadata.copy(
-                    id = MetaDataIds.alertLevelId(marlyboneArea.areaCode),
+                    id = MetadataIds.alertLevelId(marlyboneArea.areaCode),
                     lastSyncTime = currentTime.minusDays(3)
                 ),
                 westminsterMetadata.copy(
-                    id = MetaDataIds.alertLevelId(oxfordCentralArea.areaCode),
+                    id = MetadataIds.alertLevelId(oxfordCentralArea.areaCode),
                     lastSyncTime = currentTime.minusDays(1)
                 )
             )
         )
+        db.alertLevelDao().insertAll(alertLevels)
 
         runBlocking { sut.removeUnusedData() }
 
@@ -237,8 +243,8 @@ class DatabaseCleanerTest {
         )
         assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
             listOf(
-                MetaDataIds.alertLevelId(centralWestminsterArea.areaCode),
-                MetaDataIds.alertLevelId(oxfordCentralArea.areaCode)
+                MetadataIds.alertLevelId(centralWestminsterArea.areaCode),
+                MetadataIds.alertLevelId(oxfordCentralArea.areaCode)
             )
         )
     }
@@ -249,6 +255,7 @@ class DatabaseCleanerTest {
         every { timeProvider.currentTime() } returns currentTime
         val westminsterHealthcareEntity = HealthcareEntity(
             areaCode = centralWestminsterArea.areaCode,
+            metadataId = MetadataIds.healthcareId(centralWestminsterArea.areaCode),
             date = LocalDate.of(2021, 2, 11),
             newAdmissions = 10,
             cumulativeAdmissions = 100,
@@ -261,31 +268,33 @@ class DatabaseCleanerTest {
         val healthcare = listOf(
             westminsterHealthcareEntity,
             westminsterHealthcareEntity.copy(
-                areaCode = marlyboneArea.areaCode
+                areaCode = marlyboneArea.areaCode,
+                metadataId = MetadataIds.healthcareId(marlyboneArea.areaCode)
             ),
             westminsterHealthcareEntity.copy(
-                areaCode = oxfordCentralArea.areaCode
+                areaCode = oxfordCentralArea.areaCode,
+                metadataId = MetadataIds.healthcareId(oxfordCentralArea.areaCode)
             )
         )
         val westminsterMetadata = MetadataEntity(
-            id = MetaDataIds.healthcareId(centralWestminsterArea.areaCode),
+            id = MetadataIds.healthcareId(centralWestminsterArea.areaCode),
             lastUpdatedAt = currentTime.minusDays(1),
             lastSyncTime = currentTime.minusHours(1)
         )
-        db.healthcareDao().insertAll(healthcare)
         db.metadataDao().insertAll(
             listOf(
                 westminsterMetadata,
                 westminsterMetadata.copy(
-                    id = MetaDataIds.healthcareId(marlyboneArea.areaCode),
+                    id = MetadataIds.healthcareId(marlyboneArea.areaCode),
                     lastSyncTime = currentTime.minusDays(3)
                 ),
                 westminsterMetadata.copy(
-                    id = MetaDataIds.healthcareId(oxfordCentralArea.areaCode),
+                    id = MetadataIds.healthcareId(oxfordCentralArea.areaCode),
                     lastSyncTime = currentTime.minusDays(1)
                 )
             )
         )
+        db.healthcareDao().insertAll(healthcare)
 
         runBlocking { sut.removeUnusedData() }
 
@@ -298,8 +307,8 @@ class DatabaseCleanerTest {
         )
         assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
             listOf(
-                MetaDataIds.healthcareId(centralWestminsterArea.areaCode),
-                MetaDataIds.healthcareId(oxfordCentralArea.areaCode)
+                MetadataIds.healthcareId(centralWestminsterArea.areaCode),
+                MetadataIds.healthcareId(oxfordCentralArea.areaCode)
             )
         )
     }

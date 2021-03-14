@@ -22,7 +22,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.HealthcareDao
 import com.chrisa.cviz.core.data.db.HealthcareEntity
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
@@ -106,7 +106,7 @@ class HealthcareDataSynchroniserImplTest {
     @Test(expected = HttpException::class)
     fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
         testDispatcher.runBlockingTest {
-            every { metadataDao.metadata(MetaDataIds.healthcareId(areaCode)) } returns null
+            every { metadataDao.metadata(MetadataIds.healthcareId(areaCode)) } returns null
             coEvery { covidApi.pagedHealthcareDataResponse(any(), any(), any()) } returns
                 Response.error(500, emptyJsonResponse())
 
@@ -125,11 +125,11 @@ class HealthcareDataSynchroniserImplTest {
     fun `GIVEN recent area metadata WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.healthcareId(areaCode),
+                id = MetadataIds.healthcareId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(1)
             )
-            every { metadataDao.metadata(MetaDataIds.healthcareId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.healthcareId(areaCode)) } returns metadataEntity
 
             sut.performSync(areaCode, areaType)
 
@@ -142,12 +142,12 @@ class HealthcareDataSynchroniserImplTest {
     fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.healthcareId(areaCode),
+                id = MetadataIds.healthcareId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(301)
             )
 
-            every { metadataDao.metadata(MetaDataIds.healthcareId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.healthcareId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.pagedHealthcareDataResponse(
                     any(),
@@ -163,12 +163,12 @@ class HealthcareDataSynchroniserImplTest {
     fun `GIVEN api succeeds with null response WHEN performSync THEN area data is not updated`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.healthcareId(areaCode),
+                id = MetadataIds.healthcareId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
 
-            every { metadataDao.metadata(MetaDataIds.healthcareId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.healthcareId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.pagedHealthcareDataResponse(
                     any(),
@@ -184,7 +184,7 @@ class HealthcareDataSynchroniserImplTest {
     fun `GIVEN api succeeds with non-null response WHEN performSync THEN area data is updated`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.healthcareId(areaCode),
+                id = MetadataIds.healthcareId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
@@ -207,8 +207,9 @@ class HealthcareDataSynchroniserImplTest {
                 data = listOf(healthcareData)
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
+            val metadataId = MetadataIds.healthcareId(areaCode)
 
-            every { metadataDao.metadata(MetaDataIds.healthcareId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.healthcareId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.pagedHealthcareDataResponse(
                     any(),
@@ -221,10 +222,20 @@ class HealthcareDataSynchroniserImplTest {
 
             verify(exactly = 1) { healthcareDao.deleteAllByAreaCode(areaCode) }
             verify(exactly = 1) {
+                metadataDao.insert(
+                    MetadataEntity(
+                        id = metadataId,
+                        lastSyncTime = syncTime,
+                        lastUpdatedAt = syncTime
+                    )
+                )
+            }
+            verify(exactly = 1) {
                 healthcareDao.insertAll(
                     listOf(
                         HealthcareEntity(
                             areaCode = healthcareData.areaCode,
+                            metadataId = metadataId,
                             date = healthcareData.date,
                             newAdmissions = healthcareData.newAdmissions,
                             cumulativeAdmissions = healthcareData.cumulativeAdmissions,
@@ -234,15 +245,6 @@ class HealthcareDataSynchroniserImplTest {
                             transmissionRateGrowthRateMin = healthcareData.transmissionRateGrowthRateMin,
                             transmissionRateGrowthRateMax = healthcareData.transmissionRateGrowthRateMax
                         )
-                    )
-                )
-            }
-            verify(exactly = 1) {
-                metadataDao.insert(
-                    MetadataEntity(
-                        id = MetaDataIds.healthcareId(areaCode),
-                        lastSyncTime = syncTime,
-                        lastUpdatedAt = syncTime
                     )
                 )
             }

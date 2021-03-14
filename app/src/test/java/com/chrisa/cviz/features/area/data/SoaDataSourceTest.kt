@@ -18,6 +18,7 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.SoaDataDao
 import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.db.SoaDataWithArea
@@ -42,11 +43,14 @@ class SoaDataSourceTest {
 
     @Test
     fun `WHEN byAreaCode THEN soa data by area code returned`() {
+        val areaCode = "1234"
+        val metadataId = MetadataIds.alertLevelId(areaCode)
         val soaDataEntity = SoaDataWithArea(
             areaName = "London",
             areaType = AreaType.REGION,
             soaData = SoaDataEntity(
-                areaCode = "1234",
+                areaCode = areaCode,
+                metadataId = metadataId,
                 date = LocalDate.of(2020, 1, 1),
                 rollingSum = 11,
                 rollingRate = 12.0,

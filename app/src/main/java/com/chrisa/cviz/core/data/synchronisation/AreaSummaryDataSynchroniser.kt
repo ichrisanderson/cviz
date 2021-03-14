@@ -21,7 +21,7 @@ import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaSummaryEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
@@ -71,7 +71,7 @@ internal class AreaSummaryDataSynchroniser @Inject constructor(
             appDatabase.areaDao().insertAll(areas)
             appDatabase.metadataDao().insert(
                 MetadataEntity(
-                    id = MetaDataIds.areaSummaryId(),
+                    id = MetadataIds.areaSummaryId(),
                     lastUpdatedAt = date.atStartOfDay(),
                     lastSyncTime = date.atStartOfDay()
                 )

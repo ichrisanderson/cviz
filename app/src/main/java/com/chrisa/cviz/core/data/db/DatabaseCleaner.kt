@@ -28,7 +28,7 @@ class DatabaseCleaner @Inject constructor(
     suspend fun removeUnusedData() =
         appDatabase.withTransaction {
             val snapshot = snapshotProvider.getSnapshot(appDatabase)
-            val cutoffDate = timeProvider.currentTime().minusDays(3)
+            val cutoffDate = timeProvider.currentTime().minusDays(2)
 
             val outOfDateMetadata =
                 snapshot.metadata.filter { it.lastSyncTime < cutoffDate }
@@ -38,7 +38,7 @@ class DatabaseCleaner @Inject constructor(
             val outOfDateSoaData =
                 snapshot.soaDataAreaCodes.filter {
                     outOfDateMetadataIds.contains(
-                        MetaDataIds.areaCodeId(
+                        MetadataIds.areaCodeId(
                             it
                         )
                     )
@@ -46,7 +46,7 @@ class DatabaseCleaner @Inject constructor(
             val outOfDateAlertLevels =
                 snapshot.alertLevelAreaCodes.filter {
                     outOfDateMetadataIds.contains(
-                        MetaDataIds.alertLevelId(
+                        MetadataIds.alertLevelId(
                             it
                         )
                     )
@@ -54,7 +54,7 @@ class DatabaseCleaner @Inject constructor(
             val outOfDateAreaData =
                 snapshot.areaDataAreaCodes.filter {
                     outOfDateMetadataIds.contains(
-                        MetaDataIds.areaCodeId(
+                        MetadataIds.areaCodeId(
                             it
                         )
                     )
@@ -62,7 +62,7 @@ class DatabaseCleaner @Inject constructor(
             val outOfDateHealthCare =
                 snapshot.healthcareAreaCodes.filter {
                     outOfDateMetadataIds.contains(
-                        MetaDataIds.healthcareId(
+                        MetadataIds.healthcareId(
                             it
                         )
                     )
