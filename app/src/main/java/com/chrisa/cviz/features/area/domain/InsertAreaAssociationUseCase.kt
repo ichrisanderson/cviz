@@ -40,6 +40,5 @@ class InsertAreaAssociationUseCase @Inject constructor(
             AreaAssociationTypeDto.AREA_DATA -> AreaAssociationType.AREA_DATA
             AreaAssociationTypeDto.AREA_LOOKUP -> AreaAssociationType.AREA_LOOKUP
             AreaAssociationTypeDto.HEALTHCARE_DATA -> AreaAssociationType.HEALTHCARE_DATA
-            AreaAssociationTypeDto.SOA_DATA -> AreaAssociationType.SOA_DATA
         }
 }

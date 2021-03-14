@@ -38,7 +38,7 @@ class AreaDetailSynchroniser @Inject constructor(
         areaType: AreaType
     ) {
         val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
-        insertAreaLookupAssociation(areaLookup, areaCode)
+        insertAreaLookupAssociation(areaCode, areaLookup)
         val areaLookupCode = areaLookupCodeResolver.areaLookupCode(areaCode, areaType, areaLookup)
         insertAreaDataAssociation(areaCode, areaLookupCode)
         syncAreaLookup(areaLookup, areaLookupCode)
@@ -65,8 +65,8 @@ class AreaDetailSynchroniser @Inject constructor(
         )
 
     private fun insertAreaLookupAssociation(
+        areaCode: String,
         areaLookup: AreaLookupDto?,
-        areaCode: String
     ) =
         areaLookup?.let {
             insertAreaAssociationUseCase.execute(

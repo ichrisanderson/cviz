@@ -33,11 +33,11 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [
@@ -318,8 +318,14 @@ interface AreaDataDao {
     @Query("SELECT * FROM areaData")
     fun all(): List<AreaDataEntity>
 
+    @Query("SELECT * FROM areaData WHERE areaCode IN (:areaCodes)")
+    fun allInAreaCode(areaCodes: Collection<String>): AreaDataEntity
+
     @Query("DELETE FROM areaData WHERE :areaCode = areaCode")
     fun deleteAllByAreaCode(areaCode: String)
+
+    @Query("DELETE FROM areaData WHERE areaCode IN (:areaCodes)")
+    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
 
     @Query("DELETE FROM areaData WHERE areaCode IN (:areaCodes)")
     fun deleteAllInAreaCode(areaCodes: Collection<String>)
@@ -531,6 +537,9 @@ data class AreaLookupEntity(
 @Dao
 interface AreaLookupDao {
 
+    @Query("SELECT * FROM areaLookup WHERE lsoaCode IN (:lsoaCodes)")
+    fun allInLsoaCode(lsoaCodes: Collection<String>): List<AreaLookupEntity>
+
     @Query("DELETE FROM areaLookup WHERE lsoaCode NOT IN (:lsoaCodes)")
     fun deleteAllNotInLsoaCode(lsoaCodes: Collection<String>): Int
 
@@ -606,6 +615,12 @@ interface HealthcareDao {
 
     @Query("SELECT * FROM healthcare")
     fun all(): List<HealthcareEntity>
+
+    @Query("SELECT * FROM healthcare WHERE areaCode IN(:areaCode)")
+    fun allInAreaCode(areaCode: Collection<String>): List<HealthcareEntity>
+
+    @Query("DELETE FROM healthcare WHERE areaCode NOT IN(:areaCode)")
+    fun deleteAllNotInAreaCode(areaCode: Collection<String>)
 
     @Query("DELETE FROM healthcare WHERE areaCode IN(:areaCode)")
     fun deleteAllInAreaCode(areaCode: Collection<String>)
@@ -725,6 +740,12 @@ interface SoaDataDao {
     @Query("SELECT DISTINCT areaCode FROM soaData")
     fun distinctAreaCodes(): List<String>
 
+    @Query("SELECT * FROM soaData WHERE areaCode IN (:areaCodes)")
+    fun allInAreaCode(areaCodes: Collection<String>): List<SoaDataEntity>
+
+    @Query("DELETE FROM soaData WHERE areaCode NOT IN (:areaCodes)")
+    fun deleteAllNotInAreaCode(areaCodes: Collection<String>)
+
     @Query("DELETE FROM soaData WHERE areaCode IN (:areaCodes)")
     fun deleteAllInAreaCode(areaCodes: Collection<String>)
 
@@ -750,7 +771,6 @@ interface SoaDataDao {
 enum class AreaAssociationType(val value: String) {
     AREA_LOOKUP("area_lookup"),
     AREA_DATA("area_data"),
-    SOA_DATA("soa_data"),
     HEALTHCARE_DATA("healthcare_data");
 
     companion object {
@@ -758,7 +778,6 @@ enum class AreaAssociationType(val value: String) {
             return when (type) {
                 AREA_LOOKUP.value -> AREA_LOOKUP
                 AREA_DATA.value -> AREA_DATA
-                SOA_DATA.value -> SOA_DATA
                 HEALTHCARE_DATA.value -> HEALTHCARE_DATA
                 else -> null
             }
@@ -799,4 +818,7 @@ interface AreaAssociationDao {
 
     @Query("SELECT * FROM areaAssociation WHERE areaCode = :code")
     fun byAreaCode(code: String): List<AreaAssociation>
+
+    @Query("SELECT * FROM areaAssociation WHERE areaCode IN(:areaCode)")
+    fun inAreaCode(areaCode: List<String>): List<AreaAssociation>
 }

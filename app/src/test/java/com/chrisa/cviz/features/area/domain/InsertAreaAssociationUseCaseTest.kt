@@ -57,11 +57,4 @@ class InsertAreaAssociationUseCaseTest {
 
         verify { dataSource.insert("1", "2", AreaAssociationType.HEALTHCARE_DATA) }
     }
-
-    @Test
-    fun `GIVEN soa data type WHEN insert called THEN data source updated`() {
-        sut.execute("1", "2", AreaAssociationTypeDto.SOA_DATA)
-
-        verify { dataSource.insert("1", "2", AreaAssociationType.SOA_DATA) }
-    }
 }

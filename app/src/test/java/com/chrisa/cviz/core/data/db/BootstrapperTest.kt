@@ -35,11 +35,13 @@ class BootstrapperTest {
     private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper = mockk(relaxed = true)
     private val hospitalLookupHelper: HospitalLookupHelper = mockk(relaxed = true)
     private val databaseCleaner: DatabaseCleaner = mockk(relaxed = true)
+    private val unusedDataCleaner: UnusedDataCleaner = mockk(relaxed = true)
     private val sut = Bootstrapper(
         appDatabase,
         legacyAppDatabaseHelper,
         hospitalLookupHelper,
-        databaseCleaner
+        databaseCleaner,
+        unusedDataCleaner
     )
 
     @Before

@@ -28,7 +28,7 @@ class DatabaseCleaner @Inject constructor(
     suspend fun removeUnusedData() =
         appDatabase.withTransaction {
             val snapshot = snapshotProvider.getSnapshot(appDatabase)
-            val cutoffDate = timeProvider.currentTime().minusDays(2)
+            val cutoffDate = timeProvider.currentTime().minusDays(3)
 
             val outOfDateMetadata =
                 snapshot.metadata.filter { it.lastSyncTime < cutoffDate }

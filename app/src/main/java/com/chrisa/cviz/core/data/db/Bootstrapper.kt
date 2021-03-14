@@ -24,12 +24,14 @@ class Bootstrapper @Inject constructor(
     private val appDatabase: AppDatabase,
     private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper,
     private val hospitalLookupHelper: HospitalLookupHelper,
-    private val databaseCleaner: DatabaseCleaner
+    private val databaseCleaner: DatabaseCleaner,
+    private val unusedDataCleaner: UnusedDataCleaner,
 ) {
     suspend fun execute() {
         val didCopyOldData = copyOldData()
         insertAreaData(didCopyOldData)
         hospitalLookupHelper.insertHospitalLookupData()
+        unusedDataCleaner.removeUnusedData()
         databaseCleaner.removeUnusedData()
     }
 
