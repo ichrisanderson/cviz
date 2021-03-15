@@ -19,6 +19,7 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AreaAssociationTypeDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
+import com.chrisa.cviz.features.area.domain.AlertLevelUseCase.Companion.supportsAlertLevel
 import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCode
 import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCodeResolver
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareDataSynchroniserFacade
@@ -41,13 +42,25 @@ class AreaDetailSynchroniser @Inject constructor(
         insertAreaLookupAssociation(areaCode, areaLookup)
         val areaLookupCode = areaLookupCodeResolver.areaLookupCode(areaCode, areaType, areaLookup)
         insertAreaDataAssociation(areaCode, areaLookupCode)
-        syncAreaLookup(areaLookup, areaLookupCode)
+        syncAreaLookup(areaCode, areaLookup, areaLookupCode)
     }
 
-    private suspend fun syncAreaLookup(areaLookup: AreaLookupDto?, areaLookupCode: AreaLookupCode) {
-        alertLevelUseCase.syncAlertLevel(areaLookupCode.areaCode, areaLookupCode.areaType)
+    private suspend fun syncAreaLookup(
+        areaCode: String,
+        areaLookup: AreaLookupDto?,
+        areaLookupCode: AreaLookupCode
+    ) {
+        if (areaLookupCode.areaType.supportsAlertLevel()) {
+            alertLevelUseCase.syncAlertLevel(areaLookupCode.areaCode, areaLookupCode.areaType)
+            insertAreaAssociationUseCase.execute(
+                areaCode,
+                areaLookupCode.areaCode,
+                AreaAssociationTypeDto.ALERT_LEVEL
+            )
+        }
         areaDataSynchroniser.execute(areaLookupCode.areaCode, areaLookupCode.areaType)
         healthcareDataSynchroniser.syncHealthcare(
+            areaCode,
             areaLookupCode.areaCode,
             areaLookupCode.areaType,
             areaLookup
@@ -66,7 +79,7 @@ class AreaDetailSynchroniser @Inject constructor(
 
     private fun insertAreaLookupAssociation(
         areaCode: String,
-        areaLookup: AreaLookupDto?,
+        areaLookup: AreaLookupDto?
     ) =
         areaLookup?.let {
             insertAreaAssociationUseCase.execute(

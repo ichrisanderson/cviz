@@ -20,9 +20,11 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
+@ExperimentalCoroutinesApi
 class LocalHealthcareDataSynchroniserTest {
 
     private val healthcareLookupDataSynchroniser: HealthcareLookupDataSynchroniser =
@@ -37,21 +39,23 @@ class LocalHealthcareDataSynchroniserTest {
     @Test
     fun `WHEN execute called THEN healthcare lookups synchronised`() = runBlockingTest {
         val areaCode = "area1"
-        val areaType = AreaType.UTLA
+        val healthcareAreaCode = "healthcareArea1"
+        val healthcareAreaType = AreaType.UTLA
 
-        sut.execute(areaCode, areaType, areaLookupDto)
+        sut.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookupDto)
 
-        coVerify { healthcareLookupDataSynchroniser.execute(areaCode, areaType, areaLookupDto) }
+        coVerify { healthcareLookupDataSynchroniser.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookupDto) }
     }
 
     @Test
     fun `WHEN execute called THEN healthcare regions synchronised`() = runBlockingTest {
         val areaCode = "area1"
-        val areaType = AreaType.UTLA
+        val healthcareAreaCode = "healthcareArea1"
+        val healthcareAreaType = AreaType.UTLA
 
-        sut.execute(areaCode, areaType, areaLookupDto)
+        sut.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookupDto)
 
-        coVerify { nhsRegionDataSynchroniser.execute(areaCode, areaLookupDto) }
+        coVerify { nhsRegionDataSynchroniser.execute(areaCode, healthcareAreaCode, areaLookupDto) }
     }
 
     companion object {

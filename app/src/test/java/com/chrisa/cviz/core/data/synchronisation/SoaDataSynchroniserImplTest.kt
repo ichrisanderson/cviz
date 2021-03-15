@@ -19,9 +19,9 @@ package com.chrisa.cviz.core.data.synchronisation
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.SoaDataDao
 import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.CovidApi

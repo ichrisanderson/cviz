@@ -18,25 +18,23 @@ package com.chrisa.cviz.features.area.domain.healthcare
 
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AreaAssociationTypeDto
-import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import com.chrisa.cviz.features.area.domain.InsertAreaAssociationUseCase
 import javax.inject.Inject
 
-class HealthcareAreaDataSynchroniser @Inject constructor(
+class NonLocalHealthcareDataSynchroniser @Inject constructor(
     private val healthcareUseCaseFacade: HealthcareUseCaseFacade,
     private val insertAreaAssociationUseCase: InsertAreaAssociationUseCase
 ) {
+
     suspend fun execute(
         areaCode: String,
         healthcareAreaCode: String,
-        healthcareAreaType: AreaType,
-        areaLookup: AreaLookupDto?
+        healthcareAreaType: AreaType
     ) {
-        val nhsRegion = healthcareUseCaseFacade.healthcareArea(healthcareAreaCode, healthcareAreaType, areaLookup)
-        healthcareUseCaseFacade.syncHospitalData(nhsRegion.code, nhsRegion.areaType)
+        healthcareUseCaseFacade.syncHospitalData(healthcareAreaCode, healthcareAreaType)
         insertAreaAssociationUseCase.execute(
             areaCode,
-            nhsRegion.code,
+            healthcareAreaCode,
             AreaAssociationTypeDto.HEALTHCARE_DATA
         )
     }

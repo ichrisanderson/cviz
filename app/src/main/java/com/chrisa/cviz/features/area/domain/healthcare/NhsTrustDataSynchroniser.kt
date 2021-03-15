@@ -26,7 +26,7 @@ class NhsTrustDataSynchroniser @Inject constructor(
     private val insertAreaAssociationUseCase: InsertAreaAssociationUseCase
 ) {
     suspend fun execute(
-        areaCode: String,
+        associationAreaCode: String,
         nhsTrustCode: String
     ) {
         healthcareUseCaseFacade.syncHospitalData(
@@ -34,7 +34,7 @@ class NhsTrustDataSynchroniser @Inject constructor(
             AreaType.NHS_TRUST
         )
         insertAreaAssociationUseCase.execute(
-            areaCode,
+            associationAreaCode,
             nhsTrustCode,
             AreaAssociationTypeDto.HEALTHCARE_DATA
         )

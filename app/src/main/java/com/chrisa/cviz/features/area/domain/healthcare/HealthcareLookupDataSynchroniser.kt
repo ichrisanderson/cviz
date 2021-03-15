@@ -28,12 +28,13 @@ class HealthcareLookupDataSynchroniser @Inject constructor(
 
     suspend fun execute(
         areaCode: String,
-        areaType: AreaType,
+        healthcareAreaCode: String,
+        healthcareAreaType: AreaType,
         areaLookup: AreaLookupDto?
     ) {
-        val healthcareLookups = healthcareUseCaseFacade.healthcareLookups(areaCode)
+        val healthcareLookups = healthcareUseCaseFacade.healthcareLookups(healthcareAreaCode)
         if (healthcareLookups.isEmpty()) {
-            healthcareAreaDataSynchroniser.execute(areaCode, areaType, areaLookup)
+            healthcareAreaDataSynchroniser.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookup)
         } else {
             healthcareLookups.forEach { lookup ->
                 nhsTrustDataSynchroniser.execute(areaCode, lookup.nhsTrustCode)

@@ -40,7 +40,8 @@ class AreaDetailSynchroniserTest {
     private val insertAreaAssociationUseCase: InsertAreaAssociationUseCase = mockk(relaxed = true)
     private val areaLookupCodeResolver: AreaLookupCodeResolver = AreaLookupCodeResolver()
     private val areaDataSynchroniser: AreaDataSynchroniserWrapper = mockk(relaxed = true)
-    private val healthcareDataSynchroniserFacade: HealthcareDataSynchroniserFacade = mockk(relaxed = true)
+    private val healthcareDataSynchroniserFacade: HealthcareDataSynchroniserFacade =
+        mockk(relaxed = true)
 
     private val sut = AreaDetailSynchroniser(
         areaLookupUseCase,
@@ -60,7 +61,7 @@ class AreaDetailSynchroniserTest {
         sut.performSync(areaCode, areaType)
 
         coVerify {
-            alertLevelUseCase.syncAlertLevel("area1", AreaType.UTLA)
+            alertLevelUseCase.syncAlertLevel(areaCode, AreaType.UTLA)
         }
     }
 
@@ -73,7 +74,7 @@ class AreaDetailSynchroniserTest {
         sut.performSync(areaCode, areaType)
 
         coVerify {
-            areaDataSynchroniser.execute("area1", AreaType.UTLA)
+            areaDataSynchroniser.execute(areaCode, AreaType.UTLA)
         }
     }
 
@@ -86,7 +87,29 @@ class AreaDetailSynchroniserTest {
         sut.performSync(areaCode, areaType)
 
         coVerify {
-            healthcareDataSynchroniserFacade.syncHealthcare("area1", AreaType.UTLA, areaLookupDto)
+            healthcareDataSynchroniserFacade.syncHealthcare(
+                areaCode,
+                areaCode,
+                AreaType.UTLA,
+                areaLookupDto
+            )
+        }
+    }
+
+    @Test
+    fun `WHEN performSync called THEN alert level association created`() = runBlocking {
+        val areaCode = "area1"
+        val areaType = AreaType.UTLA
+        every { areaLookupUseCase.areaLookup(areaCode, areaType) } returns areaLookupDto
+
+        sut.performSync(areaCode, areaType)
+
+        verify {
+            insertAreaAssociationUseCase.execute(
+                areaCode,
+                areaCode,
+                AreaAssociationTypeDto.ALERT_LEVEL
+            )
         }
     }
 

@@ -27,10 +27,11 @@ class LocalHealthcareDataSynchroniser @Inject constructor(
 
     suspend fun execute(
         areaCode: String,
-        areaType: AreaType,
+        healthcareAreaCode: String,
+        healthcareAreaType: AreaType,
         areaLookup: AreaLookupDto?
     ) {
-        healthcareLookupDataSynchroniser.execute(areaCode, areaType, areaLookup)
-        nhsRegionDataSynchroniser.execute(areaCode, areaLookup)
+        healthcareLookupDataSynchroniser.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookup)
+        nhsRegionDataSynchroniser.execute(areaCode, healthcareAreaCode, areaLookup)
     }
 }

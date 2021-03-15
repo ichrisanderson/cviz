@@ -22,21 +22,40 @@ import javax.inject.Inject
 
 class HealthcareDataSynchroniserFacade @Inject constructor(
     private val localHealthcareDataSynchroniser: LocalHealthcareDataSynchroniser,
-    private val healthcareUseCaseFacade: HealthcareUseCaseFacade
+    private val nonLocalHealthcareDataSynchroniser: NonLocalHealthcareDataSynchroniser
 ) {
 
     suspend fun syncHealthcare(
         areaCode: String,
-        areaType: AreaType,
+        healthcareAreaCode: String,
+        healthcareAreaType: AreaType,
         areaLookup: AreaLookupDto?
     ) {
-        when (areaType) {
-            AreaType.MSOA, AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
-                localHealthcareDataSynchroniser.execute(areaCode, areaType, areaLookup)
-            }
-            else -> {
-                healthcareUseCaseFacade.syncHospitalData(areaCode, areaType)
-            }
+        if (hasLocalHealthcare(healthcareAreaType)) {
+            localHealthcareDataSynchroniser.execute(
+                areaCode,
+                healthcareAreaCode,
+                healthcareAreaType,
+                areaLookup
+            )
+        } else {
+            nonLocalHealthcareDataSynchroniser.execute(
+                areaCode,
+                healthcareAreaCode,
+                healthcareAreaType
+            )
         }
     }
+
+    private fun hasLocalHealthcare(areaType: AreaType) =
+        when (areaType) {
+            AreaType.MSOA,
+            AreaType.LTLA,
+            AreaType.UTLA,
+            AreaType.REGION -> true
+            AreaType.NHS_TRUST,
+            AreaType.NHS_REGION,
+            AreaType.NATION,
+            AreaType.OVERVIEW -> false
+        }
 }

@@ -20,12 +20,12 @@ import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.time.TimeProvider
 import javax.inject.Inject
 
-class DatabaseCleaner @Inject constructor(
+class ExpiredDataCleaner @Inject constructor(
     private val appDatabase: AppDatabase,
     private val snapshotProvider: SnapshotProvider,
     private val timeProvider: TimeProvider
 ) {
-    suspend fun removeUnusedData() =
+    suspend fun execute() =
         appDatabase.withTransaction {
             val snapshot = snapshotProvider.getSnapshot(appDatabase)
             val cutoffDate = timeProvider.currentTime().minusDays(2)

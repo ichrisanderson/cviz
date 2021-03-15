@@ -28,9 +28,10 @@ class NhsRegionDataSynchroniser @Inject constructor(
 
     suspend fun execute(
         areaCode: String,
+        healthcareAreaCode: String,
         areaLookup: AreaLookupDto?
     ) {
-        val nhsRegionArea = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
+        val nhsRegionArea = healthcareUseCaseFacade.nhsRegionArea(healthcareAreaCode, areaLookup)
         healthcareUseCaseFacade.syncHospitalData(
             nhsRegionArea.code,
             nhsRegionArea.areaType

@@ -39,11 +39,12 @@ class NhsRegionDataSynchroniserTest {
     @Test
     fun `WHEN execute called THEN region healthcare is synced`() = runBlocking {
         val areaCode = "area1"
+        val healthcareAreaCode = "healthcareArea1"
         every {
-            healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookupDto)
+            healthcareUseCaseFacade.nhsRegionArea(healthcareAreaCode, areaLookupDto)
         } returns nhsRegion
 
-        sut.execute(areaCode, areaLookupDto)
+        sut.execute(areaCode, healthcareAreaCode, areaLookupDto)
 
         coVerify {
             healthcareUseCaseFacade.syncHospitalData(
@@ -56,11 +57,12 @@ class NhsRegionDataSynchroniserTest {
     @Test
     fun `WHEN execute called THEN region healthcare association is created`() = runBlocking {
         val areaCode = "area1"
+        val healthcareAreaCode = "healthcareArea1"
         every {
-            healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookupDto)
+            healthcareUseCaseFacade.nhsRegionArea(healthcareAreaCode, areaLookupDto)
         } returns nhsRegion
 
-        sut.execute(areaCode, areaLookupDto)
+        sut.execute(areaCode, healthcareAreaCode, areaLookupDto)
 
         coVerify {
             insertAreaAssociationUseCase.execute(

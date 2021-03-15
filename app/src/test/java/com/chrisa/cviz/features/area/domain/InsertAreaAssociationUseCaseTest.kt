@@ -52,6 +52,13 @@ class InsertAreaAssociationUseCaseTest {
     }
 
     @Test
+    fun `GIVEN alert level type WHEN insert called THEN data source updated`() {
+        sut.execute("1", "2", AreaAssociationTypeDto.ALERT_LEVEL)
+
+        verify { dataSource.insert("1", "2", AreaAssociationType.ALERT_LEVEL) }
+    }
+
+    @Test
     fun `GIVEN healthcare data type WHEN insert called THEN data source updated`() {
         sut.execute("1", "2", AreaAssociationTypeDto.HEALTHCARE_DATA)
 

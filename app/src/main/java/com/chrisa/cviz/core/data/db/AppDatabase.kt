@@ -34,11 +34,11 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlinx.coroutines.flow.Flow
 
 @Database(
     entities = [
@@ -97,30 +97,34 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("CREATE TABLE IF NOT EXISTS `areaData_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `areaAssociation` (`areaCode` TEXT NOT NULL, `associatedAreaCode` TEXT NOT NULL, `associatedAreaType` TEXT NOT NULL, PRIMARY KEY(`areaCode`, `associatedAreaCode`, `associatedAreaType`))")
+
+                database.execSQL("CREATE TABLE `areaData_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `newCases` INTEGER NOT NULL, `infectionRate` REAL NOT NULL, `cumulativeCases` INTEGER NOT NULL, `date` INTEGER NOT NULL, `newDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDate` INTEGER, `cumulativeDeathsByPublishedDateRate` REAL, `newDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDate` INTEGER, `cumulativeDeathsByDeathDateRate` REAL, `newOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDate` INTEGER, `cumulativeOnsDeathsByRegistrationDateRate` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `areaData`")
                 database.execSQL("ALTER TABLE `areaData_tmp` RENAME TO `areaData`")
 
-                database.execSQL("CREATE TABLE IF NOT EXISTS `areaSummary_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `baseInfectionRate` REAL NOT NULL, `cumulativeCasesWeek1` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek1` REAL NOT NULL, `newCasesWeek1` INTEGER NOT NULL, `newCaseInfectionRateWeek1` REAL NOT NULL, `cumulativeCasesWeek2` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek2` REAL NOT NULL, `newCasesWeek2` INTEGER NOT NULL, `newCaseInfectionRateWeek2` REAL NOT NULL, `cumulativeCasesWeek3` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek3` REAL NOT NULL, `newCasesWeek3` INTEGER NOT NULL, `newCaseInfectionRateWeek3` REAL NOT NULL, `cumulativeCasesWeek4` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek4` REAL NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+                database.execSQL("CREATE TABLE `areaSummary_tmp` (`areaCode` TEXT NOT NULL, `date` INTEGER NOT NULL, `baseInfectionRate` REAL NOT NULL, `cumulativeCasesWeek1` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek1` REAL NOT NULL, `newCasesWeek1` INTEGER NOT NULL, `newCaseInfectionRateWeek1` REAL NOT NULL, `cumulativeCasesWeek2` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek2` REAL NOT NULL, `newCasesWeek2` INTEGER NOT NULL, `newCaseInfectionRateWeek2` REAL NOT NULL, `cumulativeCasesWeek3` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek3` REAL NOT NULL, `newCasesWeek3` INTEGER NOT NULL, `newCaseInfectionRateWeek3` REAL NOT NULL, `cumulativeCasesWeek4` INTEGER NOT NULL, `cumulativeCaseInfectionRateWeek4` REAL NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
                 database.execSQL("DROP TABLE `areaSummary`")
                 database.execSQL("ALTER TABLE `areaSummary_tmp` RENAME TO `areaSummary`")
 
-                database.execSQL("CREATE TABLE IF NOT EXISTS `savedArea_tmp` (`areaCode` TEXT NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
+                database.execSQL("CREATE TABLE `savedArea_tmp` (`areaCode` TEXT NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION )")
                 database.execSQL("INSERT INTO `savedArea_tmp` (`areaCode`) SELECT `areaCode` FROM `savedArea`")
                 database.execSQL("DROP TABLE `savedArea`")
                 database.execSQL("ALTER TABLE `savedArea_tmp` RENAME TO `savedArea`")
 
-                database.execSQL("CREATE TABLE IF NOT EXISTS `healthcare_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                database.execSQL("CREATE TABLE `healthcare_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `newAdmissions` INTEGER, `cumulativeAdmissions` INTEGER, `occupiedBeds` INTEGER, `transmissionRateMin` REAL, `transmissionRateMax` REAL, `transmissionRateGrowthRateMin` REAL, `transmissionRateGrowthRateMax` REAL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `healthcare`")
                 database.execSQL("ALTER TABLE `healthcare_tmp` RENAME TO `healthcare`")
 
-                database.execSQL("CREATE TABLE IF NOT EXISTS `alertLevel_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                database.execSQL("CREATE TABLE `alertLevel_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `alertLevel` INTEGER NOT NULL, `alertLevelName` TEXT NOT NULL, `alertLevelUrl` TEXT NOT NULL, `alertLevelValue` INTEGER NOT NULL, PRIMARY KEY(`areaCode`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `alertLevel`")
                 database.execSQL("ALTER TABLE `alertLevel_tmp` RENAME TO `alertLevel`")
 
                 database.execSQL("CREATE TABLE `soaData_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `soaData`")
                 database.execSQL("ALTER TABLE `soaData_tmp` RENAME TO `soaData`")
+                
+                database.execSQL("DELETE FROM `metadata`")
             }
         }
 
@@ -208,6 +212,9 @@ data class AreaEntity(
 
 @Dao
 interface AreaDao {
+
+    @Query("SELECT * FROM area")
+    fun all(): List<AreaEntity>
 
     @Query("SELECT COUNT(areaCode) FROM area")
     fun count(): Int
@@ -368,6 +375,9 @@ interface MetadataDao {
 
     @Query("DELETE FROM metadata WHERE id IN (:id)")
     fun deleteAllInId(id: Collection<String>)
+
+    @Query("DELETE FROM metadata WHERE id NOT IN (:id)")
+    fun deleteAllNotInId(id: Collection<String>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(metadata: MetadataEntity)
@@ -784,6 +794,7 @@ interface SoaDataDao {
 enum class AreaAssociationType(val value: String) {
     AREA_LOOKUP("area_lookup"),
     AREA_DATA("area_data"),
+    ALERT_LEVEL("alert_level"),
     HEALTHCARE_DATA("healthcare_data");
 
     companion object {
@@ -791,6 +802,7 @@ enum class AreaAssociationType(val value: String) {
             return when (type) {
                 AREA_LOOKUP.value -> AREA_LOOKUP
                 AREA_DATA.value -> AREA_DATA
+                ALERT_LEVEL.value -> ALERT_LEVEL
                 HEALTHCARE_DATA.value -> HEALTHCARE_DATA
                 else -> null
             }

@@ -34,10 +34,10 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [27])
-class DatabaseCleanerTest {
+class ExpiredDataCleanerTest {
 
     private lateinit var db: AppDatabase
-    private lateinit var sut: DatabaseCleaner
+    private lateinit var sut: ExpiredDataCleaner
     private val timeProvider: TimeProvider = mockk()
 
     @Before
@@ -54,7 +54,7 @@ class DatabaseCleanerTest {
             oxfordCentralArea
         ))
 
-        sut = DatabaseCleaner(db, SnapshotProvider(), timeProvider)
+        sut = ExpiredDataCleaner(db, SnapshotProvider(), timeProvider)
     }
 
     @Test
@@ -102,7 +102,7 @@ class DatabaseCleanerTest {
         )
         db.soaDataDao().insertAll(soaData)
 
-        runBlocking { sut.removeUnusedData() }
+        runBlocking { sut.execute() }
 
         val testSnapshot = TestSnapshot(db)
         assertThat(testSnapshot.retainedSoaAreaCodes).isEqualTo(
@@ -171,7 +171,7 @@ class DatabaseCleanerTest {
         )
         db.areaDataDao().insertAll(areaData)
 
-        runBlocking { sut.removeUnusedData() }
+        runBlocking { sut.execute() }
 
         val testSnapshot = TestSnapshot(db)
         assertThat(testSnapshot.retainedAreaDataAreaCodes).isEqualTo(
@@ -232,7 +232,7 @@ class DatabaseCleanerTest {
         )
         db.alertLevelDao().insertAll(alertLevels)
 
-        runBlocking { sut.removeUnusedData() }
+        runBlocking { sut.execute() }
 
         val testSnapshot = TestSnapshot(db)
         assertThat(testSnapshot.retainedAlertLevelAreaCodes).isEqualTo(
@@ -296,7 +296,7 @@ class DatabaseCleanerTest {
         )
         db.healthcareDao().insertAll(healthcare)
 
-        runBlocking { sut.removeUnusedData() }
+        runBlocking { sut.execute() }
 
         val testSnapshot = TestSnapshot(db)
         assertThat(testSnapshot.retainedHealthcareAreaCodes).isEqualTo(

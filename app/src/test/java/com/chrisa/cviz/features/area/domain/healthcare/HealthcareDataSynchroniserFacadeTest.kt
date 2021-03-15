@@ -24,25 +24,27 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class HealthcareDataSynchroniserFacadeTest {
+
     private val localHealthcareDataSynchroniser: LocalHealthcareDataSynchroniser =
         mockk(relaxed = true)
-    private val healthcareUseCaseFacade: HealthcareUseCaseFacade =
+    private val nonLocalHealthcareDataSynchroniser: NonLocalHealthcareDataSynchroniser =
         mockk(relaxed = true)
 
     private val sut =
-        HealthcareDataSynchroniserFacade(localHealthcareDataSynchroniser, healthcareUseCaseFacade)
+        HealthcareDataSynchroniserFacade(localHealthcareDataSynchroniser, nonLocalHealthcareDataSynchroniser)
 
     @Test
     fun `GIVEN non-local area type WHEN syncHealthcare called THEN healthcare usecase facade synced`() =
         runBlocking {
             val areaCode = "area1"
+            val healthcareAreaCode = "healthcareArea1"
             val localAreaTypes = setOf(AreaType.MSOA, AreaType.UTLA, AreaType.LTLA, AreaType.REGION)
             val nonLocalAreaTypes = AreaType.values().filterNot { localAreaTypes.contains(it) }
 
             nonLocalAreaTypes.forEach { areaType ->
-                sut.syncHealthcare(areaCode, areaType, areaLookupDto)
+                sut.syncHealthcare(areaCode, healthcareAreaCode, areaType, areaLookupDto)
 
-                coVerify { healthcareUseCaseFacade.syncHospitalData(areaCode, areaType) }
+                coVerify { nonLocalHealthcareDataSynchroniser.execute(areaCode, healthcareAreaCode, areaType) }
             }
         }
 
@@ -50,12 +52,13 @@ class HealthcareDataSynchroniserFacadeTest {
     fun `GIVEN local area type WHEN syncHealthcare called THEN healthcare usecase facade synced`() =
         runBlocking {
             val areaCode = "area1"
+            val healthcareAreaCode = "healthcareArea1"
             val localAreaTypes = setOf(AreaType.MSOA, AreaType.UTLA, AreaType.LTLA, AreaType.REGION)
 
             localAreaTypes.forEach { areaType ->
-                sut.syncHealthcare(areaCode, areaType, areaLookupDto)
+                sut.syncHealthcare(areaCode, healthcareAreaCode, areaType, areaLookupDto)
 
-                coVerify { localHealthcareDataSynchroniser.execute(areaCode, areaType, areaLookupDto) }
+                coVerify { localHealthcareDataSynchroniser.execute(areaCode, healthcareAreaCode, areaType, areaLookupDto) }
             }
         }
 

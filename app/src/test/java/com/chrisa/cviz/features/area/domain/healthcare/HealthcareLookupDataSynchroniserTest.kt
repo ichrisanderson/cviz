@@ -44,15 +44,16 @@ class HealthcareLookupDataSynchroniserTest {
     fun `GIVEN healthcare lookups are empty WHEN execute called THEN area healthcare synced`() =
         runBlocking {
             val areaCode = "area1"
-            val areaType = AreaType.UTLA
+            val healthcareAreaCode = "healthcareArea1"
+            val healthcareAreaType = AreaType.UTLA
             every {
-                healthcareUseCaseFacade.healthcareLookups(areaCode)
+                healthcareUseCaseFacade.healthcareLookups(healthcareAreaCode)
             } returns emptyList()
 
-            sut.execute(areaCode, areaType, areaLookupDto)
+            sut.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookupDto)
 
             coVerify {
-                healthcareAreaDataSynchroniser.execute(areaCode, areaType, areaLookupDto)
+                healthcareAreaDataSynchroniser.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookupDto)
             }
         }
 
@@ -60,12 +61,13 @@ class HealthcareLookupDataSynchroniserTest {
     fun `GIVEN healthcare lookups are not-empty WHEN execute called THEN area healthcare synced`() =
         runBlocking {
             val areaCode = "area1"
-            val areaType = AreaType.UTLA
+            val healthcareAreaCode = "healthcareArea1"
+            val healthcareAreaType = AreaType.UTLA
             every {
-                healthcareUseCaseFacade.healthcareLookups(areaCode)
+                healthcareUseCaseFacade.healthcareLookups(healthcareAreaCode)
             } returns listOf(healthcareLookup)
 
-            sut.execute(areaCode, areaType, areaLookupDto)
+            sut.execute(areaCode, healthcareAreaCode, healthcareAreaType, areaLookupDto)
 
             coVerify {
                 nhsTrustDataSynchroniser.execute(areaCode, healthcareLookup.nhsTrustCode)

@@ -20,8 +20,8 @@ import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.CovidApi
@@ -33,11 +33,11 @@ import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.core.util.DateUtils.formatAsGmt
 import com.chrisa.cviz.core.util.DateUtils.toGmtDateTime
 import com.chrisa.cviz.core.util.NetworkUtils
-import retrofit2.HttpException
-import retrofit2.Response
 import java.io.IOException
 import java.time.LocalDateTime
 import javax.inject.Inject
+import retrofit2.HttpException
+import retrofit2.Response
 
 interface SoaDataSynchroniser {
     suspend fun performSync(areaCode: String)

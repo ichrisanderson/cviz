@@ -17,44 +17,64 @@
 package com.chrisa.cviz.core.data.db
 
 import androidx.room.withTransaction
-import timber.log.Timber
 import javax.inject.Inject
 
 class UnusedDataCleaner @Inject constructor(
     private val appDatabase: AppDatabase
 ) {
-    suspend fun removeUnusedData() =
+    suspend fun execute() =
         appDatabase.withTransaction {
             val allSavedAreas = appDatabase.areaDao().allSavedAreas()
             val allSavedAreaCodes = allSavedAreas.map { it.areaCode }
-            val allSoaAreaCodes = allSavedAreas
+
+            val allSoaAreaMetadataCodes = allSavedAreas
                 .filter { it.areaType == AreaType.MSOA }
-                .map { it.areaCode }
+                .map { MetadataIds.areaCodeId(it.areaCode) }
 
             val allNonMsoaAreaCodes = allSavedAreas
-                .filterNot { it.areaType == AreaType.UTLA }
+                .filterNot { it.areaType == AreaType.MSOA }
                 .map { it.areaCode }
 
             val allAssociations =
-                appDatabase.areaAssociationDao().inAreaCode(allSavedAreaCodes)
+                appDatabase.areaAssociationDao()
+                    .inAreaCode(allSavedAreaCodes)
 
             val allAreaDataCodes =
-                allAssociations.filter { it.associatedAreaType == AreaAssociationType.AREA_DATA }
+                allAssociations.asSequence()
+                    .filter { it.associatedAreaType == AreaAssociationType.AREA_DATA }
                     .map { it.associatedAreaCode }
                     .plus(allNonMsoaAreaCodes)
+                    .plus(nationCodes)
                     .distinct()
+                    .map { MetadataIds.areaCodeId(it) }.toList()
+
+            val allAlertLevelCodes =
+                allAssociations.asSequence()
+                    .filter { it.associatedAreaType == AreaAssociationType.ALERT_LEVEL }
+                    .map { it.associatedAreaCode }
+                    .distinct()
+                    .map { MetadataIds.alertLevelId(it) }.toList()
+
+            val allHealthcareCodes =
+                allAssociations.filter { it.associatedAreaType == AreaAssociationType.HEALTHCARE_DATA }
+                    .map { it.associatedAreaCode }
+                    .distinct()
+                    .map { MetadataIds.healthcareId(it) }
+
+            val allMetadataIds =
+                allSoaAreaMetadataCodes
+                    .plus(allAreaDataCodes)
+                    .plus(allHealthcareCodes)
+                    .plus(allAlertLevelCodes)
+                    .plus(MetadataIds.areaSummaryId())
 
             val allLsoaCodes =
                 allAssociations.filter { it.associatedAreaType == AreaAssociationType.AREA_LOOKUP }
                     .map { it.associatedAreaCode }
                     .distinct()
 
-            val allHealthcareCodes =
-                allAssociations.filter { it.associatedAreaType == AreaAssociationType.HEALTHCARE_DATA }
-                    .map { it.associatedAreaCode }
-                    .distinct()
-
-            appDatabase.soaDataDao().deleteAllNotInAreaCode(allSoaAreaCodes)
+            appDatabase.metadataDao().deleteAllNotInId(allMetadataIds)
+            appDatabase.areaLookupDao().deleteAllNotInLsoaCode(allLsoaCodes)
         }
 
     companion object {

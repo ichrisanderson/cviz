@@ -38,7 +38,7 @@ class AlertLevelUseCase @Inject constructor(
     }
 
     private fun defaultAlertLevel(areaCode: String, areaType: AreaType): AlertLevelModel? {
-        if (!canDisplayAlertLevel(areaType)) return null
+        if (!areaType.supportsAlertLevel()) return null
         return when {
             areaCode.startsWith("S") ->
                 AlertLevelModel(SCOTLAND_RESTRICTIONS_URL)
@@ -52,18 +52,11 @@ class AlertLevelUseCase @Inject constructor(
         }
     }
 
-    private fun canDisplayAlertLevel(areaType: AreaType): Boolean =
-        when (areaType) {
-            AreaType.UTLA,
-            AreaType.LTLA -> true
-            else -> false
-        }
-
     suspend fun syncAlertLevel(areaCode: String, areaType: AreaType) =
-        when (areaType) {
-            AreaType.UTLA, AreaType.LTLA -> doSync(areaCode)
-            else -> Unit
-        }
+        if (areaType.supportsAlertLevel())
+            doSync(areaCode)
+        else
+            Unit
 
     private suspend fun doSync(areaCode: String) =
         try {
@@ -81,5 +74,12 @@ class AlertLevelUseCase @Inject constructor(
             "https://www.gov.scot/coronavirus-covid-19/"
         const val NORTHERN_IRELAND_RESTRICTIONS_URL =
             "https://www.nidirect.gov.uk/campaigns/coronavirus-covid-19"
+
+        fun AreaType.supportsAlertLevel(): Boolean =
+            when (this) {
+                AreaType.UTLA,
+                AreaType.LTLA -> true
+                else -> false
+            }
     }
 }

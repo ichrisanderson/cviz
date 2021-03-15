@@ -84,4 +84,19 @@ class AreaAssociationDataSourceTest {
             )
         }
     }
+
+    @Test
+    fun `GIVEN association type is alert level WHEN insert called THEN alert level association inserted`() {
+        sut.insert("1", "2", AreaAssociationType.ALERT_LEVEL)
+
+        verify {
+            areaAssociationDao.insert(
+                AreaAssociation(
+                    "1",
+                    "2",
+                    AreaAssociationType.ALERT_LEVEL
+                )
+            )
+        }
+    }
 }
