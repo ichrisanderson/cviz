@@ -123,7 +123,7 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("CREATE TABLE `soaData_tmp` (`areaCode` TEXT NOT NULL, `metadataId` TEXT NOT NULL, `date` INTEGER NOT NULL, `rollingSum` INTEGER NOT NULL, `rollingRate` REAL NOT NULL, `change` INTEGER NOT NULL, `changePercentage` REAL NOT NULL, PRIMARY KEY(`areaCode`, `date`), FOREIGN KEY(`areaCode`) REFERENCES `area`(`areaCode`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`metadataId`) REFERENCES `metadata`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 database.execSQL("DROP TABLE `soaData`")
                 database.execSQL("ALTER TABLE `soaData_tmp` RENAME TO `soaData`")
-                
+
                 database.execSQL("DELETE FROM `metadata`")
             }
         }
@@ -228,7 +228,7 @@ interface AreaDao {
     @Query("SELECT * FROM area WHERE areaCode = :areaCode LIMIT 1")
     fun byAreaCode(areaCode: String): AreaEntity?
 
-    @Query("SELECT * FROM area WHERE areaName LIKE '%' || :areaName || '%' ORDER BY areaName ASC")
+    @Query("SELECT * FROM area WHERE areaType IN ('overview', 'nation', 'region', 'utla', 'ltla', 'msoa') AND areaName LIKE '%' || :areaName || '%' ORDER BY areaName ASC")
     fun search(areaName: String): List<AreaEntity>
 
     @Query("SELECT * FROM area INNER JOIN savedArea ON area.areaCode = savedArea.areaCode ORDER BY areaName ASC")
