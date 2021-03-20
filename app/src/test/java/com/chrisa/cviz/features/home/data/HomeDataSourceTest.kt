@@ -19,10 +19,12 @@ package com.chrisa.cviz.features.home.data
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDataEntity
 import com.chrisa.cviz.core.data.db.AreaDataMetadataTuple
+import com.chrisa.cviz.core.data.db.AreaDataWithArea
 import com.chrisa.cviz.core.data.db.AreaSummaryEntity
+import com.chrisa.cviz.core.data.db.AreaSummaryWithArea
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
 import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
@@ -32,6 +34,7 @@ import io.mockk.mockk
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
@@ -207,18 +210,18 @@ class HomeDataSourceTest {
         runBlockingTest {
             val allCases = listOf(
                 areaData,
-                areaData.copy(areaCode = "1111", areaName = Constants.ENGLAND_AREA_NAME)
+                areaData.copy(areaData = areaData.areaData.copy(areaCode = "1111"))
             )
             val allCasesFlow = flow { emit(allCases) }
             val allSavedAreaDtos = allCases.map {
                 SavedAreaCaseDto(
-                    areaCode = it.areaCode,
+                    areaCode = it.areaData.areaCode,
                     areaName = it.areaName,
                     areaType = it.areaType,
-                    newCases = it.newCases,
-                    cumulativeCases = it.cumulativeCases,
-                    infectionRate = it.infectionRate,
-                    date = it.date
+                    newCases = it.areaData.newCases,
+                    cumulativeCases = it.areaData.cumulativeCases,
+                    infectionRate = it.areaData.infectionRate,
+                    date = it.areaData.date
                 )
             }
             every {
@@ -235,42 +238,44 @@ class HomeDataSourceTest {
     @Test
     fun `WHEN areaSummaryEntities called THEN all area summary entities are returned`() =
         runBlockingTest {
-            val areaSummaryEntity = AreaSummaryEntity(
-                areaCode = Constants.UK_AREA_CODE,
+            val areaSummaryEntity = AreaSummaryWithArea(
                 areaName = Constants.UK_AREA_NAME,
                 areaType = AreaType.OVERVIEW,
-                date = syncTime.toLocalDate(),
-                baseInfectionRate = 100.0,
-                cumulativeCasesWeek1 = 100,
-                cumulativeCaseInfectionRateWeek1 = 85.0,
-                newCaseInfectionRateWeek1 = 25.0,
-                newCasesWeek1 = 30,
-                cumulativeCasesWeek2 = 80,
-                cumulativeCaseInfectionRateWeek2 = 80.0,
-                newCaseInfectionRateWeek2 = 22.0,
-                newCasesWeek2 = 22,
-                cumulativeCasesWeek3 = 66,
-                cumulativeCaseInfectionRateWeek3 = 82.0,
-                newCaseInfectionRateWeek3 = 33.0,
-                newCasesWeek3 = 26,
-                cumulativeCasesWeek4 = 50,
-                cumulativeCaseInfectionRateWeek4 = 75.0
+                areaSummary = AreaSummaryEntity(
+                    areaCode = Constants.UK_AREA_CODE,
+                    date = syncTime.toLocalDate(),
+                    baseInfectionRate = 100.0,
+                    cumulativeCasesWeek1 = 100,
+                    cumulativeCaseInfectionRateWeek1 = 85.0,
+                    newCaseInfectionRateWeek1 = 25.0,
+                    newCasesWeek1 = 30,
+                    cumulativeCasesWeek2 = 80,
+                    cumulativeCaseInfectionRateWeek2 = 80.0,
+                    newCaseInfectionRateWeek2 = 22.0,
+                    newCasesWeek2 = 22,
+                    cumulativeCasesWeek3 = 66,
+                    cumulativeCaseInfectionRateWeek3 = 82.0,
+                    newCaseInfectionRateWeek3 = 33.0,
+                    newCasesWeek3 = 26,
+                    cumulativeCasesWeek4 = 50,
+                    cumulativeCaseInfectionRateWeek4 = 75.0
+                )
             )
             val areaSummaryEntities = listOf(areaSummaryEntity)
-            val allAreaSummaryEntities = flow { emit(areaSummaryEntities) }
+            val allAreaSummaryEntities = listOf(areaSummaryEntities).asFlow()
             val allInfectionRates = areaSummaryEntities.map {
                 AreaSummaryDto(
-                    areaCode = it.areaCode,
-                    areaType = it.areaType.value,
+                    areaCode = it.areaSummary.areaCode,
                     areaName = it.areaName,
-                    changeInCases = it.newCasesWeek1 - it.newCasesWeek2,
-                    currentNewCases = it.newCasesWeek1,
-                    currentInfectionRate = it.newCaseInfectionRateWeek1,
-                    changeInInfectionRate = it.newCaseInfectionRateWeek1 - it.newCaseInfectionRateWeek2
+                    areaType = it.areaType.value,
+                    changeInCases = it.areaSummary.newCasesWeek1 - it.areaSummary.newCasesWeek2,
+                    currentNewCases = it.areaSummary.newCasesWeek1,
+                    currentInfectionRate = it.areaSummary.newCaseInfectionRateWeek1,
+                    changeInInfectionRate = it.areaSummary.newCaseInfectionRateWeek1 - it.areaSummary.newCaseInfectionRateWeek2
                 )
             }
             every {
-                appDatabase.areaSummaryDao().allAsFlow()
+                appDatabase.areaSummaryDao().allWithAreaAsFlow()
             } returns allAreaSummaryEntities
             val emittedItems = mutableListOf<List<AreaSummaryDto>>()
 
@@ -283,24 +288,26 @@ class HomeDataSourceTest {
     companion object {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
 
-        private val areaData = AreaDataEntity(
-            areaCode = Constants.UK_AREA_CODE,
+        private val areaData = AreaDataWithArea(
             areaName = Constants.UK_AREA_NAME,
             areaType = AreaType.OVERVIEW,
-            metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
-            date = syncDate.toLocalDate(),
-            cumulativeCases = 222,
-            infectionRate = 122.0,
-            newCases = 122,
-            newDeathsByPublishedDate = 15,
-            cumulativeDeathsByPublishedDate = 20,
-            cumulativeDeathsByPublishedDateRate = 30.0,
-            newDeathsByDeathDate = 40,
-            cumulativeDeathsByDeathDate = 50,
-            cumulativeDeathsByDeathDateRate = 60.0,
-            newOnsDeathsByRegistrationDate = 10,
-            cumulativeOnsDeathsByRegistrationDate = 53,
-            cumulativeOnsDeathsByRegistrationDateRate = 62.0
+            areaData = AreaDataEntity(
+                areaCode = Constants.UK_AREA_CODE,
+                metadataId = MetadataIds.areaCodeId(Constants.UK_AREA_CODE),
+                date = syncDate.toLocalDate(),
+                cumulativeCases = 222,
+                infectionRate = 122.0,
+                newCases = 122,
+                newDeathsByPublishedDate = 15,
+                cumulativeDeathsByPublishedDate = 20,
+                cumulativeDeathsByPublishedDateRate = 30.0,
+                newDeathsByDeathDate = 40,
+                cumulativeDeathsByDeathDate = 50,
+                cumulativeDeathsByDeathDateRate = 60.0,
+                newOnsDeathsByRegistrationDate = 10,
+                cumulativeOnsDeathsByRegistrationDate = 53,
+                cumulativeOnsDeathsByRegistrationDateRate = 62.0
+            )
         )
     }
 }

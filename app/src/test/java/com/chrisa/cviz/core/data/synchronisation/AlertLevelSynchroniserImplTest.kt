@@ -19,10 +19,11 @@ package com.chrisa.cviz.core.data.synchronisation
 import com.chrisa.cviz.core.data.db.AlertLevelDao
 import com.chrisa.cviz.core.data.db.AlertLevelEntity
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.network.AlertLevel
 import com.chrisa.cviz.core.data.network.BodyPage
 import com.chrisa.cviz.core.data.network.CovidApi
@@ -52,6 +53,7 @@ class AlertLevelSynchroniserImplTest {
     private val appDatabase: AppDatabase = mockk()
     private val alertLevelDao = mockk<AlertLevelDao>()
     private val metadataDao = mockk<MetadataDao>()
+    private val areaDao = mockk<AreaDao>()
     private val networkUtils: NetworkUtils = mockk()
     private val timeProvider: TimeProvider = mockk()
     private val areaCode = "1234"
@@ -77,8 +79,10 @@ class AlertLevelSynchroniserImplTest {
         every { networkUtils.hasNetworkConnection() } returns true
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.alertLevelDao() } returns alertLevelDao
+        every { appDatabase.areaDao() } returns areaDao
         every { alertLevelDao.insert(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { areaDao.insert(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
         every { metadataDao.metadata(any()) } returns null
 
@@ -99,7 +103,7 @@ class AlertLevelSynchroniserImplTest {
     @Test(expected = HttpException::class)
     fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
         testDispatcher.runBlockingTest {
-            every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns null
+            every { metadataDao.metadata(MetadataIds.alertLevelId(areaCode)) } returns null
             coEvery { covidApi.alertLevel(any(), any()) } returns
                 Response.error(500, Utils.emptyJsonResponse())
 
@@ -117,11 +121,11 @@ class AlertLevelSynchroniserImplTest {
     fun `GIVEN recent area metadata WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.alertLevelId(areaCode),
+                id = MetadataIds.alertLevelId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(1)
             )
-            every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.alertLevelId(areaCode)) } returns metadataEntity
 
             sut.performSync(areaCode, areaType)
 
@@ -134,12 +138,12 @@ class AlertLevelSynchroniserImplTest {
     fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.alertLevelId(areaCode),
+                id = MetadataIds.alertLevelId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(301)
             )
 
-            every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.alertLevelId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.alertLevel(
                     any(),
@@ -154,12 +158,12 @@ class AlertLevelSynchroniserImplTest {
     fun `GIVEN api succeeds with null response WHEN performSync THEN area data is not updated`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.alertLevelId(areaCode),
+                id = MetadataIds.alertLevelId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
 
-            every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.alertLevelId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.alertLevel(
                     any(),
@@ -173,8 +177,9 @@ class AlertLevelSynchroniserImplTest {
     @Test
     fun `GIVEN api succeeds with non-null response WHEN performSync THEN area data is updated`() =
         testDispatcher.runBlockingTest {
+            val metadataId = MetadataIds.alertLevelId(areaCode)
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.alertLevelId(areaCode),
+                id = metadataId,
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
@@ -193,7 +198,7 @@ class AlertLevelSynchroniserImplTest {
                 body = listOf(alertLevelData)
             )
 
-            every { metadataDao.metadata(MetaDataIds.alertLevelId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.alertLevelId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.alertLevel(
                     any(),
@@ -207,8 +212,7 @@ class AlertLevelSynchroniserImplTest {
                 alertLevelDao.insert(
                     AlertLevelEntity(
                         areaCode = alertLevelData.areaCode,
-                        areaName = alertLevelData.areaName,
-                        areaType = AreaType.from(alertLevelData.areaType)!!,
+                        metadataId = metadataId,
                         date = alertLevelData.date,
                         alertLevel = alertLevelData.alertLevel,
                         alertLevelUrl = alertLevelData.alertLevelUrl,
@@ -220,7 +224,7 @@ class AlertLevelSynchroniserImplTest {
             verify(exactly = 1) {
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetaDataIds.alertLevelId(areaCode),
+                        id = MetadataIds.alertLevelId(areaCode),
                         lastSyncTime = syncTime,
                         lastUpdatedAt = syncTime
                     )

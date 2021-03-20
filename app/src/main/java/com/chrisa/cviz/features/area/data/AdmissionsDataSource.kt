@@ -17,7 +17,7 @@
 package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
-import com.chrisa.cviz.core.data.db.HealthcareEntity
+import com.chrisa.cviz.core.data.db.HealthcareWithArea
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import javax.inject.Inject
@@ -30,10 +30,10 @@ class AdmissionsDataSource @Inject constructor(
         allHealthcareData(areaCode).filter(::hasAdmissions).map(::mapDailyData)
 
     private fun allHealthcareData(areaCode: String) =
-        appDatabase.healthcareDao().byAreaCode(areaCode)
+        appDatabase.healthcareDao().withAreaByAreaCodes(listOf(areaCode))
 
-    private fun hasAdmissions(it: HealthcareEntity): Boolean =
-        it.cumulativeAdmissions != null && it.newAdmissions != null
+    private fun hasAdmissions(it: HealthcareWithArea): Boolean =
+        it.healthcare.cumulativeAdmissions != null && it.healthcare.newAdmissions != null
 
     fun admissionsForAreaCodes(areaCodes: List<String>): List<AreaDailyDataDto> =
         allAdmissionsInAreaCodes(areaCodes)
@@ -41,15 +41,15 @@ class AdmissionsDataSource @Inject constructor(
             .groupBy { it.areaName }
             .map { AreaDailyDataDto(it.key, it.value.map(::mapDailyData)) }
 
-    private fun mapDailyData(areaData: HealthcareEntity): DailyData {
+    private fun mapDailyData(healthcareWithArea: HealthcareWithArea): DailyData {
         return DailyData(
-            newValue = areaData.newAdmissions!!,
-            cumulativeValue = areaData.cumulativeAdmissions!!,
+            newValue = healthcareWithArea.healthcare.newAdmissions!!,
+            cumulativeValue = healthcareWithArea.healthcare.cumulativeAdmissions!!,
             rate = 0.0,
-            date = areaData.date
+            date = healthcareWithArea.healthcare.date
         )
     }
 
     private fun allAdmissionsInAreaCodes(areaCodes: List<String>) =
-        appDatabase.healthcareDao().byAreaCodes(areaCodes)
+        appDatabase.healthcareDao().withAreaByAreaCodes(areaCodes)
 }

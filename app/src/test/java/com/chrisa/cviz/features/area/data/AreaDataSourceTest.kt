@@ -18,10 +18,9 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDataEntity
-import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
-import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.SavedAreaDto
 import com.chrisa.cviz.features.area.data.mappers.SavedAreaDtoMapper.toSavedAreaEntity
@@ -101,7 +100,7 @@ class AreaDataSourceTest {
     @Test
     fun `WHEN loadAreaMetadata called THEN area metadata is returned`() = runBlocking {
         every {
-            appDatabase.metadataDao().metadataAsFlow(MetaDataIds.areaCodeId(areaData.areaCode))
+            appDatabase.metadataDao().metadataAsFlow(MetadataIds.areaCodeId(areaData.areaCode))
         } returns listOf(metadata).asFlow()
 
         val metadataFlow = sut.metadataAsFlow(areaData.areaCode)
@@ -120,16 +119,14 @@ class AreaDataSourceTest {
         private val syncDate = LocalDateTime.of(2020, 1, 1, 0, 0)
 
         private val metadata = MetadataEntity(
-            id = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+            id = MetadataIds.areaCodeId(Constants.UK_AREA_CODE),
             lastUpdatedAt = syncDate.minusDays(1),
             lastSyncTime = syncDate
         )
 
         private val areaData = AreaDataEntity(
             areaCode = Constants.UK_AREA_CODE,
-            areaName = Constants.UK_AREA_NAME,
-            areaType = AreaType.OVERVIEW,
-            metadataId = MetaDataIds.areaCodeId(Constants.UK_AREA_CODE),
+            metadataId = MetadataIds.areaCodeId(Constants.UK_AREA_CODE),
             date = syncDate.toLocalDate(),
             cumulativeCases = 222,
             infectionRate = 122.0,

@@ -29,19 +29,9 @@ internal class SavedAreaDataSynchroniser @Inject constructor(
 ) {
 
     suspend fun performSync() {
-        val areas = listOf(
-            AreaEntity(Constants.UK_AREA_CODE, Constants.UK_AREA_NAME, AreaType.OVERVIEW),
-            AreaEntity(Constants.ENGLAND_AREA_CODE, Constants.ENGLAND_AREA_NAME, AreaType.NATION),
-            AreaEntity(
-                Constants.NORTHERN_IRELAND_AREA_CODE,
-                Constants.NORTHERN_IRELAND_AREA_NAME,
-                AreaType.NATION
-            ),
-            AreaEntity(Constants.SCOTLAND_AREA_CODE, Constants.SCOTLAND_AREA_NAME, AreaType.NATION),
-            AreaEntity(Constants.WALES_AREA_CODE, Constants.WALES_AREA_NAME, AreaType.NATION)
-        )
-            .plus(appDatabase.areaDao().allSavedAreas())
-            .distinct()
+        val areas =
+            nations.plus(appDatabase.areaDao().allSavedAreas())
+                .distinct()
 
         var error: Throwable? = null
         val areasWithoutSoa = areas.filterNot { it.areaType == AreaType.MSOA }
@@ -61,5 +51,19 @@ internal class SavedAreaDataSynchroniser @Inject constructor(
             }
         }
         error?.let { throw it }
+    }
+
+    companion object {
+        private val nations = listOf(
+            AreaEntity(Constants.UK_AREA_CODE, Constants.UK_AREA_NAME, AreaType.OVERVIEW),
+            AreaEntity(Constants.ENGLAND_AREA_CODE, Constants.ENGLAND_AREA_NAME, AreaType.NATION),
+            AreaEntity(
+                Constants.NORTHERN_IRELAND_AREA_CODE,
+                Constants.NORTHERN_IRELAND_AREA_NAME,
+                AreaType.NATION
+            ),
+            AreaEntity(Constants.SCOTLAND_AREA_CODE, Constants.SCOTLAND_AREA_NAME, AreaType.NATION),
+            AreaEntity(Constants.WALES_AREA_CODE, Constants.WALES_AREA_NAME, AreaType.NATION)
+        )
     }
 }

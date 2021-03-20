@@ -19,9 +19,10 @@ package com.chrisa.cviz.core.data.synchronisation
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaDataEntity
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
 import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.AreaDataModelStructureMapper
@@ -55,7 +56,7 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         areaCode: String,
         areaType: AreaType
     ) {
-        val areaMetadata = appDatabase.metadataDao().metadata(MetaDataIds.areaCodeId(areaCode))
+        val areaMetadata = appDatabase.metadataDao().metadata(MetadataIds.areaCodeId(areaCode))
         val now = timeProvider.currentTime()
         if (areaMetadata != null && areaMetadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
@@ -95,15 +96,27 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
-            val metadataId = MetaDataIds.areaCodeId(areaCode)
+            val metadataId = MetadataIds.areaCodeId(areaCode)
             val dataToInsert = pagedAreaCodeData.data.filter { it.cumulativeCases != null }
             appDatabase.areaDataDao().deleteAllByAreaCode(areaCode)
+            appDatabase.areaDao().insertAll(dataToInsert.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = AreaType.from(it.areaType)!!
+                )
+            }.distinct())
+            appDatabase.metadataDao().insert(
+                metadata = MetadataEntity(
+                    id = metadataId,
+                    lastUpdatedAt = lastModified,
+                    lastSyncTime = timeProvider.currentTime()
+                )
+            )
             appDatabase.areaDataDao().insertAll(dataToInsert.map {
                 AreaDataEntity(
                     metadataId = metadataId,
                     areaCode = it.areaCode,
-                    areaName = it.areaName,
-                    areaType = AreaType.from(it.areaType)!!,
                     cumulativeCases = it.cumulativeCases ?: 0,
                     date = it.date,
                     infectionRate = it.infectionRate ?: 0.0,
@@ -119,13 +132,6 @@ internal class AreaDataSynchroniserImpl @Inject constructor(
                     cumulativeOnsDeathsByRegistrationDateRate = it.cumulativeOnsDeathsByRegistrationDateRate
                 )
             })
-            appDatabase.metadataDao().insert(
-                metadata = MetadataEntity(
-                    id = metadataId,
-                    lastUpdatedAt = lastModified,
-                    lastSyncTime = timeProvider.currentTime()
-                )
-            )
         }
     }
 }

@@ -154,8 +154,8 @@ class LoadDashboardDataUseCaseTest {
                 cumulativeCases += newCases
                 AreaSummaryDto(
                     areaCode = Constants.UK_AREA_CODE,
-                    areaType = AreaType.OVERVIEW.value,
                     areaName = Constants.UK_AREA_NAME,
+                    areaType = AreaType.OVERVIEW.value,
                     changeInCases = newCases,
                     currentNewCases = cumulativeCases,
                     changeInInfectionRate = changeInInfectionRate,

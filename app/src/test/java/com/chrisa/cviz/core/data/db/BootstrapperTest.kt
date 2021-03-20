@@ -19,6 +19,7 @@ package com.chrisa.cviz.core.data.db
 import com.chrisa.cviz.core.data.db.hospitallookups.HospitalLookupHelper
 import com.chrisa.cviz.core.data.db.legacy.LegacyAppDatabaseHelper
 import com.chrisa.cviz.core.data.db.legacy.LegacySavedArea
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -34,12 +35,14 @@ class BootstrapperTest {
     private val savedAreaDao: SavedAreaDao = mockk(relaxed = true)
     private val legacyAppDatabaseHelper: LegacyAppDatabaseHelper = mockk(relaxed = true)
     private val hospitalLookupHelper: HospitalLookupHelper = mockk(relaxed = true)
-    private val databaseCleaner: DatabaseCleaner = mockk(relaxed = true)
+    private val unusedDataCleaner: UnusedDataCleaner = mockk(relaxed = true)
+    private val expiredDataCleaner: ExpiredDataCleaner = mockk(relaxed = true)
     private val sut = Bootstrapper(
         appDatabase,
         legacyAppDatabaseHelper,
         hospitalLookupHelper,
-        databaseCleaner
+        unusedDataCleaner,
+        expiredDataCleaner
     )
 
     @Before
@@ -104,6 +107,22 @@ class BootstrapperTest {
             sut.execute()
 
             verify(exactly = 1) { hospitalLookupHelper.insertHospitalLookupData() }
+        }
+
+    @Test
+    fun `WHEN execute called THEN expired data removed`() =
+        runBlocking {
+            sut.execute()
+
+            coVerify(exactly = 1) { expiredDataCleaner.execute() }
+        }
+
+    @Test
+    fun `WHEN execute called THEN unused data removed`() =
+        runBlocking {
+            sut.execute()
+
+            coVerify(exactly = 1) { unusedDataCleaner.execute() }
         }
 
     companion object {

@@ -16,13 +16,10 @@
 
 package com.chrisa.cviz.features.area.data.dtos
 
-import com.chrisa.cviz.core.data.db.AreaType
 import java.time.LocalDate
 
 data class AlertLevelDto(
     val areaCode: String,
-    val areaName: String,
-    val areaType: AreaType,
     val date: LocalDate,
     val alertLevel: Int,
     val alertLevelName: String,

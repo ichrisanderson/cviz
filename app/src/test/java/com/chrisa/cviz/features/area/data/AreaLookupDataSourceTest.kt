@@ -37,6 +37,19 @@ class AreaLookupDataSourceTest {
     }
 
     @Test
+    fun `WHEN areaLookupByMsoa called THEN msoa data returned`() {
+        val area = lookupEntity.copy(
+            ltlaCode = "code",
+            ltlaName = "name"
+        )
+        every { areaLookupDao.byMsoa("1") } returns area
+
+        val areaLookup = sut.areaLookupByMsoa("1")
+
+        assertThat(areaLookup).isEqualTo(area.toAreaLookupDto())
+    }
+
+    @Test
     fun `WHEN areaLookupByLtla called THEN ltla data returned`() {
         val area = lookupEntity.copy(
             ltlaCode = "code",

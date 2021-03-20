@@ -19,6 +19,7 @@ package com.chrisa.cviz.features.area.domain.healthcare
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.area.data.HealthcareLookupDataSource
+import com.chrisa.cviz.features.area.data.dtos.AreaDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -88,11 +89,28 @@ class HealthcareUseCaseFacadeTest {
             coVerify(exactly = 1) { healthcareSyncUseCase.syncHospitalData(areaCode, areaType) }
         }
 
+    @Test
+    fun `WHEN transmissionRate called THEN healthcareRegionUseCase queried`() =
+        testDispatcher.runBlockingTest {
+            val areaDto = AreaDto(areaCode, areaName, areaType)
+            sut.transmissionRate(areaDto)
+
+            verify(exactly = 1) { transmissionRateUseCase.transmissionRate(areaDto) }
+        }
+
+    @Test
+    fun `WHEN nhsRegionArea called THEN healthcareRegionUseCase queried`() =
+        testDispatcher.runBlockingTest {
+            sut.nhsRegionArea(areaCode, areaLookup)
+
+            verify(exactly = 1) { nhsRegionAreaUseCase.nhsRegion(areaCode, areaLookup) }
+        }
+
     companion object {
-        val areaCode = "E1"
-        val areaName = "London"
-        val areaType = AreaType.NATION
-        val areaLookup = AreaLookupDto(
+        private val areaCode = "E1"
+        private val areaName = "London"
+        private val areaType = AreaType.REGION
+        private val areaLookup = AreaLookupDto(
             lsoaCode = "E11011",
             lsoaName = "Soho",
             msoaCode = "E11011",

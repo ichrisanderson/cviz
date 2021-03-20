@@ -17,10 +17,11 @@
 package com.chrisa.cviz.core.data.synchronisation
 
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaDao
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.SoaDataDao
 import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.CovidApi
@@ -55,6 +56,7 @@ class SoaDataSynchroniserImplTest {
     private val appDatabase = mockk<AppDatabase>()
     private val soaDataDao = mockk<SoaDataDao>()
     private val metadataDao = mockk<MetadataDao>()
+    private val areaDao = mockk<AreaDao>()
     private val covidApi = mockk<CovidApi>()
     private val networkUtils = mockk<NetworkUtils>()
     private val timeProvider = mockk<TimeProvider>()
@@ -70,9 +72,11 @@ class SoaDataSynchroniserImplTest {
         every { networkUtils.hasNetworkConnection() } returns true
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.soaDataDao() } returns soaDataDao
+        every { appDatabase.areaDao() } returns areaDao
         every { soaDataDao.deleteAllByAreaCode(areaCode) } just Runs
         every { soaDataDao.insertAll(any()) } just Runs
         every { metadataDao.insert(any()) } just Runs
+        every { areaDao.insert(any()) } just Runs
         every { timeProvider.currentTime() } returns syncTime
         every { metadataDao.metadata(any()) } returns null
 
@@ -100,7 +104,7 @@ class SoaDataSynchroniserImplTest {
     @Test(expected = HttpException::class)
     fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
         testDispatcher.runBlockingTest {
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns null
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns null
             coEvery { covidApi.soaData(any(), any()) } returns
                 Response.error(500, Utils.emptyJsonResponse())
 
@@ -118,11 +122,11 @@ class SoaDataSynchroniserImplTest {
     fun `GIVEN recent area metadata WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(1)
             )
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
 
             sut.performSync(areaCode)
 
@@ -135,12 +139,12 @@ class SoaDataSynchroniserImplTest {
     fun `GIVEN api fails WHEN performSync THEN HttpException is thrown`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusSeconds(301)
             )
 
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.soaData(
                     any(),
@@ -158,12 +162,12 @@ class SoaDataSynchroniserImplTest {
     fun `GIVEN api succeeds with null response WHEN performSync THEN area data is not updated`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
 
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.soaData(
                     any(),
@@ -178,7 +182,7 @@ class SoaDataSynchroniserImplTest {
     fun `GIVEN api succeeds with non-null response WHEN performSync THEN area data is updated`() =
         testDispatcher.runBlockingTest {
             val metadataEntity = MetadataEntity(
-                id = MetaDataIds.areaCodeId(areaCode),
+                id = MetadataIds.areaCodeId(areaCode),
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
@@ -208,8 +212,9 @@ class SoaDataSynchroniserImplTest {
                 newCasesBySpecimenDate = listOf(rollingChangeModel, emptyRollingChangeModel)
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
+            val metadataId = MetadataIds.areaCodeId(areaCode)
 
-            every { metadataDao.metadata(MetaDataIds.areaCodeId(areaCode)) } returns metadataEntity
+            every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.soaData(
                     any(),
@@ -225,8 +230,7 @@ class SoaDataSynchroniserImplTest {
                     listOf(
                         SoaDataEntity(
                             areaCode = soaData.areaCode,
-                            areaName = soaData.areaName,
-                            areaType = areaType,
+                            metadataId = metadataId,
                             rollingChangeModel.date,
                             rollingChangeModel.rollingSum!!,
                             rollingChangeModel.rollingRate!!,
@@ -239,7 +243,7 @@ class SoaDataSynchroniserImplTest {
             verify(exactly = 1) {
                 metadataDao.insert(
                     MetadataEntity(
-                        id = MetaDataIds.areaCodeId(areaCode),
+                        id = metadataId,
                         lastSyncTime = syncTime,
                         lastUpdatedAt = syncTime
                     )

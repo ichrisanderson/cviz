@@ -18,8 +18,10 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.AreaType
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.SoaDataDao
 import com.chrisa.cviz.core.data.db.SoaDataEntity
+import com.chrisa.cviz.core.data.db.SoaDataWithArea
 import com.chrisa.cviz.features.area.data.dtos.SoaDataDto
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
@@ -41,31 +43,36 @@ class SoaDataSourceTest {
 
     @Test
     fun `WHEN byAreaCode THEN soa data by area code returned`() {
-        val soaDataEntity = SoaDataEntity(
-            areaCode = "1234",
+        val areaCode = "1234"
+        val metadataId = MetadataIds.alertLevelId(areaCode)
+        val soaDataEntity = SoaDataWithArea(
             areaName = "London",
             areaType = AreaType.REGION,
-            date = LocalDate.of(2020, 1, 1),
-            rollingSum = 11,
-            rollingRate = 12.0,
-            change = 12,
-            changePercentage = 12.0
+            soaData = SoaDataEntity(
+                areaCode = areaCode,
+                metadataId = metadataId,
+                date = LocalDate.of(2020, 1, 1),
+                rollingSum = 11,
+                rollingRate = 12.0,
+                change = 12,
+                changePercentage = 12.0
+            )
         )
-        every { soaDataDao.byAreaCode("") } returns listOf(soaDataEntity)
+        every { soaDataDao.withAreaByAreaCode("") } returns listOf(soaDataEntity)
 
         val soaData = sut.byAreaCode("")
 
         assertThat(soaData).isEqualTo(
             listOf(
                 SoaDataDto(
-                    soaDataEntity.areaCode,
-                    soaDataEntity.areaName,
-                    soaDataEntity.areaType,
-                    soaDataEntity.date,
-                    soaDataEntity.rollingSum,
-                    soaDataEntity.rollingRate,
-                    soaDataEntity.change,
-                    soaDataEntity.changePercentage
+                    areaName = soaDataEntity.areaName,
+                    areaType = soaDataEntity.areaType,
+                    areaCode = soaDataEntity.soaData.areaCode,
+                    date = soaDataEntity.soaData.date,
+                    rollingSum = soaDataEntity.soaData.rollingSum,
+                    rollingRate = soaDataEntity.soaData.rollingRate,
+                    change = soaDataEntity.soaData.change,
+                    changePercentage = soaDataEntity.soaData.changePercentage
                 )
             )
         )

@@ -22,6 +22,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
 import java.time.LocalDate
+import java.time.LocalDateTime
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -41,6 +42,9 @@ class AlertLevelDaoTest {
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
+
+        db.areaDao().insert(AreaEntity(areaCode, "", AreaType.OVERVIEW))
+        db.metadataDao().insert(metadata)
     }
 
     @Test
@@ -81,11 +85,17 @@ class AlertLevelDaoTest {
 
     companion object {
         private val date = LocalDate.of(2020, 2, 3)
+        private val time = LocalDateTime.of(2020, 2, 3, 0, 0)
         private val areaCode = "1234"
+        private val metadataId = MetadataIds.alertLevelId(areaCode)
+        private val metadata = MetadataEntity(
+            id = MetadataIds.alertLevelId(areaCode),
+            lastUpdatedAt = time,
+            lastSyncTime = time
+        )
         private val alertLevel = AlertLevelEntity(
             areaCode = areaCode,
-            areaName = "",
-            areaType = AreaType.LTLA,
+            metadataId = metadataId,
             date = date,
             alertLevel = 1,
             alertLevelUrl = "http://www.acme.com",

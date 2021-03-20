@@ -17,10 +17,9 @@
 package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.synchronisation.AreaDataSynchroniser
 import com.chrisa.cviz.features.area.data.AreaDataSource
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataCollection
-import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
+import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCodeResolver
 import com.chrisa.cviz.features.area.domain.deaths.AreaDeathsFacade
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareUseCaseFacade
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
@@ -31,28 +30,28 @@ import kotlinx.coroutines.flow.map
 
 @ExperimentalCoroutinesApi
 class AreaDetailUseCase @Inject constructor(
-    private val areaDataSynchroniser: AreaDataSynchroniser,
     private val areaDataSource: AreaDataSource,
     private val areaLookupUseCase: AreaLookupUseCase,
     private val areaCasesUseCase: AreaCasesUseCase,
     private val areaDeathsFacade: AreaDeathsFacade,
     private val healthcareUseCaseFacade: HealthcareUseCaseFacade,
     private val alertLevelUseCase: AlertLevelUseCase,
-    private val soaDataUseCase: SoaDataUseCase
+    private val soaDataUseCase: SoaDataUseCase,
+    private val areaLookupCodeResolver: AreaLookupCodeResolver,
+    private val areaDataSynchroniserFacade: AreaDataSynchroniserFacade
 ) {
 
     suspend fun execute(areaCode: String, areaType: AreaType): Flow<AreaDetailModelResult> {
-        syncAreaData(areaCode, areaType)
+        areaDataSynchroniserFacade.performSync(areaCode, areaType)
         val metadataFlow = areaDataSource.metadataAsFlow(areaCode)
         return metadataFlow.map { metadata ->
             if (metadata == null) {
                 AreaDetailModelResult.NoData
             } else {
                 val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
-
                 val soaData = soaDataUseCase.byAreaCode(areaCode, areaType)
-
-                val areaLookupCode = areaLookupCode(areaCode, areaType, areaLookup)
+                val areaLookupCode =
+                    areaLookupCodeResolver.areaLookupCode(areaCode, areaType, areaLookup)
                 val areaMetadata = areaDataSource.metadata(areaLookupCode.areaCode)!!
 
                 val areaCases =
@@ -98,84 +97,6 @@ class AreaDetailUseCase @Inject constructor(
                     )
                 )
             }
-        }
-    }
-
-    private fun areaLookupCode(
-        areaCode: String,
-        areaType: AreaType,
-        areaLookup: AreaLookupDto?
-    ): AreaLookupCode =
-        when (areaType) {
-            AreaType.MSOA ->
-                AreaLookupCode(areaLookup!!.utlaCode, AreaType.UTLA)
-            else ->
-                AreaLookupCode(areaCode, areaType)
-        }
-
-    data class AreaLookupCode(val areaCode: String, val areaType: AreaType)
-
-    private suspend fun syncAreaData(
-        areaCode: String,
-        areaType: AreaType
-    ) {
-        areaLookupUseCase.syncAreaLookup(areaCode, areaType)
-        soaDataUseCase.syncSoaData(areaCode, areaType)
-        syncAuthorityData(areaCode, areaType)
-    }
-
-    private suspend fun syncAuthorityData(
-        areaCode: String,
-        areaType: AreaType
-    ) {
-        val areaLookup = areaLookupUseCase.areaLookup(areaCode, areaType)
-        val areaLookupCode = areaLookupCode(areaCode, areaType, areaLookup)
-        alertLevelUseCase.syncAlertLevel(areaLookupCode.areaCode, areaLookupCode.areaType)
-        syncAreaCases(areaLookupCode.areaCode, areaLookupCode.areaType)
-        syncHealthcare(areaLookupCode.areaCode, areaLookupCode.areaType, areaLookup)
-    }
-
-    private suspend fun syncHealthcare(
-        areaCode: String,
-        areaType: AreaType,
-        areaLookup: AreaLookupDto?
-    ) {
-        when (areaType) {
-            AreaType.MSOA, AreaType.UTLA, AreaType.LTLA, AreaType.REGION -> {
-                val healthcareLookups = healthcareUseCaseFacade.healthcareLookups(areaCode)
-                if (healthcareLookups.isEmpty()) {
-                    val nhsRegion =
-                        healthcareUseCaseFacade.healthcareArea(areaCode, areaType, areaLookup)
-                    healthcareUseCaseFacade.syncHospitalData(nhsRegion.code, nhsRegion.areaType)
-                } else {
-                    healthcareLookups.forEach { lookup ->
-                        healthcareUseCaseFacade.syncHospitalData(
-                            lookup.nhsTrustCode,
-                            AreaType.NHS_TRUST
-                        )
-                    }
-                }
-                val nhsRegionArea = healthcareUseCaseFacade.nhsRegionArea(areaCode, areaLookup)
-                healthcareUseCaseFacade.syncHospitalData(
-                    nhsRegionArea.code,
-                    nhsRegionArea.areaType
-                )
-            }
-            else -> {
-                healthcareUseCaseFacade.syncHospitalData(areaCode, areaType)
-            }
-        }
-    }
-
-    private suspend fun syncAreaCases(
-        areaCode: String,
-        areaType: AreaType
-    ): Boolean {
-        return try {
-            areaDataSynchroniser.performSync(areaCode, areaType)
-            true
-        } catch (error: Throwable) {
-            false
         }
     }
 }

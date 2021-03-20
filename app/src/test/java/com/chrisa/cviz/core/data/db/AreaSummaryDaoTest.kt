@@ -43,6 +43,13 @@ class AreaSummaryDaoTest {
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java)
             .allowMainThreadQueries()
             .build()
+        db.areaDao().insert(
+            AreaEntity(
+                areaCode = Constants.UK_AREA_CODE,
+                areaName = Constants.UK_AREA_NAME,
+                areaType = AreaType.OVERVIEW
+            )
+        )
     }
 
     @Test
@@ -51,8 +58,6 @@ class AreaSummaryDaoTest {
 
             val areaSummaryEntity = AreaSummaryEntity(
                 areaCode = Constants.UK_AREA_CODE,
-                areaType = AreaType.OVERVIEW,
-                areaName = Constants.UK_AREA_NAME,
                 date = syncTime.toLocalDate(),
                 baseInfectionRate = 100.0,
                 cumulativeCasesWeek1 = 100,
@@ -82,8 +87,6 @@ class AreaSummaryDaoTest {
 
             val areaSummaryEntity = AreaSummaryEntity(
                 areaCode = Constants.UK_AREA_CODE,
-                areaType = AreaType.OVERVIEW,
-                areaName = Constants.UK_AREA_NAME,
                 date = syncTime.toLocalDate(),
                 baseInfectionRate = 100.0,
                 cumulativeCasesWeek1 = 100,
@@ -118,6 +121,13 @@ class AreaSummaryDaoTest {
 
             val toInsert = buildAreaSummaryList()
 
+            db.areaDao().insertAll(toInsert.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaCode,
+                    areaType = AreaType.UTLA
+                )
+            })
             db.areaSummaryDao().insertAll(toInsert)
             assertThat(db.areaSummaryDao().countAll()).isEqualTo(toInsert.size)
 
@@ -132,7 +142,15 @@ class AreaSummaryDaoTest {
 
             val toInsert = buildAreaSummaryList()
 
-            db.areaSummaryDao().allAsFlow().test {
+            db.areaDao().insertAll(toInsert.map { areaSummaryEntity ->
+                AreaEntity(
+                    areaSummaryEntity.areaCode,
+                    areaSummaryEntity.areaCode,
+                    AreaType.OVERVIEW
+                )
+            })
+
+            db.areaSummaryDao().allWithAreaAsFlow().test {
 
                 expectNoEvents()
 
@@ -140,7 +158,31 @@ class AreaSummaryDaoTest {
                 val emittedItems = expectItem()
 
                 assertThat(emittedItems).isEqualTo(
-                    toInsert
+                    toInsert.map {
+                        AreaSummaryWithArea(
+                            areaName = it.areaCode,
+                            areaType = AreaType.OVERVIEW,
+                            areaSummary = AreaSummaryEntity(
+                                areaCode = it.areaCode,
+                                date = it.date,
+                                baseInfectionRate = it.baseInfectionRate,
+                                cumulativeCasesWeek1 = it.cumulativeCasesWeek1,
+                                cumulativeCaseInfectionRateWeek1 = it.cumulativeCaseInfectionRateWeek1,
+                                newCasesWeek1 = it.newCasesWeek1,
+                                newCaseInfectionRateWeek1 = it.newCaseInfectionRateWeek1,
+                                cumulativeCasesWeek2 = it.cumulativeCasesWeek2,
+                                cumulativeCaseInfectionRateWeek2 = it.cumulativeCaseInfectionRateWeek2,
+                                newCasesWeek2 = it.newCasesWeek2,
+                                newCaseInfectionRateWeek2 = it.newCaseInfectionRateWeek2,
+                                cumulativeCasesWeek3 = it.cumulativeCasesWeek3,
+                                cumulativeCaseInfectionRateWeek3 = it.cumulativeCaseInfectionRateWeek3,
+                                newCasesWeek3 = it.newCasesWeek3,
+                                newCaseInfectionRateWeek3 = it.newCaseInfectionRateWeek3,
+                                cumulativeCasesWeek4 = it.cumulativeCasesWeek4,
+                                cumulativeCaseInfectionRateWeek4 = it.cumulativeCaseInfectionRateWeek4
+                            )
+                        )
+                    }
                 )
 
                 cancel()
@@ -154,8 +196,6 @@ class AreaSummaryDaoTest {
             toInsert.add(
                 AreaSummaryEntity(
                     areaCode = "Area_$index",
-                    areaType = AreaType.UTLA,
-                    areaName = "Area_$index",
                     date = syncTime.toLocalDate(),
                     baseInfectionRate = random.nextDouble(),
                     cumulativeCasesWeek1 = random.nextInt(),
@@ -178,5 +218,3 @@ class AreaSummaryDaoTest {
         return toInsert
     }
 }
-
-data class Foo(val areaName: String, val cases: Int)

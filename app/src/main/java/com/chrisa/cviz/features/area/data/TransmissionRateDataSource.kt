@@ -18,7 +18,7 @@ package com.chrisa.cviz.features.area.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.HealthcareEntity
-import com.chrisa.cviz.core.data.db.MetaDataIds
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
 import javax.inject.Inject
@@ -37,7 +37,7 @@ class TransmissionRateDataSource @Inject constructor(
     }
 
     fun healthcareMetaData(areaCode: String): MetadataDto? =
-        appDatabase.metadataDao().metadata(MetaDataIds.healthcareId(areaCode))?.let {
+        appDatabase.metadataDao().metadata(MetadataIds.healthcareId(areaCode))?.let {
             MetadataDto(it.lastUpdatedAt, it.lastSyncTime)
         }
 

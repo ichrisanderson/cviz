@@ -28,8 +28,6 @@ class AlertLevelDataSource @Inject constructor(
         appDatabase.alertLevelDao().byAreaCode(areaCode)?.let {
             AlertLevelDto(
                 areaCode = it.areaCode,
-                areaName = it.areaName,
-                areaType = it.areaType,
                 alertLevel = it.alertLevel,
                 alertLevelName = it.alertLevelName,
                 alertLevelUrl = it.alertLevelUrl,

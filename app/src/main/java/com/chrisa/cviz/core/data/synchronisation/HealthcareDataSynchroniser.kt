@@ -18,10 +18,11 @@ package com.chrisa.cviz.core.data.synchronisation
 
 import androidx.room.withTransaction
 import com.chrisa.cviz.core.data.db.AppDatabase
+import com.chrisa.cviz.core.data.db.AreaEntity
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.HealthcareEntity
-import com.chrisa.cviz.core.data.db.MetaDataIds
 import com.chrisa.cviz.core.data.db.MetadataEntity
+import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.network.AREA_DATA_FILTER
 import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.CovidApi
@@ -53,7 +54,7 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
         areaCode: String,
         areaType: AreaType
     ) {
-        val metadata = appDatabase.metadataDao().metadata(MetaDataIds.healthcareId(areaCode))
+        val metadata = appDatabase.metadataDao().metadata(MetadataIds.healthcareId(areaCode))
         val now = timeProvider.currentTime()
         if (metadata != null && metadata.lastSyncTime.plusMinutes(5).isAfter(now)) {
             return
@@ -91,14 +92,27 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
         lastModified: LocalDateTime
     ) {
         appDatabase.withTransaction {
-            val metadataId = MetaDataIds.healthcareId(areaCode)
+            val metadataId = MetadataIds.healthcareId(areaCode)
             val dataToInsert = pagedAreaCodeData.data.filter { it.occupiedBeds != null }
             appDatabase.healthcareDao().deleteAllByAreaCode(areaCode)
+            appDatabase.areaDao().insertAll(dataToInsert.map {
+                AreaEntity(
+                    areaCode = it.areaCode,
+                    areaName = it.areaName,
+                    areaType = AreaType.from(it.areaType)!!
+                )
+            }.distinct())
+            appDatabase.metadataDao().insert(
+                metadata = MetadataEntity(
+                    id = metadataId,
+                    lastUpdatedAt = lastModified,
+                    lastSyncTime = timeProvider.currentTime()
+                )
+            )
             appDatabase.healthcareDao().insertAll(dataToInsert.map {
                 HealthcareEntity(
                     areaCode = it.areaCode,
-                    areaName = it.areaName,
-                    areaType = AreaType.from(it.areaType)!!,
+                    metadataId = metadataId,
                     date = it.date,
                     newAdmissions = it.newAdmissions,
                     cumulativeAdmissions = it.cumulativeAdmissions,
@@ -109,13 +123,6 @@ internal class HealthcareDataSynchroniserImpl @Inject constructor(
                     transmissionRateGrowthRateMax = it.transmissionRateGrowthRateMax
                 )
             })
-            appDatabase.metadataDao().insert(
-                metadata = MetadataEntity(
-                    id = metadataId,
-                    lastUpdatedAt = lastModified,
-                    lastSyncTime = timeProvider.currentTime()
-                )
-            )
         }
     }
 }
