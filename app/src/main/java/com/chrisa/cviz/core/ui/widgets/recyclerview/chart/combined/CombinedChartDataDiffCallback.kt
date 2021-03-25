@@ -18,14 +18,24 @@ package com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined
 
 import androidx.recyclerview.widget.DiffUtil
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabData
 
-class CombinedChartDataDiffCallback : DiffUtil.ItemCallback<CombinedChartData>() {
+class CombinedChartDataDiffCallback : DiffUtil.ItemCallback<CombinedChartTabData>() {
 
-    override fun areItemsTheSame(oldItem: CombinedChartData, newItem: CombinedChartData): Boolean {
-        return oldItem.title == newItem.title
+    override fun areItemsTheSame(
+        oldItem: CombinedChartTabData,
+        newItem: CombinedChartTabData
+    ): Boolean {
+        return when (oldItem) {
+            is CombinedChartData -> newItem is CombinedChartData && oldItem.title == newItem.title
+            else -> oldItem == newItem
+        }
     }
 
-    override fun areContentsTheSame(oldItem: CombinedChartData, newItem: CombinedChartData): Boolean {
+    override fun areContentsTheSame(
+        oldItem: CombinedChartTabData,
+        newItem: CombinedChartTabData
+    ): Boolean {
         return oldItem == newItem
     }
 }
