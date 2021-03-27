@@ -54,6 +54,7 @@ internal class AdmissionAreaFilterDialog(
                     title(admissionArea.areaName)
                     isSelected(admissionArea.isSelected)
                     onCheckedChanged { view, isChecked ->
+                        if (!this@AdmissionAreaFilterDialog.isShowing) return@onCheckedChanged
                         if (isChecked) {
                             selectedAreas.add(admissionArea)
                         } else {
