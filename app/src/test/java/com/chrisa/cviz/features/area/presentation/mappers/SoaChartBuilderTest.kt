@@ -52,6 +52,7 @@ class SoaChartBuilderTest {
         every { context.getString(R.string.all_cases_chart_label) } returns allCasesLabel
         every { context.getString(R.string.latest_cases_chart_label) } returns latestCasesLabel
         every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
+        every { context.getString(R.string.data_tab_label) } returns dataTabLabel
     }
 
     @Test
@@ -72,6 +73,7 @@ class SoaChartBuilderTest {
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 casesWithRollingAverage
             )
         } returns
@@ -87,6 +89,7 @@ class SoaChartBuilderTest {
         private const val allCasesLabel = "All cases"
         private const val latestCasesLabel = "Latest cases"
         private const val rollingAverageLabel = "Rolling average"
+        private const val dataTabLabel = "Data"
         private const val barChartLabel = "bar chart"
         private const val lineChartLabel = "line chart"
 

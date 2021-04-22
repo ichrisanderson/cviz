@@ -20,7 +20,7 @@ import android.content.Context
 import com.chrisa.cviz.R
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabData
 import com.chrisa.cviz.features.area.domain.models.SoaData
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -34,12 +34,13 @@ class SoaChartBuilder @Inject constructor(
 
     fun caseChartData(
         data: List<SoaData>
-    ): List<CombinedChartData> {
+    ): List<CombinedChartTabData> {
         val dailyData = soaDailyDataMapper.mapToDailyData(data)
         return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_cases_chart_label),
             context.getString(R.string.latest_cases_chart_label),
             context.getString(R.string.rolling_average_chart_label),
+            context.getString(R.string.data_tab_label),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }

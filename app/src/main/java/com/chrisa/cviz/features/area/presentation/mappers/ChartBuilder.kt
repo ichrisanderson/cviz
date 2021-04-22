@@ -23,6 +23,9 @@ import com.chrisa.cviz.core.ui.widgets.charts.BarChartDataBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartDataBuilder
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabData
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -30,20 +33,23 @@ import javax.inject.Inject
 class ChartBuilder @Inject constructor(
     private val formatter: DateTimeFormatter,
     private val combinedChartDataBuilder: CombinedChartDataBuilder,
-    private val barChartDataBuilder: BarChartDataBuilder
+    private val barChartDataBuilder: BarChartDataBuilder,
+    private val dataSheetTabBuilder: DataSheetTabBuilder
 ) {
 
     fun allCombinedChartData(
         allChartLabel: String,
         latestChartLabel: String,
         rollingAverageChartLabel: String,
+        dataTabLabel: String,
         data: List<DailyDataWithRollingAverage>
-    ): List<CombinedChartData> {
+    ): List<CombinedChartTabData> {
         return when {
             data.isEmpty() -> emptyList()
             else -> listOf(
                 combinedChartData(allChartLabel, rollingAverageChartLabel, data),
-                combinedChartData(latestChartLabel, rollingAverageChartLabel, data.takeLast(14))
+                combinedChartData(latestChartLabel, rollingAverageChartLabel, data.takeLast(14)),
+                dataSheetTab(dataTabLabel, data)
             )
         }
     }
@@ -61,19 +67,17 @@ class ChartBuilder @Inject constructor(
         )
     }
 
-    private fun mapDailyDataToBarChartItem(dailyData: DailyDataWithRollingAverage): BarChartItem {
-        return BarChartItem(
+    private fun mapDailyDataToBarChartItem(dailyData: DailyDataWithRollingAverage): BarChartItem =
+        BarChartItem(
             dailyData.newValue.toFloat(),
             dailyData.date.format(formatter)
         )
-    }
 
-    private fun mapDailyDataToLineChartItem(dailyData: DailyDataWithRollingAverage): LineChartItem {
-        return LineChartItem(
+    private fun mapDailyDataToLineChartItem(dailyData: DailyDataWithRollingAverage): LineChartItem =
+        LineChartItem(
             dailyData.rollingAverage.toFloat(),
             dailyData.date.format(formatter)
         )
-    }
 
     fun allBarChartData(
         allChartLabel: String,
@@ -101,6 +105,23 @@ class ChartBuilder @Inject constructor(
     private fun mapDailyDataToBarChartItem(dailyData: DailyData): BarChartItem {
         return BarChartItem(
             dailyData.newValue.toFloat(),
+            dailyData.date.format(formatter)
+        )
+    }
+
+    private fun dataSheetTab(
+        label: String,
+        data: List<DailyDataWithRollingAverage>
+    ): DataSheetTab =
+        dataSheetTabBuilder.build(
+            label,
+            data.sortedByDescending { it.date }.map(::mapDailyDataToDailyChartDataItem)
+        )
+
+    private fun mapDailyDataToDailyChartDataItem(dailyData: DailyDataWithRollingAverage): DataSheetItem {
+        return DataSheetItem(
+            dailyData.newValue,
+            dailyData.cumulativeValue,
             dailyData.date.format(formatter)
         )
     }

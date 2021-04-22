@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.charts
+package com.chrisa.cviz.features.area.presentation.mappers
 
-sealed class CombinedChartTabData {
-    abstract val title: String
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
+import javax.inject.Inject
+
+class DataSheetTabBuilder @Inject constructor() {
+    fun build(
+        label: String,
+        data: List<DataSheetItem>
+    ): DataSheetTab =
+        DataSheetTab(
+            label,
+            data
+        )
 }
-
-data class CombinedChartData(
-    override val title: String,
-    val barChartData: BarChartData,
-    val lineChartData: LineChartData
-) : CombinedChartTabData()
-
-data class DataSheetTab(
-    override val title: String,
-    val data: List<DataSheetItem>
-) : CombinedChartTabData()
-
-data class DataSheetItem(
-    val value: Int,
-    val cumulativeValue: Int,
-    val label: String
-)

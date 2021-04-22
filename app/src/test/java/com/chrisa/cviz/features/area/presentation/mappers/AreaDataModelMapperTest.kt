@@ -74,6 +74,7 @@ class AreaDataModelMapperTest {
         every { context.getString(R.string.all_hospital_admissions_chart_label) } returns allHospitalAdmissionsLabel
         every { context.getString(R.string.latest_hospital_admissions_chart_label) } returns latestHospitalAdmissionsLabel
         every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
+        every { context.getString(R.string.data_tab_label) } returns dataTabLabel
         every {
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(emptyList())
         } returns
@@ -94,6 +95,7 @@ class AreaDataModelMapperTest {
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 emptyList()
             )
         } returns emptyList()
@@ -103,6 +105,7 @@ class AreaDataModelMapperTest {
                 allDeathsLabel,
                 latestDeathsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 emptyList()
             )
         } returns emptyList()
@@ -112,6 +115,7 @@ class AreaDataModelMapperTest {
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 emptyList()
             )
         } returns emptyList()
@@ -142,6 +146,7 @@ class AreaDataModelMapperTest {
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 casesWithRollingAverage
             )
         } returns
@@ -181,6 +186,7 @@ class AreaDataModelMapperTest {
                 allDeathsLabel,
                 latestDeathsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 deathsWithRollingAverage
             )
         } returns
@@ -260,6 +266,7 @@ class AreaDataModelMapperTest {
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 admissionsWithRollingAverage
             )
         } returns
@@ -316,6 +323,7 @@ class AreaDataModelMapperTest {
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
                 admissionsWithRollingAverage
             )
         } returns
@@ -439,6 +447,7 @@ class AreaDataModelMapperTest {
         private const val allHospitalAdmissionsLabel = "All hospital admissions"
         private const val latestHospitalAdmissionsLabel = "Latest hospital admissions"
         private const val rollingAverageLabel = "Rolling average"
+        private const val dataTabLabel = "Data"
         private const val barChartLabel = "bar chart"
         private const val lineChartLabel = "line chart"
 

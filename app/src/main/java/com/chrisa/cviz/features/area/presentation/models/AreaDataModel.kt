@@ -18,7 +18,7 @@ package com.chrisa.cviz.features.area.presentation.models
 
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabData
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -28,12 +28,12 @@ data class AreaDataModel(
     val lastCaseDate: LocalDate?,
     val caseAreaName: String,
     val caseSummary: WeeklySummary,
-    val caseChartData: List<CombinedChartData>,
+    val caseChartData: List<CombinedChartTabData>,
     val showDeathsByPublishedDate: Boolean,
     val lastDeathPublishedDate: LocalDate?,
     val deathsByPublishedDateAreaName: String,
     val deathsByPublishedDateSummary: WeeklySummary,
-    val deathsByPublishedDateChartData: List<CombinedChartData>,
+    val deathsByPublishedDateChartData: List<CombinedChartTabData>,
     val showOnsDeaths: Boolean,
     val lastOnsDeathRegisteredDate: LocalDate?,
     val onsDeathsAreaName: String,
@@ -43,7 +43,7 @@ data class AreaDataModel(
     val hospitalAdmissionsRegionName: String,
     val hospitalAdmissionsSummary: WeeklySummary,
     val hospitalAdmissions: List<AreaDailyDataDto>,
-    val hospitalAdmissionsChartData: List<CombinedChartData>,
+    val hospitalAdmissionsChartData: List<CombinedChartTabData>,
     val canFilterHospitalAdmissionsAreas: Boolean,
     val hospitalAdmissionsAreas: List<HospitalAdmissionsAreaModel>,
     val areaTransmissionRate: AreaTransmissionRateModel?,
@@ -77,5 +77,5 @@ data class SoaDataModel(
     val changeInCases: Int,
     val weeklyRate: Int,
     val changeInRate: Int,
-    val chartData: List<CombinedChartData>
+    val chartData: List<CombinedChartTabData>
 )

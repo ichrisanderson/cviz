@@ -22,10 +22,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.chrisa.cviz.R
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChart
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabData
-import com.chrisa.cviz.core.ui.widgets.charts.DailyData
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheet
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
+import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 
 class CombinedChartAdapter : ListAdapter<CombinedChartTabData, CombinedChartAdapter.ViewHolder>(
     CombinedChartDataDiffCallback()
@@ -50,35 +54,58 @@ class CombinedChartAdapter : ListAdapter<CombinedChartTabData, CombinedChartAdap
     override fun getItemViewType(position: Int): Int =
         when (getItem(position)) {
             is CombinedChartData -> ItemViewType.Chart.ordinal
-            is DailyData -> TODO()
+            is DataSheetTab -> ItemViewType.Data.ordinal
         }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return when (ItemViewType.from(viewType)) {
             ItemViewType.Chart -> chartLayout(inflater, parent)
-            ItemViewType.Data -> TODO()
+            ItemViewType.Data -> dataLayout(inflater, parent)
         }
     }
 
-    private fun chartLayout(inflater: LayoutInflater, parent: ViewGroup) =
+    private fun chartLayout(inflater: LayoutInflater, parent: ViewGroup): ViewHolder =
         ChartViewHolder(inflater.inflate(R.layout.core_combined_chart_holder, parent, false))
 
+    private fun dataLayout(inflater: LayoutInflater, parent: ViewGroup): ViewHolder =
+        DataSheetViewHolder(inflater.inflate(R.layout.core_chart_data_sheet_holder, parent, false))
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
-        when (val item = getItem(position)) {
-            is CombinedChartData -> chartLayout(holder, item)
-            is DailyData -> TODO()
-        }
+        holder.bind(getItem(position))
 
-    private fun chartLayout(holder: ViewHolder, combinedChartData: CombinedChartData) {
-        if (holder is ChartViewHolder) {
-            holder.chart.setData(combinedChartData.barChartData, combinedChartData.lineChartData)
-        }
+    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        abstract fun bind(item: CombinedChartTabData)
     }
-
-    abstract class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     class ChartViewHolder(itemView: View) : ViewHolder(itemView) {
         val chart: CombinedChart = itemView.findViewById(R.id.chart_container)
+
+        override fun bind(item: CombinedChartTabData) =
+            when (item) {
+                is CombinedChartData ->
+                    bindChart(item.barChartData, item.lineChartData)
+                else ->
+                    throw IllegalArgumentException("Unsupported item type")
+            }
+
+        private fun bindChart(barChartData: BarChartData, lineChartData: LineChartData) =
+            chart.setData(barChartData, lineChartData)
+    }
+
+    class DataSheetViewHolder(itemView: View) : ViewHolder(itemView) {
+        val dataSheet: DataSheet = itemView.findViewById(R.id.sheet_container)
+
+        override fun bind(item: CombinedChartTabData) {
+            when (item) {
+                is DataSheetTab ->
+                    bindSheet(item.data)
+                else ->
+                    throw IllegalArgumentException("Unsupported item type")
+            }
+        }
+
+        private fun bindSheet(data: List<DataSheetItem>) =
+            dataSheet.setData(data)
     }
 }

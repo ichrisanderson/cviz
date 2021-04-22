@@ -18,6 +18,8 @@
     <string name="updated_label">Last updated: %s</string>
     <string name="all_cases_chart_label">All cases</string>
     <string name="latest_cases_chart_label">Latest cases</string>
+    <string name="rolling_average_chart_label">Rolling average</string>
+    <string name="data_tab_label">Data</string>
 
     <string name="change_this_week">On last week</string>
 
@@ -42,7 +44,6 @@
     <string name="rising_infection_rates">Rising infection rates</string>
     <string name="current_infection_rate">Current infection rate</string>
 
-    <string name="rolling_average_chart_label">Rolling average</string>
     <string name="last_updated_date">Last updated: %s</string>
     <string name="position_format">%d.</string>
 

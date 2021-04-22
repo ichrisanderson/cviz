@@ -18,6 +18,7 @@
             type="android.widget.CompoundButton.OnCheckedChangeListener" />
     </data>
 
+    <!--suppress AndroidUnknownAttribute -->
     <CheckBox
         android:id="@+id/title"
         android:layout_width="match_parent"
@@ -25,9 +26,6 @@
         android:checked="@{isSelected}"
         android:text="@{title}"
         android:onCheckedChanged="@{onCheckedChanged}"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         tools:text="Title" />
 
 </layout>
