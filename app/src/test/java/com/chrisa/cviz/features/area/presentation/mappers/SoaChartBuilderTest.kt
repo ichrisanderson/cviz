@@ -22,7 +22,7 @@ import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuil
 import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.domain.models.SoaData
@@ -102,7 +102,7 @@ class SoaChartBuilderTest {
         )
 
         private fun combinedChartData(labelPrefix: String) =
-            CombinedChartData(
+            CombinedChartTab(
                 title = barChartLabel,
                 barChartData = BarChartData(
                     label = barChartLabel,

@@ -291,7 +291,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         )
                         subtitle2(lastUpdated)
                     }
-                    barChartTabCard {
+                    combinedChartTabCard {
                         id("onsBarChart")
                         chartData(areaDataModel.onsDeathsByRegistrationDateChartData)
                     }

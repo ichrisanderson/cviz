@@ -18,16 +18,17 @@ package com.chrisa.cviz.core.ui.widgets.charts
 
 import javax.inject.Inject
 
-class CombinedChartDataBuilder @Inject constructor() {
+class CombinedChartTabBuilder @Inject constructor() {
 
     fun build(
+        tabTitle: String,
         barChartLabel: String,
         barChartValues: List<BarChartItem>,
         lineChartLabel: String,
         lineChartValues: List<LineChartItem>
-    ): CombinedChartData {
-        return CombinedChartData(
-            title = barChartLabel,
+    ): CombinedChartTab {
+        return CombinedChartTab(
+            title = tabTitle,
             barChartData = BarChartData(
                 label = barChartLabel,
                 values = barChartValues

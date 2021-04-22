@@ -28,3 +28,18 @@ class BarChartDataBuilder @Inject constructor() {
             values = values
         )
 }
+
+class BarChartTabBuilder @Inject constructor() {
+    fun build(
+        tabTitle: String,
+        barChartLabel: String,
+        values: List<BarChartItem>
+    ): BarChartTab =
+        BarChartTab(
+            tabTitle,
+            BarChartData(
+                label = barChartLabel,
+                values = values
+            )
+        )
+}

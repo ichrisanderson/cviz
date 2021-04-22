@@ -23,7 +23,7 @@ import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuil
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabData
+import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
@@ -193,7 +193,7 @@ class AreaDataModelMapper @Inject constructor(
     private fun weeklySummary(dailyData: List<DailyData>): WeeklySummary =
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
 
-    private fun caseChartData(dailyData: List<DailyData>): List<CombinedChartTabData> {
+    private fun caseChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_cases_chart_label),
             context.getString(R.string.latest_cases_chart_label),
@@ -203,7 +203,7 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
-    private fun deathsChartData(dailyData: List<DailyData>): List<CombinedChartTabData> {
+    private fun deathsChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
@@ -213,7 +213,7 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
-    private fun onsDeathsChartData(dailyData: List<DailyData>): List<BarChartData> {
+    private fun onsDeathsChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allBarChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
@@ -221,7 +221,7 @@ class AreaDataModelMapper @Inject constructor(
         )
     }
 
-    private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<CombinedChartTabData> {
+    private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_hospital_admissions_chart_label),
             context.getString(R.string.latest_hospital_admissions_chart_label),

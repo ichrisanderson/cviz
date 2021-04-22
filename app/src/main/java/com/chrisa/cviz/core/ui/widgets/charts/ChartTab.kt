@@ -16,23 +16,22 @@
 
 package com.chrisa.cviz.core.ui.widgets.charts
 
-sealed class CombinedChartTabData {
+sealed class ChartTab {
     abstract val title: String
 }
 
-data class CombinedChartData(
+data class CombinedChartTab(
     override val title: String,
     val barChartData: BarChartData,
     val lineChartData: LineChartData
-) : CombinedChartTabData()
+) : ChartTab()
 
 data class DataSheetTab(
     override val title: String,
     val data: List<DataSheetItem>
-) : CombinedChartTabData()
+) : ChartTab()
 
-data class DataSheetItem(
-    val value: Int,
-    val cumulativeValue: Int,
-    val label: String
-)
+data class BarChartTab(
+    override val title: String,
+    val barChartData: BarChartData
+) : ChartTab()

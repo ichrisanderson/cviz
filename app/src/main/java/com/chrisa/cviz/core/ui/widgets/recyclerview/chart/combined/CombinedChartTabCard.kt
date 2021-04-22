@@ -23,7 +23,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabData
+import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -58,7 +58,7 @@ class CombinedChartTabCard(context: Context, attrs: AttributeSet) :
     }
 
     @ModelProp
-    fun chartData(chartData: List<CombinedChartTabData>) {
+    fun chartData(chartData: List<ChartTab>) {
         adapter.submitList(chartData)
     }
 }

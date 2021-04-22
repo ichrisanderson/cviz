@@ -22,11 +22,11 @@ import javax.inject.Inject
 
 class DataSheetTabBuilder @Inject constructor() {
     fun build(
-        label: String,
+        tabTitle: String,
         data: List<DataSheetItem>
     ): DataSheetTab =
         DataSheetTab(
-            label,
-            data
+            title = tabTitle,
+            data = data
         )
 }

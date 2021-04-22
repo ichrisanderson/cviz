@@ -25,15 +25,13 @@ import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
-import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
-import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
 import com.chrisa.cviz.features.area.domain.models.SoaData
-import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
 import com.chrisa.cviz.features.area.domain.models.TransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
@@ -43,10 +41,13 @@ import com.chrisa.cviz.features.area.presentation.models.SoaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import java.time.LocalDate
-import java.time.LocalDateTime
 import org.junit.Before
 import org.junit.Test
+import java.time.LocalDate
+import java.time.LocalDateTime
+import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
+import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
+import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
 
 class AreaDataModelMapperTest {
 
@@ -494,7 +495,7 @@ class AreaDataModelMapperTest {
         )
 
         private fun combinedChartData(labelPrefix: String) =
-            CombinedChartData(
+            CombinedChartTab(
                 title = barChartLabel,
                 barChartData = BarChartData(
                     label = barChartLabel,
@@ -517,12 +518,15 @@ class AreaDataModelMapperTest {
             )
 
         private fun barChartData(labelPrefix: String) =
-            BarChartData(
-                label = barChartLabel,
-                values = listOf(
-                    BarChartItem(
-                        value = 10.0f,
-                        label = "${labelPrefix}_BarChartItem"
+            BarChartTab(
+                title = barChartLabel,
+                barChartData = BarChartData(
+                    label = barChartLabel,
+                    values = listOf(
+                        BarChartItem(
+                            value = 10.0f,
+                            label = "${labelPrefix}_BarChartItem"
+                        )
                     )
                 )
             )
