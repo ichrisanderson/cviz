@@ -17,7 +17,6 @@
 package com.chrisa.cviz.features.area.presentation.models
 
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
-import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import java.time.LocalDate

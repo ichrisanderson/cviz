@@ -38,8 +38,7 @@ import com.chrisa.cviz.areaHospitalSummaryCard
 import com.chrisa.cviz.areaSectionHeader
 import com.chrisa.cviz.core.ui.RateFormatter
 import com.chrisa.cviz.core.ui.binding.KeyedClickListener
-import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar.barChartTabCard
-import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined.combinedChartTabCard
+import com.chrisa.cviz.core.ui.widgets.recyclerview.chart.chartTabCard
 import com.chrisa.cviz.core.util.DateFormatter
 import com.chrisa.cviz.databinding.AreaFragmentBinding
 import com.chrisa.cviz.soaCard
@@ -199,7 +198,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         rollingRate(soaData.weeklyRate)
                         changeInRate(soaData.changeInRate)
                     }
-                    combinedChartTabCard {
+                    chartTabCard {
                         id("soaChartData")
                         chartData(soaData.chartData)
                     }
@@ -270,7 +269,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     currentInfectionRate(areaDataModel.caseSummary.weeklyRate.toInt())
                     changeInInfectionRateThisWeek(areaDataModel.caseSummary.changeInRate.toInt())
                 }
-                combinedChartTabCard {
+                chartTabCard {
                     id("caseChartData")
                     chartData(areaDataModel.caseChartData)
                 }
@@ -291,7 +290,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         )
                         subtitle2(lastUpdated)
                     }
-                    combinedChartTabCard {
+                    chartTabCard {
                         id("onsBarChart")
                         chartData(areaDataModel.onsDeathsByRegistrationDateChartData)
                     }
@@ -320,7 +319,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         currentNewDeaths(areaDataModel.deathsByPublishedDateSummary.weeklyTotal)
                         changeInNewDeathsThisWeek(areaDataModel.deathsByPublishedDateSummary.changeInTotal)
                     }
-                    combinedChartTabCard {
+                    chartTabCard {
                         id("deathsChartData")
                         chartData(areaDataModel.deathsByPublishedDateChartData)
                     }
@@ -352,7 +351,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                         currentNewHospitalAdmissions(areaDataModel.hospitalAdmissionsSummary.weeklyTotal)
                         changeInNewHospitalAdmissionsThisWeek(areaDataModel.hospitalAdmissionsSummary.changeInTotal)
                     }
-                    combinedChartTabCard {
+                    chartTabCard {
                         id("hospitalAdmissionsChartData")
                         chartData(areaDataModel.hospitalAdmissionsChartData)
                     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined
+package com.chrisa.cviz.core.ui.widgets.recyclerview.chart
 
 import android.view.LayoutInflater
 import android.view.View
@@ -33,8 +33,8 @@ import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
 import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 
-class CombinedChartAdapter : ListAdapter<ChartTab, CombinedChartAdapter.ViewHolder>(
-    CombinedChartDataDiffCallback()
+class ChartTabAdapter : ListAdapter<ChartTab, ChartTabAdapter.ViewHolder>(
+    ChartTabDiffCallback()
 ) {
     enum class ItemViewType {
         CombinedChart,

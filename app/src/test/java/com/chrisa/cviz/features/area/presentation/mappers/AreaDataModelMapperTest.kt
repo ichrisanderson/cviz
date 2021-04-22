@@ -30,8 +30,11 @@ import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
+import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
+import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
 import com.chrisa.cviz.features.area.domain.models.SoaData
+import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
 import com.chrisa.cviz.features.area.domain.models.TransmissionRateModel
 import com.chrisa.cviz.features.area.presentation.models.AlertLevelModel
 import com.chrisa.cviz.features.area.presentation.models.AreaDataModel
@@ -41,13 +44,10 @@ import com.chrisa.cviz.features.area.presentation.models.SoaDataModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Before
-import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
-import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
-import com.chrisa.cviz.features.area.domain.models.AreaTransmissionRateModel as DomainAreaTransmissionRateModel
-import com.chrisa.cviz.features.area.domain.models.SoaDataModel as DomainSoaDataModel
+import org.junit.Before
+import org.junit.Test
 
 class AreaDataModelMapperTest {
 

@@ -31,12 +31,12 @@ import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
-import org.junit.Before
-import org.junit.Test
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import org.junit.Before
+import org.junit.Test
 
 class ChartBuilderTest {
 

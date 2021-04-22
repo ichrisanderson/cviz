@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.recyclerview.chart.combined
+package com.chrisa.cviz.core.ui.widgets.recyclerview.chart
 
 import androidx.recyclerview.widget.DiffUtil
 import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
 
-class CombinedChartDataDiffCallback : DiffUtil.ItemCallback<ChartTab>() {
+class ChartTabDiffCallback : DiffUtil.ItemCallback<ChartTab>() {
 
     override fun areItemsTheSame(
         oldItem: ChartTab,
