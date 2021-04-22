@@ -54,13 +54,13 @@ class DataSheet(
         binding.recyclerView.addOnItemTouchListener(x)
     }
 
-    fun setData(data: List<DataSheetItem>) {
+    fun setData(columnHeaders: DataSheetColumnHeaders, data: List<DataSheetItem>) {
         binding.recyclerView.withModels {
             dataSheetHeaders {
                 id("data_sheet_headers")
-                header1("Date")
-                header2("New Cases")
-                header3("Total Cases")
+                header1(columnHeaders.labelHeader)
+                header2(columnHeaders.valueHeader)
+                header3(columnHeaders.cumulativeValueHeader)
             }
             data.forEach { dataItem ->
                 dataSheetItem {

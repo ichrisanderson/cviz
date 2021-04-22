@@ -24,6 +24,7 @@ import com.chrisa.cviz.core.ui.widgets.charts.BarChartTab
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartTabBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabBuilder
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
 import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
 import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
@@ -128,13 +129,8 @@ class ChartBuilderTest {
         every {
             dataSheetTabBuilder.build(
                 dataTabLabel,
-                monthlyDataWithRollingAverage.sortedByDescending { it.date }.map {
-                    DataSheetItem(
-                        it.newValue,
-                        it.cumulativeValue,
-                        it.date.format(formatter)
-                    )
-                }
+                columnHeaders,
+                any()
             )
         } returns dataSheetTab
     }
@@ -146,6 +142,7 @@ class ChartBuilderTest {
             latestChartLabel,
             rollingAverageChartLabel,
             dataTabLabel,
+            columnHeaders,
             emptyList()
         )
 
@@ -159,6 +156,7 @@ class ChartBuilderTest {
             latestChartLabel,
             rollingAverageChartLabel,
             dataTabLabel,
+            columnHeaders,
             monthlyDataWithRollingAverage
         )
 
@@ -205,13 +203,16 @@ class ChartBuilderTest {
         val data = sut.allBarChartData(
             allChartLabel,
             latestChartLabel,
+            dataTabLabel,
+            columnHeaders,
             monthlyData
         )
 
         assertThat(data).isEqualTo(
             listOf(
                 allBarChartData,
-                latestBarChartData
+                latestBarChartData,
+                dataSheetTab
             )
         )
     }
@@ -221,6 +222,16 @@ class ChartBuilderTest {
         private const val latestChartLabel = "Latest data"
         private const val rollingAverageChartLabel = "Rolling average data"
         private const val dataTabLabel = "Data"
+
+        private const val dateColumnHeader = "date"
+        private const val newValueColumnHeader = "new value"
+        private const val cumulativeValueColumnHeader = "total value"
+
+        private val columnHeaders = DataSheetColumnHeaders(
+            labelHeader = dateColumnHeader,
+            valueHeader = newValueColumnHeader,
+            cumulativeValueHeader = cumulativeValueColumnHeader
+        )
 
         private val allChartData = CombinedChartTab(
             title = allChartLabel,
@@ -295,11 +306,12 @@ class ChartBuilderTest {
 
     private val dataSheetTab = DataSheetTab(
         title = dataTabLabel,
+        columnHeaders = columnHeaders,
         data = listOf(
             DataSheetItem(
+                label = "12-APR",
                 value = 100,
-                cumulativeValue = 1000,
-                label = "12-APR"
+                cumulativeValue = 1000
             )
         )
     )

@@ -21,6 +21,14 @@
     <string name="rolling_average_chart_label">Rolling average</string>
     <string name="data_tab_label">Data</string>
 
+    <string name="date_column_header">Date</string>
+    <string name="new_cases_column_header">New Cases</string>
+    <string name="total_cases_column_header">Total Cases</string>
+    <string name="new_deaths_column_header">New Deaths</string>
+    <string name="total_deaths_column_header">Total Deaths</string>
+    <string name="new_admissions_column_header">New Deaths</string>
+    <string name="total_admissions_column_header">Total Deaths</string>
+
     <string name="change_this_week">On last week</string>
 
     <string name="deaths_title">Deaths within 28 days of positive test in %s</string>
@@ -35,8 +43,8 @@
     <string name="total_hospital_admissions">Total admissions</string>
     <string name="hospital_admissions_this_week">Admissions this week</string>
     <string name="daily_hospital_admissions">Daily admissions</string>
-    <string name="all_hospital_admissions_chart_label">All admissions</string>
-    <string name="latest_hospital_admissions_chart_label">Latest admissions</string>
+    <string name="all_hospital_admissions_chart_label">All\nadmissions</string>
+    <string name="latest_hospital_admissions_chart_label">Latest\nadmissions</string>
     <string name="admissions_area_filter_subtitle">Select trust(s) to display</string>
     <string name="admission_area_filter_cta">Apply</string>
 
@@ -72,5 +80,4 @@
     <!-- Search -->
     <string name="search_area_hint">Enter area name or postcode</string>
     <string name="search_area_menu_title">Search for locations</string>
-
 </resources>

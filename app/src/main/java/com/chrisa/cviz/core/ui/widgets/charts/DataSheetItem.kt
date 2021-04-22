@@ -16,8 +16,14 @@
 
 package com.chrisa.cviz.core.ui.widgets.charts
 
+data class DataSheetColumnHeaders(
+    val labelHeader: String,
+    val valueHeader: String,
+    val cumulativeValueHeader: String
+)
+
 data class DataSheetItem(
+    val label: String,
     val value: Int,
-    val cumulativeValue: Int,
-    val label: String
+    val cumulativeValue: Int
 )

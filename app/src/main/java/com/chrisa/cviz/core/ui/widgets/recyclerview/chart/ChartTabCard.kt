@@ -19,7 +19,10 @@ package com.chrisa.cviz.core.ui.widgets.recyclerview.chart
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import androidx.viewpager2.widget.ViewPager2
+import com.airbnb.epoxy.EpoxyAttribute
+import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.cviz.R
@@ -29,7 +32,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.core_widget_chart_tab_card)
+@ModelView(defaultLayout = R.layout.core_widget_chart_tab_card, baseModelClass = BaseChartTab::class)
 class ChartTabCard(context: Context, attrs: AttributeSet) :
     MaterialCardView(context, attrs) {
 
@@ -59,6 +62,13 @@ class ChartTabCard(context: Context, attrs: AttributeSet) :
 
     @ModelProp
     fun chartData(chartData: List<ChartTab>) {
-        adapter.submitList(chartData)
+        adapter.updateItems(chartData)
     }
+}
+
+abstract class BaseChartTab<T : View> : EpoxyModel<T>() {
+    @EpoxyAttribute protected var viewType: Int? = null
+
+    override fun getViewType(): Int =
+        viewType ?: super.getViewType()
 }

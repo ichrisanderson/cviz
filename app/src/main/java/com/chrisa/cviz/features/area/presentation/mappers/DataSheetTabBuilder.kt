@@ -16,6 +16,7 @@
 
 package com.chrisa.cviz.features.area.presentation.mappers
 
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
 import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
 import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
 import javax.inject.Inject
@@ -23,10 +24,12 @@ import javax.inject.Inject
 class DataSheetTabBuilder @Inject constructor() {
     fun build(
         tabTitle: String,
+        columnHeaders: DataSheetColumnHeaders,
         data: List<DataSheetItem>
     ): DataSheetTab =
         DataSheetTab(
             title = tabTitle,
+            columnHeaders = columnHeaders,
             data = data
         )
 }

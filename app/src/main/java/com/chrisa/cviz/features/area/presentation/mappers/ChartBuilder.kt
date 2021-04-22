@@ -24,6 +24,7 @@ import com.chrisa.cviz.core.ui.widgets.charts.BarChartTabBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabBuilder
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
 import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
 import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
@@ -42,6 +43,7 @@ class ChartBuilder @Inject constructor(
         latestChartLabel: String,
         rollingAverageChartLabel: String,
         dataTabLabel: String,
+        dataTabColumnHeaders: DataSheetColumnHeaders,
         data: List<DailyDataWithRollingAverage>
     ): List<ChartTab> {
         return when {
@@ -61,7 +63,8 @@ class ChartBuilder @Inject constructor(
                 ),
                 dataSheetTab(
                     tabTitle = dataTabLabel,
-                    data = data
+                    columnHeaders = dataTabColumnHeaders,
+                    data = data.sortedByDescending { it.date }.map(::mapDailyDataWithRollingAverageToDailyChartDataItem)
                 )
             )
         }
@@ -97,6 +100,8 @@ class ChartBuilder @Inject constructor(
     fun allBarChartData(
         allChartLabel: String,
         latestChartLabel: String,
+        dataTabLabel: String,
+        dataTabColumnHeaders: DataSheetColumnHeaders,
         data: List<DailyData>
     ): List<ChartTab> {
         return when {
@@ -111,6 +116,11 @@ class ChartBuilder @Inject constructor(
                     tabTitle = latestChartLabel,
                     barChartLabel = latestChartLabel,
                     data = data.takeLast(14)
+                ),
+                dataSheetTab(
+                    tabTitle = dataTabLabel,
+                    columnHeaders = dataTabColumnHeaders,
+                    data = data.sortedByDescending { it.date }.map(::mapDailyDataToDailyChartDataItem)
                 )
             )
         }
@@ -136,18 +146,28 @@ class ChartBuilder @Inject constructor(
 
     private fun dataSheetTab(
         tabTitle: String,
-        data: List<DailyDataWithRollingAverage>
+        columnHeaders: DataSheetColumnHeaders,
+        data: List<DataSheetItem>
     ): DataSheetTab =
         dataSheetTabBuilder.build(
             tabTitle,
-            data.sortedByDescending { it.date }.map(::mapDailyDataToDailyChartDataItem)
+            columnHeaders,
+            data
         )
 
-    private fun mapDailyDataToDailyChartDataItem(dailyData: DailyDataWithRollingAverage): DataSheetItem {
+    private fun mapDailyDataWithRollingAverageToDailyChartDataItem(dailyData: DailyDataWithRollingAverage): DataSheetItem {
         return DataSheetItem(
+            dailyData.date.format(formatter),
             dailyData.newValue,
-            dailyData.cumulativeValue,
-            dailyData.date.format(formatter)
+            dailyData.cumulativeValue
+        )
+    }
+
+    private fun mapDailyDataToDailyChartDataItem(dailyData: DailyData): DataSheetItem {
+        return DataSheetItem(
+            dailyData.date.format(formatter),
+            dailyData.newValue,
+            dailyData.cumulativeValue
         )
     }
 }

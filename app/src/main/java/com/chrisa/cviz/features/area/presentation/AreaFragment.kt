@@ -200,6 +200,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("soaChartData")
+                        viewType(ChartType.Soa.ordinal)
                         chartData(soaData.chartData)
                     }
                 }
@@ -271,6 +272,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                 }
                 chartTabCard {
                     id("caseChartData")
+                    viewType(ChartType.Soa.ordinal)
                     chartData(areaDataModel.caseChartData)
                 }
                 if (areaDataModel.showOnsDeaths) {
@@ -292,6 +294,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("onsBarChart")
+                        viewType(ChartType.Ons.ordinal)
                         chartData(areaDataModel.onsDeathsByRegistrationDateChartData)
                     }
                 }
@@ -321,6 +324,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("deathsChartData")
+                        viewType(ChartType.Deaths.ordinal)
                         chartData(areaDataModel.deathsByPublishedDateChartData)
                     }
                 }
@@ -353,6 +357,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("hospitalAdmissionsChartData")
+                        viewType(ChartType.Admissions.ordinal)
                         chartData(areaDataModel.hospitalAdmissionsChartData)
                     }
                 }
@@ -427,5 +432,15 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
 
     private fun navigateUp() {
         findNavController().navigateUp()
+    }
+
+    companion object {
+        enum class ChartType {
+            Soa,
+            Cases,
+            Ons,
+            Deaths,
+            Admissions
+        }
     }
 }

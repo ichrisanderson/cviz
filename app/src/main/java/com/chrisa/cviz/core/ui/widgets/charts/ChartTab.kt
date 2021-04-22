@@ -28,6 +28,7 @@ data class CombinedChartTab(
 
 data class DataSheetTab(
     override val title: String,
+    val columnHeaders: DataSheetColumnHeaders,
     val data: List<DataSheetItem>
 ) : ChartTab()
 

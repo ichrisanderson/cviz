@@ -23,6 +23,7 @@ import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuil
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
@@ -198,6 +199,11 @@ class AreaDataModelMapper @Inject constructor(
             context.getString(R.string.latest_cases_chart_label),
             context.getString(R.string.rolling_average_chart_label),
             context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_cases_column_header),
+                context.getString(R.string.total_cases_column_header)
+            ),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
@@ -208,6 +214,11 @@ class AreaDataModelMapper @Inject constructor(
             context.getString(R.string.latest_deaths_chart_label),
             context.getString(R.string.rolling_average_chart_label),
             context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_deaths_column_header),
+                context.getString(R.string.total_deaths_column_header)
+            ),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
@@ -216,6 +227,12 @@ class AreaDataModelMapper @Inject constructor(
         return chartBuilder.allBarChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
+            context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_deaths_column_header),
+                context.getString(R.string.total_deaths_column_header)
+            ),
             dailyData
         )
     }
@@ -226,6 +243,11 @@ class AreaDataModelMapper @Inject constructor(
             context.getString(R.string.latest_hospital_admissions_chart_label),
             context.getString(R.string.rolling_average_chart_label),
             context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_admissions_column_header),
+                context.getString(R.string.total_admissions_column_header)
+            ),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }

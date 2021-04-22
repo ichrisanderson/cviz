@@ -23,6 +23,7 @@ import com.chrisa.cviz.core.data.synchronisation.SynchronisationTestData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
 import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.domain.models.SoaData
@@ -53,6 +54,9 @@ class SoaChartBuilderTest {
         every { context.getString(R.string.latest_cases_chart_label) } returns latestCasesLabel
         every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
         every { context.getString(R.string.data_tab_label) } returns dataTabLabel
+        every { context.getString(R.string.date_column_header) } returns dateColumnHeader
+        every { context.getString(R.string.new_cases_column_header) } returns newValueColumnHeader
+        every { context.getString(R.string.total_cases_column_header) } returns totalValueColumnHeader
     }
 
     @Test
@@ -74,6 +78,7 @@ class SoaChartBuilderTest {
                 latestCasesLabel,
                 rollingAverageLabel,
                 dataTabLabel,
+                columnHeaders,
                 casesWithRollingAverage
             )
         } returns
@@ -92,6 +97,16 @@ class SoaChartBuilderTest {
         private const val dataTabLabel = "Data"
         private const val barChartLabel = "bar chart"
         private const val lineChartLabel = "line chart"
+
+        private const val dateColumnHeader = "date"
+        private const val newValueColumnHeader = "new value"
+        private const val totalValueColumnHeader = "total value"
+
+        private val columnHeaders = DataSheetColumnHeaders(
+            labelHeader = dateColumnHeader,
+            valueHeader = newValueColumnHeader,
+            cumulativeValueHeader = totalValueColumnHeader
+        )
 
         private val soaData = listOf(
             SoaData(
