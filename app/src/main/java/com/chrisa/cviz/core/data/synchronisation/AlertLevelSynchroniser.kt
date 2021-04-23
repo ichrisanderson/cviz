@@ -97,7 +97,7 @@ internal class AlertLevelSynchroniserImpl @Inject constructor(
     ) {
         appDatabase.withTransaction {
             val metadataId = MetadataIds.alertLevelId(areaCode)
-            val it = alertLevels.body.maxByOrNull { it.date }!!
+            val it = alertLevels.body.maxByOrNull { it.date } ?: return@withTransaction
             appDatabase.areaDao().insert(AreaEntity(
                 areaCode = it.areaCode,
                 areaName = it.areaName,

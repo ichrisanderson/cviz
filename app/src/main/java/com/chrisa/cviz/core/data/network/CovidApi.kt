@@ -138,9 +138,9 @@ data class AreaDataModel(
             put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
-            put("newOnsDeathsByRegistrationDate", "newOnsDeathsByRegistrationDate")
-            put("cumOnsDeathsByRegistrationDate", "cumOnsDeathsByRegistrationDate")
-            put("cumOnsDeathsByRegistrationDateRate", "cumOnsDeathsByRegistrationDateRate")
+            put("newOnsDeathsByRegistrationDate", "newWeeklyNsoDeathsByRegDate")
+            put("cumOnsDeathsByRegistrationDate", "cumWeeklyNsoDeathsByRegDate")
+            put("cumOnsDeathsByRegistrationDateRate", "cumWeeklyNsoDeathsByRegDateRate")
         }.toString()
 
         val AREA_DATA_MODEL_BY_SPECIMEN_DATE_STRUCTURE = JSONObject().apply {
@@ -157,9 +157,9 @@ data class AreaDataModel(
             put("newDeathsByDeathDate", "newDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDate", "cumDeaths28DaysByDeathDate")
             put("cumulativeDeathsByDeathDateRate", "cumDeaths28DaysByDeathDateRate")
-            put("newOnsDeathsByRegistrationDate", "newOnsDeathsByRegistrationDate")
-            put("cumOnsDeathsByRegistrationDate", "cumOnsDeathsByRegistrationDate")
-            put("cumOnsDeathsByRegistrationDateRate", "cumOnsDeathsByRegistrationDateRate")
+            put("newOnsDeathsByRegistrationDate", "newWeeklyNsoDeathsByRegDate")
+            put("cumOnsDeathsByRegistrationDate", "cumWeeklyNsoDeathsByRegDate")
+            put("cumOnsDeathsByRegistrationDateRate", "cumWeeklyNsoDeathsByRegDateRate")
         }.toString()
     }
 }
