@@ -53,13 +53,18 @@ class SoaChartBuilder @Inject constructor(
 }
 
 class SoaDailyDataMapper @Inject constructor() {
-    fun mapToDailyData(soaDataList: List<SoaData>): List<DailyData> =
-        soaDataList.map { soaData ->
+    fun mapToDailyData(soaDataList: List<SoaData>): List<DailyData> {
+        val dateOrder = soaDataList.sortedBy { it.date }
+        var cumulativeValue = 0
+        val data = dateOrder.map { soaData ->
+            cumulativeValue += soaData.rollingSum
             DailyData(
                 newValue = soaData.rollingSum,
-                cumulativeValue = 0,
+                cumulativeValue = cumulativeValue,
                 rate = soaData.rollingRate,
                 date = soaData.date
             )
         }
+        return data.sortedByDescending { it.date }
+    }
 }
