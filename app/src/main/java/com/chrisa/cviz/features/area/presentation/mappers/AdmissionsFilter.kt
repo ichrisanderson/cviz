@@ -30,6 +30,7 @@ class AdmissionsFilter @Inject constructor() {
         return hospitalAdmissions
             .filter { hospitalAdmissionFilter.isEmpty() || hospitalAdmissionFilter.contains(it.name) }
             .flatMap { it.data }
+            .sortedBy { it.date }
             .groupBy { it.date }
             .map { data ->
                 val newAdmissions = data.value.sumOf { it.newValue }
