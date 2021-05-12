@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="header1"
+            type="String" />
+
+        <variable
+            name="header2"
+            type="String" />
+
+        <variable
+            name="header3"
+            type="String" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/header1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginVertical="8dp"
+            android:text="@{header1}"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/header2"
+            app:layout_constraintHorizontal_weight="2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="12-APR" />
+
+        <TextView
+            android:id="@+id/header2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:maxLines="1"
+            android:text="@{header2}"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/header3"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toEndOf="@+id/header1"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1220" />
+
+        <TextView
+            android:id="@+id/header3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginVertical="8dp"
+            android:maxLines="1"
+            android:text="@{header3}"
+            android:textAlignment="center"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toEndOf="@+id/header2"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1220" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -25,7 +25,9 @@ import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
@@ -74,6 +76,15 @@ class AreaDataModelMapperTest {
         every { context.getString(R.string.all_hospital_admissions_chart_label) } returns allHospitalAdmissionsLabel
         every { context.getString(R.string.latest_hospital_admissions_chart_label) } returns latestHospitalAdmissionsLabel
         every { context.getString(R.string.rolling_average_chart_label) } returns rollingAverageLabel
+        every { context.getString(R.string.data_tab_label) } returns dataTabLabel
+        every { context.getString(R.string.date_column_header) } returns dateColumnHeader
+        every { context.getString(R.string.new_admissions_column_header) } returns newAdmissionsColumnHeader
+        every { context.getString(R.string.total_admissions_column_header) } returns totalAdmissionsColumnHeader
+        every { context.getString(R.string.new_cases_column_header) } returns newCasesColumnHeader
+        every { context.getString(R.string.total_cases_column_header) } returns totalCasesColumnHeader
+        every { context.getString(R.string.new_deaths_column_header) } returns newDeathsColumnHeader
+        every { context.getString(R.string.total_deaths_column_header) } returns totalDeathsColumnHeader
+
         every {
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(emptyList())
         } returns
@@ -85,6 +96,8 @@ class AreaDataModelMapperTest {
             chartBuilder.allBarChartData(
                 allDeathsLabel,
                 latestDeathsLabel,
+                dataTabLabel,
+                deathsColumnHeaders,
                 emptyList()
             )
         } returns emptyList()
@@ -94,6 +107,8 @@ class AreaDataModelMapperTest {
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
+                dataTabLabel,
+                casesColumnHeaders,
                 emptyList()
             )
         } returns emptyList()
@@ -103,6 +118,8 @@ class AreaDataModelMapperTest {
                 allDeathsLabel,
                 latestDeathsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
+                deathsColumnHeaders,
                 emptyList()
             )
         } returns emptyList()
@@ -112,6 +129,8 @@ class AreaDataModelMapperTest {
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
+                admissionColumnHeaders,
                 emptyList()
             )
         } returns emptyList()
@@ -142,6 +161,8 @@ class AreaDataModelMapperTest {
                 allCasesLabel,
                 latestCasesLabel,
                 rollingAverageLabel,
+                dataTabLabel,
+                casesColumnHeaders,
                 casesWithRollingAverage
             )
         } returns
@@ -181,6 +202,8 @@ class AreaDataModelMapperTest {
                 allDeathsLabel,
                 latestDeathsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
+                deathsColumnHeaders,
                 deathsWithRollingAverage
             )
         } returns
@@ -213,6 +236,8 @@ class AreaDataModelMapperTest {
             chartBuilder.allBarChartData(
                 allDeathsLabel,
                 latestDeathsLabel,
+                dataTabLabel,
+                deathsColumnHeaders,
                 deaths
             )
         } returns listOf(chartData)
@@ -260,6 +285,8 @@ class AreaDataModelMapperTest {
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
+                admissionColumnHeaders,
                 admissionsWithRollingAverage
             )
         } returns
@@ -316,6 +343,8 @@ class AreaDataModelMapperTest {
                 allHospitalAdmissionsLabel,
                 latestHospitalAdmissionsLabel,
                 rollingAverageLabel,
+                dataTabLabel,
+                admissionColumnHeaders,
                 admissionsWithRollingAverage
             )
         } returns
@@ -436,11 +465,35 @@ class AreaDataModelMapperTest {
         private const val latestCasesLabel = "Latest cases"
         private const val allDeathsLabel = "All deaths"
         private const val latestDeathsLabel = "Latest deaths"
-        private const val allHospitalAdmissionsLabel = "All hospital admissions"
-        private const val latestHospitalAdmissionsLabel = "Latest hospital admissions"
+        private const val allHospitalAdmissionsLabel = "All admissions"
+        private const val latestHospitalAdmissionsLabel = "Latest admissions"
         private const val rollingAverageLabel = "Rolling average"
+        private const val dataTabLabel = "Data"
         private const val barChartLabel = "bar chart"
         private const val lineChartLabel = "line chart"
+        private const val dateColumnHeader = "date"
+        private const val newDeathsColumnHeader = "new deaths"
+        private const val totalDeathsColumnHeader = "total deaths"
+        private const val newCasesColumnHeader = "New cases"
+        private const val totalCasesColumnHeader = "Total cases"
+        private const val newAdmissionsColumnHeader = "New admissions"
+        private const val totalAdmissionsColumnHeader = "Total admissions"
+
+        private val deathsColumnHeaders = DataSheetColumnHeaders(
+            labelHeader = dateColumnHeader,
+            valueHeader = newDeathsColumnHeader,
+            cumulativeValueHeader = totalDeathsColumnHeader
+        )
+        private val casesColumnHeaders = DataSheetColumnHeaders(
+            labelHeader = dateColumnHeader,
+            valueHeader = newCasesColumnHeader,
+            cumulativeValueHeader = totalCasesColumnHeader
+        )
+        private val admissionColumnHeaders = DataSheetColumnHeaders(
+            labelHeader = dateColumnHeader,
+            valueHeader = newAdmissionsColumnHeader,
+            cumulativeValueHeader = totalAdmissionsColumnHeader
+        )
 
         private val areaDetail = AreaDetailModel(
             lastUpdatedAt = lastUpdatedDateTime,
@@ -485,7 +538,7 @@ class AreaDataModelMapperTest {
         )
 
         private fun combinedChartData(labelPrefix: String) =
-            CombinedChartData(
+            CombinedChartTab(
                 title = barChartLabel,
                 barChartData = BarChartData(
                     label = barChartLabel,
@@ -508,12 +561,15 @@ class AreaDataModelMapperTest {
             )
 
         private fun barChartData(labelPrefix: String) =
-            BarChartData(
-                label = barChartLabel,
-                values = listOf(
-                    BarChartItem(
-                        value = 10.0f,
-                        label = "${labelPrefix}_BarChartItem"
+            BarChartTab(
+                title = barChartLabel,
+                barChartData = BarChartData(
+                    label = barChartLabel,
+                    values = listOf(
+                        BarChartItem(
+                            value = 10.0f,
+                            label = "${labelPrefix}_BarChartItem"
+                        )
                     )
                 )
             )

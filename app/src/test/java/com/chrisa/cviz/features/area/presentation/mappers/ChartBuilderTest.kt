@@ -19,10 +19,14 @@ package com.chrisa.cviz.features.area.presentation.mappers
 import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverage
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
-import com.chrisa.cviz.core.ui.widgets.charts.BarChartDataBuilder
 import com.chrisa.cviz.core.ui.widgets.charts.BarChartItem
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartDataBuilder
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.BarChartTabBuilder
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartTabBuilder
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartData
 import com.chrisa.cviz.core.ui.widgets.charts.LineChartItem
 import com.google.common.truth.Truth.assertThat
@@ -42,16 +46,23 @@ class ChartBuilderTest {
         .withLocale(Locale.UK)
         .withZone(ZoneId.of("GMT"))
 
-    private val combinedChartDataBuilder = mockk<CombinedChartDataBuilder>()
-    private val barChartDataBuilder = mockk<BarChartDataBuilder>()
-    private val sut = ChartBuilder(formatter, combinedChartDataBuilder, barChartDataBuilder)
+    private val combinedChartTabBuilder = mockk<CombinedChartTabBuilder>()
+    private val barChartTabBuilder = mockk<BarChartTabBuilder>()
+    private val dataSheetTabBuilder = mockk<DataSheetTabBuilder>()
     private val monthlyData = dailyData(10)
     private val monthlyDataWithRollingAverage = dailyDataWithRollingAverage(30)
+    private val sut = ChartBuilder(
+        formatter,
+        combinedChartTabBuilder,
+        barChartTabBuilder,
+        dataSheetTabBuilder
+    )
 
     @Before
     fun setup() {
         every {
-            combinedChartDataBuilder.build(
+            combinedChartTabBuilder.build(
+                allChartLabel,
                 allChartLabel,
                 monthlyDataWithRollingAverage.map {
                     BarChartItem(
@@ -71,7 +82,8 @@ class ChartBuilderTest {
         } returns allChartData
 
         every {
-            combinedChartDataBuilder.build(
+            combinedChartTabBuilder.build(
+                latestChartLabel,
                 latestChartLabel,
                 monthlyDataWithRollingAverage.takeLast(14).map {
                     BarChartItem(
@@ -91,7 +103,9 @@ class ChartBuilderTest {
         } returns latestChartData
 
         every {
-            barChartDataBuilder.build(allChartLabel,
+            barChartTabBuilder.build(
+                allChartLabel,
+                allChartLabel,
                 monthlyData.map {
                     BarChartItem(
                         value = it.newValue.toFloat(),
@@ -101,7 +115,8 @@ class ChartBuilderTest {
         } returns allBarChartData
 
         every {
-            barChartDataBuilder.build(
+            barChartTabBuilder.build(
+                latestChartLabel,
                 latestChartLabel,
                 monthlyData.takeLast(14).map {
                     BarChartItem(
@@ -110,6 +125,14 @@ class ChartBuilderTest {
                     )
                 })
         } returns latestBarChartData
+
+        every {
+            dataSheetTabBuilder.build(
+                dataTabLabel,
+                columnHeaders,
+                any()
+            )
+        } returns dataSheetTab
     }
 
     @Test
@@ -118,6 +141,8 @@ class ChartBuilderTest {
             allChartLabel,
             latestChartLabel,
             rollingAverageChartLabel,
+            dataTabLabel,
+            columnHeaders,
             emptyList()
         )
 
@@ -130,13 +155,16 @@ class ChartBuilderTest {
             allChartLabel,
             latestChartLabel,
             rollingAverageChartLabel,
+            dataTabLabel,
+            columnHeaders,
             monthlyDataWithRollingAverage
         )
 
         assertThat(data).isEqualTo(
             listOf(
                 allChartData,
-                latestChartData
+                latestChartData,
+                dataSheetTab
             )
         )
     }
@@ -175,13 +203,16 @@ class ChartBuilderTest {
         val data = sut.allBarChartData(
             allChartLabel,
             latestChartLabel,
+            dataTabLabel,
+            columnHeaders,
             monthlyData
         )
 
         assertThat(data).isEqualTo(
             listOf(
                 allBarChartData,
-                latestBarChartData
+                latestBarChartData,
+                dataSheetTab
             )
         )
     }
@@ -190,8 +221,19 @@ class ChartBuilderTest {
         private const val allChartLabel = "All data"
         private const val latestChartLabel = "Latest data"
         private const val rollingAverageChartLabel = "Rolling average data"
+        private const val dataTabLabel = "Data"
 
-        private val allChartData = CombinedChartData(
+        private const val dateColumnHeader = "date"
+        private const val newValueColumnHeader = "new value"
+        private const val cumulativeValueColumnHeader = "total value"
+
+        private val columnHeaders = DataSheetColumnHeaders(
+            labelHeader = dateColumnHeader,
+            valueHeader = newValueColumnHeader,
+            cumulativeValueHeader = cumulativeValueColumnHeader
+        )
+
+        private val allChartData = CombinedChartTab(
             title = allChartLabel,
             barChartData = BarChartData(
                 label = allChartLabel,
@@ -213,7 +255,7 @@ class ChartBuilderTest {
             )
         )
 
-        private val latestChartData = CombinedChartData(
+        private val latestChartData = CombinedChartTab(
             title = latestChartLabel,
             barChartData = BarChartData(
                 label = latestChartLabel,
@@ -235,24 +277,42 @@ class ChartBuilderTest {
             )
         )
 
-        val allBarChartData = BarChartData(
-            label = allChartLabel,
-            values = listOf(
-                BarChartItem(
-                    value = 100.0f,
-                    label = "$allChartLabel bar chart value"
+        val allBarChartData = BarChartTab(
+            title = allChartLabel,
+            barChartData = BarChartData(
+                label = allChartLabel,
+                values = listOf(
+                    BarChartItem(
+                        value = 100.0f,
+                        label = "$allChartLabel bar chart value"
+                    )
                 )
             )
         )
 
-        val latestBarChartData = BarChartData(
-            label = latestChartLabel,
-            values = listOf(
-                BarChartItem(
-                    value = 100.0f,
-                    label = "$latestChartLabel bar chart value"
+        val latestBarChartData = BarChartTab(
+            title = latestChartLabel,
+            barChartData = BarChartData(
+                label = latestChartLabel,
+                values = listOf(
+                    BarChartItem(
+                        value = 100.0f,
+                        label = "$latestChartLabel bar chart value"
+                    )
                 )
             )
         )
     }
+
+    private val dataSheetTab = DataSheetTab(
+        title = dataTabLabel,
+        columnHeaders = columnHeaders,
+        data = listOf(
+            DataSheetItem(
+                label = "12-APR",
+                value = 100,
+                cumulativeValue = 1000
+            )
+        )
+    )
 }

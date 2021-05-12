@@ -19,13 +19,14 @@ package com.chrisa.cviz.core.ui.widgets.charts
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
-class CombinedChartDataBuilderTest {
+class CombinedChartTabBuilderTest {
 
-    private val combinedChartBuilder = CombinedChartDataBuilder()
+    private val combinedChartBuilder = CombinedChartTabBuilder()
 
     @Test
     fun `WHEN chart data provided THEN bar and line charts are combined`() {
         val chartData = combinedChartBuilder.build(
+            barChartLabel,
             barChartLabel,
             listOf(barChartItem),
             lineChartLabel,
@@ -33,7 +34,7 @@ class CombinedChartDataBuilderTest {
         )
 
         assertThat(chartData).isEqualTo(
-            CombinedChartData(
+            CombinedChartTab(
                 title = barChartLabel,
                 barChartData = BarChartData(
                     label = barChartLabel,

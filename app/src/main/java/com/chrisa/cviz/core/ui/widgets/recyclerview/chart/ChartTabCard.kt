@@ -14,26 +14,29 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar
+package com.chrisa.cviz.core.ui.widgets.recyclerview.chart
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import androidx.viewpager2.widget.ViewPager2
+import com.airbnb.epoxy.EpoxyAttribute
+import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.chrisa.cviz.R
-import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
+import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 @SuppressLint("NonConstantResourceId")
-@ModelView(defaultLayout = R.layout.core_widget_bar_chart_tab_card)
-class BarChartTabCard(context: Context, attrs: AttributeSet) :
+@ModelView(defaultLayout = R.layout.core_widget_chart_tab_card, baseModelClass = BaseChartTab::class)
+class ChartTabCard(context: Context, attrs: AttributeSet) :
     MaterialCardView(context, attrs) {
 
-    private val adapter = BarChartAdapter()
+    private val adapter = ChartTabAdapter()
     private lateinit var pager: ViewPager2
     private lateinit var tabLayout: TabLayout
 
@@ -58,7 +61,14 @@ class BarChartTabCard(context: Context, attrs: AttributeSet) :
     }
 
     @ModelProp
-    fun chartData(chartData: List<BarChartData>) {
-        adapter.submitList(chartData)
+    fun chartData(chartData: List<ChartTab>) {
+        adapter.updateItems(chartData)
     }
+}
+
+abstract class BaseChartTab<T : View> : EpoxyModel<T>() {
+    @EpoxyAttribute protected var viewType: Int? = null
+
+    override fun getViewType(): Int =
+        viewType ?: super.getViewType()
 }

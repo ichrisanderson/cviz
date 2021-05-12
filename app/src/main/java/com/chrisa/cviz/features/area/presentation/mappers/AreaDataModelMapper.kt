@@ -22,8 +22,8 @@ import com.chrisa.cviz.core.data.synchronisation.DailyData
 import com.chrisa.cviz.core.data.synchronisation.DailyDataWithRollingAverageBuilder
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummary
 import com.chrisa.cviz.core.data.synchronisation.WeeklySummaryBuilder
-import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
-import com.chrisa.cviz.core.ui.widgets.charts.CombinedChartData
+import com.chrisa.cviz.core.ui.widgets.charts.ChartTab
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
 import com.chrisa.cviz.features.area.data.dtos.AreaDailyDataDto
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel as DomainAlertLevelModel
 import com.chrisa.cviz.features.area.domain.models.AreaDetailModel
@@ -193,37 +193,61 @@ class AreaDataModelMapper @Inject constructor(
     private fun weeklySummary(dailyData: List<DailyData>): WeeklySummary =
         weeklySummaryBuilder.buildWeeklySummary(dailyData)
 
-    private fun caseChartData(dailyData: List<DailyData>): List<CombinedChartData> {
+    private fun caseChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_cases_chart_label),
             context.getString(R.string.latest_cases_chart_label),
             context.getString(R.string.rolling_average_chart_label),
+            context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_cases_column_header),
+                context.getString(R.string.total_cases_column_header)
+            ),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
 
-    private fun deathsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
+    private fun deathsChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
             context.getString(R.string.rolling_average_chart_label),
+            context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_deaths_column_header),
+                context.getString(R.string.total_deaths_column_header)
+            ),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }
 
-    private fun onsDeathsChartData(dailyData: List<DailyData>): List<BarChartData> {
+    private fun onsDeathsChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allBarChartData(
             context.getString(R.string.all_deaths_chart_label),
             context.getString(R.string.latest_deaths_chart_label),
+            context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_deaths_column_header),
+                context.getString(R.string.total_deaths_column_header)
+            ),
             dailyData
         )
     }
 
-    private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<CombinedChartData> {
+    private fun hospitalAdmissionsChartData(dailyData: List<DailyData>): List<ChartTab> {
         return chartBuilder.allCombinedChartData(
             context.getString(R.string.all_hospital_admissions_chart_label),
             context.getString(R.string.latest_hospital_admissions_chart_label),
             context.getString(R.string.rolling_average_chart_label),
+            context.getString(R.string.data_tab_label),
+            DataSheetColumnHeaders(
+                context.getString(R.string.date_column_header),
+                context.getString(R.string.new_admissions_column_header),
+                context.getString(R.string.total_admissions_column_header)
+            ),
             dailyDataWithRollingAverageBuilder.buildDailyDataWithRollingAverage(dailyData)
         )
     }

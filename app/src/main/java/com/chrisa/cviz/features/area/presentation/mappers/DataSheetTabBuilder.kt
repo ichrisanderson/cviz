@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,22 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.charts
+package com.chrisa.cviz.features.area.presentation.mappers
 
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetColumnHeaders
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetItem
+import com.chrisa.cviz.core.ui.widgets.charts.DataSheetTab
 import javax.inject.Inject
 
-class BarChartDataBuilder @Inject constructor() {
-    fun build(
-        label: String,
-        values: List<BarChartItem>
-    ): BarChartData =
-        BarChartData(
-            label = label,
-            values = values
-        )
-}
-
-class BarChartTabBuilder @Inject constructor() {
+class DataSheetTabBuilder @Inject constructor() {
     fun build(
         tabTitle: String,
-        barChartLabel: String,
-        values: List<BarChartItem>
-    ): BarChartTab =
-        BarChartTab(
-            tabTitle,
-            BarChartData(
-                label = barChartLabel,
-                values = values
-            )
+        columnHeaders: DataSheetColumnHeaders,
+        data: List<DataSheetItem>
+    ): DataSheetTab =
+        DataSheetTab(
+            title = tabTitle,
+            columnHeaders = columnHeaders,
+            data = data
         )
 }

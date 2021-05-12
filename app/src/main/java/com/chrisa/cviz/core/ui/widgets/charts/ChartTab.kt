@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,23 @@
 
 package com.chrisa.cviz.core.ui.widgets.charts
 
-data class CombinedChartData(
-    val title: String,
+sealed class ChartTab {
+    abstract val title: String
+}
+
+data class CombinedChartTab(
+    override val title: String,
     val barChartData: BarChartData,
     val lineChartData: LineChartData
-)
+) : ChartTab()
+
+data class DataSheetTab(
+    override val title: String,
+    val columnHeaders: DataSheetColumnHeaders,
+    val data: List<DataSheetItem>
+) : ChartTab()
+
+data class BarChartTab(
+    override val title: String,
+    val barChartData: BarChartData
+) : ChartTab()

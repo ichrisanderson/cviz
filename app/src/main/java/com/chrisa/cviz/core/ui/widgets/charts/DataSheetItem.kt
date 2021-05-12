@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.chrisa.cviz.core.ui.widgets.recyclerview.chart.bar
+package com.chrisa.cviz.core.ui.widgets.charts
 
-import androidx.recyclerview.widget.DiffUtil
-import com.chrisa.cviz.core.ui.widgets.charts.BarChartData
+data class DataSheetColumnHeaders(
+    val labelHeader: String,
+    val valueHeader: String,
+    val cumulativeValueHeader: String
+)
 
-class BarChartDataDiffCallback : DiffUtil.ItemCallback<BarChartData>() {
-
-    override fun areItemsTheSame(oldItem: BarChartData, newItem: BarChartData): Boolean {
-        return oldItem.label == newItem.label
-    }
-
-    override fun areContentsTheSame(oldItem: BarChartData, newItem: BarChartData): Boolean {
-        return oldItem == newItem
-    }
-}
+data class DataSheetItem(
+    val label: String,
+    val value: Int,
+    val cumulativeValue: Int
+)
