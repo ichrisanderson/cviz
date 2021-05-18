@@ -26,8 +26,8 @@
     <string name="total_cases_column_header">Total Cases</string>
     <string name="new_deaths_column_header">New Deaths</string>
     <string name="total_deaths_column_header">Total Deaths</string>
-    <string name="new_admissions_column_header">New Deaths</string>
-    <string name="total_admissions_column_header">Total Deaths</string>
+    <string name="new_admissions_column_header">New Admissions</string>
+    <string name="total_admissions_column_header">Total Admissions</string>
 
     <string name="change_this_week">On last week</string>
 
