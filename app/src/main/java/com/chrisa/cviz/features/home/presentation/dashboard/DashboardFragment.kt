@@ -16,6 +16,8 @@
 
 package com.chrisa.cviz.features.home.presentation.dashboard
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +33,7 @@ import com.airbnb.epoxy.carousel
 import com.chrisa.cviz.LatestUkDataCardBindingModel_
 import com.chrisa.cviz.R
 import com.chrisa.cviz.SummaryCardBindingModel_
+import com.chrisa.cviz.core.ui.widgets.recyclerview.caseMapCard
 import com.chrisa.cviz.databinding.DashboardFragmentBinding
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SortOption
@@ -142,6 +145,10 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                 carousel {
                     id("dailyRecordCarousel")
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
+                }
+                caseMapCard {
+                    id("caseMap")
+                    clickListener { _ -> navigateToInteractiveMap() }
                 }
                 sectionHeader {
                     id("topNewCasesHeader")
@@ -260,5 +267,16 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
             )
         findNavController()
             .navigate(action)
+    }
+
+    private fun navigateToInteractiveMap() {
+        try {
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://coronavirus.data.gov.uk/details/interactive-map")
+            )
+            startActivity(intent)
+        } catch (e: Throwable) {
+        }
     }
 }

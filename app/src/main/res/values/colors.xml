@@ -17,4 +17,14 @@
     <color name="alertCardBackgroundColor">#CCff0d00</color>
     <color name="alertCardStrokeColor">#ffff0d00</color>
     <color name="alertCardTextColor">#ffffff</color>
+
+    <!-- Infection rate map -->
+    <color name="infection_rate_map_no_data">#ffffff</color>
+    <color name="infection_rate_map_level_1">#e0e543</color>
+    <color name="infection_rate_map_level_2">#10bb68</color>
+    <color name="infection_rate_map_level_3">#399384</color>
+    <color name="infection_rate_map_level_4">#2068ab</color>
+    <color name="infection_rate_map_level_5">#12407f</color>
+    <color name="infection_rate_map_level_6">#53084a</color>
+    <color name="infection_rate_map_level_7">#2b0226</color>
 </resources>

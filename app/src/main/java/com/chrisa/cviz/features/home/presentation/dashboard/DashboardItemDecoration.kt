@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.CarouselModel_
 import com.airbnb.epoxy.EpoxyControllerAdapter
 import com.chrisa.cviz.SectionHeaderBindingModel_
+import com.chrisa.cviz.core.ui.widgets.recyclerview.CaseMapCardModel_
 
 class DashboardItemDecoration(
     private val horizontalMargin: Int,
@@ -38,7 +39,12 @@ class DashboardItemDecoration(
         val adapter = parent.adapter
         if (adapter is EpoxyControllerAdapter) {
             when (adapter.getModelAtPosition(position)) {
-                is SectionHeaderBindingModel_ -> applySectionHeaderItemOffsets(outRect, view, parent)
+                is SectionHeaderBindingModel_ -> applySectionHeaderItemOffsets(
+                    outRect,
+                    view,
+                    parent
+                )
+                is CaseMapCardModel_ -> applyCaseMapItemOffsets(outRect)
                 is CarouselModel_ -> applyCarouselItemOffsets(outRect)
                 else -> applyDefaultItemOffsets(outRect, view, parent)
             }
@@ -55,6 +61,14 @@ class DashboardItemDecoration(
         } else {
             outRect.top = 0
         }
+        outRect.left = horizontalMargin * 2
+        outRect.right = horizontalMargin * 2
+    }
+
+    private fun applyCaseMapItemOffsets(
+        outRect: Rect
+    ) {
+        outRect.bottom = verticalMargin
         outRect.left = horizontalMargin * 2
         outRect.right = horizontalMargin * 2
     }
