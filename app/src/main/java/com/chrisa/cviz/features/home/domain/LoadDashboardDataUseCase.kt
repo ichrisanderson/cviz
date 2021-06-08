@@ -37,11 +37,13 @@ class LoadDashboardDataUseCase @Inject constructor(
 
         val ukOverviewFlow = homeDataSource.ukOverview()
         val areaSummariesAsFlow = homeDataSource.areaSummaries()
+        val mapDate = homeDataSource.mapDate()
 
         return combine(
             ukOverviewFlow,
-            areaSummariesAsFlow
-        ) { overview, areaSummaries ->
+            areaSummariesAsFlow,
+            mapDate
+        ) { overview, areaSummaries, mapDate ->
             DashboardDataModel(
                 latestUkData = latestUkData(overview),
                 topInfectionRates = mapSummaryModel(
@@ -55,7 +57,8 @@ class LoadDashboardDataUseCase @Inject constructor(
                 ),
                 risingNewCases = mapSummaryModel(
                     areaSummaries.summaryBy { it.changeInCases }
-                )
+                ),
+                mapDate = mapDate
             )
         }
     }

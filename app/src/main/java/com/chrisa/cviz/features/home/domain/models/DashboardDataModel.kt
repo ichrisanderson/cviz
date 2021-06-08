@@ -16,10 +16,13 @@
 
 package com.chrisa.cviz.features.home.domain.models
 
+import java.time.LocalDate
+
 data class DashboardDataModel(
     val latestUkData: List<LatestUkDataModel>,
     val topInfectionRates: List<SummaryModel>,
     val risingInfectionRates: List<SummaryModel>,
     val topNewCases: List<SummaryModel>,
-    val risingNewCases: List<SummaryModel>
+    val risingNewCases: List<SummaryModel>,
+    val mapDate: LocalDate?
 )

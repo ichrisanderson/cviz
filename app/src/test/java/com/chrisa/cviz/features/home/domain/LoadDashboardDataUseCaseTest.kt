@@ -27,12 +27,14 @@ import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.random.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +50,7 @@ class LoadDashboardDataUseCaseTest {
     fun setup() {
         every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
         every { homeDataSource.areaSummaries() } returns listOf(emptyList<AreaSummaryDto>()).asFlow()
+        every { homeDataSource.mapDate() } returns flow { emit(null) }
     }
 
     @Test
@@ -127,6 +130,19 @@ class LoadDashboardDataUseCaseTest {
             val dashboardDataModel = emittedItems.first()
             val sortedDailyData = dailyData.summaryBy { it.changeInInfectionRate }
             assertThat(dashboardDataModel.risingInfectionRates).isEqualTo(sortedDailyData)
+        }
+
+    @Test
+    fun `WHEN execute called THEN map date is emitted`() =
+        runBlockingTest {
+            val mapDate = LocalDate.of(2020, 1, 1)
+            val emittedItems = mutableListOf<DashboardDataModel>()
+            every { homeDataSource.mapDate() } returns flow { emit(mapDate) }
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val dashboardDataModel = emittedItems.first()
+            assertThat(dashboardDataModel.mapDate).isEqualTo(mapDate)
         }
 
     companion object {

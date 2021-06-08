@@ -146,9 +146,12 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                     id("dailyRecordCarousel")
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
-                caseMapCard {
-                    id("caseMap")
-                    clickListener { _ -> navigateToInteractiveMap() }
+                homeScreenData.mapDate?.let { mapDate ->
+                    caseMapCard {
+                        id("caseMap")
+                        mapDate(mapDate)
+                        clickListener { _ -> navigateToInteractiveMap() }
+                    }
                 }
                 sectionHeader {
                     id("topNewCasesHeader")

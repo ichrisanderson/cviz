@@ -84,5 +84,13 @@
     <string name="search_area_menu_title">Search for locations</string>
 
     <!-- Infection rate map -->
-    <color name="infection_rate_map_key_title">Infection rates</color>
+    <string name="map_title_format">Infection rates up to %s</string>
+    <string name="map_legend_missing_data">Missing data</string>
+    <string name="map_legend_level_1">0 – 9</string>
+    <string name="map_legend_level_2">10 – 49</string>
+    <string name="map_legend_level_3">50 – 99</string>
+    <string name="map_legend_level_4">100 – 199</string>
+    <string name="map_legend_level_5">200 – 399</string>
+    <string name="map_legend_level_6">400 – 799</string>
+    <string name="map_legend_level_7">800+</string>
 </resources>

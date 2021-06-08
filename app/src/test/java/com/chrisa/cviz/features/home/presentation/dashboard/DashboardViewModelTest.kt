@@ -29,9 +29,9 @@ import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -87,10 +87,11 @@ class DashboardViewModelTest {
                     topInfectionRates = listOf(summaryModel),
                     risingInfectionRates = listOf(summaryModel),
                     risingNewCases = listOf(summaryModel),
-                    topNewCases = listOf(summaryModel)
+                    topNewCases = listOf(summaryModel),
+                    mapDate = LocalDate.of(2020, 1, 1)
                 )
 
-                every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()
+                coEvery { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()
 
                 val sut = DashboardViewModel(
                     loadHomeDataUseCase,
@@ -112,25 +113,25 @@ class DashboardViewModelTest {
     @Test
     fun `WHEN viewmodel refreshed THEN refresh state is emitted`() =
         testDispatcher.runBlockingTest {
-                every { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
-                coEvery { refreshDataUseCase.execute() } just Runs
-                val sut = DashboardViewModel(
-                    loadHomeDataUseCase,
-                    refreshDataUseCase,
-                    coroutineDispatchers
-                )
-                val isRefreshingObserver = sut.isRefreshing.test()
+            coEvery { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
+            coEvery { refreshDataUseCase.execute() } just Runs
+            val sut = DashboardViewModel(
+                loadHomeDataUseCase,
+                refreshDataUseCase,
+                coroutineDispatchers
+            )
+            val isRefreshingObserver = sut.isRefreshing.test()
 
-                sut.refresh()
+            sut.refresh()
 
-                assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
-                assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
+            assertThat(isRefreshingObserver.values[0]).isEqualTo(true)
+            assertThat(isRefreshingObserver.values[1]).isEqualTo(false)
         }
 
     @Test
     fun `WHEN viewmodel refresh fails THEN is refreshing set to false`() =
         testDispatcher.runBlockingTest {
-            every { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
+            coEvery { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
             coEvery { refreshDataUseCase.execute() } throws IOException()
             val sut = DashboardViewModel(
                 loadHomeDataUseCase,
