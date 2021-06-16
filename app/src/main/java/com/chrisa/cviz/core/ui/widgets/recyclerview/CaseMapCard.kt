@@ -41,15 +41,13 @@ class CaseMapCard(context: Context, attrs: AttributeSet) : MaterialCardView(cont
 
     override fun onFinishInflate() {
         super.onFinishInflate()
-        findViewById<ImageView>(R.id.image)
-            .load(
-                uri = mapUri
-            )
         this.setOnClickListener { clickListener?.onClick(it) }
     }
 
     @ModelProp
     fun mapDate(mapDate: LocalDate) {
+        findViewById<ImageView>(R.id.image)
+            .load(uri = mapUri)
         findViewById<TextView>(R.id.map_title).text =
             context.getString(
                 R.string.map_title_format,
