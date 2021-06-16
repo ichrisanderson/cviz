@@ -142,7 +142,7 @@ class HomeDataSource @Inject constructor(
     }
 
     private suspend fun loadMapDate(): LocalDate? =
-        covidApi.nationPercentile("https://coronavirus.data.gov.uk/downloads/maps/nation_percentiles.json").keys
+        covidApi.nationPercentile().keys
             .filterNot { "complete" == it }
             .map {
                 return@map try {

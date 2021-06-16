@@ -93,7 +93,7 @@ class LoadDashboardDataUseCase @Inject constructor(
         }
     }
 
-    inline fun <R : Comparable<R>> List<AreaSummaryDto>.summaryBy(crossinline selector: (AreaSummaryDto) -> R?): List<AreaSummaryDto> =
+    private inline fun <R : Comparable<R>> List<AreaSummaryDto>.summaryBy(crossinline selector: (AreaSummaryDto) -> R?): List<AreaSummaryDto> =
         this.sortedByDescending(selector)
             .take(10)
 }

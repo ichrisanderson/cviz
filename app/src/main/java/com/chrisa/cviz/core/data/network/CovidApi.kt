@@ -77,8 +77,10 @@ interface CovidApi {
     ): Response<SoaDataModel>
 
     @GET
-    suspend fun nationPercentile(@Url url: String): Map<String, MapPercentileModel>
+    suspend fun nationPercentile(@Url url: String = NATION_PERCENTILES_URL): Map<String, MapPercentileModel>
 }
+
+private const val NATION_PERCENTILES_URL = "https://coronavirus.data.gov.uk/downloads/maps/nation_percentiles.json"
 
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
 fun DAILY_AREA_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
