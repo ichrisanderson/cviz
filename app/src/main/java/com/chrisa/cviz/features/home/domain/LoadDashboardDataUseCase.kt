@@ -19,9 +19,11 @@ package com.chrisa.cviz.features.home.domain
 import com.chrisa.cviz.features.home.data.HomeDataSource
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
+import com.chrisa.cviz.features.home.domain.models.CaseMapModel
 import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
+import java.time.LocalDate
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -37,11 +39,13 @@ class LoadDashboardDataUseCase @Inject constructor(
 
         val ukOverviewFlow = homeDataSource.ukOverview()
         val areaSummariesAsFlow = homeDataSource.areaSummaries()
+        val nationMapDate = homeDataSource.nationMapDate()
 
         return combine(
             ukOverviewFlow,
-            areaSummariesAsFlow
-        ) { overview, areaSummaries ->
+            areaSummariesAsFlow,
+            nationMapDate
+        ) { overview, areaSummaries, nationMapDate ->
             DashboardDataModel(
                 latestUkData = latestUkData(overview),
                 topInfectionRates = mapSummaryModel(
@@ -55,10 +59,20 @@ class LoadDashboardDataUseCase @Inject constructor(
                 ),
                 risingNewCases = mapSummaryModel(
                     areaSummaries.summaryBy { it.changeInCases }
-                )
+                ),
+                nationMap = mapNationCaseMapModel(nationMapDate)
             )
         }
     }
+
+    private fun mapNationCaseMapModel(nationMapDate: LocalDate?): CaseMapModel? =
+        nationMapDate?.let {
+            CaseMapModel(
+                lastUpdated = nationMapDate,
+                imageUri = NATION_MAP_IMAGE_URI,
+                redirectUri = NATION_MAP_REDIRECT_URI
+            )
+        }
 
     private fun latestUkData(
         ukOverview: List<DailyRecordDto>
@@ -90,7 +104,14 @@ class LoadDashboardDataUseCase @Inject constructor(
         }
     }
 
-    inline fun <R : Comparable<R>> List<AreaSummaryDto>.summaryBy(crossinline selector: (AreaSummaryDto) -> R?): List<AreaSummaryDto> =
+    private inline fun <R : Comparable<R>> List<AreaSummaryDto>.summaryBy(crossinline selector: (AreaSummaryDto) -> R?): List<AreaSummaryDto> =
         this.sortedByDescending(selector)
             .take(10)
+
+    private companion object {
+        private const val NATION_MAP_IMAGE_URI =
+            "https://coronavirus.data.gov.uk/public/assets/frontpage/images/map.png"
+        private const val NATION_MAP_REDIRECT_URI =
+            "https://coronavirus.data.gov.uk/details/interactive-map"
+    }
 }

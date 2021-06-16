@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Chris Anderson.
+ * Copyright 2021 Chris Anderson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 
 package com.chrisa.cviz.features.home.domain.models
 
-data class DashboardDataModel(
-    val latestUkData: List<LatestUkDataModel>,
-    val topInfectionRates: List<SummaryModel>,
-    val risingInfectionRates: List<SummaryModel>,
-    val topNewCases: List<SummaryModel>,
-    val risingNewCases: List<SummaryModel>,
-    val nationMap: CaseMapModel?
+import java.time.LocalDate
+
+data class CaseMapModel(
+    val lastUpdated: LocalDate,
+    val imageUri: String,
+    val redirectUri: String
 )

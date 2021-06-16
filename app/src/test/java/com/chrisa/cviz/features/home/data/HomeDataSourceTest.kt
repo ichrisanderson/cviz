@@ -25,10 +25,13 @@ import com.chrisa.cviz.core.data.db.AreaSummaryWithArea
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.core.data.db.MetadataIds
+import com.chrisa.cviz.core.data.network.CovidApi
+import com.chrisa.cviz.core.data.network.MapPercentileModel
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
 import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
 import com.google.common.truth.Truth.assertThat
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import java.time.LocalDate
@@ -44,8 +47,9 @@ import org.junit.Test
 class HomeDataSourceTest {
 
     private val appDatabase = mockk<AppDatabase>()
+    private val covidApi = mockk<CovidApi>()
     private val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
-    private val sut = HomeDataSource(appDatabase)
+    private val sut = HomeDataSource(appDatabase, covidApi)
 
     @Test
     fun `WHEN ukOverview called THEN all cases from uk are returned`() = runBlockingTest {
@@ -283,6 +287,61 @@ class HomeDataSourceTest {
 
             assertThat(emittedItems.size).isEqualTo(1)
             assertThat(emittedItems.first()).isEqualTo(allInfectionRates)
+        }
+
+    @Test
+    fun `GIVEN nation percentile data contains dates WHEN nationMapDate called THEN last date is emitted`() =
+        runBlockingTest {
+            coEvery {
+                covidApi.nationPercentile(any())
+            } returns mapOf(
+                "2020-01-01" to MapPercentileModel(0.0, 0.0, 0.0, 0.0, 0.0),
+                "2020-01-02" to MapPercentileModel(0.0, 0.0, 0.0, 0.0, 0.0),
+                "2020-01-03" to MapPercentileModel(0.0, 0.0, 0.0, 0.0, 0.0),
+                "2020-01-04" to MapPercentileModel(0.0, 0.0, 0.0, 0.0, 0.0)
+            )
+
+            val emittedItems = mutableListOf<LocalDate?>()
+
+            sut.nationMapDate().collect { emittedItems.add(it) }
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems.first()).isEqualTo(LocalDate.of(2020, 1, 4))
+        }
+
+    @Test
+    fun `GIVEN only complete data key WHEN nationMapDate called THEN null date is emitted`() =
+        runBlockingTest {
+            coEvery {
+                covidApi.nationPercentile(any())
+            } returns mapOf(
+                "complete" to MapPercentileModel(0.0, 0.0, 0.0, 0.0, 0.0)
+            )
+
+            val emittedItems = mutableListOf<LocalDate?>()
+
+            sut.nationMapDate().collect { emittedItems.add(it) }
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems.first()).isNull()
+        }
+
+    @Test
+    fun `GIVEN unsupported date key WHEN nationMapDate called THEN null date is emitted`() =
+        runBlockingTest {
+            coEvery {
+                covidApi.nationPercentile(any())
+            } returns mapOf(
+                "2020-01-02" to MapPercentileModel(0.0, 0.0, 0.0, 0.0, 0.0),
+                "fooba" to MapPercentileModel(0.0, 0.0, 0.0, 0.0, 0.0)
+            )
+
+            val emittedItems = mutableListOf<LocalDate?>()
+
+            sut.nationMapDate().collect { emittedItems.add(it) }
+
+            assertThat(emittedItems.size).isEqualTo(1)
+            assertThat(emittedItems.first()).isEqualTo(LocalDate.of(2020, 1, 2))
         }
 
     companion object {

@@ -21,18 +21,21 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.home.data.HomeDataSource
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
+import com.chrisa.cviz.features.home.domain.models.CaseMapModel
 import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.every
 import io.mockk.mockk
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.random.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
@@ -48,6 +51,7 @@ class LoadDashboardDataUseCaseTest {
     fun setup() {
         every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
         every { homeDataSource.areaSummaries() } returns listOf(emptyList<AreaSummaryDto>()).asFlow()
+        every { homeDataSource.nationMapDate() } returns flow { emit(null) }
     }
 
     @Test
@@ -127,6 +131,25 @@ class LoadDashboardDataUseCaseTest {
             val dashboardDataModel = emittedItems.first()
             val sortedDailyData = dailyData.summaryBy { it.changeInInfectionRate }
             assertThat(dashboardDataModel.risingInfectionRates).isEqualTo(sortedDailyData)
+        }
+
+    @Test
+    fun `WHEN execute called THEN nation map is emitted`() =
+        runBlockingTest {
+            val mapDate = LocalDate.of(2020, 1, 1)
+            val emittedItems = mutableListOf<DashboardDataModel>()
+            every { homeDataSource.nationMapDate() } returns flow { emit(mapDate) }
+
+            sut.execute().collect { emittedItems.add(it) }
+
+            val dashboardDataModel = emittedItems.first()
+            assertThat(dashboardDataModel.nationMap).isEqualTo(
+                CaseMapModel(
+                    lastUpdated = mapDate,
+                    imageUri = "https://coronavirus.data.gov.uk/public/assets/frontpage/images/map.png",
+                    redirectUri = "https://coronavirus.data.gov.uk/details/interactive-map"
+                )
+            )
         }
 
     companion object {

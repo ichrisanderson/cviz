@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.chrisa.cviz.core.ui.widgets.recyclerview.CaseMapCard xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/map_title"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textAlignment="center"
+            android:textSize="12dp"
+            app:layout_constraintEnd_toStartOf="@id/map_legend"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SpUsage"
+            tools:text="Infection Rates" />
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="240dp"
+            android:layout_height="360dp"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
+            android:importantForAccessibility="no"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/map_title" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/map_legend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/infection_rate_map_outline"
+            app:strokeWidth="1dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="vertical">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_no_data_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_no_data_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_no_data_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_no_data"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_no_data_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/map_legend_missing_data"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_no_data_image"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="SpUsage" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_level_1_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_level_1_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_level_1_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_level_1"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_level_1_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/map_legend_level_1"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_level_1_image"
+                    app:layout_constraintTop_toBottomOf="@id/legend_no_data_label"
+                    tools:ignore="SpUsage" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_level_2_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_level_2_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_level_2_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_level_2"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_level_2_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/map_legend_level_2"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_level_2_image"
+                    app:layout_constraintTop_toBottomOf="@id/legend_level_1_label"
+                    tools:ignore="SpUsage" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_level_3_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_level_3_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_level_3_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_level_3"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_level_3_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/map_legend_level_3"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_level_3_image"
+                    app:layout_constraintTop_toBottomOf="@id/legend_level_2_label"
+                    tools:ignore="SpUsage" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_level_4_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_level_4_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_level_4_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_level_4"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_level_4_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/map_legend_level_4"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_level_4_image"
+                    app:layout_constraintTop_toBottomOf="@id/legend_level_3_label"
+                    tools:ignore="SpUsage" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_level_5_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_level_5_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_level_5_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_level_5"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_level_5_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/map_legend_level_5"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_level_5_image"
+                    app:layout_constraintTop_toBottomOf="@id/legend_level_4_label"
+                    tools:ignore="SpUsage" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_level_6_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_level_6_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_level_6_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_level_6"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_level_6_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/map_legend_level_6"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_level_6_image"
+                    app:layout_constraintTop_toBottomOf="@id/legend_level_5_label"
+                    tools:ignore="SpUsage" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/legend_level_7_image"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:scaleType="centerCrop"
+                    app:layout_constraintBottom_toBottomOf="@id/legend_level_7_label"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/legend_level_7_label"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
+                    app:srcCompat="@color/infection_rate_map_level_7"
+                    app:strokeColor="@color/infection_rate_map_legend_outline"
+                    app:strokeWidth="1dp" />
+
+                <TextView
+                    android:id="@+id/legend_level_7_label"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/map_legend_level_7"
+                    android:textSize="8dp"
+                    app:layout_constraintStart_toEndOf="@id/legend_level_7_image"
+                    app:layout_constraintTop_toBottomOf="@id/legend_level_6_label"
+                    tools:ignore="SpUsage" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.chrisa.cviz.core.ui.widgets.recyclerview.CaseMapCard>

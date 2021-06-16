@@ -26,6 +26,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
+import retrofit2.http.Url
 
 interface CovidApi {
 
@@ -74,7 +75,12 @@ interface CovidApi {
         @Header("If-Modified-Since") modifiedDate: String?,
         @Query(value = "filters") filters: String
     ): Response<SoaDataModel>
+
+    @GET
+    suspend fun nationPercentile(@Url url: String = NATION_PERCENTILES_URL): Map<String, MapPercentileModel>
 }
+
+private const val NATION_PERCENTILES_URL = "https://coronavirus.data.gov.uk/downloads/maps/nation_percentiles.json"
 
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
 fun DAILY_AREA_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
@@ -267,4 +273,13 @@ data class RollingChangeModel(
     val change: Int?,
     val direction: String?,
     val changePercentage: Double?
+)
+
+@JsonClass(generateAdapter = true)
+data class MapPercentileModel(
+    val min: Double,
+    val first: Double,
+    val second: Double,
+    val third: Double,
+    val max: Double
 )

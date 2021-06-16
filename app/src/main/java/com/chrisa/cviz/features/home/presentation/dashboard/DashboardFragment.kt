@@ -16,6 +16,8 @@
 
 package com.chrisa.cviz.features.home.presentation.dashboard
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +33,7 @@ import com.airbnb.epoxy.carousel
 import com.chrisa.cviz.LatestUkDataCardBindingModel_
 import com.chrisa.cviz.R
 import com.chrisa.cviz.SummaryCardBindingModel_
+import com.chrisa.cviz.core.ui.widgets.recyclerview.caseMapCard
 import com.chrisa.cviz.databinding.DashboardFragmentBinding
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SortOption
@@ -142,6 +145,14 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                 carousel {
                     id("dailyRecordCarousel")
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
+                }
+                homeScreenData.nationMap?.let { nationMap ->
+                    caseMapCard {
+                        id("caseMap")
+                        mapDate(nationMap.lastUpdated)
+                        mapUri(nationMap.imageUri)
+                        clickListener { _ -> navigateToInteractiveMap(nationMap.redirectUri) }
+                    }
                 }
                 sectionHeader {
                     id("topNewCasesHeader")
@@ -260,5 +271,16 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
             )
         findNavController()
             .navigate(action)
+    }
+
+    private fun navigateToInteractiveMap(redirectUri: String) {
+        try {
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse(redirectUri)
+            )
+            startActivity(intent)
+        } catch (e: Throwable) {
+        }
     }
 }

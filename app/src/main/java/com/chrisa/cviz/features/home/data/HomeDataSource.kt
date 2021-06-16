@@ -18,17 +18,25 @@ package com.chrisa.cviz.features.home.data
 
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.Constants
+import com.chrisa.cviz.core.data.network.CovidApi
+import com.chrisa.cviz.core.util.DateUtils
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
 import com.chrisa.cviz.features.home.data.dtos.SavedAreaCaseDto
 import com.chrisa.cviz.features.home.data.dtos.SavedSoaDataDto
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 class HomeDataSource @Inject constructor(
-    private val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val covidApi: CovidApi
 ) {
+    private val formatter = DateTimeFormatter
+        .ofPattern(DateUtils.ISO_8601_DATE)
 
     fun ukOverview(): Flow<List<DailyRecordDto>> {
 
@@ -121,4 +129,28 @@ class HomeDataSource @Inject constructor(
                 }
             }
     }
+
+    fun nationMapDate(): Flow<LocalDate?> {
+        return flow {
+            try {
+                val mapDate = loadNationMapDate()
+                emit(mapDate)
+            } catch (e: Throwable) {
+                emit(null)
+            }
+        }
+    }
+
+    private suspend fun loadNationMapDate(): LocalDate? =
+        covidApi.nationPercentile().keys
+            .filterNot { "complete" == it }
+            .mapNotNull(::mapStringToDate)
+            .maxOrNull()
+
+    private fun mapStringToDate(it: String): LocalDate? =
+        try {
+            formatter.parse(it, LocalDate::from)
+        } catch (e: Throwable) {
+            null
+        }
 }

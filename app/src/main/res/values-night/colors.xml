@@ -13,4 +13,8 @@
     <color name="navigationColor">#333</color>
     <color name="combinedChartBarColor">#552e8d</color>
     <color name="combinedChartLineColor">#EFEFEF</color>
+
+    <!-- Infection rate map -->
+    <color name="infection_rate_map_outline">#333</color>
+    <color name="infection_rate_map_legend_outline">#555</color>
 </resources>
