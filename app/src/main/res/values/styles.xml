@@ -64,7 +64,7 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="ShapeAppearance.Cviz.CircleImageView" parent="">
+    <style name="ShapeAppearance.Cviz.Map.LegendColourOutline" parent="">
         <item name="cornerSize">10%</item>
     </style>
 

@@ -23,12 +23,14 @@ import com.chrisa.cviz.core.util.coroutines.TestCoroutineDispatchersImpl
 import com.chrisa.cviz.core.util.test
 import com.chrisa.cviz.features.home.domain.LoadDashboardDataUseCase
 import com.chrisa.cviz.features.home.domain.RefreshDataUseCase
+import com.chrisa.cviz.features.home.domain.models.CaseMapModel
 import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
 import com.google.common.truth.Truth.assertThat
 import io.mockk.Runs
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import java.time.LocalDate
@@ -88,10 +90,14 @@ class DashboardViewModelTest {
                     risingInfectionRates = listOf(summaryModel),
                     risingNewCases = listOf(summaryModel),
                     topNewCases = listOf(summaryModel),
-                    mapDate = LocalDate.of(2020, 1, 1)
+                    nationMap = CaseMapModel(
+                        lastUpdated = LocalDate.of(2020, 1, 1),
+                        imageUri = "https://map.png",
+                        redirectUri = "https://interactive-map"
+                    )
                 )
 
-                coEvery { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()
+                every { loadHomeDataUseCase.execute() } returns listOf(homeScreenDataModel).asFlow()
 
                 val sut = DashboardViewModel(
                     loadHomeDataUseCase,
@@ -113,7 +119,7 @@ class DashboardViewModelTest {
     @Test
     fun `WHEN viewmodel refreshed THEN refresh state is emitted`() =
         testDispatcher.runBlockingTest {
-            coEvery { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
+            every { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
             coEvery { refreshDataUseCase.execute() } just Runs
             val sut = DashboardViewModel(
                 loadHomeDataUseCase,
@@ -131,7 +137,7 @@ class DashboardViewModelTest {
     @Test
     fun `WHEN viewmodel refresh fails THEN is refreshing set to false`() =
         testDispatcher.runBlockingTest {
-            coEvery { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
+            every { loadHomeDataUseCase.execute() } returns emptyList<DashboardDataModel>().asFlow()
             coEvery { refreshDataUseCase.execute() } throws IOException()
             val sut = DashboardViewModel(
                 loadHomeDataUseCase,

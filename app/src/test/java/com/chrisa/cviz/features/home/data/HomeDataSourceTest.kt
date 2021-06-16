@@ -290,7 +290,7 @@ class HomeDataSourceTest {
         }
 
     @Test
-    fun `GIVEN nation percentile data contains dates WHEN mapDate called THEN last date is emitted`() =
+    fun `GIVEN nation percentile data contains dates WHEN nationMapDate called THEN last date is emitted`() =
         runBlockingTest {
             coEvery {
                 covidApi.nationPercentile(any())
@@ -303,14 +303,14 @@ class HomeDataSourceTest {
 
             val emittedItems = mutableListOf<LocalDate?>()
 
-            sut.mapDate().collect { emittedItems.add(it) }
+            sut.nationMapDate().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
             assertThat(emittedItems.first()).isEqualTo(LocalDate.of(2020, 1, 4))
         }
 
     @Test
-    fun `GIVEN only complete data key WHEN mapDate called THEN null date is emitted`() =
+    fun `GIVEN only complete data key WHEN nationMapDate called THEN null date is emitted`() =
         runBlockingTest {
             coEvery {
                 covidApi.nationPercentile(any())
@@ -320,14 +320,14 @@ class HomeDataSourceTest {
 
             val emittedItems = mutableListOf<LocalDate?>()
 
-            sut.mapDate().collect { emittedItems.add(it) }
+            sut.nationMapDate().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
             assertThat(emittedItems.first()).isNull()
         }
 
     @Test
-    fun `GIVEN unsupported date key WHEN mapDate called THEN null date is emitted`() =
+    fun `GIVEN unsupported date key WHEN nationMapDate called THEN null date is emitted`() =
         runBlockingTest {
             coEvery {
                 covidApi.nationPercentile(any())
@@ -338,7 +338,7 @@ class HomeDataSourceTest {
 
             val emittedItems = mutableListOf<LocalDate?>()
 
-            sut.mapDate().collect { emittedItems.add(it) }
+            sut.nationMapDate().collect { emittedItems.add(it) }
 
             assertThat(emittedItems.size).isEqualTo(1)
             assertThat(emittedItems.first()).isEqualTo(LocalDate.of(2020, 1, 2))

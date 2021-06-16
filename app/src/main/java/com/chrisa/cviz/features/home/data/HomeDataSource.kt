@@ -130,10 +130,10 @@ class HomeDataSource @Inject constructor(
             }
     }
 
-    fun mapDate(): Flow<LocalDate?> {
+    fun nationMapDate(): Flow<LocalDate?> {
         return flow {
             try {
-                val mapDate = loadMapDate()
+                val mapDate = loadNationMapDate()
                 emit(mapDate)
             } catch (e: Throwable) {
                 emit(null)
@@ -141,16 +141,16 @@ class HomeDataSource @Inject constructor(
         }
     }
 
-    private suspend fun loadMapDate(): LocalDate? =
+    private suspend fun loadNationMapDate(): LocalDate? =
         covidApi.nationPercentile().keys
             .filterNot { "complete" == it }
-            .map {
-                return@map try {
-                    formatter.parse(it, LocalDate::from)
-                } catch (e: Throwable) {
-                    null
-                }
-            }
-            .filterNotNull()
-            .max()
+            .mapNotNull(::mapStringToDate)
+            .maxOrNull()
+
+    private fun mapStringToDate(it: String): LocalDate? =
+        try {
+            formatter.parse(it, LocalDate::from)
+        } catch (e: Throwable) {
+            null
+        }
 }

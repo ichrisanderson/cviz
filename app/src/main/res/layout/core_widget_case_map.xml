@@ -61,7 +61,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_no_data_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_no_data_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_no_data"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />
@@ -86,7 +86,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_level_1_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_level_1_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_level_1"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />
@@ -112,7 +112,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_level_2_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_level_2_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_level_2"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />
@@ -138,7 +138,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_level_3_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_level_3_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_level_3"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />
@@ -164,7 +164,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_level_4_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_level_4_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_level_4"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />
@@ -190,7 +190,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_level_5_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_level_5_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_level_5"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />
@@ -216,7 +216,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_level_6_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_level_6_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_level_6"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />
@@ -242,7 +242,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/legend_level_7_label"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@id/legend_level_7_label"
-                    app:shapeAppearance="@style/ShapeAppearance.Cviz.CircleImageView"
+                    app:shapeAppearance="@style/ShapeAppearance.Cviz.Map.LegendColourOutline"
                     app:srcCompat="@color/infection_rate_map_level_7"
                     app:strokeColor="@color/infection_rate_map_legend_outline"
                     app:strokeWidth="1dp" />

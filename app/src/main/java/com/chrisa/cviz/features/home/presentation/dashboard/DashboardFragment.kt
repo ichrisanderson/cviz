@@ -146,11 +146,12 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
                     id("dailyRecordCarousel")
                     models(dailyRecordModels("dailyRecord_", homeScreenData.latestUkData))
                 }
-                homeScreenData.mapDate?.let { mapDate ->
+                homeScreenData.nationMap?.let { nationMap ->
                     caseMapCard {
                         id("caseMap")
-                        mapDate(mapDate)
-                        clickListener { _ -> navigateToInteractiveMap() }
+                        mapDate(nationMap.lastUpdated)
+                        mapUri(nationMap.imageUri)
+                        clickListener { _ -> navigateToInteractiveMap(nationMap.redirectUri) }
                     }
                 }
                 sectionHeader {
@@ -272,11 +273,11 @@ class DashboardFragment : Fragment(R.layout.dashboard_fragment) {
             .navigate(action)
     }
 
-    private fun navigateToInteractiveMap() {
+    private fun navigateToInteractiveMap(redirectUri: String) {
         try {
             val intent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://coronavirus.data.gov.uk/details/interactive-map")
+                Uri.parse(redirectUri)
             )
             startActivity(intent)
         } catch (e: Throwable) {

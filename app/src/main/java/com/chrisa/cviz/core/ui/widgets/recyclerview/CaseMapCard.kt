@@ -45,18 +45,17 @@ class CaseMapCard(context: Context, attrs: AttributeSet) : MaterialCardView(cont
     }
 
     @ModelProp
-    fun mapDate(mapDate: LocalDate) {
+    fun mapUri(mapUri: String) {
         findViewById<ImageView>(R.id.image)
             .load(uri = mapUri)
+    }
+
+    @ModelProp
+    fun mapDate(mapDate: LocalDate) {
         findViewById<TextView>(R.id.map_title).text =
             context.getString(
                 R.string.map_title_format,
                 DateFormatter.mediumLocalizedDate(mapDate)
             )
-    }
-
-    private companion object {
-        private const val mapUri =
-            "https://coronavirus.data.gov.uk/public/assets/frontpage/images/map.png"
     }
 }

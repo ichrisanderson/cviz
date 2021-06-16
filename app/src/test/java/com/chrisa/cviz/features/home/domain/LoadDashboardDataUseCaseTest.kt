@@ -21,6 +21,7 @@ import com.chrisa.cviz.core.data.db.Constants
 import com.chrisa.cviz.features.home.data.HomeDataSource
 import com.chrisa.cviz.features.home.data.dtos.AreaSummaryDto
 import com.chrisa.cviz.features.home.data.dtos.DailyRecordDto
+import com.chrisa.cviz.features.home.domain.models.CaseMapModel
 import com.chrisa.cviz.features.home.domain.models.DashboardDataModel
 import com.chrisa.cviz.features.home.domain.models.LatestUkDataModel
 import com.chrisa.cviz.features.home.domain.models.SummaryModel
@@ -50,7 +51,7 @@ class LoadDashboardDataUseCaseTest {
     fun setup() {
         every { homeDataSource.ukOverview() } returns listOf(emptyList<DailyRecordDto>()).asFlow()
         every { homeDataSource.areaSummaries() } returns listOf(emptyList<AreaSummaryDto>()).asFlow()
-        every { homeDataSource.mapDate() } returns flow { emit(null) }
+        every { homeDataSource.nationMapDate() } returns flow { emit(null) }
     }
 
     @Test
@@ -133,16 +134,22 @@ class LoadDashboardDataUseCaseTest {
         }
 
     @Test
-    fun `WHEN execute called THEN map date is emitted`() =
+    fun `WHEN execute called THEN nation map is emitted`() =
         runBlockingTest {
             val mapDate = LocalDate.of(2020, 1, 1)
             val emittedItems = mutableListOf<DashboardDataModel>()
-            every { homeDataSource.mapDate() } returns flow { emit(mapDate) }
+            every { homeDataSource.nationMapDate() } returns flow { emit(mapDate) }
 
             sut.execute().collect { emittedItems.add(it) }
 
             val dashboardDataModel = emittedItems.first()
-            assertThat(dashboardDataModel.mapDate).isEqualTo(mapDate)
+            assertThat(dashboardDataModel.nationMap).isEqualTo(
+                CaseMapModel(
+                    lastUpdated = mapDate,
+                    imageUri = "https://coronavirus.data.gov.uk/public/assets/frontpage/images/map.png",
+                    redirectUri = "https://coronavirus.data.gov.uk/details/interactive-map"
+                )
+            )
         }
 
     companion object {
