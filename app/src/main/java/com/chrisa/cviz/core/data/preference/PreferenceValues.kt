@@ -22,7 +22,7 @@ object PreferenceValues {
     val showNotificationAfterDataRefresh =
         BooleanPreference("show_notification_after_data_refresh", true)
     val darkMode =
-        StringListPreference("dark_mode", DarkModeValues.Off.value)
+        StringListPreference("dark_mode", DarkModeValues.Automatic.value)
 }
 
 sealed class DarkModeValues(val value: String) {
