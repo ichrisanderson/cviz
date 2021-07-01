@@ -38,10 +38,10 @@ class SyncNotificationImpl @Inject constructor(
 
     override fun showSuccess() {
         val notificationManager: NotificationManager = notificationManager()
+        removeArchivedNotifications(notificationManager)
         createNotificationChannel(
             notificationManager,
-            context.getString(R.string.sync_notification_name),
-            context.getString(R.string.sync_notification_success_description)
+            context.getString(R.string.sync_notification_name)
         )
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -50,7 +50,6 @@ class SyncNotificationImpl @Inject constructor(
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(context.getString(R.string.sync_notification_success_content_title))
             .setContentText(context.getString(R.string.sync_notification_success_content_text))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
@@ -67,8 +66,7 @@ class SyncNotificationImpl @Inject constructor(
 
     private fun createNotificationChannel(
         notificationManager: NotificationManager,
-        name: String,
-        description: String
+        name: String
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel = NotificationChannel(
@@ -76,14 +74,17 @@ class SyncNotificationImpl @Inject constructor(
                 name,
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-                .apply {
-                    this.description = description
-                }
             notificationManager.createNotificationChannel(notificationChannel)
         }
     }
 
+    private fun removeArchivedNotifications(notificationManager: NotificationManager) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.deleteNotificationChannel("cron19.synchronisation")
+        }
+    }
+
     companion object {
-        private val CHANNEL_ID = "cron19.synchronisation"
+        private const val CHANNEL_ID = "cviz.synchronisation"
     }
 }
