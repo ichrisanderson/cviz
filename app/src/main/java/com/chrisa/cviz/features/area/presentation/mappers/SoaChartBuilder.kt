@@ -65,6 +65,6 @@ class SoaDailyDataMapper @Inject constructor() {
                 date = soaData.date
             )
         }
-        return data.sortedByDescending { it.date }
+        return data.sortedBy { it.date }
     }
 }

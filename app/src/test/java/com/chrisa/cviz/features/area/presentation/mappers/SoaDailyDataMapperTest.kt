@@ -27,7 +27,7 @@ class SoaDailyDataMapperTest {
     private val sut = SoaDailyDataMapper()
 
     @Test
-    fun `WHEN mapToDailyData called THEN daily data returned`() {
+    fun `WHEN mapToDailyData called THEN daily data returned in order`() {
         val soaData = listOf(
             SoaData(
                 date = LocalDate.of(2020, 2, 1),
@@ -46,16 +46,16 @@ class SoaDailyDataMapperTest {
         assertThat(dailyData).isEqualTo(
             listOf(
                 DailyData(
-                    newValue = soaData[0].rollingSum,
-                    cumulativeValue = soaData[0].rollingSum + soaData[1].rollingSum,
-                    soaData[0].rollingRate,
-                    soaData[0].date
-                ),
-                DailyData(
                     newValue = soaData[1].rollingSum,
                     cumulativeValue = soaData[1].rollingSum,
                     soaData[1].rollingRate,
                     soaData[1].date
+                ),
+                DailyData(
+                    newValue = soaData[0].rollingSum,
+                    cumulativeValue = soaData[0].rollingSum + soaData[1].rollingSum,
+                    soaData[0].rollingRate,
+                    soaData[0].date
                 )
             )
         )
