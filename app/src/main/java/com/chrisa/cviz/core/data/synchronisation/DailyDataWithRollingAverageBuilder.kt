@@ -31,6 +31,6 @@ class DailyDataWithRollingAverageBuilder @Inject constructor(
                 rollingAverage = rollingAverageHelper.average(index, values),
                 date = data.date
             )
-        }
+        }.sortedBy { it.date }
     }
 }
