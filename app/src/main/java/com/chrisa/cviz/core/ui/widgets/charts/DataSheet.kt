@@ -22,6 +22,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.chrisa.cviz.core.ui.NumberFormatter
 import com.chrisa.cviz.dataSheetHeaders
 import com.chrisa.cviz.dataSheetItem
 import com.chrisa.cviz.databinding.CoreWidgetChartDataSheetBinding
@@ -66,8 +67,8 @@ class DataSheet(
                 dataSheetItem {
                     id(dataItem.label)
                     label(dataItem.label)
-                    value1(dataItem.value.toString())
-                    value2(dataItem.cumulativeValue.toString())
+                    value1(NumberFormatter.format(dataItem.value))
+                    value2(NumberFormatter.format(dataItem.cumulativeValue))
                 }
             }
         }
