@@ -19,7 +19,6 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AreaAssociationTypeDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
-import com.chrisa.cviz.features.area.domain.AlertLevelUseCase.Companion.supportsAlertLevel
 import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCode
 import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCodeResolver
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareDataSynchroniserFacade

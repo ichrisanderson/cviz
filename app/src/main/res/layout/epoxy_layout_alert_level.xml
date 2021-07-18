@@ -75,8 +75,7 @@
                 app:layout_constraintBottom_toTopOf="@id/guidelineBottom"
                 app:layout_constraintEnd_toStartOf="@+id/viewInformation"
                 app:layout_constraintStart_toEndOf="@id/warningIcon"
-                app:layout_constraintTop_toBottomOf="@id/guidelineTop"
-                tools:text="National Restrictions" />
+                app:layout_constraintTop_toBottomOf="@id/guidelineTop" />
 
             <TextView
                 android:id="@+id/viewInformation"

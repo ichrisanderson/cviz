@@ -20,8 +20,7 @@ import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel
 import javax.inject.Inject
 
-class AlertLevelUseCase @Inject constructor(
-) {
+class AlertLevelUseCase @Inject constructor() {
 
     fun alertLevel(areaCode: String, areaType: AreaType): AlertLevelModel? =
         defaultAlertLevel(areaCode, areaType)

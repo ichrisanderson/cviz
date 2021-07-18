@@ -19,7 +19,6 @@ package com.chrisa.cviz.features.area.domain.synchronisers
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AreaAssociationTypeDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
-import com.chrisa.cviz.features.area.domain.AlertLevelUseCase
 import com.chrisa.cviz.features.area.domain.AreaDataSynchroniserWrapper
 import com.chrisa.cviz.features.area.domain.AreaDetailSynchroniser
 import com.chrisa.cviz.features.area.domain.AreaLookupUseCase
