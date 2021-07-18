@@ -48,13 +48,6 @@ class UnusedDataCleaner @Inject constructor(
                     .distinct()
                     .map { MetadataIds.areaCodeId(it) }.toList()
 
-            val allAlertLevelCodes =
-                allAssociations.asSequence()
-                    .filter { it.associatedAreaType == AreaAssociationType.ALERT_LEVEL }
-                    .map { it.associatedAreaCode }
-                    .distinct()
-                    .map { MetadataIds.alertLevelId(it) }.toList()
-
             val allHealthcareCodes =
                 allAssociations.filter { it.associatedAreaType == AreaAssociationType.HEALTHCARE_DATA }
                     .map { it.associatedAreaCode }
@@ -65,7 +58,6 @@ class UnusedDataCleaner @Inject constructor(
                 allSoaAreaMetadataCodes
                     .plus(allAreaDataCodes)
                     .plus(allHealthcareCodes)
-                    .plus(allAlertLevelCodes)
                     .plus(MetadataIds.areaSummaryId())
 
             val allLsoaCodes =

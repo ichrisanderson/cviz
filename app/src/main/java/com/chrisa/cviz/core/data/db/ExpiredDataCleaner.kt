@@ -43,14 +43,6 @@ class ExpiredDataCleaner @Inject constructor(
                         )
                     )
                 }
-            val outOfDateAlertLevels =
-                snapshot.alertLevelAreaCodes.filter {
-                    outOfDateMetadataIds.contains(
-                        MetadataIds.alertLevelId(
-                            it
-                        )
-                    )
-                }
             val outOfDateAreaData =
                 snapshot.areaDataAreaCodes.filter {
                     outOfDateMetadataIds.contains(
@@ -70,7 +62,6 @@ class ExpiredDataCleaner @Inject constructor(
 
             appDatabase.soaDataDao().deleteAllInAreaCode(outOfDateSoaData)
             appDatabase.areaDataDao().deleteAllInAreaCode(outOfDateAreaData)
-            appDatabase.alertLevelDao().deleteAllInAreaCode(outOfDateAlertLevels)
             appDatabase.healthcareDao().deleteAllInAreaCode(outOfDateHealthCare)
             appDatabase.metadataDao().deleteAllInId(outOfDateMetadataIds)
         }

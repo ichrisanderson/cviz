@@ -19,7 +19,6 @@ package com.chrisa.cviz.features.area.domain
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AreaAssociationTypeDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
-import com.chrisa.cviz.features.area.domain.AlertLevelUseCase.Companion.supportsAlertLevel
 import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCode
 import com.chrisa.cviz.features.area.domain.arealookup.AreaLookupCodeResolver
 import com.chrisa.cviz.features.area.domain.healthcare.HealthcareDataSynchroniserFacade
@@ -27,7 +26,6 @@ import javax.inject.Inject
 
 class AreaDetailSynchroniser @Inject constructor(
     private val areaLookupUseCase: AreaLookupUseCase,
-    private val alertLevelUseCase: AlertLevelUseCase,
     private val insertAreaAssociationUseCase: InsertAreaAssociationUseCase,
     private val areaLookupCodeResolver: AreaLookupCodeResolver,
     private val areaDataSynchroniser: AreaDataSynchroniserWrapper,
@@ -50,14 +48,6 @@ class AreaDetailSynchroniser @Inject constructor(
         areaLookup: AreaLookupDto?,
         areaLookupCode: AreaLookupCode
     ) {
-        if (areaLookupCode.areaType.supportsAlertLevel()) {
-            alertLevelUseCase.syncAlertLevel(areaLookupCode.areaCode, areaLookupCode.areaType)
-            insertAreaAssociationUseCase.execute(
-                areaCode,
-                areaLookupCode.areaCode,
-                AreaAssociationTypeDto.ALERT_LEVEL
-            )
-        }
         areaDataSynchroniser.execute(areaLookupCode.areaCode, areaLookupCode.areaType)
         healthcareDataSynchroniser.syncHealthcare(
             areaCode,

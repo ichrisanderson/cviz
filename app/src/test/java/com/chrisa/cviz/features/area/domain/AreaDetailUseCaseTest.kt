@@ -103,7 +103,6 @@ class AreaDetailUseCaseTest {
         } returns ukAreaPublishedDeathsDataDto
         every { areaDeathsFacade.onsDeaths(any(), any(), any()) } returns ukAreaOnsDeathsDataDto
         every { healthcareFacade.healthcareLookups(any()) } returns emptyList()
-        coEvery { alertLevelUseCase.syncAlertLevel(any(), any()) } just Runs
         coEvery { alertLevelUseCase.alertLevel(any(), any()) } returns null
         coEvery { soaDataUseCase.syncSoaData(any(), any()) } just Runs
         every { soaDataUseCase.byAreaCode(any(), any()) } returns null

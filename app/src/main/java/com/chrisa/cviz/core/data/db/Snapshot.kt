@@ -20,6 +20,5 @@ class Snapshot(
     val metadata: List<MetadataEntity>,
     val areaDataAreaCodes: List<String>,
     val soaDataAreaCodes: List<String>,
-    val healthcareAreaCodes: List<String>,
-    val alertLevelAreaCodes: List<String>
+    val healthcareAreaCodes: List<String>
 )

@@ -19,7 +19,6 @@ package com.chrisa.cviz.features.area.domain.synchronisers
 import com.chrisa.cviz.core.data.db.AreaType
 import com.chrisa.cviz.features.area.data.dtos.AreaAssociationTypeDto
 import com.chrisa.cviz.features.area.data.dtos.AreaLookupDto
-import com.chrisa.cviz.features.area.domain.AlertLevelUseCase
 import com.chrisa.cviz.features.area.domain.AreaDataSynchroniserWrapper
 import com.chrisa.cviz.features.area.domain.AreaDetailSynchroniser
 import com.chrisa.cviz.features.area.domain.AreaLookupUseCase
@@ -36,7 +35,6 @@ import org.junit.Test
 class AreaDetailSynchroniserTest {
 
     private val areaLookupUseCase: AreaLookupUseCase = mockk(relaxed = true)
-    private val alertLevelUseCase: AlertLevelUseCase = mockk(relaxed = true)
     private val insertAreaAssociationUseCase: InsertAreaAssociationUseCase = mockk(relaxed = true)
     private val areaLookupCodeResolver: AreaLookupCodeResolver = AreaLookupCodeResolver()
     private val areaDataSynchroniser: AreaDataSynchroniserWrapper = mockk(relaxed = true)
@@ -45,25 +43,11 @@ class AreaDetailSynchroniserTest {
 
     private val sut = AreaDetailSynchroniser(
         areaLookupUseCase,
-        alertLevelUseCase,
         insertAreaAssociationUseCase,
         areaLookupCodeResolver,
         areaDataSynchroniser,
         healthcareDataSynchroniserFacade
     )
-
-    @Test
-    fun `WHEN performSync called THEN alert level sync triggered`() = runBlocking {
-        val areaCode = "area1"
-        val areaType = AreaType.UTLA
-        every { areaLookupUseCase.areaLookup(areaCode, areaType) } returns areaLookupDto
-
-        sut.performSync(areaCode, areaType)
-
-        coVerify {
-            alertLevelUseCase.syncAlertLevel(areaCode, AreaType.UTLA)
-        }
-    }
 
     @Test
     fun `WHEN performSync called THEN area data sync triggered`() = runBlocking {
@@ -92,23 +76,6 @@ class AreaDetailSynchroniserTest {
                 areaCode,
                 AreaType.UTLA,
                 areaLookupDto
-            )
-        }
-    }
-
-    @Test
-    fun `WHEN performSync called THEN alert level association created`() = runBlocking {
-        val areaCode = "area1"
-        val areaType = AreaType.UTLA
-        every { areaLookupUseCase.areaLookup(areaCode, areaType) } returns areaLookupDto
-
-        sut.performSync(areaCode, areaType)
-
-        verify {
-            insertAreaAssociationUseCase.execute(
-                areaCode,
-                areaCode,
-                AreaAssociationTypeDto.ALERT_LEVEL
             )
         }
     }

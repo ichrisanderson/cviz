@@ -47,7 +47,6 @@ class UnusedDataCleanerTest {
         seedAreas()
         seedSoaData()
         seedAreaData()
-        seedAlertLevels()
         seedHealthcare()
         seedAreaLookups()
 
@@ -214,49 +213,6 @@ class UnusedDataCleanerTest {
         db.areaDataDao().insertAll(areaData)
     }
 
-    private fun seedAlertLevels() {
-        val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
-        val westminsterAlertLevel = AlertLevelEntity(
-            areaCode = centralWestminsterAreaLookup.utlaCode,
-            metadataId = MetadataIds.alertLevelId(centralWestminsterAreaLookup.utlaCode),
-            date = LocalDate.of(2021, 2, 14),
-            alertLevel = 2,
-            alertLevelName = "Stay Alert",
-            alertLevelUrl = "http://acme.com",
-            alertLevelValue = 2
-        )
-        val westminsterMetadata = MetadataEntity(
-            id = MetadataIds.alertLevelId(centralWestminsterAreaLookup.utlaCode),
-            lastUpdatedAt = currentTime.minusDays(1),
-            lastSyncTime = currentTime.minusHours(1)
-        )
-        db.metadataDao().insertAll(
-            listOf(
-                westminsterMetadata,
-                westminsterMetadata.copy(
-                    id = MetadataIds.alertLevelId(marlyboneAreaLookup.utlaCode),
-                    lastSyncTime = currentTime.minusDays(3)
-                ),
-                westminsterMetadata.copy(
-                    id = MetadataIds.alertLevelId(oxfordCentralAreaLookup.utlaCode),
-                    lastSyncTime = currentTime.minusDays(1)
-                )
-            )
-        )
-        val alertLevels = listOf(
-            westminsterAlertLevel,
-            westminsterAlertLevel.copy(
-                areaCode = marlyboneAreaLookup.utlaCode,
-                metadataId = MetadataIds.alertLevelId(marlyboneAreaLookup.utlaCode)
-            ),
-            westminsterAlertLevel.copy(
-                areaCode = oxfordCentralAreaLookup.utlaCode,
-                metadataId = MetadataIds.alertLevelId(oxfordCentralAreaLookup.utlaCode)
-            )
-        )
-        db.alertLevelDao().insertAll(alertLevels)
-    }
-
     private fun seedHealthcare() {
         val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
         val westminsterHealthcareEntity = HealthcareEntity(
@@ -320,7 +276,6 @@ class UnusedDataCleanerTest {
 
         assertThat(db.soaDataDao().all()).isEmpty()
         assertThat(db.areaDataDao().all()).isEmpty()
-        assertThat(db.alertLevelDao().all()).isEmpty()
         assertThat(db.healthcareDao().all()).isEmpty()
         assertThat(db.metadataDao().all()).isEmpty()
         assertThat(db.areaLookupDao().all()).isEmpty()
@@ -335,7 +290,6 @@ class UnusedDataCleanerTest {
         assertThat(db.soaDataDao().all().map { it.areaCode })
             .isEqualTo(listOf(centralWestminsterAreaLookup.msoaCode))
         assertThat(db.areaDataDao().all()).isEmpty()
-        assertThat(db.alertLevelDao().all()).isEmpty()
         assertThat(db.healthcareDao().all()).isEmpty()
         assertThat(db.metadataDao().all().map { it.id })
             .isEqualTo(listOf(MetadataIds.areaCodeId(centralWestminsterAreaLookup.msoaCode)))
@@ -362,13 +316,6 @@ class UnusedDataCleanerTest {
         db.areaAssociationDao().insert(
             AreaAssociation(
                 centralWestminsterAreaLookup.msoaCode,
-                centralWestminsterAreaLookup.utlaCode,
-                AreaAssociationType.ALERT_LEVEL
-            )
-        )
-        db.areaAssociationDao().insert(
-            AreaAssociation(
-                centralWestminsterAreaLookup.msoaCode,
                 centralWestminsterAreaLookup.nhsTrustCode!!,
                 AreaAssociationType.HEALTHCARE_DATA
             )
@@ -380,8 +327,6 @@ class UnusedDataCleanerTest {
             .isEqualTo(listOf(centralWestminsterAreaLookup.msoaCode))
         assertThat(db.areaDataDao().all().map { it.areaCode })
             .isEqualTo(listOf(centralWestminsterAreaLookup.utlaCode))
-        assertThat(db.alertLevelDao().all().map { it.areaCode })
-            .isEqualTo(listOf(centralWestminsterAreaLookup.utlaCode))
         assertThat(db.healthcareDao().all().map { it.areaCode })
             .isEqualTo(listOf(centralWestminsterAreaLookup.nhsTrustCode!!))
         assertThat(db.metadataDao().all().map { it.id })
@@ -389,7 +334,6 @@ class UnusedDataCleanerTest {
                 listOf(
                     MetadataIds.areaCodeId(centralWestminsterAreaLookup.msoaCode),
                     MetadataIds.areaCodeId(centralWestminsterAreaLookup.utlaCode),
-                    MetadataIds.alertLevelId(centralWestminsterAreaLookup.utlaCode),
                     MetadataIds.healthcareId(centralWestminsterAreaLookup.nhsTrustCode!!)
                 )
             )
@@ -441,7 +385,6 @@ class UnusedDataCleanerTest {
         assertThat(db.soaDataDao().all()).isEmpty()
         assertThat(db.areaDataDao().all().map { it.areaCode })
             .isEqualTo(nations.map { it.areaCode })
-        assertThat(db.alertLevelDao().all()).isEmpty()
         assertThat(db.healthcareDao().all()).isEmpty()
         assertThat(db.metadataDao().all().map { it.id })
             .isEqualTo(nations.map { MetadataIds.areaCodeId(it.areaCode) })

@@ -44,7 +44,7 @@ class SoaDataSourceTest {
     @Test
     fun `WHEN byAreaCode THEN soa data by area code returned`() {
         val areaCode = "1234"
-        val metadataId = MetadataIds.alertLevelId(areaCode)
+        val metadataId = MetadataIds.areaCodeId(areaCode)
         val soaDataEntity = SoaDataWithArea(
             areaName = "London",
             areaType = AreaType.REGION,

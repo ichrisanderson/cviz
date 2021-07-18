@@ -14,8 +14,8 @@
     <color name="navigationColor">@color/primaryDarkColor</color>
     <color name="combinedChartBarColor">#8ceaff</color>
     <color name="combinedChartLineColor">#333</color>
-    <color name="alertCardBackgroundColor">#CCff0d00</color>
-    <color name="alertCardStrokeColor">#ffff0d00</color>
+    <color name="alertCardBackgroundColor">#ccff8800</color>
+    <color name="alertCardStrokeColor">#ffff8800</color>
     <color name="alertCardTextColor">#ffffff</color>
 
     <!-- Infection rate map -->
