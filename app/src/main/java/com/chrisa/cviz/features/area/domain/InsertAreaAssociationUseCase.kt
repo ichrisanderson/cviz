@@ -39,7 +39,6 @@ class InsertAreaAssociationUseCase @Inject constructor(
         when (associationType) {
             AreaAssociationTypeDto.AREA_DATA -> AreaAssociationType.AREA_DATA
             AreaAssociationTypeDto.AREA_LOOKUP -> AreaAssociationType.AREA_LOOKUP
-            AreaAssociationTypeDto.ALERT_LEVEL -> AreaAssociationType.ALERT_LEVEL
             AreaAssociationTypeDto.HEALTHCARE_DATA -> AreaAssociationType.HEALTHCARE_DATA
         }
 }

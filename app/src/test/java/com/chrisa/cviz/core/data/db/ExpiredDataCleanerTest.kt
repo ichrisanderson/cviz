@@ -189,67 +189,6 @@ class ExpiredDataCleanerTest {
     }
 
     @Test
-    fun `GIVEN alert level data is out of date WHEN removeUnusedData called THEN out of date alert level data is deleted`() {
-        val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
-        every { timeProvider.currentTime() } returns currentTime
-        val westminsterAlertLevel = AlertLevelEntity(
-            areaCode = centralWestminsterArea.areaCode,
-            metadataId = MetadataIds.alertLevelId(centralWestminsterArea.areaCode),
-            date = LocalDate.of(2021, 2, 14),
-            alertLevel = 2,
-            alertLevelName = "Stay Alert",
-            alertLevelUrl = "http://acme.com",
-            alertLevelValue = 2
-        )
-        val alertLevels = listOf(
-            westminsterAlertLevel,
-            westminsterAlertLevel.copy(
-                areaCode = marlyboneArea.areaCode,
-                metadataId = MetadataIds.alertLevelId(marlyboneArea.areaCode)
-            ),
-            westminsterAlertLevel.copy(
-                areaCode = oxfordCentralArea.areaCode,
-                metadataId = MetadataIds.alertLevelId(oxfordCentralArea.areaCode)
-            )
-        )
-        val westminsterMetadata = MetadataEntity(
-            id = MetadataIds.alertLevelId(centralWestminsterArea.areaCode),
-            lastUpdatedAt = currentTime.minusDays(1),
-            lastSyncTime = currentTime.minusHours(1)
-        )
-        db.metadataDao().insertAll(
-            listOf(
-                westminsterMetadata,
-                westminsterMetadata.copy(
-                    id = MetadataIds.alertLevelId(marlyboneArea.areaCode),
-                    lastSyncTime = currentTime.minusDays(3)
-                ),
-                westminsterMetadata.copy(
-                    id = MetadataIds.alertLevelId(oxfordCentralArea.areaCode),
-                    lastSyncTime = currentTime.minusDays(1)
-                )
-            )
-        )
-        db.alertLevelDao().insertAll(alertLevels)
-
-        runBlocking { sut.execute() }
-
-        val testSnapshot = TestSnapshot(db)
-        assertThat(testSnapshot.retainedAlertLevelAreaCodes).isEqualTo(
-            listOf(
-                centralWestminsterArea.areaCode,
-                oxfordCentralArea.areaCode
-            )
-        )
-        assertThat(testSnapshot.retainedMetadataIds).isEqualTo(
-            listOf(
-                MetadataIds.alertLevelId(centralWestminsterArea.areaCode),
-                MetadataIds.alertLevelId(oxfordCentralArea.areaCode)
-            )
-        )
-    }
-
-    @Test
     fun `GIVEN healthcare data is out of date WHEN removeUnusedData called THEN out of date healthcare data is deleted`() {
         val currentTime = LocalDateTime.of(2020, 1, 1, 9, 0)
         every { timeProvider.currentTime() } returns currentTime
@@ -317,7 +256,6 @@ class ExpiredDataCleanerTest {
         val retainedSoaAreaCodes = db.soaDataDao().all().map { it.areaCode }
         val retainedAreaDataAreaCodes = db.areaDataDao().all().map { it.areaCode }
         val retainedHealthcareAreaCodes = db.healthcareDao().all().map { it.areaCode }
-        val retainedAlertLevelAreaCodes = db.alertLevelDao().all().map { it.areaCode }
         val retainedMetadataIds = db.metadataDao().all().map { it.id }
     }
 

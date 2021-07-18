@@ -17,25 +17,14 @@
 package com.chrisa.cviz.features.area.domain
 
 import com.chrisa.cviz.core.data.db.AreaType
-import com.chrisa.cviz.core.data.synchronisation.AlertLevelSynchroniser
-import com.chrisa.cviz.features.area.data.AlertLevelDataSource
 import com.chrisa.cviz.features.area.domain.models.AlertLevelModel
 import javax.inject.Inject
-import timber.log.Timber
 
 class AlertLevelUseCase @Inject constructor(
-    private val alertLevelDataSource: AlertLevelDataSource,
-    private val alertLevelSynchroniser: AlertLevelSynchroniser
 ) {
 
-    fun alertLevel(areaCode: String, areaType: AreaType): AlertLevelModel? {
-        val alertLevel = alertLevelDataSource.alertLevel(areaCode)
-        return alertLevel?.let {
-            AlertLevelModel(
-                alertLevelUrl = alertLevel.alertLevelUrl
-            )
-        } ?: defaultAlertLevel(areaCode, areaType)
-    }
+    fun alertLevel(areaCode: String, areaType: AreaType): AlertLevelModel? =
+        defaultAlertLevel(areaCode, areaType)
 
     private fun defaultAlertLevel(areaCode: String, areaType: AreaType): AlertLevelModel? {
         if (!areaType.supportsAlertLevel()) return null
@@ -45,29 +34,16 @@ class AlertLevelUseCase @Inject constructor(
             areaCode.startsWith("W") ->
                 AlertLevelModel(WALES_RESTRICTIONS_URL)
             areaCode.startsWith("E") ->
-                AlertLevelModel(UK_RESTRICTIONS_URL)
+                AlertLevelModel(ENGLAND_RESTRICTIONS_URL)
             areaCode.startsWith("N") ->
                 AlertLevelModel(NORTHERN_IRELAND_RESTRICTIONS_URL)
             else -> null
         }
     }
 
-    suspend fun syncAlertLevel(areaCode: String, areaType: AreaType) =
-        if (areaType.supportsAlertLevel())
-            doSync(areaCode)
-        else
-            Unit
-
-    private suspend fun doSync(areaCode: String) =
-        try {
-            alertLevelSynchroniser.performSync(areaCode, AreaType.LTLA)
-        } catch (error: Throwable) {
-            Timber.e(error)
-        }
-
     companion object {
-        const val UK_RESTRICTIONS_URL =
-            "https://www.gov.uk/coronavirus"
+        const val ENGLAND_RESTRICTIONS_URL =
+            "https://www.gov.uk/guidance/covid-19-coronavirus-restrictions-what-you-can-and-cannot-do"
         const val WALES_RESTRICTIONS_URL =
             "https://gov.wales/coronavirus"
         const val SCOTLAND_RESTRICTIONS_URL =

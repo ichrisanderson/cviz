@@ -50,11 +50,10 @@ import kotlinx.coroutines.flow.Flow
         HealthcareEntity::class,
         AreaLookupEntity::class,
         HealthcareLookupEntity::class,
-        AlertLevelEntity::class,
         SoaDataEntity::class,
         AreaAssociation::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(
@@ -73,7 +72,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun areaLookupDao(): AreaLookupDao
     abstract fun healthcareDao(): HealthcareDao
     abstract fun healthcareLookupDao(): HealthcareLookupDao
-    abstract fun alertLevelDao(): AlertLevelDao
     abstract fun soaDataDao(): SoaDataDao
     abstract fun areaAssociationDao(): AreaAssociationDao
 
@@ -128,9 +126,15 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DROP TABLE `alertLevel`")
+            }
+        }
+
         fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(context, AppDatabase::class.java, databaseName)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .fallbackToDestructiveMigration()
                 .build()
         }
@@ -451,7 +455,6 @@ object MetadataIds {
     fun areaSummaryId(): String = "AREA_SUMMARY_METADATA"
     fun areaCodeId(areaCode: String) = "AREA_${areaCode}_METADATA"
     fun healthcareId(areaCode: String) = "HEALTHCARE_${areaCode}_METADATA"
-    fun alertLevelId(areaCode: String) = "ALERT_LEVEL_${areaCode}_METADATA"
 }
 
 @Entity(
@@ -675,55 +678,6 @@ interface HealthcareLookupDao {
 }
 
 @Entity(
-    tableName = "alertLevel",
-    primaryKeys = ["areaCode"],
-    foreignKeys = [
-        ForeignKey(
-            entity = AreaEntity::class,
-            parentColumns = ["areaCode"],
-            childColumns = ["areaCode"]
-        ),
-        ForeignKey(
-            entity = MetadataEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["metadataId"],
-            onDelete = CASCADE
-        )
-    ]
-)
-data class AlertLevelEntity(
-    val areaCode: String,
-    val metadataId: String,
-    val date: LocalDate,
-    val alertLevel: Int,
-    val alertLevelName: String,
-    val alertLevelUrl: String,
-    val alertLevelValue: Int
-)
-
-@Dao
-interface AlertLevelDao {
-
-    @Query("SELECT DISTINCT areaCode FROM alertLevel")
-    fun distinctAreaCodes(): List<String>
-
-    @Query("DELETE FROM alertLevel WHERE areaCode IN (:areaCodes)")
-    fun deleteAllInAreaCode(areaCodes: Collection<String>)
-
-    @Query("SELECT * FROM alertLevel")
-    fun all(): List<AlertLevelEntity>
-
-    @Query("SELECT * FROM alertLevel WHERE areaCode = :areaCode")
-    fun byAreaCode(areaCode: String): AlertLevelEntity?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(item: AlertLevelEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(items: List<AlertLevelEntity>)
-}
-
-@Entity(
     tableName = "soaData",
     primaryKeys = ["areaCode", "date"],
     foreignKeys = [
@@ -794,7 +748,6 @@ interface SoaDataDao {
 enum class AreaAssociationType(val value: String) {
     AREA_LOOKUP("area_lookup"),
     AREA_DATA("area_data"),
-    ALERT_LEVEL("alert_level"),
     HEALTHCARE_DATA("healthcare_data");
 
     companion object {
@@ -802,7 +755,6 @@ enum class AreaAssociationType(val value: String) {
             return when (type) {
                 AREA_LOOKUP.value -> AREA_LOOKUP
                 AREA_DATA.value -> AREA_DATA
-                ALERT_LEVEL.value -> ALERT_LEVEL
                 HEALTHCARE_DATA.value -> HEALTHCARE_DATA
                 else -> null
             }

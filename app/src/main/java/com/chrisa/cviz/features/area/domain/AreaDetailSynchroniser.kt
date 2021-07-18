@@ -27,7 +27,6 @@ import javax.inject.Inject
 
 class AreaDetailSynchroniser @Inject constructor(
     private val areaLookupUseCase: AreaLookupUseCase,
-    private val alertLevelUseCase: AlertLevelUseCase,
     private val insertAreaAssociationUseCase: InsertAreaAssociationUseCase,
     private val areaLookupCodeResolver: AreaLookupCodeResolver,
     private val areaDataSynchroniser: AreaDataSynchroniserWrapper,
@@ -50,14 +49,6 @@ class AreaDetailSynchroniser @Inject constructor(
         areaLookup: AreaLookupDto?,
         areaLookupCode: AreaLookupCode
     ) {
-        if (areaLookupCode.areaType.supportsAlertLevel()) {
-            alertLevelUseCase.syncAlertLevel(areaLookupCode.areaCode, areaLookupCode.areaType)
-            insertAreaAssociationUseCase.execute(
-                areaCode,
-                areaLookupCode.areaCode,
-                AreaAssociationTypeDto.ALERT_LEVEL
-            )
-        }
         areaDataSynchroniser.execute(areaLookupCode.areaCode, areaLookupCode.areaType)
         healthcareDataSynchroniser.syncHealthcare(
             areaCode,

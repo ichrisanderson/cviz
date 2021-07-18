@@ -25,7 +25,6 @@ class SnapshotProvider @Inject constructor() {
             metadata = appDatabase.metadataDao().all(),
             areaDataAreaCodes = appDatabase.areaDataDao().distinctAreaCodes(),
             soaDataAreaCodes = appDatabase.soaDataDao().distinctAreaCodes(),
-            healthcareAreaCodes = appDatabase.healthcareDao().distinctAreaCodes(),
-            alertLevelAreaCodes = appDatabase.alertLevelDao().distinctAreaCodes()
+            healthcareAreaCodes = appDatabase.healthcareDao().distinctAreaCodes()
         )
 }
