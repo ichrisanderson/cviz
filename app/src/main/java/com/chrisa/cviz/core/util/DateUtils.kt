@@ -27,8 +27,8 @@ import java.util.Locale
 import java.util.TimeZone
 
 object DateUtils {
-    const val RFC_1123_DATE_TIME = "EEE, dd MMM yyyy HH:mm:ss z"
-    const val ISO_8601_DATE = "yyyy-MM-dd"
+    private const val RFC_1123_DATE_TIME = "EEE, dd MMM yyyy HH:mm:ss zzz"
+    private const val ISO_8601_DATE = "yyyy-MM-dd"
 
     fun Date.addHours(hours: Int): Date {
         val calendar = Calendar.getInstance()
@@ -41,7 +41,7 @@ object DateUtils {
     fun Date.toGmtDate(): String {
         val formatter = SimpleDateFormat(
             RFC_1123_DATE_TIME,
-            Locale.UK
+            Locale.US
         )
         formatter.timeZone = TimeZone.getTimeZone("GMT")
 
@@ -52,7 +52,7 @@ object DateUtils {
 
         val formatter = DateTimeFormatter
             .ofPattern(RFC_1123_DATE_TIME)
-            .withLocale(Locale.UK)
+            .withLocale(Locale.US)
             .withZone(ZoneId.of("GMT"))
 
         return this.format(formatter)
@@ -61,16 +61,25 @@ object DateUtils {
     fun LocalDate.formatAsIso8601(): String {
         val formatter = DateTimeFormatter
             .ofPattern(ISO_8601_DATE)
+            .withLocale(Locale.US)
         return this.format(formatter)
     }
 
-    fun String.toGmtDateTime(): LocalDateTime {
+    fun String.toIso8601Date(): LocalDate? =
+        try {
+            val formatter = DateTimeFormatter
+                .ofPattern(ISO_8601_DATE)
+                .withLocale(Locale.US)
+            formatter.parse(this, LocalDate::from)
+        } catch (e: Throwable) {
+            null
+        }
 
+    fun String.toGmtDateTime(): LocalDateTime {
         val formatter = DateTimeFormatter
             .ofPattern(RFC_1123_DATE_TIME)
-            .withLocale(Locale.UK)
+            .withLocale(Locale.US)
             .withZone(ZoneId.of("GMT"))
-
         return LocalDateTime.parse(this, formatter)
     }
 }
