@@ -26,7 +26,7 @@ import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.AreaDataModel
 import com.chrisa.cviz.core.data.network.CovidApi
 import com.chrisa.cviz.core.data.network.Page
-import com.chrisa.cviz.core.data.network.RollingChangeModel
+import com.chrisa.cviz.core.data.network.SoaAreaDataModel
 import com.chrisa.cviz.core.data.network.SoaDataModel
 import com.chrisa.cviz.core.data.network.Utils
 import com.chrisa.cviz.core.data.time.TimeProvider
@@ -63,8 +63,9 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
 
         val soaDataModelResponse = api.soaData(
             modifiedDate = areaMetadata?.lastUpdatedAt?.formatAsGmt(),
-            filters = SoaDataModel.maosFilter(areaCode)
+            areaCode = areaCode
         )
+
         if (soaDataModelResponse.isSuccessful) {
             val soaDataModel = soaDataModelResponse.body()!!
             val lastModified = soaDataModelResponse.headers()["Last-Modified"]
@@ -88,14 +89,16 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
         soaDataModel: SoaDataModel,
         lastModified: LocalDateTime
     ) {
+        val soaAreaData = soaDataModel.body.first()
+
         appDatabase.withTransaction {
             val metadataId = MetadataIds.areaCodeId(areaCode)
             appDatabase.soaDataDao().deleteAllByAreaCode(areaCode)
             appDatabase.areaDao().insert(
                 AreaEntity(
-                    soaDataModel.areaCode,
-                    soaDataModel.areaName,
-                    AreaType.from(soaDataModel.areaType)!!
+                    soaAreaData.areaCode,
+                    soaAreaData.areaName,
+                    AreaType.from(soaAreaData.areaType)!!
                 )
             )
             appDatabase.metadataDao().insert(
@@ -106,25 +109,25 @@ internal class SoaDataSynchroniserImpl @Inject constructor(
                 )
             )
             appDatabase.soaDataDao().insertAll(
-                soaDataModel.newCasesBySpecimenDate
+                soaDataModel.body
                     .filter(::hasRollingData)
                     .map { rollingChangeModel ->
                         SoaDataEntity(
-                            areaCode = soaDataModel.areaCode,
+                            areaCode = rollingChangeModel.areaCode,
                             metadataId = metadataId,
                             date = rollingChangeModel.date,
-                            rollingSum = rollingChangeModel.rollingSum!!,
-                            rollingRate = rollingChangeModel.rollingRate!!,
-                            change = rollingChangeModel.change!!,
-                            changePercentage = rollingChangeModel.changePercentage!!
+                            rollingSum = rollingChangeModel.newCasesBySpecimenDateRollingSum!!,
+                            rollingRate = rollingChangeModel.newCasesBySpecimenDateRollingRate!!,
+                            change = rollingChangeModel.newCasesBySpecimenDateChange!!,
+                            changePercentage = rollingChangeModel.newCasesBySpecimenDateChangePercentage!!
                         )
                     })
         }
     }
 
-    private fun hasRollingData(rollingChangeModel: RollingChangeModel): Boolean =
-        rollingChangeModel.change != null &&
-            rollingChangeModel.changePercentage != null &&
-            rollingChangeModel.rollingRate != null &&
-            rollingChangeModel.rollingSum != null
+    private fun hasRollingData(rollingChangeModel: SoaAreaDataModel): Boolean =
+        rollingChangeModel.newCasesBySpecimenDateChange != null &&
+            rollingChangeModel.newCasesBySpecimenDateChangePercentage != null &&
+            rollingChangeModel.newCasesBySpecimenDateRollingRate != null &&
+            rollingChangeModel.newCasesBySpecimenDateRollingSum != null
 }
