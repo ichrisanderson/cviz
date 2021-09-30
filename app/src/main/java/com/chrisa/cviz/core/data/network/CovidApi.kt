@@ -70,17 +70,21 @@ interface CovidApi {
         @QueryMap filters: Map<String, String>
     ): Response<BodyPage<AlertLevel>>
 
-    @GET("v1/soa")
+    @GET("v2/data")
     suspend fun soaData(
         @Header("If-Modified-Since") modifiedDate: String?,
-        @Query(value = "filters") filters: String
+        @Query("areaType") areaType: String = "msoa",
+        @Query("areaCode") areaCode: String,
+        @Query("metric") metrics: List<String> = SoaDataModel.metrics(),
+        @Query("format") format: String = "json"
     ): Response<SoaDataModel>
 
     @GET
     suspend fun nationPercentile(@Url url: String = NATION_PERCENTILES_URL): Map<String, MapPercentileModel>
 }
 
-private const val NATION_PERCENTILES_URL = "https://coronavirus.data.gov.uk/downloads/maps/nation_percentiles.json"
+private const val NATION_PERCENTILES_URL =
+    "https://coronavirus.data.gov.uk/downloads/maps/nation_percentiles.json"
 
 fun AREA_DATA_FILTER(areaCode: String, areaType: String) = "areaCode=$areaCode;areaType=$areaType"
 fun DAILY_AREA_DATA_FILTER(date: String, areaType: String) = "date=$date;areaType=$areaType"
@@ -248,31 +252,30 @@ data class AlertLevel(
 
 @JsonClass(generateAdapter = true)
 data class SoaDataModel(
-    val areaCode: String,
-    val areaName: String,
-    val areaType: String,
-    val latest: LatestChangeModel,
-    val newCasesBySpecimenDate: List<RollingChangeModel>
+    val body: List<SoaAreaDataModel>
 ) {
     companion object {
-        fun maosFilter(areaCode: String) =
-            "&areaType=msoa&areaCode=$areaCode"
+        fun metrics(): List<String> = listOf(
+            "newCasesBySpecimenDateRollingSum",
+            "newCasesBySpecimenDateRollingRate",
+            "newCasesBySpecimenDateChange",
+            "newCasesBySpecimenDateChangePercentage",
+            "newCasesBySpecimenDateDirection"
+        )
     }
 }
 
 @JsonClass(generateAdapter = true)
-data class LatestChangeModel(
-    val newCasesBySpecimenDate: RollingChangeModel
-)
-
-@JsonClass(generateAdapter = true)
-data class RollingChangeModel(
+data class SoaAreaDataModel(
+    val areaCode: String,
+    val areaName: String,
+    val areaType: String,
     val date: LocalDate,
-    val rollingSum: Int?,
-    val rollingRate: Double?,
-    val change: Int?,
-    val direction: String?,
-    val changePercentage: Double?
+    val newCasesBySpecimenDateRollingSum: Int?,
+    val newCasesBySpecimenDateRollingRate: Double?,
+    val newCasesBySpecimenDateChange: Int?,
+    val newCasesBySpecimenDateDirection: String?,
+    val newCasesBySpecimenDateChangePercentage: Double?
 )
 
 @JsonClass(generateAdapter = true)

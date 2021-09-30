@@ -25,8 +25,7 @@ import com.chrisa.cviz.core.data.db.MetadataIds
 import com.chrisa.cviz.core.data.db.SoaDataDao
 import com.chrisa.cviz.core.data.db.SoaDataEntity
 import com.chrisa.cviz.core.data.network.CovidApi
-import com.chrisa.cviz.core.data.network.LatestChangeModel
-import com.chrisa.cviz.core.data.network.RollingChangeModel
+import com.chrisa.cviz.core.data.network.SoaAreaDataModel
 import com.chrisa.cviz.core.data.network.SoaDataModel
 import com.chrisa.cviz.core.data.network.Utils
 import com.chrisa.cviz.core.data.time.TimeProvider
@@ -105,15 +104,15 @@ class SoaDataSynchroniserImplTest {
     fun `GIVEN no area metadata WHEN performSync THEN api is called with no modified date`() =
         testDispatcher.runBlockingTest {
             every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns null
-            coEvery { covidApi.soaData(any(), any()) } returns
+            coEvery { covidApi.soaData(any(), any(), any(), any(), any()) } returns
                 Response.error(500, Utils.emptyJsonResponse())
 
             sut.performSync(areaCode)
 
             coVerify(exactly = 1) {
                 covidApi.soaData(
-                    null,
-                    SoaDataModel.maosFilter(areaCode)
+                    modifiedDate = null,
+                    areaCode = areaCode
                 )
             }
         }
@@ -145,15 +144,11 @@ class SoaDataSynchroniserImplTest {
             )
 
             every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
-            coEvery {
-                covidApi.soaData(
-                    any(),
-                    any()
+            coEvery { covidApi.soaData(any(), any(), any(), any(), any()) } returns
+                Response.error(
+                    404,
+                    Utils.emptyJsonResponse()
                 )
-            } returns Response.error(
-                404,
-                Utils.emptyJsonResponse()
-            )
 
             sut.performSync(areaCode)
         }
@@ -166,14 +161,9 @@ class SoaDataSynchroniserImplTest {
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
-
             every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
-            coEvery {
-                covidApi.soaData(
-                    any(),
-                    any()
-                )
-            } returns Response.success(null)
+            coEvery { covidApi.soaData(any(), any(), any(), any(), any()) } returns
+                Response.success(null)
 
             sut.performSync(areaCode)
         }
@@ -186,30 +176,32 @@ class SoaDataSynchroniserImplTest {
                 lastUpdatedAt = syncTime.minusDays(1),
                 lastSyncTime = syncTime.minusMinutes(6)
             )
-            val rollingChangeModel = RollingChangeModel(
+            val areaName = "Westminister"
+            val areaType = areaType.value
+            val rollingChangeModel = SoaAreaDataModel(
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType,
                 date = LocalDate.now(),
-                rollingSum = 11,
-                rollingRate = 1.0,
-                change = 1,
-                direction = "",
-                changePercentage = 2.0
+                newCasesBySpecimenDateRollingSum = 11,
+                newCasesBySpecimenDateRollingRate = 1.0,
+                newCasesBySpecimenDateChange = 1,
+                newCasesBySpecimenDateDirection = "",
+                newCasesBySpecimenDateChangePercentage = 2.0
             )
-            val emptyRollingChangeModel = RollingChangeModel(
+            val emptyRollingChangeModel = SoaAreaDataModel(
+                areaCode = areaCode,
+                areaName = areaName,
+                areaType = areaType,
                 date = LocalDate.now(),
-                rollingSum = null,
-                rollingRate = null,
-                change = null,
-                direction = null,
-                changePercentage = null
+                newCasesBySpecimenDateRollingSum = null,
+                newCasesBySpecimenDateRollingRate = null,
+                newCasesBySpecimenDateChange = null,
+                newCasesBySpecimenDateDirection = null,
+                newCasesBySpecimenDateChangePercentage = null
             )
             val soaData = SoaDataModel(
-                areaCode = areaCode,
-                areaName = "Westminister",
-                areaType = areaType.value,
-                latest = LatestChangeModel(
-                    newCasesBySpecimenDate = rollingChangeModel
-                ),
-                newCasesBySpecimenDate = listOf(rollingChangeModel, emptyRollingChangeModel)
+                body = listOf(rollingChangeModel, emptyRollingChangeModel)
             )
             val syncTime = LocalDateTime.of(2020, 2, 3, 0, 0)
             val metadataId = MetadataIds.areaCodeId(areaCode)
@@ -217,6 +209,9 @@ class SoaDataSynchroniserImplTest {
             every { metadataDao.metadata(MetadataIds.areaCodeId(areaCode)) } returns metadataEntity
             coEvery {
                 covidApi.soaData(
+                    any(),
+                    any(),
+                    any(),
                     any(),
                     any()
                 )
@@ -229,13 +224,13 @@ class SoaDataSynchroniserImplTest {
                 soaDataDao.insertAll(
                     listOf(
                         SoaDataEntity(
-                            areaCode = soaData.areaCode,
+                            areaCode = areaCode,
                             metadataId = metadataId,
                             rollingChangeModel.date,
-                            rollingChangeModel.rollingSum!!,
-                            rollingChangeModel.rollingRate!!,
-                            rollingChangeModel.change!!,
-                            rollingChangeModel.changePercentage!!
+                            rollingChangeModel.newCasesBySpecimenDateRollingSum!!,
+                            rollingChangeModel.newCasesBySpecimenDateRollingRate!!,
+                            rollingChangeModel.newCasesBySpecimenDateChange!!,
+                            rollingChangeModel.newCasesBySpecimenDateChangePercentage!!
                         )
                     )
                 )
