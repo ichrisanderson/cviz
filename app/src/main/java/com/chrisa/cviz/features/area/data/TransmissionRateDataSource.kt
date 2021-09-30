@@ -19,21 +19,24 @@ package com.chrisa.cviz.features.area.data
 import com.chrisa.cviz.core.data.db.AppDatabase
 import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.db.MetadataIds
+import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
 import javax.inject.Inject
 
 class TransmissionRateDataSource @Inject constructor(
-    private val appDatabase: AppDatabase
+    private val appDatabase: AppDatabase,
+    private val timeProvider: TimeProvider
 ) {
 
     fun transmissionRate(areaCode: String): TransmissionRateDto? {
         val allHealthcareData = allHealthcareData(areaCode)
+        val cutOffDate = timeProvider.currentDate().minusDays(15)
         return allHealthcareData
             .filter(::hasTransmissionRate)
             .sortedByDescending { it.date }
             .map(::mapTransmissionRate)
-            .firstOrNull()
+            .firstOrNull { it.date.isAfter(cutOffDate) }
     }
 
     fun healthcareMetaData(areaCode: String): MetadataDto? =
