@@ -23,6 +23,7 @@ import com.chrisa.cviz.core.data.db.HealthcareEntity
 import com.chrisa.cviz.core.data.db.MetadataDao
 import com.chrisa.cviz.core.data.db.MetadataEntity
 import com.chrisa.cviz.core.data.db.MetadataIds
+import com.chrisa.cviz.core.data.time.TimeProvider
 import com.chrisa.cviz.features.area.data.dtos.MetadataDto
 import com.chrisa.cviz.features.area.data.dtos.TransmissionRateDto
 import com.google.common.truth.Truth.assertThat
@@ -37,12 +38,14 @@ class TransmissionRateDataSourceTest {
     private val appDatabase: AppDatabase = mockk()
     private val healthcareDao: HealthcareDao = mockk()
     private val metadataDao: MetadataDao = mockk()
-    private val sut = TransmissionRateDataSource(appDatabase)
+    private val timeProvider: TimeProvider = mockk()
+    private val sut = TransmissionRateDataSource(appDatabase, timeProvider)
 
     @Before
     fun setup() {
         every { appDatabase.metadataDao() } returns metadataDao
         every { appDatabase.healthcareDao() } returns healthcareDao
+        every { timeProvider.currentDate() } returns syncDate.plusDays(1).toLocalDate()
     }
 
     @Test
@@ -70,7 +73,7 @@ class TransmissionRateDataSourceTest {
     }
 
     @Test
-    fun `WHEN transmissionRate called THEN metadata dto returned`() {
+    fun `GIVEN transmission date is within last 14 days WHEN transmissionRate called THEN metadata dto returned`() {
         val areaCode = "E1"
         every { healthcareDao.byAreaCode(areaCode) } returns listOf(areaData)
 
@@ -85,6 +88,17 @@ class TransmissionRateDataSourceTest {
                 areaData.transmissionRateGrowthRateMax!!
             )
         )
+    }
+
+    @Test
+    fun `GIVEN transmission date is older than 14 days WHEN transmissionRate called THEN transmission rate is null`() {
+        val areaCode = "E1"
+        every { timeProvider.currentDate() } returns syncDate.plusDays(15).toLocalDate()
+        every { healthcareDao.byAreaCode(areaCode) } returns listOf(areaData)
+
+        val transmissionRate = sut.transmissionRate(areaCode)
+
+        assertThat(transmissionRate).isNull()
     }
 
     companion object {

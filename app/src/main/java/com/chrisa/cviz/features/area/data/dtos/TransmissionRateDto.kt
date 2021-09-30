@@ -19,7 +19,7 @@ package com.chrisa.cviz.features.area.data.dtos
 import java.time.LocalDate
 
 data class TransmissionRateDto(
-    val date: LocalDate?,
+    val date: LocalDate,
     val transmissionRateMin: Double,
     val transmissionRateMax: Double,
     val transmissionRateGrowthRateMin: Double,
