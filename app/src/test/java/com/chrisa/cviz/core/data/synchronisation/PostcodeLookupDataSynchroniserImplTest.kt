@@ -126,12 +126,12 @@ class PostcodeLookupDataSynchroniserImplTest {
             coVerify(exactly = 1) {
                 areaLookupDao.insert(
                     AreaLookupEntity(
-                        postcode = areaLookupData.postcode,
-                        trimmedPostcode = areaLookupData.trimmedPostcode,
-                        lsoaCode = areaLookupData.lsoa,
+                        postcode = areaLookupData.postcode.orEmpty(),
+                        trimmedPostcode = areaLookupData.trimmedPostcode.orEmpty(),
+                        lsoaCode = areaLookupData.lsoa.orEmpty(),
                         lsoaName = areaLookupData.lsoaName,
                         msoaName = areaLookupData.msoaName,
-                        msoaCode = areaLookupData.msoa,
+                        msoaCode = areaLookupData.msoa.orEmpty(),
                         ltlaCode = areaLookupData.ltla,
                         ltlaName = areaLookupData.ltlaName,
                         utlaCode = areaLookupData.utla,
@@ -150,7 +150,7 @@ class PostcodeLookupDataSynchroniserImplTest {
             coVerify(exactly = 1) {
                 areaDao.insert(
                     AreaEntity(
-                        areaCode = areaLookupData.msoa,
+                        areaCode = areaLookupData.msoa!!,
                         areaName = areaLookupData.msoaName!!,
                         areaType = AreaType.MSOA
                     )

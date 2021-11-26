@@ -24,6 +24,7 @@ import org.json.JSONObject
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
 import retrofit2.http.Url
@@ -51,10 +52,10 @@ interface CovidApi {
         @Query(value = "structure") structure: String
     ): Page<AreaDataModel>
 
-    @GET("v1/code")
+    @GET("generic/code/{category}/{search}")
     suspend fun areaLookupData(
-        @Query(value = "category") category: String,
-        @Query(value = "search") search: String
+        @Path(value = "category") category: String,
+        @Path(value = "search") search: String
     ): AreaLookupData
 
     @GET("v1/data")
@@ -181,11 +182,11 @@ data class MetadataModel(
 
 @JsonClass(generateAdapter = true)
 data class AreaLookupData(
-    val postcode: String,
-    val trimmedPostcode: String,
-    val lsoa: String,
+    val postcode: String?,
+    val trimmedPostcode: String?,
+    val lsoa: String?,
     val lsoaName: String?,
-    val msoa: String,
+    val msoa: String?,
     val msoaName: String?,
     val ltla: String,
     val ltlaName: String,

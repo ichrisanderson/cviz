@@ -38,6 +38,7 @@ import io.plaidapp.core.util.event.Event
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @ExperimentalCoroutinesApi
 class AreaViewModel @ViewModelInject constructor(
@@ -136,6 +137,7 @@ class AreaViewModel @ViewModelInject constructor(
                     }
                 }
             }.onFailure {
+                Timber.e(it)
                 postError()
             }
         }

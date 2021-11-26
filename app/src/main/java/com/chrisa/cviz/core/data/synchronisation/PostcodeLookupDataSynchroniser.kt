@@ -58,12 +58,12 @@ internal class PostcodeLookupDataSynchroniserImpl @Inject constructor(
 
             appDatabase.areaLookupDao().insert(
                 AreaLookupEntity(
-                    postcode = areaLookupData.postcode,
-                    trimmedPostcode = areaLookupData.trimmedPostcode,
-                    lsoaCode = areaLookupData.lsoa,
+                    postcode = areaLookupData.postcode.orEmpty(),
+                    trimmedPostcode = areaLookupData.trimmedPostcode.orEmpty(),
+                    lsoaCode = areaLookupData.lsoa.orEmpty(),
                     lsoaName = areaLookupData.lsoaName,
                     msoaName = areaLookupData.msoaName,
-                    msoaCode = areaLookupData.msoa,
+                    msoaCode = areaLookupData.msoa.orEmpty(),
                     ltlaCode = areaLookupData.ltla,
                     ltlaName = areaLookupData.ltlaName,
                     utlaCode = areaLookupData.utla,
@@ -79,7 +79,7 @@ internal class PostcodeLookupDataSynchroniserImpl @Inject constructor(
                 )
             )
 
-            if (areaLookupData.msoaName != null) {
+            if (areaLookupData.msoa != null && areaLookupData.msoaName != null) {
                 appDatabase.areaDao().insert(
                     AreaEntity(
                         areaLookupData.msoa,
