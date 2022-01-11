@@ -90,5 +90,6 @@
     <string name="map_legend_level_4">100 – 199</string>
     <string name="map_legend_level_5">200 – 399</string>
     <string name="map_legend_level_6">400 – 799</string>
-    <string name="map_legend_level_7">800+</string>
+    <string name="map_legend_level_7">800 – 1599</string>
+    <string name="map_legend_level_8">1600+</string>
 </resources>
