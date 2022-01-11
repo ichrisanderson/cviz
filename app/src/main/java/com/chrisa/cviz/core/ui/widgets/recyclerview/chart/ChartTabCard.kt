@@ -67,8 +67,8 @@ class ChartTabCard(context: Context, attrs: AttributeSet) :
 }
 
 abstract class BaseChartTab<T : View> : EpoxyModel<T>() {
-    @EpoxyAttribute protected var viewType: Int? = null
+    @EpoxyAttribute protected var chartViewType: Int? = null
 
     override fun getViewType(): Int =
-        viewType ?: super.getViewType()
+        chartViewType ?: super.getViewType()
 }
