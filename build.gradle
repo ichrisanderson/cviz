@@ -2,11 +2,11 @@
 
 buildscript {
     ext.versions = [
-        'versionCode'            : 26,
-        'versionName'            : '1.0.19',
-        'compileSdkVersion'      : 29,
+        'versionCode'            : 27,
+        'versionName'            : '1.0.20',
+        'compileSdkVersion'      : 30,
         'minSdkVersion'          : 21,
-        'targetSdkVersion'       : 29,
+        'targetSdkVersion'       : 30,
         'supportLibrary'         : '28.0.2',
         'okhttp'                 : '4.9.0',
         'retrofit'               : '2.6.2',

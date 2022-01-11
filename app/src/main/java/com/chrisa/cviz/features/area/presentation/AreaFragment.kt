@@ -200,7 +200,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("soaChartData")
-                        viewType(ChartType.Soa.ordinal)
+                        chartViewType(ChartType.Soa.ordinal)
                         chartData(soaData.chartData)
                     }
                 }
@@ -272,7 +272,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                 }
                 chartTabCard {
                     id("caseChartData")
-                    viewType(ChartType.Soa.ordinal)
+                    chartViewType(ChartType.Soa.ordinal)
                     chartData(areaDataModel.caseChartData)
                 }
                 if (areaDataModel.showOnsDeaths) {
@@ -294,7 +294,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("onsBarChart")
-                        viewType(ChartType.Ons.ordinal)
+                        chartViewType(ChartType.Ons.ordinal)
                         chartData(areaDataModel.onsDeathsByRegistrationDateChartData)
                     }
                 }
@@ -324,7 +324,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("deathsChartData")
-                        viewType(ChartType.Deaths.ordinal)
+                        chartViewType(ChartType.Deaths.ordinal)
                         chartData(areaDataModel.deathsByPublishedDateChartData)
                     }
                 }
@@ -357,7 +357,7 @@ class AreaFragment : Fragment(R.layout.area_fragment) {
                     }
                     chartTabCard {
                         id("hospitalAdmissionsChartData")
-                        viewType(ChartType.Admissions.ordinal)
+                        chartViewType(ChartType.Admissions.ordinal)
                         chartData(areaDataModel.hospitalAdmissionsChartData)
                     }
                 }
