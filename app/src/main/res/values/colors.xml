@@ -29,4 +29,5 @@
     <color name="infection_rate_map_level_5">#12407f</color>
     <color name="infection_rate_map_level_6">#53084a</color>
     <color name="infection_rate_map_level_7">#2b0226</color>
+    <color name="infection_rate_map_level_8">#000</color>
 </resources>
