@@ -51,7 +51,6 @@ internal class AreaLookupDataSynchroniserImpl @Inject constructor(
 
     private fun canLookupData(areaType: AreaType): Boolean {
         return when (areaType) {
-            AreaType.REGION,
             AreaType.UTLA,
             AreaType.LTLA -> true
             else -> false
@@ -60,7 +59,6 @@ internal class AreaLookupDataSynchroniserImpl @Inject constructor(
 
     private fun lookupData(areaCode: String, areaType: AreaType): AreaLookupEntity? {
         return when (areaType) {
-            AreaType.REGION -> appDatabase.areaLookupDao().byRegion(areaCode)
             AreaType.UTLA -> appDatabase.areaLookupDao().byUtla(areaCode)
             AreaType.LTLA -> appDatabase.areaLookupDao().byLtla(areaCode)
             else -> null

@@ -82,9 +82,28 @@ class AreaLookupDataSynchroniserImplTest {
         }
 
     @Test
+    fun `GIVEN supported area WHEN performSync THEN api is called`() =
+        testDispatcher.runBlockingTest {
+            coEvery {
+                covidApi.areaLookupData(
+                    any(),
+                    any()
+                )
+            } returns areaLookupData
+            val supportedAreas = setOf(AreaType.UTLA, AreaType.LTLA)
+            val areaCode = "1234"
+
+            supportedAreas.forEach { areaType ->
+                sut.performSync(areaCode, areaType)
+
+                coVerify(exactly = 1) { covidApi.areaLookupData(areaType.value, areaCode) }
+            }
+        }
+
+    @Test
     fun `GIVEN non supported area WHEN performSync THEN api is not called`() =
         testDispatcher.runBlockingTest {
-            val supportedAreas = setOf(AreaType.REGION, AreaType.UTLA, AreaType.LTLA)
+            val supportedAreas = setOf(AreaType.UTLA, AreaType.LTLA)
             val nonSupportedAreas = AreaType.values().filterNot { supportedAreas.contains(it) }
 
             nonSupportedAreas.forEach { areaType ->
