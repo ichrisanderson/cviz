@@ -2,7 +2,7 @@
 # cViz
 An app to visualise covid data from data.gov.uk: <a href='https://coronavirus.data.gov.uk/'>https://coronavirus.data.gov.uk/</a>
 
-<a href='https://play.google.com/store/apps/details?id=com.chrisa.cviz&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="200"/></a>
+<a href='https://play.google.com/store/apps/details?id=com.chrisa.cviz&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="128"/></a>
 
 # Built using
 - Room DB
@@ -90,12 +90,11 @@ Dark mode support
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
 ```
