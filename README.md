@@ -1,3 +1,5 @@
+!!!DEPRECATED!!! - Data is no longer being published.
+
 ![GitHub Cards Preview](https://github.com/ichrisanderson/cviz/blob/main/media/feature.png?raw=true)
 # cViz
 An app to visualise covid data from data.gov.uk: <a href='https://coronavirus.data.gov.uk/'>https://coronavirus.data.gov.uk/</a>
